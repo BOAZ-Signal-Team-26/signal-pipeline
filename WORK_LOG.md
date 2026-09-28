@@ -2,9 +2,9 @@
 
 ## 2026-09-23 — ERD v2 6관점 검토와 A 조치 반영 (v2.1)
 
-- v2(20표)를 architect·data-engineer·data-scientist·platform-engineer·cloud-architect·backend-developer 6개 관점으로 검토해 [22](gate-a/22_erd_v2_review.md)에 정리했다. 결론: 진단(19 R1/R3)은 맞고 처방이 과함. 표 수보다 run_id 결합과 DBML 밖 규칙 약 40개가 실제 비용.
+- v2(20표)를 architect·data-engineer·data-scientist·platform-engineer·cloud-architect·backend-developer 6개 관점으로 검토해 [22](docs/records/phase1-erd/design-review-history.md)에 정리했다. 결론: 진단(19 R1/R3)은 맞고 처방이 과함. 표 수보다 run_id 결합과 DBML 밖 규칙 약 40개가 실제 비용.
 - 조치를 A(팀 결정 없이 고칠 수 있는 명백한 결함, 즉시 반영)와 B(09-30 팀 결정 요청)로 나눴다. A만 반영했다.
-- A 반영 파일: [schema.dbml](gate-a/schema.dbml)(run_kind/upstream_run_id/is_official/published_at, extraction_run_id, population_snapshot 유일키·중복 칼럼, enum 16개, metric_definition.direction), [20](gate-a/20_erd_redesign.md)(A5 문구, v2.1 절), [21](gate-a/21_schema_catalog.md)(칼럼·키·enum·공개 식별자 규칙), [01](gate-a/01_logical_schema.md)(6절, ERD), [02](gate-a/02_raw_storage_policy.md)(경로 표), [gate-b/README](gate-b/README.md)(참조), README(관계 수).
+- A 반영 파일: [schema.dbml](docs/schema.dbml)(run_kind/upstream_run_id/is_official/published_at, extraction_run_id, population_snapshot 유일키·중복 칼럼, enum 16개, metric_definition.direction), [20](docs/data-model.md)(A5 문구, v2.1 절), [21](docs/schema-catalog.md)(칼럼·키·enum·공개 식별자 규칙), [01](docs/data-model.md)(6절, ERD), [02](docs/storage-and-failure-rules.md)(경로 표), [gate-b/README](docs/pipeline-flow.md)(참조), README(관계 수).
 - architect 에이전트가 1차 반영을 검증했다(A1~A6 정확, HIGH 1건: section_id를 run 무관 공개 ID로 분류한 오류). HIGH-1과 M-1~M-5·L-1~L-3을 2차 반영했다: extraction_run_id를 복합 FK로 upstream과 묶음, member.run_id 삭제, run 종류·기준일·공식 run 검증 목록을 20에 추가, 공개 식별자 표에서 section_id를 "(run_id, section_id) 쌍" 행으로 이동. 상세는 22 「검증 결과」.
 - 검증(2차 반영 뒤): `@dbml/core` 파서 20개 표·47개 관계·enum 30개 통과, 모든 FK 부모 칼럼의 PK/UNIQUE 확인, PostgreSQL SQL 메모리 내보내기 성공, Mermaid 관계선 47개 일치, `git diff --check` 통과. 상태성 varchar 칼럼 잔여는 `score_dependency.input_role`(B1 보류 표) 하나.
 - 커밋 63ed75e로 `origin/main`에 푸시했다(v2 + v2.1 함께).
@@ -15,7 +15,7 @@
 
 - 재개 시 작업 트리에서 20개 표로 수정된 DBML, 01 본문, 20 재설계 문서를 확인했다. 이전 세션 대화 전체가 아닌 저장된 작업 기록과 파일을 기준으로 이어갔다.
 - 01의 오래된 14개 표 그림을 20개 표·45개 FK 관계로 갱신했다. 복합 FK는 한 선으로 표시하고 nullable 관계를 반영했다.
-- 누락된 [21 스키마 명세](gate-a/21_schema_catalog.md)를 DBML에서 생성했다. 전체 245개 칼럼과 PK/UNIQUE/FK·상태값을 담았다.
+- 누락된 [21 스키마 명세](docs/schema-catalog.md)를 DBML에서 생성했다. 전체 245개 칼럼과 PK/UNIQUE/FK·상태값을 담았다.
 - README와 04 점수 정책을 v2에 맞췄다. 문서/쌍/펀드 점수, 원자값·축값·최종값의 개별 행, NULL 원점수와 결과 상태, 독립 정규화 상태를 반영했다. 18·19는 과거 검토 이력임을 표시했다.
 - 검증: 실제 `@dbml/core` 파서 20개 표·45개 관계 통과, 모든 FK 부모 칼럼의 PK/UNIQUE 확인, DBML과 Mermaid의 테이블·관계·FK 칼럼 목록 일치, 관련 Markdown 상대 링크 32개 존재 확인, PostgreSQL SQL 메모리 내보내기 성공, `git diff --check` 통과.
 - 검증은 논리 구조와 문서 일관성 범위다. Mermaid 이미지 렌더링, 조건부 적재 검증 구현, 실제 데이터 파일럿, 운영 DB 적용은 수행하지 않았다. SQL 내보내기는 DB 제품 선정이 아니다.
@@ -30,7 +30,7 @@
 - 요청: 재설계된 ERD를 미완료 조사·미결정 사항까지 고려해 재검토하고, Notion 내용을 설계 문서에 반영. 이후 회의록의 미결정 항목에 대해서만 권고 방향 정리.
 - 검토 시작 기준 커밋: `09650c6`.
 - 기존 커밋 `fec9dbb`는 9→14개 표 재검토안, `09650c6`는 상대경로·자산 버전·예약 표 관련 보완이다. 두 커밋은 이번 작업 시작 시 이미 존재했다.
-- 상세 검토: [19_pending_decisions_review.md](gate-a/19_pending_decisions_review.md).
+- 상세 검토: [19_pending_decisions_review.md](docs/records/phase1-erd/design-review-history.md).
 
 ### 확인한 Notion 자료
 
@@ -47,14 +47,14 @@
 
 | 파일 | 반영 내용 |
 |---|---|
-| [19 재검토](gate-a/19_pending_decisions_review.md) | 근거·결정 상태, 설계 쟁점 7개, 미결 항목별 권고, Notion 동기화 오류와 검증 결과 신설 |
-| [18 기존 검토](gate-a/18_schema_review.md) | “예약 표 2개”를 “확장 영역 2개, 표 수 미정”으로 수정. score PK와 UNIQUE 구분 정정 |
-| [01 논리 스키마](gate-a/01_logical_schema.md) | 미결정에 따라 기존 키·관계도 재검토할 수 있음을 명시하고 19 연결 |
-| [04 점수 정책](gate-a/04_score_storage_and_population.md) | 고지 충실도 점수화 방향 반영. 배점·분모·적용범위 미결, 계산 불가와 최종 문서 점수 저장 문제 명시 |
-| [00 공유 전제](gate-a/00_context_brief.md) | 과거 점수 적용범위와 최신 방향을 구분. 과거 라벨 계획을 검증 확정안으로 취급하지 않도록 보완 |
-| [15 API 명세](gate-a/15_api_spec.md) | 고지 충실도의 오래된 필터 표현 정리, 법적 서류 대응·적용범위는 별도 미결로 유지 |
-| [02 원본 보관](gate-a/02_raw_storage_policy.md) | RAW_ROOT의 공통 데이터 루트 의미와 파생 텍스트·manifest 상대경로 보완안 명시 |
-| [schema.dbml](gate-a/schema.dbml) | 계산 불가 결과·구조 정보·파생 경로 관련 주석 보완. 표·칼럼·키·관계는 유지 |
+| [19 재검토](docs/records/phase1-erd/design-review-history.md) | 근거·결정 상태, 설계 쟁점 7개, 미결 항목별 권고, Notion 동기화 오류와 검증 결과 신설 |
+| [18 기존 검토](docs/records/phase1-erd/design-review-history.md) | “예약 표 2개”를 “확장 영역 2개, 표 수 미정”으로 수정. score PK와 UNIQUE 구분 정정 |
+| [01 논리 스키마](docs/data-model.md) | 미결정에 따라 기존 키·관계도 재검토할 수 있음을 명시하고 19 연결 |
+| [04 점수 정책](docs/scoring-and-population.md) | 고지 충실도 점수화 방향 반영. 배점·분모·적용범위 미결, 계산 불가와 최종 문서 점수 저장 문제 명시 |
+| [00 공유 전제](docs/README.md) | 과거 점수 적용범위와 최신 방향을 구분. 과거 라벨 계획을 검증 확정안으로 취급하지 않도록 보완 |
+| [15 API 명세](docs/data-sources.md) | 고지 충실도의 오래된 필터 표현 정리, 법적 서류 대응·적용범위는 별도 미결로 유지 |
+| [02 원본 보관](docs/storage-and-failure-rules.md) | RAW_ROOT의 공통 데이터 루트 의미와 파생 텍스트·manifest 상대경로 보완안 명시 |
+| [schema.dbml](docs/schema.dbml) | 계산 불가 결과·구조 정보·파생 경로 관련 주석 보완. 표·칼럼·키·관계는 유지 |
 | [README](README.md) | 최신 재검토 링크와 저장소 3개 구성 결정, 실제 이관 미완료 구분 |
 
 ### 주요 판단
