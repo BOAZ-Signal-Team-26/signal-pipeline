@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 비밀 키 검사 (gitleaks, 이 PR의 커밋만)
+        env:
+          GITLEAKS_VERSION: 8.21.2
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar xz -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner \
+            --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" .
+
+      - name: 1MB 넘는 파일 차단
+        run: |
+          big=$(find . -path ./.git -prune -o -type f -size +1024k -print)
+          if [ -n "$big" ]; then echo "1MB 넘는 파일:"; echo "$big"; exit 1; fi
+
+      - name: 노트북 셀 출력 제거 확인
+        run: |
+          python3 - <<'EOF'
+          import json, pathlib, sys
+          bad = [str(p) for p in pathlib.Path('.').rglob('*.ipynb')
+                 if '.git' not in p.parts
+                 and any(c.get('outputs') or c.get('execution_count') for c in json.loads(p.read_text())['cells'])]
+          if bad:
+              sys.exit('셀 출력이 남은 노트북: ' + ', '.join(bad))
+          EOF
