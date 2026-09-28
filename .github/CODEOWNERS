@@ -1,0 +1,4 @@
+# 아래 경로를 바꾸는 PR은 대현 승인이 필요하다 (09-22 저장소 구성 결정)
+/.github/ @Daehyun-Bigbread
+/src/signal/common/ @Daehyun-Bigbread
+/airflow/ @Daehyun-Bigbread
