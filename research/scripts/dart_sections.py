@@ -2,19 +2,19 @@
 """DART 투자설명서 본문 PDF를 부·절 단위로 쪼갠다.
 
 용례:
-    python3 scripts/dart_sections.py 20260911000067            # 구조만 출력
-    python3 scripts/dart_sections.py 20260911000067 --dump out/  # 절별 파일로 저장
+    python3 research/scripts/dart_sections.py 20260911000067            # 구조만 출력
+    python3 research/scripts/dart_sections.py 20260911000067 --dump out/  # 절별 파일로 저장
 
-근거와 실측은 gate-a/17. 인증키가 필요 없다 — DART 공개 뷰어를 쓴다.
+근거와 실측은 docs/records/phase1-erd/dart-section-split.md. 인증키가 필요 없다 — DART 공개 뷰어를 쓴다.
 
 **`pdftotext`(poppler)가 필요하다.** 유일한 외부 의존성이다.
 
-수집 경로 (gate-a/15 4절)
+수집 경로 (docs/data-sources.md 「DART」)
     dsaf001/main.do?rcpNo=   → 문서 트리에서 「[ 본 문 ]」 노드
     report/viewer.do?...     → 그 노드는 PDF 링크 한 줄이다
     report/download.do?...   → 본문 PDF
 
-**표제를 eleId 번호로 찾으면 안 된다** (01 결정). 원본은 표지가 eleId=1이고
+**표제를 eleId 번호로 찾으면 안 된다** (docs/data-sources.md 「DART」). 원본은 표지가 eleId=1이고
 [기재정정]은 정정신고 노드가 앞에 붙어 2다. 노드 텍스트로 찾는다.
 
 **트리 JS는 `var node1 = {}`을 노드마다 재사용한다.** 변수명으로 정규식을 걸면
@@ -96,7 +96,7 @@ def io_read(path: str) -> str:
 def part_runs(lines: list[str]) -> list[list[tuple[int, int, str]]]:
     """「제N부」 표제 행을 찾아 오름차순 묶음으로 나눈다.
 
-    **들여쓰기로 목차와 본문을 가를 수 없다 (gate-a/17 실측).** 문서마다
+    **들여쓰기로 목차와 본문을 가를 수 없다 (docs/records/phase1-erd/dart-section-split.md 「주의할 점」).** 문서마다
     제각각이다 — 목차가 0칸인 것도 4칸인 것도 있고, 본문 표제가 2칸인 것도
     25칸인 것도 있다. 대신 **순서는 일정하다**: 제1~5부가 오름차순으로 한 번
     나오면 목차, 다시 한 번 나오면 본문이다. 그래서 묶음으로 끊는다.
@@ -122,7 +122,7 @@ def toc(lines: list[str], run: list[tuple[int, int, str]],
 
     **`*` 로 시작하는 줄에서 멈춘다.** 목차 끝의 「* 용어정리」 다음에
     「요약 정보(간이투자설명서)」가 이어지는데, 거기에도 `1. 투자목적` 같은
-    번호 항목이 있어 계속 읽으면 절이 과잉 집계된다(gate-a/17 3절).
+    번호 항목이 있어 계속 읽으면 절이 과잉 집계된다(docs/records/phase1-erd/dart-section-split.md 「주의할 점」).
     """
     found: dict[int, list[tuple[int, str]]] = {}
     edges = [m[0] for m in run] + [stop]
@@ -137,7 +137,7 @@ def toc(lines: list[str], run: list[tuple[int, int, str]],
             number = int(section.group(1))
             # 절 번호는 부 안에서 단조 증가한다. 되돌아가면 목차가 끝난 것이다.
             # 마지막 부 뒤에 「투자자 유의사항」 같은 번호 목록이 이어지는 문서가
-            # 있어, 이 검사가 없으면 제5부 절이 6개에서 24개로 부푼다(gate-a/17).
+            # 있어, 이 검사가 없으면 제5부 절이 6개에서 24개로 실제보다 크게 나온다(docs/records/phase1-erd/dart-section-split.md 「주의할 점」).
             if found[part] and number <= found[part][-1][0]:
                 break
             found[part].append((number, section.group(2).strip()))

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """금투협 전자공시에서 판매회사 마스터와 판매사별 펀드 목록을 받는다 (인증키 불필요).
 
-`상품_판매사` 브릿지 표의 유일한 입력이다. 근거는 gate-a/14 4절.
+`상품_판매사` 브릿지 표의 유일한 입력이다. 근거는 docs/records/phase1-erd/join-key-checks.md 「판매회사 명단 소스」.
 
 용례:
-    python3 scripts/fetch_kofia_sales.py --companies          # 판매회사 200건
-    python3 scripts/fetch_kofia_sales.py --funds A02015       # 한 판매사의 펀드 목록
-    python3 scripts/fetch_kofia_sales.py --all > bridge.csv   # 전체 브릿지 (오래 걸린다)
+    python3 research/scripts/fetch_kofia_sales.py --companies          # 판매회사 200건
+    python3 research/scripts/fetch_kofia_sales.py --funds A02015       # 한 판매사의 펀드 목록
+    python3 research/scripts/fetch_kofia_sales.py --all > bridge.csv   # 전체 브릿지 (오래 걸린다)
 
 주의 셋
 - 행 요소가 `<list>`가 아니라 **`<selectMeta>`**다. 금투협의 다른 서비스와 다르다.
@@ -58,7 +58,7 @@ FUND_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 </message>"""
 
 # 방어적 수집 원칙(조사 상세 2-1): 호출 간격 1초 이상, 동시 요청 1개.
-# 값의 근거는 gate-a/15 9절. 바꾸려면 거기부터 고친다.
+# 값의 근거는 docs/data-sources.md 「공통 수집 규칙」. 바꾸려면 거기부터 고친다.
 CALL_INTERVAL = 1.0
 
 

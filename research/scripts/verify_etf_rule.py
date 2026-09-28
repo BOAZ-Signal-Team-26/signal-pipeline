@@ -4,19 +4,19 @@
 KRX ETF 전종목을 정답지로 놓고, 공공데이터포털 펀드상품기본정보 전건과 대조해
 누락(ETF인데 규칙이 못 잡음)과 오탐(규칙은 잡았는데 ETF가 아님)을 센다.
 판정 기준은 각 1% 미만이면 규칙 유지, 오탐이 유의미하면 KRX 대조를 1차 판정으로
-승격이다. 근거와 결과 해석은 gate-a/13.
+승격이다. 근거와 결과 해석은 docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 2: ETF 이름 규칙」.
 
 용례:
     cp .env.example .env   # DATA_GO_KR_API_KEY, KRX_API_KEY 를 채운다
-    python3 scripts/verify_etf_rule.py --base-date 20260904 --cache /tmp/funds.json
+    python3 research/scripts/verify_etf_rule.py --base-date 20260904 --cache /tmp/funds.json
 
 대조를 이름으로 하는 이유: 공공데이터포털은 펀드 단축코드(`srtnCd`)를, KRX는
-종목코드(`ISU_CD`)를 주는데 둘을 잇는 소스가 없다(01 미확인 2).
+종목코드(`ISU_CD`)를 주는데 둘을 잇는 소스가 없다(docs/records/phase1-erd/join-key-checks.md 「조인 키 확인 현황」).
 
 **완전일치는 쓰지 않는다.** KRX `ISU_NM`은 상장 약명(「1Q 200액티브」)이고
 공공데이터포털 `fndNm`은 정식 펀드명(「하나1Q200액티브증권상장지수투자신탁[주식]」)
-이라 완전일치율이 0.0%다. 그대로 재면 누락률이 거짓으로 100%가 된다(gate-a/13 4절).
-그래서 KRX 약명이 펀드명에 포함되는지로 붙인다. 이 방식의 천장은 80.4%이며,
+이라 완전일치율이 0.0%다. 그대로 재면 누락률이 거짓으로 100%가 된다(docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「이름 공간 차이」).
+그래서 KRX 약명이 펀드명에 포함되는지로 붙인다. 이 방식의 최대치는 80.4%이며,
 붙지 않는 건은 오답이 아니라 **판정 불가**로 따로 센다.
 """
 from __future__ import annotations
@@ -60,7 +60,7 @@ def load_env(path: str = ".env") -> None:
 def normalize(name: str | None) -> str:
     """NFKC → 공백 제거 → 기호 전부 제거 → 대문자화.
 
-    05 1절의 상품명 정규화보다 공격적이다. 호수·클래스를 분리하지 않는 대신
+    docs/matching-rules.md 「상품명 정규화」보다 공격적이다. 호수·클래스를 분리하지 않는 대신
     괄호와 기호를 전부 없앤다. 두 소스가 `(합성)`·`(합성 H)`·`[주식]` 같은
     표기를 제각각 쓰기 때문이며, ETF 여부만 가르면 되므로 상품 동일성 판정보다
     거칠어도 된다.
@@ -95,7 +95,7 @@ def fetch_krx_etf(key: str, base_date: str) -> list[dict[str, Any]]:
     payload = fetch_json("%s?basDd=%s" % (KRX_ETF, base_date), {"AUTH_KEY": key})
     if isinstance(payload, dict) and "respCode" in payload:
         raise RuntimeError("KRX 오류: %s" % payload)
-    # 응답 루트 키는 `OutBlock_1` 하나다 (09-20 실측, gate-a/15 3절).
+    # 응답 루트 키는 `OutBlock_1` 하나다 (09-20 실측, docs/data-sources.md 「KRX」).
     # 과거 일자도 최소 10년까지 그대로 돌려준다.
     rows = payload.get("OutBlock_1")
     if rows is None:
@@ -144,7 +144,7 @@ def build_buckets(funds: list[dict[str, Any]],
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-date", default="20260904", help="KRX 조회 기준일 YYYYMMDD")
-    parser.add_argument("--out", default="reference/etf_rule_check.csv")
+    parser.add_argument("--out", default="research/samples/etf_rule_check.csv")
     parser.add_argument("--cache", default=None,
                         help="공공데이터포털 응답 캐시 경로. 재실행을 빠르게 한다")
     args = parser.parse_args()

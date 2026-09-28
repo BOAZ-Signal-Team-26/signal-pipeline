@@ -2,7 +2,7 @@
 """금투협 공시 응답 XML을 행으로 풀고 자연키 묶음 분포를 센다.
 
 용례:
-    python3 scripts/fetch_kofia_ann.py 20260813 20260815 | python3 scripts/parse_kofia_ann.py
+    python3 research/scripts/fetch_kofia_ann.py 20260813 20260815 | python3 research/scripts/parse_kofia_ann.py
 """
 import collections
 import csv
@@ -15,7 +15,7 @@ FIELDS = [
     "tsCd", "txCd", "txVsn", "announceTtl", "seq", "tmpV1", "uRptGb", "Status_GB",
 ]
 
-# 01의 source_doc_key 제안. tmpV1을 빼면 서로 다른 펀드가 한 묶음으로 뭉개진다(gate-a/12).
+# 문서 자연키(docs/data-model.md 「문서와 소스별 키」). tmpV1을 빼면 서로 다른 펀드가 한 묶음으로 합쳐진다(docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「자연키 검증」).
 NATURAL_KEY = ("companyCd", "standardDt", "announceTtl", "tmpV1")
 
 

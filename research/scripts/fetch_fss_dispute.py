@@ -2,12 +2,12 @@
 """금감원 분쟁조정결정례 게시판 수집 (인증키 불필요).
 
 용례:
-    python3 scripts/fetch_fss_dispute.py --list                  # 최근 목록
-    python3 scripts/fetch_fss_dispute.py --detail 219340         # 첨부 목록
-    python3 scripts/fetch_fss_dispute.py --fetch 219340 --out /tmp/d
-    python3 scripts/fetch_fss_dispute.py --fetch 219340 --out /tmp/d --text
+    python3 research/scripts/fetch_fss_dispute.py --list                  # 최근 목록
+    python3 research/scripts/fetch_fss_dispute.py --detail 219340         # 첨부 목록
+    python3 research/scripts/fetch_fss_dispute.py --fetch 219340 --out /tmp/d
+    python3 research/scripts/fetch_fss_dispute.py --fetch 219340 --out /tmp/d --text
 
-09-20에 `nttId` 8건에서 역추적해 복구한 경로다. 근거는 gate-a/15 6절.
+09-20에 `nttId` 8건에서 역추적해 복구한 경로다. 근거는 docs/data-sources.md 「금감원 분쟁조정결정례」.
 
 **`menuNo`는 페이지 껍데기만 정한다.** 내용을 정하는 것은 `bbsId`(B0000390)와 `nttId`다.
 `menuNo`를 다른 메뉴 값으로 넣어도 같은 글과 같은 `atchFileId`가 나오고 제목만 딴
@@ -36,7 +36,7 @@ VIEW_URL = "%s/fss/bbs/%s/view.do?nttId=%%s&menuNo=%s" % (BASE, BBS_ID, MENU_NO)
 DOWN_URL = ("%s/fss/cmmn/file/fileDown.do?menuNo=%s"
             "&atchFileId=%%s&fileSn=%%s&bbsId=" % (BASE, MENU_NO))
 
-CALL_INTERVAL = 1.0     # 방어적 수집 원칙. 값의 근거는 gate-a/15 9절.
+CALL_INTERVAL = 1.0     # 방어적 수집 원칙. 값의 근거는 docs/data-sources.md 「공통 수집 규칙」.
 
 
 def get(url: str, referer: str | None = None, binary: bool = False,

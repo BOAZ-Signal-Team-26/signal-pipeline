@@ -3,10 +3,10 @@
 
 용례:
     # 한 공고 묶음의 행들이 같은 파일을 가리키는지 확인
-    python3 scripts/kofia_attachments.py A01048 20260814 2OF0401 2 \
+    python3 research/scripts/kofia_attachments.py A01048 20260814 2OF0401 2 \
         K55301B27762 K55301B27788 K55301B27796
 
-근거와 파라미터 설명은 gate-a/12 6절.
+근거와 파라미터 설명은 docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「첨부 해시 비교」.
 전송에 curl을 쓰는 이유는 fetch_kofia_ann.py 주석 참고.
 """
 import hashlib
@@ -56,7 +56,7 @@ def attachments(company, date, code, tx, version, seq="1"):
         input=body.encode("utf-8"), capture_output=True,
     )
     xml = result.stdout.decode("utf-8", "replace")
-    # 목록 조회와 같은 서버·같은 함정이다. 잘린 XML은 첨부를 조용히 적게 센다.
+    # 목록 조회와 같은 서버라 주의할 점도 같다. 잘린 XML은 첨부를 오류 없이 적게 센다.
     if result.returncode != 0 or not xml.rstrip().endswith("</root>"):
         raise RuntimeError(
             "첨부 목록 조회 실패 (%s %s %s): 응답이 </root>로 끝나지 않음 (%d바이트)"
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     company, date, tx, version = sys.argv[1:5]
     codes = sys.argv[5:]
 
-    # 같은 파일을 여러 행이 가리키므로 fileNm 기준으로 한 번만 받는다 (gate-a/12 6절).
+    # 같은 파일을 여러 행이 가리키므로 fileNm 기준으로 한 번만 받는다 (docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「파일명 중복 제거 판단」).
     digests = {}
     per_row = {}
     for code in codes:

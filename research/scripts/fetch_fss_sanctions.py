@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""금감원 검사결과제재 · 경영유의사항 등 공시 OPEN API 수집 (J11·J12).
+"""금감원 검사결과제재 · 경영유의사항 등 공시 OPEN API 수집 (제재 문서 키·금융회사명 조인 확인용).
 
-설계 근거는 gate-a/14 6절. **2026-09-21 실호출로 검증 완료 (키 발급 09-21).**
+설계 근거는 docs/records/phase1-erd/join-key-checks.md 「제재공시」. **2026-09-21 실호출로 검증 완료 (키 발급 09-21).**
 금감원 스펙 페이지(OPEN API > 상세 및 테스트 > 검사결과제재 API)의 공개 샘플에
 맞춰 짰고, 아래 「실호출로 확인한 것」 절이 그 검증 결과다.
 
-**두 API는 같은 표의 두 뷰다** (14 6절). 필드 13개가 이름까지 동일하고 예시의
+**두 API는 같은 표의 두 뷰다** (docs/records/phase1-erd/join-key-checks.md 「경영유의사항 대조」). 필드 13개가 이름까지 동일하고 예시의
 `examMgmtNo`(검사관리번호)가 같다. 검사 1건에서 나온 조치가 `emOpenSeq` 1·2로
 갈리며 `transCode` 0/1, `actGbn` 10/20으로 구분된다. 그래서 파서는 하나면 되고
 `--kind`로 엔드포인트만 바꾼다.
 
 용례:
-    python3 scripts/fetch_fss_sanctions.py --probe                 # 날짜 필터 대상 확인
-    python3 scripts/fetch_fss_sanctions.py --from 2026-09-01 --to 2026-09-30 > s.csv
-    python3 scripts/fetch_fss_sanctions.py --kind impr --from 2026-09-01 --to 2026-09-30 > i.csv
+    python3 research/scripts/fetch_fss_sanctions.py --probe                 # 날짜 필터 대상 확인
+    python3 research/scripts/fetch_fss_sanctions.py --from 2026-09-01 --to 2026-09-30 > s.csv
+    python3 research/scripts/fetch_fss_sanctions.py --kind impr --from 2026-09-01 --to 2026-09-30 > i.csv
 
-주의 넷 (전부 gate-a/14 6절)
+주의 넷 (전부 docs/records/phase1-erd/join-key-checks.md 「제재공시」)
 - **JSON 루트 키는 `reponse`다.** `response`가 아니라 금감원 스펙의 오타 그대로다.
-  `response`로 읽으면 전건 0으로 조용히 실패한다.
+  `response`로 읽으면 전건 0으로 오류 없이 실패한다.
 - **페이징이 없다.** 요청 변수는 넷뿐이라 전량 백필은 기간 분할로만 한다.
 - **`emOpenSeq`는 워터마크가 아니다.** 검사 1건 안의 순번이며 요청 변수에도 없다.
   증분은 날짜로 잡는다.
 - 응답에 **상품을 가리키는 칸이 없다.** 본문도 `㉮펀드`로 마스킹이라
-  `문서.product_id`는 영구 NULL이고, 붙는 축은 `finInstName`(판매사)뿐이다.
+  `문서.product_id`는 구조상 NULL이고, 붙는 축은 `finInstName`(판매사)뿐이다.
 
 다음에 고칠 것 (2026-09-22 코드 리뷰, 아직 안 고침)
 - **모르는 resultCode가 재시도로 한도를 태운다.** `1`·`900`·`030`·`033` 넷 중 어느 것도
@@ -39,7 +39,7 @@
 실호출로 확인한 것 (2026-09-21, 개인용 인증키)
 - **응답 인코딩은 `euc-kr`이다, `utf-8`이 아니다.** `Content-Type: text/html;charset=euc-kr`.
   이전 버전은 `utf-8`로 강제 디코드해 한글 필드(`resultMsg`·`finInstName`·`actObjContent`)가
-  전부 깨졌다(치환문자로 뭉갬). 지금 버전은 `euc-kr`로 고쳤다.
+  전부 깨졌다(치환문자로 바뀜). 지금 버전은 `euc-kr`로 고쳤다.
 - **`resultCode`는 성공/실패가 아니라 네 갈래다.** `1`=정상(결과 0건 포함 가능) /
   `900`=그 구간에 자료 없음(정상, 에러 아님) / `030`=조회기간이 키 등급의 상한을 넘음 /
   `033`=**일일 조회 건수 초과**. 이전 버전은 `1`이 아니면 전부 예외로 던져 `900`(빈 결과)도
@@ -76,7 +76,7 @@ FIELDS = ["emOpenNo", "examMgmtNo", "transCode", "emOpenSeq", "actGbn",
           "finInstName", "actReqDate", "actOrganCon", "actOfficerCon",
           "actEmpCon", "actObjContent", "inputDate", "inputMan"]
 
-# 값의 근거는 gate-a/15 9절 + 09-21 실호출.
+# 값의 근거는 docs/data-sources.md 「공통 수집 규칙」 + 09-21 실호출.
 CALL_INTERVAL = 1.0     # 방어적 수집 원칙(조사 상세 2-1)
 CHUNK_DAYS = 28         # 개인 키 실측: 한 호출 최대 1개월(030). 28일로 여유를 둔다.
 DAILY_CALL_LIMIT = 30   # 실측(033): sanction·impr 공유. 초과분은 이 스크립트가 막지 않는다 — 호출 전 직접 셀 것.
@@ -153,7 +153,7 @@ def spans(start: str, end: str) -> list[tuple[str, str]]:
 
 
 def probe(key: str, kind: str = "sanction") -> None:
-    """날짜 필터가 actReqDate에 걸리는지 inputDate에 걸리는지 가른다 (14 6절 미확인).
+    """날짜 필터가 actReqDate에 걸리는지 inputDate에 걸리는지 가른다 (당시 미확인, 09-22 inputDate로 판정. docs/records/phase1-erd/join-key-checks.md 「제재공시」).
 
     두 날짜가 어긋나는 행이 있으면 조회 구간 밖의 값을 가진 쪽이 필터 대상이 아니다.
     """
@@ -185,7 +185,7 @@ def main() -> None:
     if not key:
         sys.exit(".env 에 FSS_API_KEY 가 비어 있다. "
                  "www.fss.or.kr > OPEN API > 인증키 신청 (32자리). "
-                 "법인 신청은 요청 IP 등록이 따른다 — gate-a/14 6절.")
+                 "법인 신청은 요청 IP 등록이 따른다 — docs/records/phase1-erd/join-key-checks.md 「제재공시」.")
 
     if args.probe:
         probe(key, args.kind)

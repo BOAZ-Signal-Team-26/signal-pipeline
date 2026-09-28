@@ -2,13 +2,13 @@
 """금투협 전자공시 펀드공시검색 조회 (인증키 불필요).
 
 용례:
-    python3 scripts/fetch_kofia_ann.py 20260813 20260815 > out.xml
+    python3 research/scripts/fetch_kofia_ann.py 20260813 20260815 > out.xml
 
-엔드포인트와 파라미터는 2026-09-19 실측으로 확인했다. 근거는 gate-a/12.
+엔드포인트와 파라미터는 2026-09-19 실측으로 확인했다. 근거는 docs/records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 1: 금투협 중복 행」.
 화면 JS(`/wq/fundann/inc/DISFundAnnSrch.xml`)의 goSearch()가 만드는 DTO와 같다.
 
 전송에 curl을 쓴다. urllib는 이 서버의 응답을 절반쯤에서 끊어 받는다(응답
-1,500행 중 43행만 도착하는 식). 잘린 XML은 파서가 행을 조용히 적게 세므로
+1,500행 중 43행만 도착하는 식). 잘린 XML은 파서가 행을 오류 없이 적게 세므로
 `</root>`로 끝나는지 확인한 뒤에만 결과를 돌려준다.
 """
 import subprocess

@@ -2,10 +2,10 @@
 """HWP 5.0 문서에서 본문 텍스트를 뽑는다. 외부 의존성 없음.
 
 용례:
-    python3 scripts/hwp_text.py 결정문.hwp
-    python3 scripts/hwp_text.py --preview 결정문.hwp   # PrvText 만
+    python3 research/scripts/hwp_text.py 결정문.hwp
+    python3 research/scripts/hwp_text.py --preview 결정문.hwp   # PrvText 만
 
-분쟁조정결정례(J14) 확인에 쓴 도구다. 근거는 gate-a/14 5절.
+분쟁조정결정례 판매사명 확인에 쓴 도구다. 근거는 docs/records/phase1-erd/join-key-checks.md 「분쟁조정 마스킹」.
 
 한계
 - **HWP 3.0은 읽지 못한다.** 자체 바이너리라 OLE가 아니다. 팀 실측에서
