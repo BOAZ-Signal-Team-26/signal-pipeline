@@ -1,6 +1,44 @@
-# Signal-Pipeline-Design
+# signal-pipeline
 
-**설계 문서 저장소**입니다. 원천 데이터 검증용 스크립트와 표본 CSV도 포함합니다. BOAZ Signal Team의 「판매 중인 금융상품 설명서를 전수 채점해 설명 난독성 지도를 만드는 파이프라인」의 아키텍처 설계를 **세 단계 순서대로** 담습니다. 한 번에 다 그리지 않고, 개발에 필요한 순서대로 세 번에 나눠 확정합니다.
+BOAZ Signal Team의 「판매 중인 금융상품 설명서를 전수 채점해 설명 난독성 지도를 만드는 파이프라인」 저장소입니다. 생산 코드(수집·파싱·채점·추출)와 설계 문서, 원천 데이터 검증용 스크립트·표본 CSV를 함께 둡니다. 옛 이름은 `Signal-Pipeline-Design`이며, 옛 주소는 GitHub가 새 주소로 자동 연결합니다.
+
+## 폴더 구조
+
+| 폴더 | 담는 것 | 주 담당 |
+|---|---|---|
+| `src/signal_pipeline/common/` | 상태값 정의, 원본 경로 규칙, DB 모델 등 모든 모듈이 같이 쓰는 코드 | 대현 |
+| `src/signal_pipeline/collectors/` | 소스별 수집기 (DART·공공데이터포털·KRX·금투협·금감원) | 주영 |
+| `src/signal_pipeline/parsing/` | PDF 부·절 분해 | 주영·다빈 |
+| `src/signal_pipeline/scoring/` | CDI 산식 (노트북에서 확정한 산식을 함수로 옮기는 곳) | 다빈 |
+| `src/signal_pipeline/extraction/` | LLM 고지 항목 추출 | 민석 |
+| `notebooks/` | 탐색·실측 노트북. 확정된 산식은 `scoring/`에서 import만 하고 복사하지 않음 | 다빈·민석 |
+| `data-assets/` | 용어 사전, 감점표, 프롬프트, 검증 라벨 (파일 이름에 버전 표기) | 다빈·민석 |
+| `gate-a/` `gate-b/` `gate-c/` | 설계 문서 (아래 단계 표) | 대현 |
+| `scripts/` `reference/` | 원천 데이터 검증 스크립트와 표본 CSV | 대현 |
+
+- 원본 PDF·파생 텍스트·실행 결과는 `raw/`, `derived/`, `runs/`에 두며 커밋하지 않습니다 (`.gitignore` 처리, 공개 저장소).
+- 패키지 이름이 `signal`이 아니라 `signal_pipeline`인 이유: 파이썬 기본 모듈 `signal`과 이름이 같으면 import가 충돌합니다.
+
+## 개발 환경
+
+[uv](https://docs.astral.sh/uv/)가 필요합니다. 파이썬 버전은 `.python-version`(3.12)을 따르며 uv가 자동으로 설치합니다.
+
+```bash
+uv sync                      # 가상환경 생성, 패키지와 개발 도구 설치
+uv run pre-commit install    # 커밋 전 검사 켜기 (저장소를 받은 뒤 1회)
+cp .env.example .env         # API 키는 .env에만 적음
+```
+
+커밋할 때마다 아래 검사가 자동으로 돌아갑니다. PR에서도 같은 검사를 자동 검사(CI)로 한 번 더 합니다.
+
+| 검사 | 걸리면 |
+|---|---|
+| 비밀 키 검사 (gitleaks) | 커밋 중단. 키를 지우고 다시 커밋 |
+| 1MB 넘는 파일 | 커밋 중단. `raw/` 등 커밋하지 않는 폴더로 옮김 |
+| 개인 키 파일 | 커밋 중단 |
+| 노트북 셀 출력 (nbstripout) | 출력을 지운 뒤 커밋 중단. 다시 `git add` 후 커밋 |
+
+## 설계 단계
 
 | 단계 | 확정하는 것 | 기한 | 폴더 |
 |---|---|---|---|
@@ -16,7 +54,7 @@
 
 [ERD 재설계 v2](gate-a/20_erd_redesign.md)에 따라 **20개 표·47개 관계**로 구체화했습니다(v2.1: [22 6관점 검토](gate-a/22_erd_v2_review.md)의 A 조치 반영 — 추출 run/채점 run 분리, 공식 run 마커, 모집단 유일키 수정, enum 통일. 표 제외 등 B 조치는 09-30 결정 대기). [논리 스키마·ERD](gate-a/01_logical_schema.md), [DBML](gate-a/schema.dbml), [전체 칼럼 명세](gate-a/21_schema_catalog.md)가 현재 검토안입니다. 절·문서·문서쌍·펀드 대상, 계산 불가 결과, 점수 집계 근거, 사람·LLM 원응답을 저장합니다. 팀/DS 승인과 운영 DB 적용은 미완료입니다. 이전 검토 근거는 [18](gate-a/18_schema_review.md)과 [19](gate-a/19_pending_decisions_review.md)에 보존합니다.
 
-09-22 [저장소 구성 결정](https://app.notion.com/p/3e2e1ac70505818cbf66d63c9b45e782)은 `signal-pipeline`(코드+설계), `signal-infra`(클라우드 구축), `project-management`(계획) 세 개입니다. 이 저장소를 `signal-pipeline`으로 개명하고 설계를 `docs/`에 통합할 계획이며, 현재 경로는 유지합니다. 개명·이관·권한 설정 완료를 뜻하지 않습니다. 폴더 초안의 PostgreSQL/Alembic 예시는 DB 제품 승인으로 간주하지 않습니다.
+09-22 [저장소 구성 결정](https://app.notion.com/p/3e2e1ac70505818cbf66d63c9b45e782)에 따라 저장소는 `signal-pipeline`(코드+설계), `signal-infra`(클라우드 구축), `Project-Management`(계획) 세 개입니다. 설계 문서는 Notion 등 여러 곳에서 파일 경로로 링크하고 있어 현재 위치를 유지합니다. 폴더 초안의 PostgreSQL/Alembic 예시는 DB 제품 승인으로 간주하지 않습니다.
 
 ## 표기 규칙
 

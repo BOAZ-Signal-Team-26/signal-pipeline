@@ -7,3 +7,14 @@ _raw/
 secrets/
 .omc/
 .serena/
+
+# 원본·파생·실행 결과 (공개 저장소라 커밋 금지)
+raw/
+derived/
+runs/
+*.parquet
+
+# 파이썬·노트북
+.venv/
+__pycache__/
+.ipynb_checkpoints/
