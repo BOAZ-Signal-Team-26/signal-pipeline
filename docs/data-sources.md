@@ -37,7 +37,7 @@
 | 공공데이터포털 펀드상품기본정보 | 키 | 실호출 확인 (183,649건) | 있으나 미열람 (활용가이드 docx·Swagger) | [`verify_etf_rule.py`](../research/scripts/verify_etf_rule.py) |
 | KRX ETF 일별매매정보 | 키 + 서비스별 승인 | 실호출 확인 (1,167건) | 공식 명세 없음. 응답 구조 실측 완료(09-20) | [`verify_etf_rule.py`](../research/scripts/verify_etf_rule.py) |
 | DART 공개 뷰어 | 불필요 | 실호출 확인 | 없음. HTML 판독 | [`dart_sections.py`](../research/scripts/dart_sections.py) |
-| OPEN DART API | 키 | 미호출 | 가이드 페이지 판독 | 없음 |
+| OPEN DART API | 키 | 실호출 확인 (09-30, 목록 최근 7일 147건 + 원문 zip 1건) | 가이드 페이지 판독 + 응답 실측 | [`probe_opendart.py`](../research/scripts/probe_opendart.py) |
 | 금감원 검사결과제재 / 경영유의사항 | 키 | 실호출 확인 (09-21 개인 키, 제재 8건) | 있음. 결과변수 표와 샘플 공개 | [`fetch_fss_sanctions.py`](../research/scripts/fetch_fss_sanctions.py) |
 | 금감원 분쟁조정결정례 | 불필요 | 실호출 확인 | 없음. HTML 판독 (경로 09-20 복구) | [`fetch_fss_dispute.py`](../research/scripts/fetch_fss_dispute.py) + [`hwp_text.py`](../research/scripts/hwp_text.py) |
 | 국가법령정보 | 키(`OC`) | 미호출 | 미확인 | 없음 |
@@ -266,18 +266,34 @@ GET https://dart.fss.or.kr/report/download.do?dcmNo={dcmNo}&flNm={파일명}
 ### 목록
 
 - 목록 진입점 `https://dart.fss.or.kr/dsac001/mainF.do`는 서버 렌더링 HTML 표라 바로 파싱됨
-- 목록을 API로 받는 경로(`pblntf_detail_ty` G001~G003 필터)의 엔드포인트·파라미터는 저장소에 없음. 필터 값만 기록됨(「미결」)
+- 목록을 API로 받는 경로는 아래 OPEN DART 목록 API. 09-30 실호출로 엔드포인트·파라미터·응답 필드를 확인함
 
-### OPEN DART API (미호출)
+### OPEN DART API (09-30 실호출 확인)
+
+호출 스크립트 [`probe_opendart.py`](../research/scripts/probe_opendart.py). 키는 `.env`의 `OPENDART_API_KEY`.
+
+**목록 API**
+
+```
+GET https://opendart.fss.or.kr/api/list.json?crtfc_key={키}&bgn_de={YYYYMMDD}&end_de={YYYYMMDD}&pblntf_ty=G&page_no=1&page_count=100
+```
+
+- 응답 JSON. 최상위 키 `status`(정상 `000`)·`message`·`page_no`·`page_count`·`total_count`·`total_page`·`list`
+- `list` 항목 필드 9개: `corp_cls`(1자), `corp_code`(8자), `corp_name`, `flr_nm`, `rcept_dt`(YYYYMMDD 8자), `rcept_no`(14자), `report_nm`, `rm`, `stock_code`(펀드는 빈 문자열)
+- 최근 7일(09-23~09-30) 펀드공시(G) 147건. 이번 페이지 100건의 `report_nm` 앞머리: 투자설명서 55, 증권발행실적보고서 36, 일괄신고서 6, 증권신고서 3
+- **`pblntf_detail_ty`는 응답에 없고, 요청 필터로 넣어도 효과가 없음.** G001·G002·G003 세 값 모두 필터 없는 호출과 같은 147건. 문서 종류 판별은 `report_nm`으로만 가능. ERD `document.pblntf_detail_ty` 칼럼은 이 API로 채울 수 없음(「미결」)
+- 증분 축: `rcept_dt`. 룩백 일수와 그 이유(정정본)는 [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」
+
+**원문 API**
 
 ```
 GET https://opendart.fss.or.kr/api/document.xml?crtfc_key={키}&rcept_no={접수번호}
 ```
 
-- 인자 둘, 응답은 zip
-- 가이드 페이지만 인증키 없이 읽었고 실제 호출은 하지 않음
-- zip 안에 XML만 있는지, PDF 등 첨부까지 들어 있는지 가이드에 명시 없음. 추정으로 설계하지 않음(「미결」)
-- 증분 축: `rcept_dt`. 룩백 일수와 그 이유(정정본)는 [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」
+- 인자 둘, 응답은 zip(`Content-Type: application/x-msdownload`)
+- 접수번호 `20260929000066`(투자설명서) 실측: zip 4,217바이트 안에 **`{접수번호}.xml` 1개만** 15,922바이트. PDF 등 첨부 없음. XML 앞부분 태그는 `DOCUMENT` → `DOCUMENT-NAME` → `COMPANY-NAME` → `BODY` → `CORRECTION` → 표. 표지와 정정 안내가 내용이며 본문은 없음
+- 데이터 엔지니어링·인프라(주영)의 09-02 확인(「필요 데이터 6종 API Key 발급 및 수집 테스트」: 투자설명서 74쪽 14,962단어에 대해 XML은 330단어)과 일치. 본문 PDF는 위 「본문 PDF」의 공개 뷰어 경로로 받음
+- 따라서 OPEN DART 키의 용도는 목록(신규 감지·정정 이력)과 표지(위험등급) 수집이며, 본문 수집에는 쓰지 않음
 
 ## 금감원 검사결과제재·경영유의사항
 
@@ -393,7 +409,7 @@ GET https://www.fss.or.kr/fss/kr/openApi/api/openInfoImpr.jsp    # 경영유의�
 |---|---|---|
 | `DATA_GO_KR_API_KEY` | 공공데이터포털 | 있음 |
 | `KRX_API_KEY` | KRX | 있음 (서비스 승인 완료) |
-| `OPENDART_API_KEY` | OPEN DART | 비어 있음(09-20 확인). 데이터 테이블·ERD 설계 확정 점검 「접근 권한 4종 중 3종」의 3종째 |
+| `OPENDART_API_KEY` | OPEN DART | 있음(09-30 PM 입력, 실호출 확인). 이 키로 데이터 테이블·ERD 설계 확정 점검 「접근 권한 4종」이 모두 확보됨. 값은 Notion 「API 키 보관」 페이지 |
 | `FINLIFE_API_KEY` | finlife | 소스 존치 미결 |
 | `LAW_API_OC` | 국가법령정보 | 비어 있음 |
 | `FSS_API_KEY` | 금감원 제재·경영유의 | 발급됨(09-21, 개인용). 일일 조회 30회 한도로 하루 계획 호출 수 관리 필요 |
@@ -415,8 +431,7 @@ GET https://www.fss.or.kr/fss/kr/openApi/api/openInfoImpr.jsp    # 경영유의�
 
 | 질문 | 결정 필요 주체 | 필요 시점 |
 |---|---|---|
-| OPEN DART `document.xml` zip 안에 XML만 있는가, PDF 등 첨부까지 있는가 | 주영 (OPEN DART 키 발급 후 접수번호 1건 호출) | DART 수집기 구현 전 |
-| DART 목록 API 엔드포인트·파라미터(`pblntf_detail_ty` G001~G003 필터) | [담당 미정] (OPEN DART 가이드에서 목록 API 확인) | DART 수집기 구현 전 |
+| ERD `document.pblntf_detail_ty` 칼럼을 유지하는가. 목록 API 응답에 없고 요청 필터도 효과가 없어 채울 수 없음(09-30 실측) | PM(대현)·데이터 엔지니어링·인프라(주영) (ERD v2.2에서 「채울 수 없는 칼럼」으로 처리 여부) | ERD v2.2 작성 시 |
 | DART `viewer.do`에 Referer가 꼭 필요한가 (명세는 「필요」, 실측은 Referer 붙여서만 호출) | 주영 (Referer 없이 1회 호출) | DART 수집기 구현 전 |
 | 금감원 제재 증분 필터가 `inputDate`라는 판정이 다른 달에도 성립하는가 (근거 1건) | 대현 (다른 달 표본으로 재확인) | 제재 수집기 구현 전 |
 | 경영유의사항(`impr`) 본문의 실제 마스킹 수준 (공개 샘플이 제재와 같은 예시 텍스트) | 대현 (`--kind impr`로 2026-09 구간 호출) | 경영유의사항 API 채택 결정 전 |

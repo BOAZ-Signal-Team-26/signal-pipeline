@@ -88,7 +88,7 @@
 | corp_code | varchar | 허용 |  | DART 법인코드(제출 법인=운용사). distributor.corp_code와 값 체계가 같아 보이나 FK로 명시된 바 없어 관계선을 긋지 않았다([데이터 테이블·ERD 설계](data-model.md) 「ERD」의 그림에 넣지 않은 관계 1번). 길이 미정 |
 | document_type | document_type_enum | 불가 |  |  |
 | report_name | text | 허용 |  | DART 보고서명 원문(예: "[기재정정] 투자설명서"). document_type은 이 값에서 파생 |
-| pblntf_detail_ty | varchar(4) | 허용 |  | DART 세부유형 코드 G001/G002/G003. 수집 필터는 이 코드로, 문서 종류 판별은 report_name으로 — 둘을 섞으면 누락 발생([초기 소스 확인](records/phase1-erd/initial-source-checks.md) 「부록: Notion 티켓 메모 사본」) |
+| pblntf_detail_ty | varchar(4) | 허용 |  | DART 세부유형 코드 G001/G002/G003. 수집 필터는 이 코드로, 문서 종류 판별은 report_name으로 — 둘을 섞으면 누락 발생([초기 소스 확인](records/phase1-erd/initial-source-checks.md) 「부록: Notion 티켓 메모 사본」). **09-30 실측: 목록 API 응답에 이 필드가 없고 요청 필터도 효과가 없어 채울 수 없음**([데이터 소스 수집 명세](data-sources.md) 「OPEN DART API」). 존치 여부는 ERD v2.2에서 판단 |
 | distributor_id | int | 허용 | FK | 상품 연결이 없는 문서(분쟁조정·제재공시 등)를 판매사 축에 붙이기 위한 칼럼. nullable. 분쟁조정은 판매사명도 마스킹이라 이 값조차 못 채운다 — "문서 표에만 존재하는 미연결 레코드"가 정상 상태다([조인 키 확인 기록](records/phase1-erd/join-key-checks.md) 「분쟁조정 마스킹」) |
 | is_correction | boolean | 허용 |  | DART 구조로 판정. 미판정/금투협 연결 규칙 미확정은 NULL, false로 만들지 않음 |
 | lineage_id | int | 허용 | FK | 같은 사건 최초 문서. 확인된 원본만 self; 원본 미도착/계보 미확정은 NULL |
