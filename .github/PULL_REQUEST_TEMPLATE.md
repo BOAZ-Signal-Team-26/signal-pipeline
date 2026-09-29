@@ -2,7 +2,7 @@ Notion: <!-- 첫 줄에 Notion 티켓 링크 기재 -->
 
 ## 💡 개요
 
-* Issue Number: #
+* Closes # <!-- 포함된 이슈를 모두 기재. 예: Closes #12, closes #15 -->
 
 ## 🪐 주요 변경 사항
 -
