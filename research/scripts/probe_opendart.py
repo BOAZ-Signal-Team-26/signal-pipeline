@@ -30,12 +30,14 @@ import io
 import json
 import os
 import sys
+import time
 import urllib.parse
 import urllib.request
 import zipfile
 
 LIST_URL = "https://opendart.fss.or.kr/api/list.json"
 DOC_URL = "https://opendart.fss.or.kr/api/document.xml"
+CALL_INTERVAL_SEC = 1.0  # docs/data-sources.md 공통 수집 규칙: 호출 간격 1초 이상
 UA = "BOAZ-Signal research probe (github.com/BOAZ-Signal-Team-26/signal-pipeline)"
 
 
@@ -75,6 +77,9 @@ def probe_list(key: str, days: int, detail: str | None) -> list[dict]:
     label = "list.json pblntf_ty=G" + (f" pblntf_detail_ty={detail}" if detail else "")
     print(f"[{label}] HTTP {status} · {ctype}")
     print(f"  status={data.get('status')} message={data.get('message')}")
+    # 000 정상, 013 조회 결과 없음. 그 밖의 값(키 오류·한도 초과 등)은 조사 실패
+    if data.get("status") not in ("000", "013"):
+        sys.exit(f"list.json 오류: status={data.get('status')} message={data.get('message')}")
     print(f"  최상위 키: {sorted(k for k in data if k != 'list')}")
     print(f"  total_count={data.get('total_count')} total_page={data.get('total_page')} "
           f"이번 페이지={len(data.get('list', []))}건")
@@ -138,10 +143,12 @@ def main() -> None:
 
     items = probe_list(key, args.days, None)
     for detail in ("G001", "G002", "G003"):
+        time.sleep(CALL_INTERVAL_SEC)
         probe_list(key, args.days, detail)
 
     if args.no_doc or not items:
         return
+    time.sleep(CALL_INTERVAL_SEC)
     target = next((i for i in items if "투자설명서" in i.get("report_nm", "")), items[0])
     probe_document(key, target["rcept_no"], args.save_dir)
 
