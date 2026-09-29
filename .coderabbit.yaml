@@ -1,0 +1,8 @@
+# CodeRabbit 설정. 키 목록: https://docs.coderabbit.ai/reference/configuration
+language: "ko-KR"
+reviews:
+  auto_review:
+    enabled: true
+    # 기본 브랜치(main) 외에 리뷰할 대상 브랜치. 정규식이라 ^...$로 정확히 dev만
+    base_branches:
+      - "^dev$"
