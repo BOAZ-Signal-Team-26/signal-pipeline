@@ -427,6 +427,36 @@
 - 판매사 임계치: 0.90 → 0.95
 - 불채택 사유 상세: [매칭 규칙](../../matching-rules.md) 「임계치」
 
+## v2.2 수정 확정안 (09-30 재검토)
+
+- 09-29~30 5개 관점(데이터 사이언스, 데이터 엔지니어링, 데이터베이스 설계, 실행 재현성·운영, 소스 데이터 적합성) 재검토의 판정은 「부분 축소」. 9차 미팅 승인 뒤 v2.2로 반영
+- 수정 1~9의 원문과 결정 대기 A~I는 [데이터 테이블·ERD 설계 티켓](https://app.notion.com/p/3d6e1ac7050581f3aa6cda6e22f7d119) 「9월 30일 재검토」 절. 관점별 보고서는 이 폴더에 추가 예정
+- 아래 1~9는 티켓 표의 요지. 10은 09-30에 덧붙인 항목
+
+| # | 수정 | 내용 | 영향 문서 |
+|---|---|---|---|
+| 1 | 채점·평가 표 4개 연기 | score_dependency, evaluation_run, evaluation_response, analysis_target_member를 DBML에서 빼고 예약 계약으로만 남김. 평가 결과는 프로토콜 확정 전까지 CSV와 설정 파일 | schema.dbml, [데이터 테이블·ERD 설계](../../data-model.md), [스키마 명세](../../schema-catalog.md) |
+| 2 | 추출 결과 키 변경 | file_extraction·section 키를 추출 실행 번호에서 파일 × 파서 버전으로. B9 함께 해소 | schema.dbml, [원본 보관과 수집·파싱 실패 처리 규칙](../../storage-and-failure-rules.md) |
+| 3 | 코드 체계 불일치 해소 | 공공데이터포털 표준코드의 K55·KR5 혼재를 체계별로 받음 | schema.dbml, [데이터 테이블·ERD 설계](../../data-model.md), [매칭 규칙](../../matching-rules.md) |
+| 4 | 절 식별 칼럼 추가 | 제4부 절 구성이 문서마다 달라 section에 정규 절 분류 칼럼 추가 | schema.dbml, [DART 절 분할](dart-section-split.md) |
+| 5 | 빠진 표 2개 추가 | LLM 6필드 추출 결과 표, 소스 워터마크 표 | schema.dbml, [데이터 테이블·ERD 설계](../../data-model.md), [2단계 입력](../../pipeline-flow.md) |
+| 6 | 채울 수 없는 칼럼 제거 | 판매개시일·판매종료일, 공모 여부, `fin_prdt_cd`, `document.pblntf_detail_ty` 등 | schema.dbml, [스키마 명세](../../schema-catalog.md) |
+| 7 | 형식 오류 정정 6건 | 코드 자릿수 근거, 날짜 형식 분리, char 단위 명시, 절 상태값, 금투협 칸, 운용사 코드 대응 | [데이터 테이블·ERD 설계](../../data-model.md), [데이터 소스 수집 명세](../../data-sources.md), schema.dbml |
+| 8 | B7 정정 | manifest 저장 기준 통일만 채택, RFC 8785 요구 삭제 | [원본 보관과 수집·파싱 실패 처리 규칙](../../storage-and-failure-rules.md) |
+| 9 | B8 기각 | 지표 승인 이력 표 없이 칼럼 또는 manifest 기록 | [데이터 테이블·ERD 설계](../../data-model.md) 「미결」 |
+
+### 수정 10 (09-30 추가): 두 파트 출력의 저장 계약
+
+- 상태: 09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록. 근거 위치 형식(B11)은 9차 미팅 결정 대기
+- 배경: 문서 1건의 결과를 파트 A(고지 점검, 축 4 고지 충실도)와 파트 B(읽기 난이도, 축 1~3 합산)로 나눠 내고 한 숫자로 합치지 않기로 함
+- 내용
+  - 축 4 항목별 판정은 금소법 19조 항목 번호 기반 metric_key 단위로 score 행에 저장. 상태 있음/없음/판정 불가는 기존 result_status와 raw_score로 표현하고 근거 위치를 score_payload에 둠
+  - 파트 B 합산 점수는 별도 metric_key. 층내 백분위는 그 행의 정규화 칼럼. 두 파트를 합친 단일 CDI metric_key는 만들지 않음
+  - 근거 위치: payload v2의 member_id 의존이 수정 1(analysis_target_member 연기)과 충돌. 안 1 `(section_id, char_start, char_end)`로 member_id·block_id 제거(권고), 안 2 analysis_target_member 유지. 9차 미팅 결정 대기(B11)
+  - 판매사 × 제재 라벨 표는 ERD에 만들지 않음. 제재 사건 매핑표(축 4 검증용, 수십 건)는 평가 자료로 CSV + 설정 파일 또는 evaluation 표에 두며 결정 대기 G와 함께 정함(B12). 대조군 문서 묶음 식별 방법은 미결(B13)
+- 표 수 변화 없음. 결정 대기 I(축 4 판정 상태 저장)는 score 칼럼 쪽으로 정리 가능
+- 영향 문서: [데이터 테이블·ERD 설계](../../data-model.md) 「두 파트 출력의 저장 계약」·「미결」 B11~B13, schema.dbml(metric_definition·score_payload 주석), [스키마 명세](../../schema-catalog.md), [점수 저장과 비교 모집단](../../scoring-and-population.md) 「고지 항목 판정」, [3단계 입력](../../io-schema.md)
+
 ## 미결
 
 | 질문 | 결정 주체 | 필요 시점 |

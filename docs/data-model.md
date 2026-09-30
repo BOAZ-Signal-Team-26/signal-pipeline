@@ -12,7 +12,7 @@
 | 반영한 팀 결정 | 09-20 7차 미팅 3건: run_id 통일, fund_key 고정, 비교 모집단 별도 표 |
 | 승인 | 팀 승인·CDI 산식 담당 승인 미완료. 신규 칼럼명·자료형·제약의 09-30 승인 전 |
 | 범위 밖 | DB 제품, 물리 DDL, 인덱스 튜닝, decimal 정밀도 → 2단계 데이터 파이프라인 Flow 설계 |
-| 09-30 결정 대기 | 검토 번호 B1~B10, 10건 (아래 「미결」) |
+| 09-30 결정 대기 | 검토 번호 B1~B10, 10건 + 09-30 추가 B11~B13, 3건 (아래 「미결」) |
 
 ## 결정 요약
 
@@ -300,7 +300,7 @@
 - `analysis_target_member`: 정확한 입력 파일·구간 고정. 문서 순서·쌍 비교를 절마다 복제하지 않음
 - `metric_definition`: 단위와 산식 고정
 - `score_dependency`: 실제 원자값→축값→최종값 입력 연결
-- 고지 충실도: 점수화 방향. 배점·분모·적용범위는 CDI 산식 담당 승인 대상
+- 고지 충실도: 점수화 방향. 배점·분모·적용범위는 CDI 산식 담당 승인 대상. 저장 단위는 아래 「두 파트 출력의 저장 계약」
 - 계산 불가: 상태 + NULL 원점수로 보존
 
 ### 대상·근거 무결성 계약
@@ -324,6 +324,42 @@
 
 - 결과 상태·정규화 상태 계약: [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
 - 고지 항목 판정·payload v2: 같은 문서 「고지 항목 판정」
+
+### 두 파트 출력의 저장 계약 (09-30 추가)
+
+- 상태: 09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록
+- 문서 1건의 결과를 두 부분으로 나눠 냄. 파트 A(고지 점검) = 축 4 고지 충실도, 파트 B(읽기 난이도) = 축 1 언어 복잡도·축 2 용어 부담·축 3 구조 접근성 합산
+- 두 파트를 합친 단일 CDI metric_key는 만들지 않음. 산식 쪽 근거: [점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」
+
+| 출력 | metric_key | score 행 | 상태·값 |
+|---|---|---|---|
+| 파트 A 항목 판정 | 금융소비자보호법(금소법) 19조 항목 하나당 하나. 항목 번호 기반(예 `disclosure_item_07:v1`) | DOCUMENT 대상 × 항목마다 한 행 | 있음 = OK·raw_score 1, 없음 = OK·raw_score 0, 판정 불가 = UNDETERMINED·reason_code 필수, 적용 대상 아님 = NOT_APPLICABLE. score_payload의 항목 status(MET/UNMET)와 raw_score 일치는 적재 검증. normalization_status = NOT_REQUESTED |
+| 파트 A 근거 | 위 항목 행의 score_payload | 별도 행 없음 | 근거 위치 목록과 감점 표현 후보. 위치 형식은 B11 결정 대기(아래) |
+| 파트 B 합산 점수 | 축 4 항목과 별도의 metric_key 하나 | 원점수는 DOCUMENT 대상 한 행. 펀드 단위 집계와 층내 백분위는 고유 fund_key 단위([점수 저장과 비교 모집단](scoring-and-population.md) 관측 단위 규정, Flow 4단계 「펀드 단위 집계」) | raw_score = 축 1~3 가중 합산. 층내 백분위는 같은 행의 normalized_score와 population FK(「결과 상태와 결측」 정규화 계약) |
+| 축 1~3 값 | 축마다 metric_key | 축값 행 | 파트 B 합산의 입력. 축 4 항목 행은 파트 B 입력으로 연결하지 않음 |
+
+- 파트 A 요약 수치(충족 항목 수 등)를 낼지는 미결([점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」). 내더라도 파트 A 전용 metric_key로 두고 파트 B와 합치지 않음
+- 축·파트 소속: 현재 DBML에 칼럼 없음. 결정 전에는 `definition_manifest`에 기록. 칼럼 승격 여부는 v2.2 작성 때 판단
+- 새 표 불필요: 항목별 metric_key 행과 기존 result_status로 표현됨. ERD 9월 30일 재검토의 결정 대기 항목 I(축 4 판정 상태를 score 칼럼에 둘지, 항목 판정 표를 따로 만들지)는 score 칼럼 쪽으로 정리 가능
+
+근거 위치 계약 (B11, 9차 미팅 결정 대기)
+
+- 충돌: payload v2의 근거는 `member_id`(analysis_target_member 행)와 `block_id`(구조 manifest 블록)를 참조. v2.2 수정 1이 analysis_target_member를 DBML에서 빼고 연기하면 member_id가 가리킬 행이 없어짐
+- 안 1: 근거 위치 = `(section_id, char_start, char_end)`. member_id·block_id 의존 제거
+  - char 범위는 section과 같은 기준(그 EXTRACT run canonical text의 Unicode code point 반열린 구간)이며 해당 절 범위 안
+  - section은 대상의 extraction_run_id·document_id에 속해야 함(적재 검증)
+  - 페이지·좌표가 필요하면 구조 manifest에서 char 범위로 찾음
+  - [스키마 명세](schema-catalog.md) 「공개 식별자 규칙」이 이미 근거 구간을 `(run_id, section_id)` + char 범위로 내려주게 정해 둔 것과 같은 형식
+- 안 2: analysis_target_member를 수정 1 연기 대상에서 빼고 유지(B1·B2 권고 변경). member_id 근거 유지. 표 1개와 복합 FK 3개가 남음
+- 권고: 안 1. 9차 미팅 결정 대기
+- 「없음」 판정은 근거 위치가 없음. 검사한 절 목록(section_id)과 완전성을 payload에 기록(「고지 항목 판정」의 문서 전체 부재 판정 규칙)
+
+제재 자료
+
+- 판매사 × 제재 라벨 표(판매사별 제재 건수 표)는 ERD에 만들지 않음. 09-29 결론으로 정답지로 쓰지 않음
+- 제재 사건 매핑표(제재문 지적 문구 → 축 4 항목, 축 4 검증용, 수십 건)는 평가 자료. CSV + 설정 파일 또는 evaluation 표에 두며, ERD 9월 30일 재검토의 결정 대기 항목 G(평가 결과 저장 방식)와 함께 정함(B12)
+- 제재문 원문은 기존대로 document(source `fss_sanction`)에 저장하고 상품에 연결하지 않음. 사건과 대상 투자설명서의 대응은 매핑표 안에 사람이 기록하며 document_product 자동 매칭으로 만들지 않음
+- 제재 없는 대조군 문서 묶음의 식별 방법은 미결(B13)
 
 ## 실행과 비교 모집단
 
@@ -708,9 +744,10 @@ erDiagram
 
 ## 미결
 
-### 09-30 결정 요청 (검토 번호 B1~B10)
+### 09-30 결정 요청 (검토 번호 B1~B13)
 
 - 09-30 회의(또는 그 이후 회의) 결정에 따라서만 반영
+- B11~B13은 09-30 추가. 두 파트 출력(09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록)이 저장 계약에 주는 영향. 상세: 「절과 점수 대상」 「두 파트 출력의 저장 계약」
 - 「권고」는 검토 의견이며 결정 아님. 결정 전에는 「결정 전 임시 상태」 유지, DBML·문서를 권고 방향으로 미리 바꾸지 않음
 - 결정이 나면 「결정」 열에 회의 날짜·결론 기재, 반영은 별도 작업으로 WORK_LOG에 기록
 - 결정이 권고와 다르면 결정을 따름
@@ -728,6 +765,9 @@ erDiagram
 | B8 | metric_definition 승인 상태 이력과 DRAFT 개발 출력 저장 위치 | 이력 표 vs manifest 내 이력 vs 새 metric_key | 승인 상태 변경은 이력 표 또는 manifest 기록. DRAFT 출력은 공식 score와 분리 저장 | 가변 단일 칼럼 | 미결 |
 | B9 | derived 경로의 서러게이트 ID 제거·manifest 내용 주소화(manifests/sha256/{ab}/{hash}.json) | 현행 유지 vs 내용 주소화 | 내용 주소화. 2단계 PK 발급 방식과 함께 결정 | 현행 | 미결 |
 | B10 | score.target_type 칼럼 추가 및 (metric_key, target_type) 복합 FK로 지표 일치 규칙(「절과 점수 대상」 7번) 강제; DOCUMENT_PAIR purpose 칼럼 승격 | 칼럼 vs 적재 검증 | 칼럼 추가. B1·B2와 함께 검토 | 적재 검증 | 미결 |
+| B11 | 축 4 근거 위치 형식. payload v2 근거의 member_id가 v2.2 수정 1(analysis_target_member 연기)과 충돌 | 안 1 `(section_id, char_start, char_end)`로 member_id·block_id 제거 vs 안 2 analysis_target_member 유지(B1·B2 권고와 수정 1 변경) | 안 1. 9차 미팅 결정 대기 | payload v2 현행(member_id·block_id) | 미결 |
+| B12 | 제재 사건 매핑표(제재문 지적 문구 → 축 4 항목, 축 4 검증용, 수십 건) 저장 위치 | CSV + 설정 파일 vs evaluation 표 | ERD 9월 30일 재검토 결정 대기 항목 G(평가 결과 저장 방식)와 같은 방식으로 정함 | 없음. 판매사 × 제재 라벨 표는 만들지 않음 | 미결 |
+| B13 | 제재 없는 대조군 문서 묶음의 식별 방법(축 4 검증은 재현율만 잴 수 있어 대조군 필수) | population_snapshot 한 행으로 등록 vs evaluation 설정 파일의 문서 목록 | evaluation 설정 파일의 문서 목록. population_snapshot은 층내 백분위용 비교 층이며 metric_key가 유일키에 들어가 뜻이 맞지 않음 | 없음 | 미결 |
 
 ### 그 밖의 스키마 미결
 

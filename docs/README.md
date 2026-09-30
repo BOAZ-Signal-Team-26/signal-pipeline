@@ -105,7 +105,7 @@
 | 담는 것 | 절·문서·문서쌍·펀드 대상, 계산 불가 결과, 점수 집계 근거, 사람·LLM 원응답 |
 | 정본 | [데이터 테이블·ERD 설계](data-model.md), [DBML](schema.dbml), [스키마 명세](schema-catalog.md) |
 | 승인 | 팀·CDI 산식 담당 승인 미완료. 운영 DB 적용 미완료 |
-| 09-30 결정 대기 | 표 제외 등 10건(검토 번호 B1~B10) → [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
+| 09-30 결정 대기 | 표 제외 등 10건(검토 번호 B1~B10) + 09-30 추가 3건(B11~B13, 두 파트 출력의 저장 계약) → [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
 | 이전 검토 근거 | [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) |
 
 ### 저장소 구성

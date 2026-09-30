@@ -16,7 +16,7 @@
 | 계약 | 생산 | 소비 |
 |---|---|---|
 | LLM 추출 결과 JSON | 구조화 층(텍스트에서 필드 추출, LLM) | 적재 층, 고지 충실도 판정 |
-| CDI 출력 | 채점 | 대시보드·API(드릴다운 포함) |
+| CDI 출력(파트 A 고지 점검 + 파트 B 읽기 난이도) | 채점 | 대시보드·API(드릴다운 포함) |
 
 ## LLM 추출 결과 JSON 요구
 
@@ -39,21 +39,51 @@
 
 ## CDI 출력 요구
 
+- 두 파트 출력: 09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록
+  - 문서 1건의 CDI 결과를 파트 A와 파트 B 두 출력으로 냄. 한 숫자로 합산하지 않음
+  - 파트 A(고지 점검) = 축 4 고지 충실도. 금융소비자보호법(금소법) 19조 항목별 판정
+    - 항목마다 item_key, status(있음/없음/판정 불가, 적용 대상 아님은 따로), 근거 위치(절·문자 범위), 감점 표현 후보와 그 위치
+    - 합산 점수·백분위 없음
+  - 파트 B(읽기 난이도) = 축 1 언어 복잡도·축 2 용어 부담·축 3 구조 접근성 합산
+    - 축 1~3 각각의 원값·[0,1] 변환값, 가중 합산값, 같은 상품군 × 위험등급 층 안 백분위, 고칠 곳의 위치
+    - 가중치 값은 9차 미팅 결정 대기. 출력에 적용한 가중치 버전을 함께 기록
+  - 산식·검증: [점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」·「검증」
 - 결과 상태 5종 × 정규화 상태 3종 조합을 API가 `score: number|null`로 합치면 0/계산 불가/해당 없음 구분 불가
-- 응답 envelope에 status·reason 필수
-- 응답 envelope 제안(backend 관점, 승인 아님)
+- 응답 envelope에 status·reason 필수. 파트 A 항목과 파트 B 각 값에 모두 적용
+- 응답 envelope 제안(backend 관점, 승인 아님). 09-29 결론에 맞춰 두 파트 구조로 갱신
 
 ```json
 {
-  "result": {"status": "...", "value": null, "reason": "..."},
-  "normalization": {
-    "status": "...", "percentile": null, "reason": "...",
-    "population": {"key": "...", "member_count": 0, "minimum_required": 30}
+  "part_a_disclosure": {
+    "items": [
+      {
+        "item_key": "disclosure_item_07",
+        "status": "MET | UNMET | NOT_APPLICABLE | UNDETERMINED",
+        "reason": "...",
+        "evidence": [{"quote": "...", "section_id": 0, "char_start": 0, "char_end": 0}],
+        "penalty_phrases": [{"phrase": "...", "section_id": 0, "char_start": 0, "char_end": 0}]
+      }
+    ]
   },
-  "evidence": [{"quote": "...", "section_id": 0, "char_start": 0, "char_end": 0}]
+  "part_b_readability": {
+    "axes": [
+      {"axis": 1, "result": {"status": "...", "value": null, "reason": "..."}, "transformed": null},
+      {"axis": 2, "result": {"status": "...", "value": null, "reason": "..."}, "transformed": null},
+      {"axis": 3, "result": {"status": "...", "value": null, "reason": "..."}, "transformed": null}
+    ],
+    "weights_version": "...",
+    "result": {"status": "...", "value": null, "reason": "..."},
+    "normalization": {
+      "status": "...", "percentile": null, "reason": "...",
+      "population": {"key": "...", "member_count": 0, "minimum_required": 30}
+    },
+    "fix_locations": [{"axis": 1, "quote": "...", "section_id": 0, "char_start": 0, "char_end": 0}]
+  }
 }
 ```
 
+- 예시의 `disclosure_item_07`은 이름 형식 예시. 실제 item_key 목록은 금소법 19조 항목 확정 뒤 정함
+- 예시의 `evidence`·`penalty_phrases`·`fix_locations` 위치 형식(section_id, char_start, char_end)은 결정 요청 B11 결정 뒤 정리([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」). 확정 형식이 아님
 - 상태 정의: [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
 - 식별자
   - 공개 가능: document_id, product_id, fund_key, distributor_id
@@ -61,6 +91,7 @@
   - 내부 전용·노출 금지: target_id/target_key, member_id, score_id, score_payload 안의 member_id/block_id, raw_object_id, 파일 경로
   - 근거 구간은 서버가 `(run_id, section_id)` + char 범위 + 인용 텍스트로 해석해 전달
   - 규칙 정본: [스키마 명세](schema-catalog.md) 「공개 식별자 규칙」
+- 출력 문구: 확인 가능한 사실로만 씀. 「제재 가능성」 같은 추정 표현 대신 「19조 N번 항목을 문서에서 찾지 못함」(09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록)
 - 승인 점수만 거르는 조회 계층(`is_official` ∧ `APPROVED`)과 서빙 API 계약: 09-30 결정 대기(검토 번호 B5, [데이터 테이블·ERD 설계](data-model.md) 「미결」)
 - 기존 수집 API 명세(데이터 소스 명세)는 대시보드 서빙 계약이 아님. 드릴다운을 소비할 계약은 저장소에 없음
 
@@ -71,7 +102,7 @@
 
 | 항목 | 현재 모양 | 정의 위치 |
 |---|---|---|
-| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{member_id,block_id,char_start,char_end}]}]`, `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」 |
+| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{member_id,block_id,char_start,char_end}]}]`, `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」. 저장 계약은 항목별 score 행 기준으로 바뀜([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 참조). 이 items 배열 구조와 member_id 근거 형식은 결정 요청 B11 결정 뒤 정리 |
 | target_key | `{contract_version:2, target_type, anchor, members:[…], selection_policy_version}`의 정규 JSON SHA-256. run 안 재시도 멱등성 키, 공개 ID 아님 | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
 | 구조 manifest | `{contract_version,raw_object_id,run_id,canonical_text_sha256,coordinate_system,blocks,missing_regions}` | [데이터 테이블·ERD 설계](data-model.md) 「원본·수집 시도·추출」 |
 | 평가 protocol_manifest | 문서쌍·target_ids·문항/정답/채점기준·조건·반복·프롬프트·계획 응답 슬롯 | [데이터 테이블·ERD 설계](data-model.md) 「평가 데이터」 |
@@ -80,8 +111,12 @@
 
 ## 검증 설계 재검토 입력
 
+- 상태: 이 절의 「분쟁 상품군의 CDI가 더 높은지 검정」과 판매사 단위 제재 대조는 09-29 결론으로 정답지 용도 폐기(09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록). 남는 쓰임은 CDI 완성 뒤 외부 기준 변수로 비교만. 아래 내용은 판단 근거 기록으로 보존
+- 현행 검증 설계: [점수 저장과 비교 모집단](scoring-and-population.md) 「검증」(축 4는 제재문 사건 단위, 축 1~3은 사람 이해도 조사)
+
 ### 분쟁조정 라벨이 성립하지 않는 이유
 
+- 상태: 09-29 결론으로 정답지 용도 폐기. 분쟁조정 결정문의 현행 용도는 고지 감점표 표현의 재료
 - 09-14 공유 전제·팀 용어 사전의 검증 방법: 「분쟁 상품군의 CDI가 더 높은지 검정」
 - 분쟁조정 결정문은 상품·판매사·운용사 모두 마스킹
   - 마스킹 기호 4종: `●` `○` `▣` `▤`
@@ -95,12 +130,16 @@
 
 ### 제재공시 = 판매사 단위 신호
 
+- 상태: 09-29 결론으로 정답지 용도 폐기. 남는 쓰임은 CDI 완성 뒤 외부 기준 변수로 비교만(제재 종류 좁힘·2021년 이후·판매사 규모 통제). 제재문의 현행 용도는 축 4 사건 단위 검증
 - 제재공시는 판매사명 실명(`finInstName`), 상품명 마스킹(`㉮펀드`)
 - CDI를 상품에 붙이는 축과 제재를 판매사에 붙이는 축은 층이 다름. 검증 설계에서 같은 축으로 두지 않음
 - 경영유의사항 API: 판매사 단위 라벨 후보. 상품에는 붙지 않으므로 「CDI 평균이 높은 판매사가 조치를 많이 받는다」 형태의 약한 대조
 - 근거: [조인 키 확인 기록](records/phase1-erd/join-key-checks.md) 「제재공시」
 
 ### 제재공시 기반 분석의 형태 (09-20 기록)
+
+- 상태: 09-29 결론으로 정답지 용도 폐기. 남는 쓰임은 CDI 완성 뒤 외부 기준 변수로 비교만. 아래 설계와 위험 표는 기록으로 보존
+- 폐기 사유 4가지(09-29): 제재 사유 대부분이 설명서와 무관, 펀드 설명서 작성 주체는 판매사가 아니라 운용사, 제재가 대형사에 편중, 게시판 자료가 2000년부터라 CDI 기준일과 시기 불일치. 같은 표로 보정하고 검정하면 순환
 
 - 성립하는 형태: 상품·절 단위 CDI를 판매사 단위로 재집계(판매사가 파는 펀드들의 CDI 중앙값 등) → 제재 이력과의 연관을 보는 판매사 단위 탐색 분석
 - 적합한 방법: 비모수 검정(Mann-Whitney U), 제재 건수를 종속변수로 한 포아송·음이항 회귀(표본이 작고 치우칠 것으로 예상)
@@ -120,10 +159,10 @@
 | 질문 | 결정 주체 | 필요 시점 |
 |---|---|---|
 | LLM 6필드의 이름·타입·출처 절 | 민석·다빈 정의표 → 주영 인계 | 정의표 2026-09-30, JSON 2026-10-14 |
-| 판매사별 라벨 표(제재공시 기반)의 재료: API 확보 8건으로는 표 불성립. 게시판 경로(2000년 이후 5,735건) 사용 또는 금감원에 API 노출 범위 확인 | 민석 | 2026-10-07 이전 |
+| 판매사별 라벨 표(제재공시 기반)의 재료: API 확보 8건으로는 표 불성립. 게시판 경로(2000년 이후 5,735건) 사용 또는 금감원에 API 노출 범위 확인. 09-29 결론으로 라벨 표는 정답지로 쓰지 않음. 게시판 경로는 축 4 검증용 정찰(10~20건)로 용도 변경, 정찰 담당·기한은 9차 미팅 결정 대기 | 민석 | 2026-10-07 이전 |
 | 제재공시 게시판 전수: 09-14 공유 전제 5,727건 vs 티켓 메모·현황표 5,735건. 조회일 확인 후 다르면 날짜 병기 | 대현·주영 | 2026-10-07 이전 |
-| CDI 검증 방법: 「분쟁 상품군 CDI 검정」 폐기 여부와 사람·LLM 병행 평가로의 대체 확정 | 다빈 | 2026-10-14 |
-| 경영유의사항 API를 판매사 단위 라벨 후보로 채택할지. 09-20 안건 결과 기록 없음 | 팀 / 09-20 회의록 확인 | 2026-09-30 |
+| CDI 검증 방법: 「분쟁 상품군 CDI 검정」 폐기와 대체 확정. 09-29 팀 논의 결론, 09-30 PM 수용. 9차 미팅에서 확정 기록: 정답지 용도 폐기, 축 1~3은 사람·LLM 평가, 축 4는 제재문 사건 단위 검증. 남은 것은 제재문 정찰 담당·기한(9차 미팅 결정 대기)과 대조군 선정 기준([점수 저장과 비교 모집단](scoring-and-population.md) 「미결」) | 다빈 | 2026-10-14 |
+| 경영유의사항 API를 판매사 단위 라벨 후보로 채택할지. 09-20 안건 결과 기록 없음. 09-29 결론으로 판매사 단위 라벨은 정답지로 쓰지 않으므로 이 용도의 채택 이유가 약해짐 | 팀 / 09-20 회의록 확인 | 2026-09-30 |
 | 분쟁조정 업종 정보를 판매 채널 유형 축으로 쓸지 | 다빈 | 2026-10-14 |
 | CDI 출력 응답 envelope 채택 여부 | 팀 (서빙 계약 결정과 함께, 검토 번호 B5) | 2026-10-14 |
 
