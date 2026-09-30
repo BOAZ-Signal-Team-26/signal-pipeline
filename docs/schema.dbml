@@ -16,7 +16,7 @@
 Enum product_category_enum {
   "펀드"
   "ETF"
-  "ELS"
+  "ELS" [note: 'Phase 1 범위 밖(9차 미팅, 1차 구현은 펀드·ETF만). Phase 2 검토. 값은 유지']
 }
 
 Enum etf_confidence_enum {
@@ -139,13 +139,13 @@ Table product {
   is_etf boolean [note: 'KRX_CONFIRMED=true, NOT_ETF=false, NAME_ONLY/PENDING=NULL']
   etf_confidence etf_confidence_enum [not null, note: 'records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 2: ETF 이름 규칙」 반영, 신설']
   fund_key varchar [ref: > fund_group.fund_key, note: '고정 식별자(09-20 결정). 묶음 미확정이면 NULL, 통계에서 사유와 함께 제외']
-  risk_grade int [note: '1~6, 1이 최고위험. DART 투자설명서 표지 "N등급[문구]"에서 정규식(\\d)등급으로 추출. corp_code 조인이 아니라 문서→상품 경로로 채움. 위험등급 원천이 DART 하나만은 아닐 수 있음(금투협 첨부 PDF 본문에도 표기 확인, records/phase1-erd/source-profile.md 「값 표기」) — scoring-and-population.md 「알려진 분석 위험」의 위험등급 결측 논증 전제이므로 재검토 대상']
+  risk_grade int [note: '1~6, 1이 최고위험. DART 투자설명서 표지 "N등급[문구]"에서 정규식(\\d)등급으로 추출. corp_code 조인이 아니라 문서→상품 경로로 채움. 위험등급 원천이 DART 하나만은 아닐 수 있음(금투협 첨부 PDF 본문에도 표기 확인, records/phase1-erd/source-profile.md 「값 표기」) — scoring-and-population.md 「알려진 분석 위험」의 위험등급 결측 논증 전제이므로 재검토 대상. 같은 펀드의 클래스끼리 등급이 달라도 펀드 단위 등급 규칙을 만들지 않고 클래스 등급을 그대로 씀(9차 미팅). 층 배정(고유 fund_key 기준)에 적용하는 방식은 데이터 사이언스(다빈) 확인대기']
   manager_id int [ref: > distributor.distributor_id, note: '운용사/겸업 법인. 포털에 운용사 필드가 없어 매핑 전 NULL 허용']
   inception_date date [note: '포털 setpDt 설정일. 유효 달력일만 변환; 더미는 NULL과 원천 보존. 판매개시일과 다름']
   sale_start_date date [note: '확인된 판매개시일. 설정일을 사실값처럼 복사하지 않음']
   sale_end_date date [note: '종료일 미상은 NULL. NULL 자체가 판매 중의 증거는 아님. scoring-and-population.md 「판매 중 확인」의 후보/확인 범위 구분']
-  fund_type varchar [note: '공공데이터포털 fndTp. scoring-and-population.md 「알려진 분석 위험」에서 위험등급의 보조 층화축 후보로만 확보. 코드 형식·길이 미정']
-  product_class_code varchar [note: '공공데이터포털 prdClsfCd. 코드 형식·길이 미정']
+  fund_type varchar [note: '공공데이터포털 fndTp. scoring-and-population.md 「알려진 분석 위험」에서 위험등급의 보조 층화축 후보로만 확보. 코드 형식·길이 미정. 값 형식은 데이터 엔지니어링·인프라(주영) API 조회로 확인대기(9차 미팅)']
+  product_class_code varchar [note: '공공데이터포털 prdClsfCd. 코드 형식·길이 미정. 값 형식은 데이터 엔지니어링·인프라(주영) API 조회로 확인대기(9차 미팅)']
   is_public_offering boolean [note: '공모/사모. 필터는 적재 단계에서 적용하고 원본은 구분 없이 전량 보관(records/phase1-erd/initial-source-checks.md 「부록: Notion 티켓 메모 사본」)']
   source_raw_object_id int [ref: > raw_object.raw_object_id, note: '현재 상품 값을 공급한 포털 응답 파일. basDt와 원천 행 키로 역추적']
   source_baseline_date date [note: '원천 basDt. 설정일/수집일과 구분']
@@ -160,7 +160,7 @@ Table product {
   short_code는 조회 후보 키일 뿐 UNIQUE가 아니다. 중복은 전체 코드/운용사/클래스로 검증.
   표본에서 충돌이 적어도 자동 유일성 보장으로 해석하지 않는다. fund_key로 클래스를 펀드 단위로
   묶어 scoring-and-population.md의 CDI 정규화 모집단·최소표본 30건 판정에 쓴다.
-  ELS 식별 키는 아직 없다(data-model.md 「미결」) — ELS 전용 칼럼을 추가하지 않았다. 주의: is_etf·
+  ELS 식별 키는 아직 없다(data-model.md 「미결」) — ELS 전용 칼럼을 추가하지 않았다. ELS는 Phase 1 범위 밖(9차 미팅), Phase 2 검토. 주의: is_etf·
   etf_confidence를 문자열 규칙 하나로 판정하면 오탐이 14~30%다.
   '''
 }
@@ -180,7 +180,7 @@ Table distributor {
   product_distributor N:M 브릿지로 뺐다.
   주의: 운용사 536건 중 97건(18%)이 구상호를 갖고 그중 44건은 업종 접미사까지 바뀐다
   ("누림투자자문"→"누림자산운용") — 유사도만으로는 못 잇는다(matching-rules.md 「법인명 정규화」).
-  미확인: corp_code ↔ kofia_mgmt_code 대응(문자열 매칭 1회 고정 필요, 536건 규모).
+  미확인: corp_code ↔ kofia_mgmt_code 대응(문자열 매칭 1회 고정 필요, 536건 규모). 대응표에 없는 7종 포함 확인대기(9차 미팅), PM(대현).
   '''
 }
 
@@ -226,7 +226,7 @@ Table document {
   version_no int [note: '파생 칼럼(09-14 티켓 메모 반영, 신설). lineage 안에서 received_date 순번']
   is_current boolean [note: '파생 칼럼(09-14 티켓 메모 반영, 신설). 물리 칼럼으로 둘지는 2단계 데이터 파이프라인 Flow 설계의 이력 설계에서 결정']
   initial_submit_date date [note: '정정본이면 정정신고 요소에 적힌 최초제출일. 원본이면 received_date와 같다']
-  received_date date [not null, note: '접수일자']
+  received_date date [not null, note: '접수일자. 분쟁조정은 게시일로 채움. 금소법 시행(2021년) 이후 자료만 거르는 기준이라 필수 유지(9차 미팅). 현재 조사 스크립트 research/scripts/fetch_fss_dispute.py의 listing()은 게시일을 파싱하지 않음(수집기 미구현). 분석·리서치(민석) 확인대기, 2026-10-04']
   // parse_status는 (document_id, run_id)별 file_extraction 집계 뷰. 현재 상태로 과거 실행을 덮어쓰지 않는다.
 
   indexes {
@@ -264,7 +264,7 @@ Table document_product {
   평균이 1에 가까워도 1:1 제약의 근거가 되지 않는다(records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 1: 금투협 중복 행」).
   주의: 분쟁조정·제재공시·경영유의공시는 이 표에 행을 만들지 않는다(위 document 표 note
   참고). ELS의 매칭 키 자체가 미정이라(data-model.md 「미결」) ELS 행이 어떤 키로 이 표에 들어오는지
-  규칙이 없다.
+  규칙이 없다. ELS는 Phase 1 범위 밖(9차 미팅), Phase 2 검토.
   '''
 }
 
@@ -743,5 +743,5 @@ Ref: evaluation_response.(target_id, scoring_run_id) > analysis_target.(target_i
 
 // 추가 검증 규칙(범위/조건부 필수/상태 조합)은 data-model.md 「절과 점수 대상」·「적재 검증 규칙」.
 // 미확정: 지표별 단위/산식 승인, 고지 점수 배점/적용범위, 평가 프로토콜, LLM 6필드, 금투협 계보,
-// ELS 키, 판매종료일 원천, 법령 대응, KRX 매칭 잔여, 물리 DB/정밀도.
+// ELS 키(Phase 1 범위 밖, 9차 미팅), 판매종료일 원천, 법령 대응, KRX 매칭 잔여, 물리 DB/정밀도.
 // 이전 주석 제안의 run/population은 본문으로 옮겼다. 축 lookup/집계 공식은 확정하지 않았다.
