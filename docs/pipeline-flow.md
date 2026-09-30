@@ -1,15 +1,103 @@
 # 2단계 데이터 파이프라인 Flow 설계 입력
 
-2단계 데이터 파이프라인 Flow 설계(기한 2026-09-30)가 이어받는 결정 대기 항목, 선행 측정, 수집 일정 실측, 검토 의견.
+2단계 데이터 파이프라인 Flow 설계(기한 2026-09-30)의 Flow 다이어그램 초안과, 이어받는 결정 대기 항목, 선행 측정, 수집 일정 실측, 검토 의견.
 
 ## 상태
 
 | 항목 | 값 |
 |---|---|
-| 설계 본문 | 미작성. 이 문서는 입력 목록 |
+| 설계 본문 | 초안 있음(2026-09-30, 「Flow 다이어그램 초안」 절). 결정 대기 A·C·D·G는 그림에 표시. 나머지 절은 입력 목록 |
 | 기한 | 2026-09-30 |
 | 입력 기준 | 현재 스키마·키·실행/모집단 계약은 [데이터 테이블·ERD 설계](data-model.md), [DBML](schema.dbml), [스키마 명세](schema-catalog.md) |
 | 확정할 것 | 소스 4종 → 대시보드 흐름 다이어그램, DB·원문 저장소·Airflow 환경 |
+
+## Flow 다이어그램 초안 (2026-09-30)
+
+소스 4종에서 대시보드까지 한 장. 표 목록은 ERD v2.2 수정 확정안(9건, 9차 미팅 승인 대기) 기준이며, 결정 대기 A·C·D·G는 그림에 `[결정 대기 X]`로 표시했다. 결정이 나면 그 상자만 고친다.
+
+표시 규칙
+
+- 실선: 확정된 흐름. 점선: 결정 대기 또는 뒤 단계
+- `▶`: 완료 조건이 요구한 표시 지점(run_id 발급 2곳, `upstream_run_id` 참조, 비교 집단 생성, `is_official` 전환, `fund_key` 발급)
+- 상자 안 표 이름은 [DBML](schema.dbml) 기준. 「v2.2 신규」는 [ERD 재검토](records/phase1-erd/design-review-history.md) 수정 5의 표
+
+```mermaid
+flowchart TB
+  subgraph S0["실행 시작"]
+    A0["Airflow 스케줄<br/>주간 수집"] --> A1["pipeline_run 생성<br/>run_kind=EXTRACT<br/>▶ run_id 발급 지점 ①"]
+  end
+  subgraph S1["1. 수집: 소스 → 원본 파일"]
+    A1 --> W["소스 워터마크 표<br/>소스별로 어디까지 받았는지 조회<br/>(v2.2 신규)"]
+    W --> C1["DART list.json<br/>report_nm으로 투자설명서 판별<br/>본문 PDF는 download.do"]
+    W --> C2["공공데이터포털<br/>펀드상품기본정보 전건"]
+    W --> C3["KRX ETF 일별 목록"]
+    W -.-> C4["금투협 · 금감원<br/>[결정 대기 D: Phase 1 포함 여부]"]
+    C1 & C2 & C3 --> R1["collection_attempt 기록<br/>정상 EMPTY와 실패 구분, 재시도 규칙"]
+    R1 --> R2["raw_object 저장<br/>raw/{source}/{date}/{key}/{role}__v{n}<br/>SHA-256 같으면 새 버전 안 만듦"]
+    R2 --> W2["워터마크 전진<br/>구간 완전성 검증 뒤에만"]
+  end
+  subgraph S2["2. 문서·상품 등록과 매칭"]
+    R2 --> D1["document · product · distributor<br/>document_product"]
+    D1 --> M1["코드 매칭 1차 → 이름 정규화 2차<br/>ETF는 KRX 대조 1차, 기준일 뒤 설정분은 PENDING"]
+    M1 -->|성공| F1["fund_group<br/>▶ fund_key 발급 (처음 한 번, 고정)"]
+    M1 -->|실패 · 모호| F2["match_failure<br/>재시도 / 사람 확인 / 영구 실패"]
+  end
+  subgraph S3["3. 추출과 절 분할: 원본 파일 → 절"]
+    R2 --> E0{"같은 파일 × 같은 파서 버전<br/>추출 결과가 이미 있음?"}
+    E0 -->|예, 건너뜀| E3
+    E0 -->|아니오| E1["file_extraction<br/>pdftotext → canonical text<br/>EXTRACT_OK / PARTIAL / FAILED"]
+    E1 --> E2["section<br/>부·절 분할 + 정규 절 분류 칼럼<br/>derived/ 경로에 절 텍스트"]
+    E2 --> E3["문서 파싱 상태 집계<br/>PARSE_OK / PARTIAL / FAILED"]
+    E2 -.-> L1["LLM 6필드 추출 결과 표<br/>(v2.2 신규, 10월 15일 시작)"]
+  end
+  subgraph S4["4. 채점: 절 → CDI 점수"]
+    E3 --> P0["pipeline_run 생성<br/>run_kind=SCORE<br/>▶ run_id 발급 지점 ②<br/>▶ upstream_run_id → EXTRACT run 참조"]
+    P0 --> P1["채점 대상 선정<br/>score에 대상 칼럼 (또는 analysis_target 표)<br/>[결정 대기 A: 표 이름만 달라짐]"]
+    P1 --> P2["metric_definition 참조<br/>절 단위 원점수 → score<br/>계산 불가는 상태값 + NULL 원점수"]
+    P2 --> P3["펀드 단위 집계<br/>관측 단위 = 고유 fund_key"]
+    P3 --> P4["population_snapshot<br/>층 = 상품군 × 위험등급, 층당 30개 이상<br/>▶ 비교 집단 생성 지점"]
+    P4 --> P5["층내 백분위 → score<br/>30개 미만 층은 원점수만"]
+    P5 -.-> P6["펀드 관측치 · 잔차<br/>표 신설 또는 manifest 파일<br/>[결정 대기 C]"]
+  end
+  subgraph S5["5. 게시와 대시보드"]
+    P5 --> O1["is_official=true 전환<br/>SUCCEEDED인 SCORE run 1개만<br/>▶ 공식 점수 전환 지점"]
+    O1 --> O2["대시보드 읽기 뷰 2개<br/>(검토 번호 B5, 채택)"]
+    O2 --> O3["대시보드 3화면<br/>랭킹 · 드릴다운 · 근거 절"]
+  end
+  subgraph S6["6. 평가: 채점 뒤"]
+    P5 -.-> V1["사람 · LLM 평가 원응답<br/>CSV + 설정 파일 또는 표<br/>[결정 대기 G]"]
+  end
+```
+
+### 단계별 표와 실행 종류
+
+| 단계 | 읽는 표 | 만드는 것 | 실행(run) |
+|---|---|---|---|
+| 실행 시작 | 없음 | `pipeline_run` 1행, EXTRACT run_id | EXTRACT |
+| 1 수집 | 소스 워터마크(v2.2 신규) | `collection_attempt`, `raw_object`, 원본 파일(`raw/`), 워터마크 전진 | EXTRACT |
+| 2 등록·매칭 | `raw_object`, `distributor` | `document`, `product`, `document_product`, `fund_group`(fund_key), `match_failure`. `product_distributor`는 D 결정에 따라 | EXTRACT |
+| 3 추출·절 | `raw_object`, `file_extraction`(같은 파일×파서 버전 있으면 건너뜀) | `file_extraction`, `section`(정규 절 분류 포함), 파싱 상태, `derived/` 텍스트, LLM 6필드 추출 결과(v2.2 신규) | EXTRACT. 키는 파일 × 파서 버전(수정 2) |
+| 4 채점 | `section`, `fund_group`, `metric_definition`, upstream EXTRACT run | `pipeline_run`(SCORE), `score`(원점수·상태·백분위), `population_snapshot`. A·C 결정에 따라 `analysis_target`·펀드 관측치 표 | SCORE. `upstream_run_id`로 EXTRACT 참조, 산식만 바뀌면 3단계 재실행 없음 |
+| 5 게시 | `score`, `population_snapshot`, `section` | `is_official` 전환, 읽기 뷰 2개 | SCORE |
+| 6 평가 | `score`, `section` | G 결정에 따라 CSV+설정 파일 또는 표 | SCORE run 참조 |
+
+### 결정 대기가 그림에 미치는 범위
+
+| 결정 | 그림 위치 | 결정 뒤 바꿀 것 |
+|---|---|---|
+| A analysis_target 병합 | 4단계 P1 | 상자 이름만. 흐름 동일 |
+| C 펀드 관측치 표 | 4단계 P6 | 점선을 실선으로 바꾸고 「표」 또는 「manifest 파일」 하나만 남김 |
+| D product_distributor 시점 | 1단계 C4 | Week 5 포함이면 실선 + 2단계에 `product_distributor` 추가. Phase 2면 상자 제거 |
+| G 평가 저장 방식 | 6단계 V1 | 하나만 남김. 채점 이전 단계 영향 없음 |
+| B·E·F·H·I | 없음 | 칼럼·제약 설계. 그림 변경 없음 |
+
+### 이 초안이 전제한 것
+
+- ERD v2.2 수정 확정 9건 중 그림에 들어간 것: 2(추출 키 = 파일 × 파서 버전), 4(정규 절 분류 칼럼), 5(워터마크 표·LLM 추출 표). 9차 미팅 승인 전이면 「승인 대기」로 읽음
+- 채점·평가 표 4개 연기(수정 1)에 따라 `score_dependency`·`evaluation_*`·`analysis_target_member`는 그림에 없음
+- DB 제품·원문 저장소·Airflow 환경은 10-07 결정. 그림은 논리 흐름만이며 어느 상자가 어느 서버에서 도는지는 정하지 않음
+- 소스 간 중복률 측정(「먼저 측정할 것」)은 3단계 절 출력끼리 비교하는 별도 작업이라 그림에 넣지 않음. 중복이 실재하면 2단계와 3단계 사이에 중복 제거 상자가 추가됨
+- 3단계 `derived/` 경로는 현행 규칙상 EXTRACT run 아래에 있음. 수정 2가 반영되면 파일 × 파서 버전 기준으로 바뀌며 검토 번호 B9가 함께 해소됨
 
 ## 1단계에서 넘어온 결정 대기 항목
 
