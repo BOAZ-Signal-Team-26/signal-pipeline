@@ -18,3 +18,5 @@ build-backend = "uv_build"
 [tool.ruff]
 # 조사용 스크립트(research/)는 실측 기록이라 검사 대상에서 뺌
 extend-exclude = ["research"]
+# pre-commit은 파일 경로를 직접 넘기므로 이 설정이 있어야 위 제외가 적용됨
+force-exclude = true
