@@ -37,3 +37,8 @@ jobs:
           if bad:
               sys.exit('셀 출력이 남은 노트북: ' + ', '.join(bad))
           EOF
+
+      - name: 파이썬 코드 검사 (ruff)
+        run: |
+          pipx run ruff==0.16.9 check .
+          pipx run ruff==0.16.9 format --check .
