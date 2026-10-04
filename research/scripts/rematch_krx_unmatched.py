@@ -4,7 +4,9 @@
 용례:
     python3 research/scripts/rematch_krx_unmatched.py <공공데이터포털 전체 캐시 JSON> <결과 CSV>
 
-입력: research/samples/etf_rule_check.csv 의 「KRX매칭실패」 행, verify_etf_rule.py --cache 로 받은 포털 전체 JSON.
+입력: research/samples/etf_rule_check.csv 의 「KRX매칭실패」 행, verify_etf_rule.py --cache 로 받은 포털 전체 JSON,
+      그리고 결과 CSV 자체(이미 있으면 사람이 확정한 행과 보류 메모를 읽어 유지함).
+결과 CSV의 `결과` 칸: 자동 1:1 / 확정(사람 확인) / 보류. 사람이 판단을 바꾸려면 이 파일의 해당 행을 직접 고침.
 규칙은 docs/matching-rules.md 「KRX 매칭 실패 처리」.
 """
 import csv,json,re,sys,collections
@@ -72,26 +74,19 @@ for row in rows:
     else:
         st='수동'; out.append([st,row[1],nm,row[3],'','','',round(best[0][0],2) if best else 0])
     stat2[st]+=1
-# 사람이 확인한 결과(research/samples/krx_rematch_confirmed.csv)를 덮어씀. 파일이 없으면 건너뜀
+# 사람의 판단은 결과 파일 자체에 남김. 결과 파일이 이미 있으면 「확정(사람 확인)」 행과 「보류」 행의 메모를 유지하고,
+# 규칙으로 새로 붙는 「자동 1:1」 행만 다시 계산함(규칙을 고치면 자동 행이 바뀔 수 있음)
 import os
-conf={}
-cp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','samples','krx_rematch_confirmed.csv')
-if os.path.exists(cp):
-    for c in csv.DictReader(open(cp,encoding='utf-8')): conf[c['ISU_CD']]=c
-# 보류였던 건의 재검토 결과(research/samples/krx_rematch_review.csv): 확정 / 확인 필요(후보 있음) / 보류(사유)
-rev={}
-rp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','samples','krx_rematch_review.csv')
-if os.path.exists(rp):
-    for c in csv.DictReader(open(rp,encoding='utf-8')): rev[c['ISU_CD']]=c
+prev={}
+if os.path.exists(sys.argv[2]):
+    for c in csv.DictReader(open(sys.argv[2],encoding='utf-8')): prev[c['ISU_CD']]=c
 final=[]
 for o in out:
-    c=conf.get(o[1]); r=rev.get(o[1])
+    c=prev.get(o[1])
     if o[0]=='자동 1:1': final.append(o+[''])
-    elif c: final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],o[7] if len(o)>7 else '',c.get('확인 근거','')])
-    elif r and r['상태']=='확정': final.append(['확정(사람 확인)',o[1],o[2],1,r['포털펀드명'],r['srtnCd'],r['asoStdCd'],o[7] if len(o)>7 else '',r['메모']])
-    elif r and r['상태']=='확인 필요': final.append(['확인 필요',o[1],o[2],1,r['포털펀드명'],r['srtnCd'],r['asoStdCd'],o[7] if len(o)>7 else '',r['메모']])
-    elif r: final.append(['보류',o[1],o[2],o[3],'','','',o[7] if len(o)>7 else '',r['메모']])
-    else: final.append(['보류']+o[1:]+[''])
+    elif c and c['결과']=='확정(사람 확인)':
+        final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],c['유사도'],c['메모']])
+    else: final.append(['보류',o[1],o[2],o[3],'','','',o[7] if len(o)>7 else '',c['메모'] if c else ''])
 out=final
 print('최종',dict(collections.Counter(o[0] for o in out)))
 print('2차',stat2)
