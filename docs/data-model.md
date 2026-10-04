@@ -623,7 +623,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 | 11 | 시점 | 대표본은 기준일에 이용 가능한 문서. source_input_at/received_date와 관측 컷오프 적용. 현재 product/risk_grade/is_current를 읽어 과거 스냅숏을 재구성하지 않음 |
 | 12 | 완료 실행 | config와 input manifest 및 해시가 모두 고정된 뒤 SUCCEEDED. 완료 행·manifest 덮어쓰기 금지. 새 입력/산식은 새 run_id |
 | 13 | 판매관계 | source_raw_object_id는 실제 판매사별 펀드 응답. observed_date의 월 = snapshot_month. 대표일/완전성 정책 없이 서로 다른 일자를 한 월의 합집합으로 적재하지 않음 |
-| 14 | 대표 위험등급 | fund_group.representative_risk_grade는 1~6(CHECK). 값이 있으면 근거 문서(risk_grade_source_document_id)와 구분(risk_grade_source_kind) 필수. 작성기준일은 근거 문서의 document.report_base_date를 씀(중복 칼럼 없음) |
+| 14 | 대표 위험등급 | fund_group.representative_risk_grade는 1~6(CHECK). 값이 있으면 근거 문서(risk_grade_source_document_id)와 구분(risk_grade_source_kind) 필수. 작성기준일은 근거 문서의 document.report_base_date를 씀(중복 칼럼 없음). 근거 문서는 같은 fund_key의 문서여야 하고, 실행 입력 manifest(selection)에서 그 fund_key의 대표 문서(역할이 risk_grade_source_kind와 같은 것)로 고른 문서와 일치해야 함. 외래키는 다른 펀드의 문서도 통과시키므로 적재 검증에서 대조 |
 | 15 | LLM 추출 | llm_field_extraction.evidence_section_id의 절은 같은 document_id 소속. 근거 위치 범위는 해당 절 범위 안. is_selected=true는 (run_id, document_id, field_name)당 최대 1개 |
 | 16 | 선택 manifest | pipeline_run.selection_manifest_path와 sha256은 함께 있거나 함께 비어야 함. SCORE 완료(SUCCEEDED) 실행에는 필수 |
 | 17 | 파서 버전 | file_extraction.parser_version은 소문자·숫자·`.`·`-`·`_`만 허용(파일 경로에 쓰임). 전처리 버전을 포함. 같은 sha256의 raw_object가 여럿이어도 derived 경로를 공유하며 내용이 같아 무해. 쓰기는 sha256 기준 한 번 |
@@ -825,7 +825,7 @@ erDiagram
 |---|---|
 | 1 | 기존 DB 적용 여부부터 확인. 이번 작업은 논리 스키마와 문서 변경이며 운영 DB 마이그레이션 실행 아님 |
 | 2 | 기존 section마다 SECTION 대상 score 행 생성(v2.2: 대상·멤버 표가 없어 score가 대상 칼럼을 가짐). 기존 score_type에 해당하는 승인된 metric 버전 식별. 알 수 없는 산식은 추측하지 않고 격리 |
-| 3 | 기존 score_id 유지, target_id/metric_key/assessor_key 채움. 실제 숫자가 있는 행만 OK. 기존 weight는 사용한 문서별 산식이 확인될 때 dependency로 이관. 백분위는 모집단·단위가 검증된 경우만 이관 |
+| 3 | 기존 score_id 유지, target_type·대상 칼럼(section_id·document_id·fund_key 중 하나)·target_key·metric_key·assessor_key 채움. 실제 숫자가 있는 행만 OK. 기존 weight는 사용한 문서별 산식이 확인될 때 score_payload의 가중치 계약으로 이관(v2.2는 score_dependency 표가 없음). 백분위는 모집단·단위가 검증된 경우만 이관 |
 | 4 | 파일 구조를 재추출하지 않았다면 structure_status=NOT_REQUESTED. 기존 데이터에 페이지/좌표를 가정해 채우지 않음 |
 | 5 | 입력·모집단·대상·지표 연결 검증 뒤 구형 score 칼럼 소비자를 v2로 전환. 실제 데이터가 있으면 행 수/해시/점수 동등성 대조와 되돌리기용 백업 선행 |
 
@@ -911,6 +911,7 @@ erDiagram
 | selection manifest를 pipeline_run의 칼럼 2개로 두는 위치. 대상 선택 근거와 역할별 대표 문서의 기록 자리 | 대현 | 2단계 설계 |
 | 룩백 재조회 방식 확정(DART 3일·금투협 7일 잠정값)과 소스별 워터마크 검증 방법(건수 대조·페이지 끝 확인 등) | 데이터 엔지니어링·인프라(주영) | 2단계 설계 |
 | K55·KR5·KRM 외 접두 asoStdCd의 보존 위치(match_failure로 보낼지) | [담당 미정] | 상품 적재 구현 전 |
+| 추출 실패·부분 성공(FAILED/PARTIAL) 행을 다음 실행이 덮어쓰면 이전 실행의 실패 기록이 사라짐. 실행별 추출 시도·상태 이력을 별도로 남길지(표 1개 추가 또는 실행 결과 파일에 기록). 이번 버전은 덮어쓰기 유지, EXTRACT_OK 행만 불변 | 데이터 엔지니어링·인프라(주영) | 데이터 처리 요구 명세(10월 7일) |
 | LLM 같은 입력(같은 문서·파서·프롬프트·모델) 재호출 생략 규칙 | 데이터 사이언스(다빈)·데이터 엔지니어링·인프라(주영) | 2026-10-15 추출 시작 전 |
 | llm_field_extraction에서 문서에 값이 없다는 「없음」 결과를 result_status 어느 값으로 둘지(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음이라 맞는 값 없음) | 대현 | 2026-10-14 (3단계 입출력 Schema) |
 | 수집 주기·신선도 목표, KRX 일별 스냅숏 적재 주기 | 데이터 처리 요구 명세에서 정함 | [확인 필요: 일자] |

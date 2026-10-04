@@ -9,8 +9,8 @@
 """
 import csv,json,re,sys,collections
 sys.path.insert(0,'research/scripts'); from verify_etf_rule import normalize as N
-r=[x for x in csv.DictReader(open('research/samples/etf_rule_check.csv')) if x['구분']=='KRX매칭실패']
-d=json.load(open(sys.argv[1]))
+r=[x for x in csv.DictReader(open('research/samples/etf_rule_check.csv',encoding='utf-8')) if x['구분']=='KRX매칭실패']
+d=json.load(open(sys.argv[1],encoding='utf-8'))
 F={}
 for f in d:
     if '상장지수' in f['fndNm'] or 'ETF' in f['fndNm'].upper():
@@ -22,7 +22,7 @@ TAILS=['증권','특별자산','상장지수','파생','부동산','채권','주
 def keys(name):
     base=re.sub(r'\([^)]*\)','',name).strip(); b=base.split()[0]; rest=base[len(b):]
     ks=[N(base)]+[N(a+rest) for a in ALIAS.get(b,[])]
-    ks+= [k.replace('TR','') for k in ks if k.endswith('TR')]
+    ks+= [k[:-2] for k in ks if k.endswith('TR')]
     return ks
 def hit(k):
     out=[]
@@ -72,4 +72,4 @@ for row in rows:
         st='수동'; out.append([st,row[1],nm,row[3],'','','',round(best[0][0],2) if best else 0])
     stat2[st]+=1
 print('2차',stat2)
-csv.writer(open(sys.argv[2],'w',newline='')).writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)
+csv.writer(open(sys.argv[2],'w',newline='',encoding='utf-8')).writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)

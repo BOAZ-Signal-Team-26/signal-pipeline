@@ -129,7 +129,7 @@
 
 | 항목 | 현재 모양 | 정의 위치 |
 |---|---|---|
-| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{section_id,char_start,char_end}]}]`(v2.2: B11 안 1, member_id·block_id 제거), `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」. 저장 계약은 항목별 score 행 기준으로 바뀜([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 참조). 이 items 배열 구조와 member_id 근거 형식은 결정 요청 B11 결정 뒤 정리 |
+| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{section_id,char_start,char_end}]}]`(v2.2: B11 안 1, member_id·block_id 제거), `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」. 저장 계약은 항목별 score 행 기준으로 바뀜([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 참조). 근거 위치는 B11 안 1로 확정되어 `evidence[{section_id,char_start,char_end}]` 형식만 씀(`member_id`는 쓰지 않음) |
 | target_key | `{contract_version:3, target_type, anchor, selection_policy_version}`(v2.2: members 제거)의 정규 JSON SHA-256. run 안 재시도 멱등성 키, 공개 ID 아님 | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
 | 구조 manifest | `{contract_version,raw_object_id,parser_version,canonical_text_sha256,coordinate_system,blocks,missing_regions}` | [데이터 테이블·ERD 설계](data-model.md) 「원본·수집 시도·추출」 |
 | 평가 protocol_manifest | 문서쌍·target_ids·문항/정답/채점기준·조건·반복·프롬프트·계획 응답 슬롯(evaluation 표는 v2.2에서 연기) | [데이터 테이블·ERD 설계](data-model.md) 「예약 계약(승인 뒤 추가)」 |

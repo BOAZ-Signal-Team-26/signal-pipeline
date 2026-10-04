@@ -48,10 +48,11 @@ raw/kofia_disclosure/{companyCd}~{standardDt}~{announceTtl 인코딩}~{tmpV1}/at
 raw/fss_sanction/{examMgmtNo}~{emOpenSeq}~{transCode}~{actGbn}/api_response__v1.json
 raw/fss_improvement/{examMgmtNo}~{emOpenSeq}~{transCode}~{actGbn}/api_response__v1.json
 raw/fss_dispute/{게시판 ID}~{게시글 번호}/attachment-01__v1.hwp
-raw/data_go_fund/{기준일}/page-0001.json
-raw/data_go_fund/{기준일}/page-0184.json
-raw/data_go_fund/{기준일}/_complete.json
-raw/krx_etf_daily/{기준일}/api_response__v1.json
+raw/data_go_fund/{기준일}/page-0001__v1.json
+raw/data_go_fund/{기준일}/page-0184__v1.json
+raw/data_go_fund/{기준일}/_complete__v1.json
+raw/data_go_fund/{기준일}/r2/page-0001__v1.json      # 같은 기준일을 다시 받은 경우(아래 「API 스냅숏 저장 단위」)
+raw/krx_etf_daily/{기준일}/api_response__v1.json   # 같은 기준일 바이트가 바뀌면 v2
 ```
 
 - 금투협 4필드 순서: `companyCd`, `standardDt`, `announceTtl`, `tmpV1`([데이터 테이블·ERD 설계](data-model.md) 「문서와 소스별 키」). 수시공시만 이 4필드로 묶음
@@ -62,7 +63,7 @@ raw/krx_etf_daily/{기준일}/api_response__v1.json
 | 요소 | 의미 |
 |---|---|
 | source | 서비스/엔드포인트 이름공간. 7개: `dart`, `kofia_disclosure`, `fss_sanction`, `fss_improvement`, `fss_dispute`, `data_go_fund`(공공데이터포털 펀드상품기본정보), `krx_etf_daily`(KRX ETF 일별 매매정보). 제재와 경영유의 API는 구분 |
-| 원천 키 | DB `source_object_key`를 만드는 같은 인코딩 함수의 결과. 필드가 여러 개면 `~`로 연결. `/` 등 경로에 쓸 수 없는 문자는 퍼센트 인코딩. 인코딩 후 200바이트를 넘으면 앞부분 + 해시 접미사로 줄임. 원본 필드 값은 meta.json에 JSON으로 보존 |
+| 원천 키 | 문서 하나를 가리키는 키(문서 키). DB `raw_object.source_object_key`에서 파일 역할·첨부 번호를 뺀 부분이며, 같은 문서의 역할별 파일(`body_pdf`·`cover_html`·`prospectus`·`attachment-01` 등)은 이 폴더 하나에 둠. 필드가 여러 개면 `~`로 연결. 퍼센트 인코딩은 `/`, `~`, `%`, 제어 문자만 하고 한글은 그대로 둠. 인코딩 후 200바이트를 넘으면 앞부분을 남기고 `-h` + 전체 키 SHA-256 앞 12자를 붙임. 원본 필드 값은 meta.json에 JSON으로 보존 |
 | 기준일 폴더 | 스냅숏형 API(`data_go_fund`, `krx_etf_daily`)만 사용. 값은 원천 기준일 YYYY-MM-DD이며 수집일이 아님 |
 | file_role | cover_html / cover_xml / body_pdf / api_response / attachment / prospectus / prospectus_simple / change_summary |
 | `attachment-01` 식 접미 | 같은 file_role 첨부가 여럿일 때 파일명에 붙임. 파일명 규칙이며 file_role 값이 아님 |
@@ -71,7 +72,8 @@ raw/krx_etf_daily/{기준일}/api_response__v1.json
 
 API 스냅숏 저장 단위:
 
-- `data_go_fund`: 기준일 폴더 아래 페이지당 객체 1개(`page-NNNN.json`). 마지막에 `_complete.json`(페이지 수·건수)을 씀. 이 파일이 있어야 그 기준일 스냅숏을 유효로 봄
+- `data_go_fund`: 기준일 폴더 아래 페이지당 객체 1개(`page-NNNN__v{n}.json`, 바이트 버전 `n`은 `version_seq`). 마지막에 `_complete__v{n}.json`(페이지 수·건수)을 씀. 이 파일이 있어야 그 기준일 스냅숏을 유효로 봄
+- 같은 기준일을 다시 받았는데 바이트가 바뀌었으면 기존 파일을 덮어쓰지 않고 `{기준일}/r2/`, `r3/` 폴더를 새로 만듦. 가장 높은 번호의 폴더 중 `_complete`가 있는 것이 그 기준일의 유효 스냅숏. 바이트가 같으면 새로 쓰지 않음
 - `krx_etf_daily`: 기준일당 파일 1개
 
 압축:

@@ -144,7 +144,7 @@
 | score_id | int | 불가 | PK | 내부 발급 서러게이트 키 |
 | run_id | varchar | 불가 | FK | SCORE run |
 | target_type | target_type_enum | 불가 | FK | target_type별로 대상 칼럼(section_id, document_id, fund_key) 중 정확히 하나만 채워짐(CHECK num_nonnulls(section_id, document_id, fund_key) = 1. DOCUMENT_PAIR는 Phase 2이며 현재 저장 불가. 적재 검증). v2.2 결정 대기 A(analysis_target 병합, 기본값). 계산 단위. 결정 대기 B10 채택: metric_definition.target_type과 같아야 함(아래 복합 FK로 강제) |
-| target_key | varchar(64)(64) | 불가 |  | v2.2 병합. target_key 계약(data-model.md 「절과 점수 대상」 6번, 계약 버전 3): 종류/앵커/대표본 정책 버전의 정규 JSON SHA-256(data-model.md 「절과 점수 대상」 6번). run 안의 재시도 멱등성 키이며 run 간 동일 대상 탐지 키가 아님. 공개 ID로 쓰지 않음 |
+| target_key | varchar(64) | 불가 |  | v2.2 병합. target_key 계약(data-model.md 「절과 점수 대상」 6번, 계약 버전 3): 종류/앵커/대표본 정책 버전의 정규 JSON SHA-256(data-model.md 「절과 점수 대상」 6번). run 안의 재시도 멱등성 키이며 run 간 동일 대상 탐지 키가 아님. 공개 ID로 쓰지 않음 |
 | section_id | int | 허용 | FK | SECTION만 필수, 다른 유형은 NULL. 그 절의 파서 버전은 section.parser_version이며 run의 input_manifest가 고정한 파서 버전과 일치해야 함(적재 검증) |
 | document_id | int | 허용 | FK | DOCUMENT만 필수. 다른 유형은 NULL |
 | fund_key | varchar | 허용 | FK | FUND만 필수. 다른 유형은 NULL; 통계 연결은 실행 입력/모집단 manifest |
@@ -300,9 +300,9 @@
 | created_run_id | varchar | 불가 | FK | 이 행을 마지막으로 쓴 EXTRACT run(출처 기록용, 키 아님). EXTRACT_OK 행은 불변이며 갱신하지 않는다. FAILED/PARTIAL 행은 다음 실행이 같은 키로 덮어쓸 수 있고 이때 이 칼럼을 그 실행으로 갱신한다. SCORE 입력 판별에 쓰지 않는다(입력은 SCORE run의 input manifest가 고정) |
 | extract_status | raw_extract_status_enum | 불가 |  |  |
 | canonical_text_path | text | 허용 |  | 공통 RAW_ROOT 기준 상대경로(storage-and-failure-rules.md 「파생 텍스트·실행 스냅숏 경로」). UTF-8/LF 파일 전체 텍스트. 추출 실패 시 NULL 가능. 표/페이지 구조 보존 계약은 records/phase1-erd/design-review-history.md 「미결정 포함 재검토(09-23)」 |
-| canonical_text_sha256 | varchar(64)(64) | 허용 |  |  |
+| canonical_text_sha256 | varchar(64) | 허용 |  |  |
 | structure_manifest_path | text | 허용 |  | RAW_ROOT 상대경로. 페이지/블록 종류/좌표/강조/텍스트 구간 대응 JSON |
-| structure_manifest_sha256 | varchar(64)(64) | 허용 |  |  |
+| structure_manifest_sha256 | varchar(64) | 허용 |  |  |
 | structure_status | structure_status_enum | 불가 |  | 텍스트 추출 성공과 독립. AVAILABLE/PARTIAL이면 manifest 경로·해시 필수, 그 외 NULL |
 | text_length | int | 허용 |  | Unicode code point 수. 절 끝의 MAX로 전체 길이를 추정하지 않음 |
 | error_reason | text | 허용 |  |  |
@@ -368,7 +368,7 @@
 | field_name | varchar | 불가 |  | 6필드 이름은 분석·리서치(민석)·데이터 사이언스(다빈)가 10월 5일 확정 전이라 값으로 둔다. 필드가 바뀌어도 표 구조는 그대로 |
 | attempt_no | int | 불가 |  | 같은 run·문서·필드의 재시도 순번, 1부터 |
 | model_name | varchar | 불가 |  | 실제 호출한 모델 이름 |
-| prompt_sha256 | varchar(64)(64) | 불가 |  | 프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일 |
+| prompt_sha256 | varchar(64) | 불가 |  | 프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일 |
 | input_tokens | int | 허용 |  |  |
 | output_tokens | int | 허용 |  |  |
 | result_status | result_status_enum | 불가 |  | OK이면 value_json 필수. 호출·파싱 실패는 FAILED. 문서에서 값을 찾지 못한 「없음」 결과는 기존 enum 값(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음)에 맞는 것이 없어 정의 보류(data-model.md 「미결」) |

@@ -45,6 +45,7 @@ flowchart TB
   subgraph S3["3. 추출과 절 분할: 원본 파일 → 절"]
     R2 --> E0{"같은 파일 × 같은 파서 버전<br/>EXTRACT_OK 결과가 이미 있음?"}
     E0 -->|예, 건너뜀(EXTRACT_OK만)| E3
+    E0 -.->|예: 텍스트·절은 재사용, LLM 6필드 결과는 따로 판단| L1
     E0 -->|아니오 또는 FAILED/PARTIAL 재시도| E1["file_extraction<br/>pdftotext → canonical text<br/>EXTRACT_OK / PARTIAL / FAILED"]
     E1 --> E2["section<br/>부·절 분할 + 정규 절 분류 칼럼<br/>derived/ 경로에 절 텍스트"]
     E2 --> E3["문서 파싱 상태 집계<br/>PARSE_OK / PARTIAL / FAILED"]
