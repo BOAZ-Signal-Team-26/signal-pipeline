@@ -157,7 +157,7 @@ K55 체계 운용사 코드(`asoStdCd` 4~6번째 자리) 100종 중 금투협 �
 | 수동 | 51 | 사람이 포털에서 찾아 1회 매핑. 못 찾으면 PENDING 유지(모집단 제외) |
 
 - 결과 파일: [`krx_unmatched_rematch.csv`](../research/samples/krx_unmatched_rematch.csv), 재현: [`rematch_krx_unmatched.py`](../research/scripts/rematch_krx_unmatched.py)
-- 사람이 확인·매핑한 결과(87건)는 S3 `eval/`이 아니라 대응표 파일로 저장소에 두고 수집 코드가 읽음. 담당 PM(대현), 시점은 ETF 매칭 구현 전(ETF 2순위)
+- 사람이 확인·매핑한 결과(87건)는 KRX ETF 이름 대응표로 S3 `assets/rules/`에 두고 수집 코드가 읽음. 평가 자료가 아니므로 `eval/`에 두지 않음. 담당 PM(대현), 시점은 ETF 매칭 구현 전(ETF 2순위)
 - 매주 새로 상장되는 ETF도 같은 규칙을 먼저 적용하고, 붙지 않은 것만 `match_failure`에 남김
 - 유사도 후보에는 틀린 연결이 섞일 수 있음(예: `KODEX 코스닥150선물인버스` ↔ 포털 `코스닥150인버스`). 그래서 자동 연결하지 않음
 
