@@ -43,12 +43,26 @@ jobs:
             if (!label) return;
 
             try {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: target.number,
-                labels: [label],
-              });
+              // 제목을 바꿔 타입이 달라지면 이전 타입 라벨을 뗀다
+              const current = (target.labels || []).map((l) => l.name);
+              for (const name of current) {
+                if (Object.values(labels).includes(name) && name !== label) {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: target.number,
+                    name,
+                  });
+                }
+              }
+              if (!current.includes(label)) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: target.number,
+                  labels: [label],
+                });
+              }
             } catch (error) {
-              core.warning(`라벨 추가 실패: ${error.message}`);
+              core.warning(`라벨 변경 실패: ${error.message}`);
             }

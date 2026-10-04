@@ -42,7 +42,7 @@ jobs:
               per_page: 100,
             });
             const prev = comments.find(
-              (c) => c.user.type === 'Bot' && c.body.includes(MARKER)
+              (c) => c.user?.login === 'github-actions[bot]' && (c.body || '').includes(MARKER)
             );
 
             if (ok) {
