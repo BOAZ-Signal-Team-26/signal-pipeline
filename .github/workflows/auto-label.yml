@@ -1,0 +1,54 @@
+name: Auto Labeler
+
+# 이슈 / PR 제목 맨 앞의 `[Type]` 을 보고 라벨을 붙입니다.
+# 라벨 5종은 저장소에 미리 만들어 두어야 합니다(없는 라벨은 건너뜀).
+# 출처: BOAZ-website/design-system 의 같은 파일. Signal 타입 4종 + Release 에 맞춤
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+jobs:
+  labeler:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Auto Labeling based on title
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const payload = context.payload;
+            const target = payload.pull_request ?? payload.issue;
+            const title = target.title || '';
+
+            // 제목 맨 앞 `[Type]` 만 본다. 본문 단어로 오분류하지 않기 위함
+            const match = title.match(/^\[(\w+)\]/);
+            if (!match) return;
+
+            const labels = {
+              feat: '⭐️ FEAT',
+              fix: '🐛 FIX',
+              docs: '✏️ DOCS',
+              chore: '🧹 CHORE',
+              release: '🚀 RELEASE',
+            };
+            const label = labels[match[1].toLowerCase()];
+            if (!label) return;
+
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: target.number,
+                labels: [label],
+              });
+            } catch (error) {
+              core.warning(`라벨 추가 실패: ${error.message}`);
+            }
