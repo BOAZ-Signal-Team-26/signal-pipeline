@@ -167,6 +167,7 @@
 | [금투협 수시공시 중복 행과 ETF 이름 규칙 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) | 09-19 금투협 중복 행, ETF 「상장지수」 이름 규칙 |
 | [조인 키 확인 기록](records/phase1-erd/join-key-checks.md) | 소스 간 연결 판정 현황표, srtnCd·판매회사·분쟁조정·제재공시 실측 |
 | [DART 본문 PDF 부·절 분할 실현성 검증](records/phase1-erd/dart-section-split.md) | 09-20 부·절 분할 |
+| [운용사 코드 대조 기록](records/phase1-erd/manager-code-check.md) | 10-04 대응표에 없는 운용사 코드 7종 실측과 처리 |
 | [소스별 데이터 현황표](records/phase1-erd/source-profile.md) | 문서 4종 × 7항목 |
 | [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) | 9 → 14 → 20 → 17개 표 변천(v2.2 17개 포함), 09-22·09-23 재검토, v2 6관점 검토 |
 
