@@ -48,7 +48,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 |---|---|
 | 확정(10월 3일 팀 채널, 이의 없음) | 수정 1~9, B11 안 1 |
 | 확정(9차 미팅 9월 30일) | 수정 10 두 파트 출력 저장 |
-| 확정(10월 4일 PM 승인) | 수정 11 S3 트리와 llm_field_extraction.response_sha256 추가 |
+| 확정(10월 4일 PM 승인) | 수정 11 S3 트리와 llm_field_extraction.response_sha256 추가, 수정 12 distributor.kofia_disclosure_company_code 추가(운용사 연결 순서) |
 | 기본값으로 반영, 결정 대기 | A 병합, C 펀드 관측치 표 없음(manifest 파일), E 체계별 두 칼럼 |
 | 10월 4일 판단 항목, 기본값으로 반영, 결정 대기 | 펀드 대표 위험등급 칼럼, 클래스 등급 불일치 기록, 문서 작성기준일, 간이 대표 역할 |
 | 그대로 미결 | B(run 일치 복합 FK, 현행 유지), D(product_distributor 적재 시점, 표 유지), F(정규 절 분류 값 규칙), G(평가 저장), H(B3·B4 보류), I(score 상태 칼럼으로 정리), B5(대시보드 읽기 뷰, DBML 밖), B12·B13 |
@@ -67,6 +67,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | 8 B7 정정 | manifest 저장 기준 통일만 채택(큰 불변 자료는 파일, SQL 필터 대상은 칼럼). RFC 8785 요구 삭제, 키 정렬 규칙 한 줄 | 「절과 점수 대상」 6번 |
 | 9 B8 채택 안 함 | 지표 승인 이력 표 없이 metric_definition 칼럼 또는 definition_manifest에 기록 | schema.dbml |
 | 11 S3 트리 확정 | raw 폴더를 수집일·해시 폴더에서 읽을 수 있는 원천 키 폴더로 변경. source 이름공간을 5개에서 7개로 확대(data_go_fund, krx_etf_daily 추가). llm_field_extraction에 response_sha256 칼럼 1개 추가(표 수·관계 수·enum 수는 그대로). raw_object.storage_path와 raw_response_path의 경로 형식 주석 갱신 | schema.dbml, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」「적재 순서」 |
+| 12 운용사 연결 순서 | distributor에 kofia_disclosure_company_code 칼럼 1개 추가(UNIQUE, NULL 허용). 금투협 공시 목록의 운용사 코드(`A01021` 형식)를 담아 현재 운용사로 연결. 표준코드 안 3자리 코드는 설정 당시 운용사라 합병·상호 변경 뒤 틀릴 수 있음. 표 수·관계 수·enum 수는 그대로 | schema.dbml, [매칭 규칙](matching-rules.md) 「운용사 연결 순서」 |
 | 10 두 파트 저장 계약 | 문서에 이미 있음. DBML score_payload 주석을 파트 B 축 1·2, 축 구성별 지표 버전, 작성기준 항목 점검 행과 맞춤 | 「두 파트 출력의 저장 계약」 |
 
 #### 수정 7 형식 오류 정정 6건
@@ -239,7 +240,8 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | 항목 | 규칙 |
 |---|---|
 | kofia_sales_code | `saleCompCd`, 표본 200건의 6자리 유일 문자열. 운용사 코드와 별개 |
-| kofia_mgmt_code | 금투협 운용사 코드 3자리. `corp_code`와 대응 검증 필요 |
+| kofia_disclosure_company_code | 금투협 공시 목록의 운용사 코드(`A01021` 형식). 현재 운용사 기준. 운용사 연결 1순위 키 |
+| kofia_mgmt_code | 금투협 운용사 코드 3자리(표준코드 4~6번째 자리). 펀드 설정 당시 운용사라 합병·상호 변경 뒤에는 현재 운용사와 다를 수 있음. `corp_code`와 대응 검증 필요 |
 | corp_code | DART 제출 법인 코드. 숫자로 바꿔 선행 0을 잃지 않음 |
 | distributor_type | 운용사 / 판매사 / 겸업 / 미상. 상품 manager는 운용사·겸업만 |
 | 판매관계 PK | `(product_id, distributor_id, snapshot_month)` |

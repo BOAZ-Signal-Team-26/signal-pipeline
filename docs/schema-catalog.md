@@ -45,6 +45,7 @@
 | distributor_id | int | 불가 | PK | 내부 발급 서러게이트 키 |
 | kofia_sales_code | varchar(6) | 허용 | UK | 판매회사 마스터 saleCompCd. 200건 전부 6자리/유일. 운용사 코드와 별개 |
 | corp_code | varchar | 허용 |  | DART 법인 고유번호(공시 제출 법인=운용사). 원래 상품 표에 있던 것을 이관(문서→상품 경로로 위험등급을 채우기 위한 결정과 연동). document.corp_code와 값 체계가 같아 보이나 이 문서 어디에도 FK로 명시돼 있지 않아 관계선을 긋지 않았다([데이터 테이블·ERD 설계](data-model.md) 「ERD」의 그림에 넣지 않은 관계 1번). 8자리(09-30 목록 API 실측으로 확인, [데이터 소스 명세](data-sources.md) 「OPEN DART API」) |
+| kofia_disclosure_company_code | varchar(6) | 허용 | UK | 금투협 전자공시 공시 목록의 운용사 코드 companyCd(예: A01021=한화자산운용, A01048=미래에셋자산운용). 현재 운용사 기준이라 합병·상호 변경을 반영. 공시 행을 적재할 때 채움. 표준코드 안 3자리 코드(kofia_mgmt_code)와 체계가 다름. 운용사 연결 1순위 키([매칭 규칙](matching-rules.md) 「운용사 연결 순서」). 10월 4일 추가 |
 | kofia_mgmt_code | varchar(3) | 허용 |  | 금투협 운용사 코드 3자리 영숫자(예: 105=삼성자산운용, 301=미래에셋자산운용). 대응표 536건 = [research/samples/kofia_mgmt_codes.csv](../research/samples/kofia_mgmt_codes.csv) |
 | distributor_name | text | 불가 |  | 원문명 |
 | distributor_name_normalized | text | 허용 |  | [매칭 규칙](matching-rules.md) 「법인명 정규화」 5단계(NFKC→구상호 치환→법인격 표기 제거→공백 제거→지점 표기 제거) 결과. 상품명 정규화 규칙을 쓰지 않는다 — 법인명에는 클래스 표기가 없고 대신 상호 변경이 있다 |
