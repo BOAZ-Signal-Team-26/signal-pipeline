@@ -23,13 +23,13 @@
 | is_etf | boolean | 허용 |  | KRX_CONFIRMED=true, NOT_ETF=false, NAME_ONLY/PENDING=NULL |
 | etf_confidence | etf_confidence_enum | 불가 |  | [금투협 중복 행과 ETF 이름 규칙 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 2: ETF 이름 규칙」 반영, 신설 |
 | fund_key | varchar | 허용 | FK | 고정 식별자(09-20 결정). 묶음 미확정이면 NULL, 통계에서 사유와 함께 제외 |
-| risk_grade | int | 허용 |  | 1~6, 1이 최고위험. DART 투자설명서 표지 "N등급[문구]"에서 정규식(\\d)등급으로 추출. corp_code 조인이 아니라 문서→상품 경로로 채움. 위험등급 원천이 DART 하나만은 아닐 수 있음(금투협 첨부 PDF 본문에도 표기 확인, [소스별 데이터 현황표](records/phase1-erd/source-profile.md) 「값 표기」) — [점수 저장과 비교 모집단](scoring-and-population.md) 「알려진 분석 위험」의 위험등급 결측 논증 전제이므로 재검토 대상 |
+| risk_grade | int | 허용 |  | 1~6, 1이 최고위험. DART 투자설명서 표지 "N등급[문구]"에서 정규식(\\d)등급으로 추출. corp_code 조인이 아니라 문서→상품 경로로 채움. 위험등급 원천이 DART 하나만은 아닐 수 있음(금투협 첨부 PDF 본문에도 표기 확인, [소스별 데이터 현황표](records/phase1-erd/source-profile.md) 「값 표기」) — [점수 저장과 비교 모집단](scoring-and-population.md) 「알려진 분석 위험」의 위험등급 결측 논증 전제이므로 재검토 대상. 공시된 펀드 위험등급(1~6등급)을 그대로 쓰고 사람이 다시 매기지 않음(9차 미팅). 같은 펀드의 클래스끼리 등급이 다른 경우의 처리는 미정: 데이터 사이언스(다빈) 확인대기 |
 | manager_id | int | 허용 | FK | 운용사/겸업 법인. 포털에 운용사 필드가 없어 매핑 전 NULL 허용 |
 | inception_date | date | 허용 |  | 포털 setpDt 설정일. 유효 달력일만 변환; 더미는 NULL과 원천 보존. 판매개시일과 다름 |
 | sale_start_date | date | 허용 |  | 확인된 판매개시일. 설정일을 사실값처럼 복사하지 않음 |
 | sale_end_date | date | 허용 |  | 종료일 미상은 NULL. NULL 자체가 판매 중의 증거는 아님. [점수 저장과 비교 모집단](scoring-and-population.md) 「판매 중 확인」의 후보/확인 범위 구분 |
-| fund_type | varchar | 허용 |  | 공공데이터포털 fndTp. [점수 저장과 비교 모집단](scoring-and-population.md) 「알려진 분석 위험」에서 위험등급의 보조 층화축 후보로만 확보. 코드 형식·길이 미정 |
-| product_class_code | varchar | 허용 |  | 공공데이터포털 prdClsfCd. 코드 형식·길이 미정 |
+| fund_type | varchar | 허용 |  | 공공데이터포털 fndTp. [점수 저장과 비교 모집단](scoring-and-population.md) 「알려진 분석 위험」에서 위험등급의 보조 층화축 후보로만 확보. 코드 형식·길이 미정. 값 형식은 데이터 엔지니어링·인프라(주영) API 조회로 확인대기(9차 미팅) |
+| product_class_code | varchar | 허용 |  | 공공데이터포털 prdClsfCd. 코드 형식·길이 미정. 값 형식은 데이터 엔지니어링·인프라(주영) API 조회로 확인대기(9차 미팅) |
 | is_public_offering | boolean | 허용 |  | 공모/사모. 필터는 적재 단계에서 적용하고 원본은 구분 없이 전량 보관([초기 소스 확인](records/phase1-erd/initial-source-checks.md) 「부록: Notion 티켓 메모 사본」) |
 | source_raw_object_id | int | 허용 | FK | 현재 상품 값을 공급한 포털 응답 파일. basDt와 원천 행 키로 역추적 |
 | source_baseline_date | date | 허용 |  | 원천 basDt. 설정일/수집일과 구분 |
@@ -95,7 +95,7 @@
 | version_no | int | 허용 |  | 파생 칼럼(09-14 티켓 메모 반영, 신설). lineage 안에서 received_date 순번 |
 | is_current | boolean | 허용 |  | 파생 칼럼(09-14 티켓 메모 반영, 신설). 물리 칼럼으로 둘지는 2단계 데이터 파이프라인 Flow 설계의 이력 설계에서 결정 |
 | initial_submit_date | date | 허용 |  | 정정본이면 정정신고 요소에 적힌 최초제출일. 원본이면 received_date와 같다 |
-| received_date | date | 불가 |  | 접수일자 |
+| received_date | date | 불가 |  | 접수일자. 분쟁조정은 게시일로 채움. 금소법 시행(2021년) 이후 자료만 거르는 기준이라 필수 유지(9차 미팅). 현재 조사 스크립트 `research/scripts/fetch_fss_dispute.py`의 `listing()`은 게시일을 파싱하지 않음(수집기 미구현). 분석·리서치(민석) 확인대기, 2026-10-04 |
 
 - UNIQUE: (source, source_doc_key)
 - FK: (distributor_id) → distributor(distributor_id)
@@ -151,7 +151,7 @@
 | metric_key | varchar | 불가 | FK | 불변 지표 버전. ASL/축값/CDI/백분위도 서로 다른 지표로 명시 가능 |
 | assessor_key | varchar | 불가 |  | deterministic 또는 config_manifest 안의 평가자/모델 설정 키. 재시도는 같은 키, 별도 평가자는 다른 키 |
 | result_status | result_status_enum | 불가 |  |  |
-| reason_code | varchar | 허용 |  | OK 이외에는 필수. ZERO_DENOMINATOR/SHORT_TEXT/UNAPPROVED_DEFINITION/INPUT_FAILED 등 |
+| reason_code | varchar | 허용 |  | OK 이외에는 필수. ZERO_DENOMINATOR/SHORT_TEXT/UNAPPROVED_DEFINITION/INPUT_FAILED 등. 입력 추출 실패 코드(TABLE_SPLIT_FAILED 등, 제안)는 [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」 |
 | raw_score | decimal | 허용 |  | OK일 때만 NOT NULL. 계산 불가를 0으로 대체하지 않는다 |
 | numerator | decimal | 허용 |  |  |
 | denominator | decimal | 허용 |  | 비율 지표 OK이면 양수. 분모 의미는 metric_definition에 고정 |
@@ -455,6 +455,8 @@
 ### product_category_enum
 
 `펀드`, `ETF`, `ELS`
+
+- `ELS`는 Phase 1 범위 밖(9차 미팅, 1차 구현은 펀드·ETF만). 값은 유지하며 Phase 2 검토
 
 ### etf_confidence_enum
 

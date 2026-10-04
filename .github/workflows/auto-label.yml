@@ -1,0 +1,73 @@
+name: Auto Labeler
+
+# 이슈 / PR 제목 맨 앞의 `[Type]` 을 보고 라벨을 붙입니다.
+# 라벨 5종은 저장소에 미리 만들어 두어야 합니다(없는 라벨은 건너뜀).
+# 출처: BOAZ-website/design-system 의 같은 파일. Signal 타입 4종 + Release 에 맞춤
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+concurrency:
+  group: auto-label-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  labeler:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Auto Labeling based on title
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const target = context.payload.pull_request ?? context.payload.issue;
+            const base = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: target.number,
+            };
+
+            const labels = {
+              feat: '⭐️ FEAT',
+              fix: '🐛 FIX',
+              docs: '✏️ DOCS',
+              chore: '🧹 CHORE',
+              release: '🚀 RELEASE',
+            };
+
+            // 이벤트 시점이 아니라 지금 제목·라벨로 판정(제목을 빠르게 여러 번 고친 경우 대비)
+            const { data: cur } = await github.rest.issues.get(base);
+            const title = cur.title || '';
+            const current = (cur.labels || []).map((l) => (typeof l === 'string' ? l : l.name));
+
+            // 제목 맨 앞 `[Type]` 만 본다. 허용 타입만 처리(상속 속성 constructor 등 제외)
+            const match = title.match(/^\[(\w+)\]/);
+            const key = match ? match[1].toLowerCase() : null;
+            const label = key && Object.prototype.hasOwnProperty.call(labels, key) ? labels[key] : null;
+
+            // 맞지 않는 타입 라벨은 뗀다(타입이 바뀌었거나 형식이 깨진 경우 포함)
+            for (const name of current) {
+              if (Object.values(labels).includes(name) && name !== label) {
+                try {
+                  await github.rest.issues.removeLabel({ ...base, name });
+                } catch (e) {
+                  if (e.status !== 404) core.warning(`라벨 제거 실패: ${e.message}`);
+                }
+              }
+            }
+
+            if (label && !current.includes(label)) {
+              try {
+                await github.rest.issues.addLabels({ ...base, labels: [label] });
+              } catch (e) {
+                core.warning(`라벨 추가 실패: ${e.message}`);
+              }
+            }

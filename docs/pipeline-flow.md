@@ -6,7 +6,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 설계 본문 | 초안 있음(2026-09-30, 「Flow 다이어그램 초안」 절). 결정 대기 A·C·D·G는 그림에 표시. 나머지 절은 입력 목록 |
+| 설계 본문 | 초안 있음(2026-09-30, 「Flow 다이어그램 초안」 절). 4~6단계는 파트 A(고지 점검, 축 4 고지 충실도)·파트 B(읽기 난이도, 축 1~3 합산)로 분리(09-29 팀 논의 결론, 9차 미팅(09-30) 확정). 결정 대기 A·C·D·G는 그림에 표시. 나머지 절은 입력 목록 |
 | 기한 | 2026-09-30 |
 | 입력 기준 | 현재 스키마·키·실행/모집단 계약은 [데이터 테이블·ERD 설계](data-model.md), [DBML](schema.dbml), [스키마 명세](schema-catalog.md) |
 | 확정할 것 | 소스 4종 → 대시보드 흐름 다이어그램, DB·원문 저장소·Airflow 환경 |
@@ -31,7 +31,7 @@ flowchart TB
     W --> C1["DART list.json<br/>report_nm으로 투자설명서 판별<br/>본문 PDF는 download.do"]
     W --> C2["공공데이터포털<br/>펀드상품기본정보 전건"]
     W --> C3["KRX ETF 일별 목록"]
-    W -.-> C4["금투협 · 금감원<br/>[결정 대기 D: Phase 1 포함 여부]"]
+    W -.-> C4["금투협 · 금감원<br/>[결정 대기 D: Phase 1 포함 여부]<br/>금감원 제재 수집기(크롤러)는 게시판 정찰 뒤 결정<br/>착수 대상 아님(현재)"]
     C1 & C2 & C3 --> R1["collection_attempt 기록<br/>정상 EMPTY와 실패 구분, 재시도 규칙"]
     R1 --> R2["raw_object 저장<br/>raw/{source}/{date}/{key}/{role}__v{n}<br/>SHA-256 같으면 새 버전 안 만듦"]
     R2 --> W2["워터마크 전진<br/>구간 완전성 검증 뒤에만"]
@@ -50,22 +50,29 @@ flowchart TB
     E2 --> E3["문서 파싱 상태 집계<br/>PARSE_OK / PARTIAL / FAILED"]
     E2 -.-> L1["LLM 6필드 추출 결과 표<br/>(v2.2 신규, 10월 15일 시작)"]
   end
-  subgraph S4["4. 채점: 절 → CDI 점수"]
+  subgraph S4["4. 채점: 문서 → CDI 점수"]
     E3 --> P0["pipeline_run 생성<br/>run_kind=SCORE<br/>▶ run_id 발급 지점 ②<br/>▶ upstream_run_id → EXTRACT run 참조"]
     P0 --> P1["채점 대상 선정<br/>score에 대상 칼럼 (또는 analysis_target 표)<br/>[결정 대기 A: 표 이름만 달라짐]"]
-    P1 --> P2["metric_definition 참조<br/>절 단위 원점수 → score<br/>계산 불가는 상태값 + NULL 원점수"]
-    P2 --> P3["펀드 단위 집계<br/>관측 단위 = 고유 fund_key"]
-    P3 --> P4["population_snapshot<br/>층 = 상품군 × 위험등급, 층당 30개 이상<br/>▶ 비교 집단 생성 지점"]
-    P4 --> P5["층내 백분위 → score<br/>30개 미만 층은 원점수만"]
+    P1 --> P2["metric_definition 참조<br/>문서 단위 원점수 → score<br/>절은 근거·고칠 곳 위치용<br/>계산 불가는 상태값 + NULL 원점수"]
+    P2 --> PS{"파트 A(축 4 고지 충실도) /<br/>파트 B(축 1~3 읽기 난이도) 분기<br/>두 파트는 합산하지 않음"}
+    PS -->|파트 A| PA1["파트 A: 축 4 항목별 판정<br/>금소법 19조 항목별 있음/없음/판정 불가<br/>metric_key = 항목별(예: disclosure_item_07)<br/>+ 옆에 작성기준 항목 점검(3-1a, 간이 3-1)"]
+    PS -->|파트 B| PB1["파트 B: 축 1~3 합산<br/>축별 [0,1] 변환 후 동일 비중 합산<br/>metric_key = 파트 B 합산 전용(축 4와 별도)"]
+    PB1 --> P3["펀드 단위 집계<br/>관측 단위 = 고유 fund_key"]
+    P3 --> P4["population_snapshot<br/>층 = 상품군 × 위험등급, 층당 30개 이상<br/>▶ 비교 집단 생성 지점<br/>파트 B 전용"]
+    P4 --> P5["층내 백분위 → score<br/>30개 미만 층은 원점수만<br/>파트 B 전용"]
     P5 -.-> P6["펀드 관측치 · 잔차<br/>표 신설 또는 manifest 파일<br/>[결정 대기 C]"]
   end
   subgraph S5["5. 게시와 대시보드"]
-    P5 --> O1["is_official=true 전환<br/>SUCCEEDED인 SCORE run 1개만<br/>▶ 공식 점수 전환 지점"]
-    O1 --> O2["대시보드 읽기 뷰 2개<br/>(검토 번호 B5, 채택)"]
+    PA1 --> O1["is_official=true 전환<br/>SUCCEEDED인 SCORE run 1개만<br/>▶ 공식 점수 전환 지점"]
+    P5 --> O1
+    O1 --> OA["파트 A 산출물<br/>항목별 판정 + 감점 표현 후보 위치(절·문자 범위)"]
+    O1 --> OB["파트 B 산출물<br/>층내 백분위 + 고칠 곳 위치(절·문자 범위)"]
+    OA & OB --> O2["대시보드 읽기 뷰 2개(랭킹·드릴다운)<br/>(검토 번호 B5, 채택)<br/>두 뷰 모두 파트 A·파트 B를 따로 담음"]
     O2 --> O3["대시보드 3화면<br/>랭킹 · 드릴다운 · 근거 절"]
   end
   subgraph S6["6. 평가: 채점 뒤"]
-    P5 -.-> V1["사람 · LLM 평가 원응답<br/>CSV + 설정 파일 또는 표<br/>[결정 대기 G]"]
+    PA1 -.-> V1A["제재 사례 매핑표<br/>축 4 검증, 대조군 포함"]
+    P5 -.-> V1B["사람 · LLM 이해도 조사 원응답<br/>축 1~3 검증<br/>CSV + 설정 파일 또는 표<br/>[결정 대기 G]"]
   end
 ```
 
@@ -74,12 +81,12 @@ flowchart TB
 | 단계 | 읽는 표 | 만드는 것 | 실행(run) |
 |---|---|---|---|
 | 실행 시작 | 없음 | `pipeline_run` 1행, EXTRACT run_id | EXTRACT |
-| 1 수집 | 소스 워터마크(v2.2 신규) | `collection_attempt`, `raw_object`, 원본 파일(`raw/`), 워터마크 전진 | EXTRACT |
+| 1 수집 | 소스 워터마크(v2.2 신규) | `collection_attempt`, `raw_object`, 원본 파일(`raw/`), 워터마크 전진. 금감원 제재 수집기(크롤러)는 게시판 정찰 결과가 나오기 전까지 착수 대상에서 제외(조건부) | EXTRACT |
 | 2 등록·매칭 | `raw_object`, `distributor` | `document`, `product`, `document_product`, `fund_group`(fund_key), `match_failure`. `product_distributor`는 D 결정에 따라 | EXTRACT |
 | 3 추출·절 | `raw_object`, `file_extraction`(같은 파일×파서 버전 있으면 건너뜀) | `file_extraction`, `section`(정규 절 분류 포함), 파싱 상태, `derived/` 텍스트, LLM 6필드 추출 결과(v2.2 신규) | EXTRACT. 키는 파일 × 파서 버전(수정 2) |
-| 4 채점 | `section`, `fund_group`, `metric_definition`, upstream EXTRACT run | `pipeline_run`(SCORE), `score`(원점수·상태·백분위), `population_snapshot`. A·C 결정에 따라 `analysis_target`·펀드 관측치 표 | SCORE. `upstream_run_id`로 EXTRACT 참조, 산식만 바뀌면 3단계 재실행 없음 |
-| 5 게시 | `score`, `population_snapshot`, `section` | `is_official` 전환, 읽기 뷰 2개 | SCORE |
-| 6 평가 | `score`, `section` | G 결정에 따라 CSV+설정 파일 또는 표 | SCORE run 참조 |
+| 4 채점 | `section`, `fund_group`, `metric_definition`, upstream EXTRACT run | `pipeline_run`(SCORE), `score`(파트 A 항목별 판정 + 파트 B 합산 원점수·상태·백분위, metric_key로 구분), `population_snapshot`(파트 B 전용). A·C 결정에 따라 `analysis_target`·펀드 관측치 표 | SCORE. `upstream_run_id`로 EXTRACT 참조, 산식만 바뀌면 3단계 재실행 없음 |
+| 5 게시 | `score`, `population_snapshot`, `section` | `is_official` 전환, 파트 A(항목별 판정 + 감점 표현 위치)·파트 B(층내 백분위 + 고칠 곳 위치) 두 산출물, 읽기 뷰 2개 | SCORE |
+| 6 평가 | `score`, `section` | 제재 사례 매핑표(축 4 검증, 대조군 포함), G 결정에 따라 사람·LLM 이해도 조사(축 1~3 검증) CSV+설정 파일 또는 표 | SCORE run 참조 |
 
 ### 결정 대기가 그림에 미치는 범위
 
@@ -88,7 +95,8 @@ flowchart TB
 | A analysis_target 병합 | 4단계 P1 | 상자 이름만. 흐름 동일 |
 | C 펀드 관측치 표 | 4단계 P6 | 점선을 실선으로 바꾸고 「표」 또는 「manifest 파일」 하나만 남김 |
 | D product_distributor 시점 | 1단계 C4 | Week 5 포함이면 실선 + 2단계에 `product_distributor` 추가. Phase 2면 상자 제거 |
-| G 평가 저장 방식 | 6단계 V1 | 하나만 남김. 채점 이전 단계 영향 없음 |
+| G 평가 저장 방식 | 6단계 V1B | 하나만 남김. 채점 이전 단계 영향 없음. V1A(제재 사례 매핑표)는 이 결정과 무관 |
+| 제재공시 게시판 정찰 결과 (담당 데이터 엔지니어링·인프라(주영), 기한 2026-10-04. 9차 미팅) | 1단계 C4 | 착수 판단이면 점선을 실선으로 바꿈. 미착수면 상자 제거 |
 | B·E·F·H·I | 없음 | 칼럼·제약 설계. 그림 변경 없음 |
 
 ### 이 초안이 전제한 것
@@ -98,6 +106,9 @@ flowchart TB
 - DB 제품·원문 저장소·Airflow 환경은 2026-10-07 결정. 그림은 논리 흐름만이며 어느 상자가 어느 서버에서 도는지는 정하지 않음
 - 소스 간 중복률 측정(「먼저 측정할 것」)은 3단계 절 출력끼리 비교하는 별도 작업이라 그림에 넣지 않음. 중복이 실재하면 2단계와 3단계 사이에 중복 제거 상자가 추가됨
 - 3단계 `derived/` 경로는 현행 규칙상 EXTRACT run 아래에 있음. 수정 2가 반영되면 파일 × 파서 버전 기준으로 바뀌며 [ERD 재검토](records/phase1-erd/design-review-history.md)의 검토 항목 B9(derived 경로의 서러게이트 ID 제거·manifest 내용 주소화)가 함께 해소됨
+- 두 파트 출력은 09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할(축 4 검증 자료인지 기준인지)은 확인대기: 분석·리서치(민석), 2026-10-04
+- Phase 1 대상 상품군은 펀드·ETF(펀드 1순위, ETF 2순위). ELS·예금성·대출성·보장성 제외(9차 미팅). ELS는 Phase 2 검토
+- 5단계 O2 「대시보드 읽기 뷰 2개(검토 번호 B5)」는 랭킹·드릴다운 화면 대응이며, 두 뷰 모두 파트 A 항목별 판정과 파트 B 백분위를 따로 담음. 뷰를 파트별로 나눌지는 응답 envelope 결정(10-14)과 함께 정함
 
 ## 1단계에서 넘어온 결정 대기 항목
 
@@ -109,7 +120,7 @@ flowchart TB
 | SCD2 · `is_current` 물리화, 버전 PK와 논리 product_id 분리 | 현재 PK(valid_from/valid_to 두 칸)로 여러 버전 적재 불가 | [점수 저장과 비교 모집단](scoring-and-population.md) 「이력 요구」 |
 | 재처리 오케스트레이션(Airflow), 재처리 스케줄·큐 구현 | 실패 처리 규칙이 2단계 책임으로 명시 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「문서 파싱 상태」 |
 | 저장 제품·원자적 게시 방식·백업 스케줄 | 원본 보관 규칙이 2단계로 명시 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「미결」 |
-| 조건부 검증 규칙의 구현 방식 | 기본값 = DB 중립 적재 검증기, DB 제약은 보강. DuckDB·SQLite·BigQuery는 트리거·FK 강제가 없거나 제한적 | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
+| 조건부 검증 규칙의 구현 방식 | 기본값 = DB 중립 적재 검증기, DB 제약은 보강. DuckDB·SQLite·BigQuery는 트리거·FK 강제가 없거나 제한적. CSP는 AWS 사용 확정, GCP 병행 검토 중(9차 미팅) | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
 | enum 구현(PG enum vs CHECK) | DB 제품별 구현 차이 | [스키마 명세](schema-catalog.md) 「Enum 상태값」 |
 | PK 물리 타입·발급 방식, CHECK, timestamp 시간대(UTC 명시), decimal 정밀도 | DB 제품 선택 전 | [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
 | 공식 run 게시/해제 감사 로그 | `published_at`은 마지막 게시 시각만 보존 | [스키마 명세](schema-catalog.md) 「pipeline_run」 |
@@ -213,7 +224,7 @@ flowchart TB
 | run당 행 수 (추정) | score 약 3.6M, score_dependency 약 3.4M(AXIS 이상만 저장하면 0.1M), analysis_target 약 225k, member 약 250~300k |
 | 전량 재실행 1회 (추정) | 약 8M행 · 5~10GB |
 | DB 판단 | Postgres/DuckDB에서 가벼움. SQLite는 단일 writer라 Airflow 병렬 적재에 비권고 |
-| 원본 저장 | 금투협 수시공시 백필이 지배. 연 약 250GB (추정, 미측정). 비용은 결정 요인 아님 |
+| 원본 저장 | 금투협 수시공시 백필이 지배. 연 약 250GB (추정, 미측정). 비용은 결정 요인 아님(9차 미팅 이전 판단). AWS 사용 확정, GCP 병행 검토 중(9차 미팅). 비용 지원 없음 → 비용 추정 재검토 필요 |
 
 - 최소 아키텍처 제안: PostgreSQL 1개(core/eval 스키마) + 객체 스토리지
   - 객체 스토리지 구성: raw/ Object Lock, derived/ lifecycle, manifests/ 내용 주소화, restricted/eval/
@@ -246,8 +257,8 @@ flowchart TB
 | 질문 | 결정 주체 | 필요 시점 |
 |---|---|---|
 | 소스 간 중복률 측정 담당·일정 | [담당 미정] | 2026-09-30 |
-| KRX 매칭 실패 229건 처리 방침(1회 수동 매핑 권고). 09-20 안건 결과 기록 없음 | 팀 / 09-20 회의록 확인 | 2026-09-30 |
-| KRX 일별 스냅숏 적재 주기·보관 범위 | 팀 | 2026-09-30 |
+| KRX 매칭 실패 229건 처리 방침(1회 수동 매핑 권고). 09-20 안건 결과 기록 없음. 확인대기(9차 미팅) | 데이터 엔지니어링·인프라(주영) | 2026-10-08 |
+| KRX 일별 스냅숏 적재 주기·보관 범위. 확인대기(9차 미팅) | 데이터 엔지니어링·인프라(주영) | 2026-10-08 |
 | 조건부 검증 규칙 구현 방식(적재 검증기 기본안 확정 여부)과 규칙 약 42개의 구현 순서 | 팀 | 2026-09-30 |
 | DB 제품·원문 저장소·Airflow 환경 | 팀 | 2026-10-07 |
 | 검토 번호 B3·B4·B5·B9 결정 | 팀(09-30 9차 미팅) | 2026-09-30 |
