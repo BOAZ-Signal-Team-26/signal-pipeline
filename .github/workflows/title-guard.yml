@@ -10,6 +10,10 @@ on:
   pull_request_target:
     types: [opened, edited, reopened]
 
+concurrency:
+  group: title-guard-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
 permissions:
   issues: write
   pull-requests: write
@@ -41,17 +45,19 @@ jobs:
               issue_number,
               per_page: 100,
             });
-            const prev = comments.find(
+            const mine = comments.filter(
               (c) => c.user?.login === 'github-actions[bot]' && (c.body || '').includes(MARKER)
             );
+            const prev = mine[0];
 
             if (ok) {
               // 제목이 올바르면 이전 안내 코멘트 제거 (self-clearing)
-              if (prev) {
+              // 겹친 실행으로 여러 개가 생겼어도 모두 지움
+              for (const c of mine) {
                 await github.rest.issues.deleteComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  comment_id: prev.id,
+                  comment_id: c.id,
                 });
               }
               return;

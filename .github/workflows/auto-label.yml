@@ -10,6 +10,10 @@ on:
   pull_request_target:
     types: [opened, edited, reopened]
 
+concurrency:
+  group: auto-label-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   labeler:
     runs-on: ubuntu-24.04
@@ -39,20 +43,26 @@ jobs:
               chore: '🧹 CHORE',
               release: '🚀 RELEASE',
             };
-            const label = labels[match[1].toLowerCase()];
-            if (!label) return;
+            const key = match[1].toLowerCase();
+            // 허용 타입만 처리. 상속 속성(constructor 등)이 라벨로 잡히지 않게 함
+            if (!Object.prototype.hasOwnProperty.call(labels, key)) return;
+            const label = labels[key];
 
             try {
               // 제목을 바꿔 타입이 달라지면 이전 타입 라벨을 뗀다
               const current = (target.labels || []).map((l) => l.name);
               for (const name of current) {
                 if (Object.values(labels).includes(name) && name !== label) {
-                  await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: target.number,
-                    name,
-                  });
+                  try {
+                    await github.rest.issues.removeLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: target.number,
+                      name,
+                    });
+                  } catch (e) {
+                    if (e.status !== 404) throw e; // 이미 없는 라벨은 무시
+                  }
                 }
               }
               if (!current.includes(label)) {
