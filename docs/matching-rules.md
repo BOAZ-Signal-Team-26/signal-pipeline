@@ -160,7 +160,9 @@ K55 체계 운용사 코드(`asoStdCd` 4~6번째 자리) 100종 중 금투협 �
 - 결과 파일: [`krx_unmatched_rematch.csv`](../research/samples/krx_unmatched_rematch.csv), 재현: [`rematch_krx_unmatched.py`](../research/scripts/rematch_krx_unmatched.py)
 - 사람이 확인한 결과(42건, `krx_rematch_confirmed.csv`)는 KRX ETF 이름 대응표로 S3 `assets/rules/`에 두고 수집 코드가 읽음. 평가 자료가 아니므로 `eval/`에 두지 않음. 이 파일이 있으면 스크립트가 후보 판정을 덮어씀
 - 매주 새로 상장되는 ETF도 같은 규칙을 먼저 적용하고, 붙지 않은 것만 `match_failure`에 남김
-- 유사도 후보에는 틀린 연결이 섞일 수 있어(예: `KODEX 코스닥150선물인버스` ↔ 포털 `코스닥150인버스`) 자동 연결하지 않고 사람이 확인함. 이번에는 포털 전체에서 같은 이름이 1건뿐인지, 브랜드·지수가 같은지로 확인했고 상품 코드(ISIN) 대조는 하지 않음. ETF 매칭 구현 때 포털에 상품 코드가 있으면 코드로 다시 검증
+- 유사도 후보에는 틀린 연결이 섞일 수 있어(예: `KODEX 코스닥150선물인버스` ↔ 포털 `코스닥150인버스`) 자동 연결하지 않고 사람이 확인함. 이번에는 포털 전체에서 같은 이름이 1건뿐인지, 브랜드·지수가 같은지로 확인함
+- 상품 코드로는 검증할 수 없음(10월 4일 확인): 포털 응답 필드는 8개(`basDt` `srtnCd` `fndNm` `ctg` `fndTp` `prdClsfCd` `setpDt` `asoStdCd`)뿐이고, KRX 응답에도 ISIN이 없어 6자리 `ISU_CD`만 있음. 이름으로 붙인 1,130쌍(이번 192건 + 기존 938건) 중 포털 필드 안에 `ISU_CD`가 들어 있는 쌍은 0건. 그래서 ETF 연결은 이름 기반이 유일한 방법
+- 대신 브랜드와 운용사 코드로 교차 확인함: 이번 192건 중 188건은 브랜드의 운용사 코드와 일치. 어긋난 4건(`TIGER LG그룹플러스`, `TIGER 국채3년`, `TIGER 현대차그룹플러스`, `TIGER 금은선물(H)`)은 모두 운용사 코드 `225`이며, 이 코드는 미래에셋 ETF의 옛 코드로 금투협 공시 조회에서 미래에셋자산운용으로 확인됨([운용사 코드 대조 기록](records/phase1-erd/manager-code-check.md)). 오류가 아님
 
 ## 상품명 정규화
 

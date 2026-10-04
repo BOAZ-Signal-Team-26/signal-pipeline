@@ -9,7 +9,7 @@
 ## 2026-10-04 — KRX 데이터 보관 정책 3건 초안 (PM, 마감 10월 7일)
 
 - 소스 이름 `krx_etf_daily`, 일별 파일 프로젝트 종료까지 보관(삭제 없음, 10년 소급 조회 가능)을 [원본 보관 규칙](docs/storage-and-failure-rules.md) 「KRX 데이터 보관」에 정리.
-- KRX 매칭 실패 229건을 공공데이터포털 전체 목록과 재대조. 규칙 4개(괄호 표기 제거, 브랜드 개명 4건, 환헤지 표기, `TR`→`Total Return`)로 150건 자동 연결, 42건은 PM(대현) 확인 후 연결, 37건은 보류([매칭 규칙](docs/matching-rules.md) 「KRX 매칭 실패 처리」). 처음에는 `TR`을 떼고 대조해 9건을 `TR`이 아닌 ETF에 잘못 연결했고, 같은 날 발견해 고침. 결과 `research/samples/krx_unmatched_rematch.csv`, 확인 결과 `krx_rematch_confirmed.csv`, 스크립트 `research/scripts/rematch_krx_unmatched.py`.
+- KRX 매칭 실패 229건을 공공데이터포털 전체 목록과 재대조. 규칙 4개(괄호 표기 제거, 브랜드 개명 4건, 환헤지 표기, `TR`→`Total Return`)로 150건 자동 연결, 42건은 PM(대현) 확인 후 연결, 37건은 보류([매칭 규칙](docs/matching-rules.md) 「KRX 매칭 실패 처리」). 처음에는 `TR`을 떼고 대조해 9건을 `TR`이 아닌 ETF에 잘못 연결했고, 같은 날 발견해 고침. 결과 `research/samples/krx_unmatched_rematch.csv`, 확인 결과 `krx_rematch_confirmed.csv`, 스크립트 `research/scripts/rematch_krx_unmatched.py`. 상품 코드(ISIN)로 검증할 수 있는지 확인했으나 포털 필드에 KRX 코드가 없어 불가, 브랜드와 운용사 코드 교차 확인(188/192 일치, 어긋난 4건은 미래에셋 옛 코드 225)으로 대신함.
 - [2단계 입력](docs/pipeline-flow.md) 미결 2행 갱신(229건은 팀 확인 대기, 적재 주기는 주영 유지).
 
 ## 2026-10-04 — 운용사 연결 순서 결정 (ERD v2.2 수정 12)
