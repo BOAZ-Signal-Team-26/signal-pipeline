@@ -78,13 +78,21 @@ conf={}
 cp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','samples','krx_rematch_confirmed.csv')
 if os.path.exists(cp):
     for c in csv.DictReader(open(cp,encoding='utf-8')): conf[c['ISU_CD']]=c
+# 보류였던 건의 재검토 결과(research/samples/krx_rematch_review.csv): 확정 / 확인 필요(후보 있음) / 보류(사유)
+rev={}
+rp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','samples','krx_rematch_review.csv')
+if os.path.exists(rp):
+    for c in csv.DictReader(open(rp,encoding='utf-8')): rev[c['ISU_CD']]=c
 final=[]
 for o in out:
-    c=conf.get(o[1])
-    if o[0]=='자동 1:1': final.append(o)
-    elif c: final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],o[7] if len(o)>7 else ''])
-    else: final.append(['보류']+o[1:])
+    c=conf.get(o[1]); r=rev.get(o[1])
+    if o[0]=='자동 1:1': final.append(o+[''])
+    elif c: final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],o[7] if len(o)>7 else '',c.get('확인 근거','')])
+    elif r and r['상태']=='확정': final.append(['확정(사람 확인)',o[1],o[2],1,r['포털펀드명'],r['srtnCd'],r['asoStdCd'],o[7] if len(o)>7 else '',r['메모']])
+    elif r and r['상태']=='확인 필요': final.append(['확인 필요',o[1],o[2],1,r['포털펀드명'],r['srtnCd'],r['asoStdCd'],o[7] if len(o)>7 else '',r['메모']])
+    elif r: final.append(['보류',o[1],o[2],o[3],'','','',o[7] if len(o)>7 else '',r['메모']])
+    else: final.append(['보류']+o[1:]+[''])
 out=final
 print('최종',dict(collections.Counter(o[0] for o in out)))
 print('2차',stat2)
-csv.writer(open(sys.argv[2],'w',newline='',encoding='utf-8'),lineterminator='\n').writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)
+csv.writer(open(sys.argv[2],'w',newline='',encoding='utf-8'),lineterminator='\n').writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도','메모']]+out)
