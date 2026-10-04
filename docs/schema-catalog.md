@@ -151,7 +151,7 @@
 | metric_key | varchar | 불가 | FK | 불변 지표 버전. ASL/축값/CDI/백분위도 서로 다른 지표로 명시 가능 |
 | assessor_key | varchar | 불가 |  | deterministic 또는 config_manifest 안의 평가자/모델 설정 키. 재시도는 같은 키, 별도 평가자는 다른 키 |
 | result_status | result_status_enum | 불가 |  |  |
-| reason_code | varchar | 허용 |  | OK 이외에는 필수. ZERO_DENOMINATOR/SHORT_TEXT/UNAPPROVED_DEFINITION/INPUT_FAILED 등 |
+| reason_code | varchar | 허용 |  | OK 이외에는 필수. ZERO_DENOMINATOR/SHORT_TEXT/UNAPPROVED_DEFINITION/INPUT_FAILED 등. 입력 추출 실패 코드(TABLE_SPLIT_FAILED 등, 제안)는 [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」 |
 | raw_score | decimal | 허용 |  | OK일 때만 NOT NULL. 계산 불가를 0으로 대체하지 않는다 |
 | numerator | decimal | 허용 |  |  |
 | denominator | decimal | 허용 |  | 비율 지표 OK이면 양수. 분모 의미는 metric_definition에 고정 |
