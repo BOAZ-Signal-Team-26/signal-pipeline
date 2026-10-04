@@ -78,7 +78,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | char_start 단위 | 줄 번호가 아니라 글자 위치(Unicode code point) |
 | 본문 경계를 못 찾은 절 | section.extract_status에 SECTION_BOUNDARY_NOT_FOUND 추가 |
 | 금투협 companyCd | 공시 목록 응답의 운용사 지정 칸을 원천 필드 표에 추가(문서 키 첫 필드) |
-| 운용사 코드 1:1 아님 | DART 법인과 금투협 운용사 코드의 대응표에 없는 값 7종. 확인 대기: PM(대현) |
+| 운용사 코드 1:1 아님 | DART 법인과 금투협 운용사 코드의 대응표에 없는 값 7종. 10월 4일 실측으로 정리(matching-rules.md 「대응표에 없는 운용사 코드」) |
 
 ### 결정 대기와 반대로 결정될 때 바뀌는 범위
 
@@ -569,7 +569,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 | 금투협 공시 | XML 행, standardCd의 K55/KR5/KRM 혼재 | 코드 접두별 분기, 수시공시 4필드 묶음 | document + document_product |
 | 금투협 첨부 | 서버명·원본명·경로 + PDF 여러 개 | 역할과 파일 식별자를 별도로 관리 | raw_object |
 | 금투협 saleCompCd | 예 A02008 | varchar(6), 현재 마스터 유일키 | distributor.kofia_sales_code |
-| 금투협 tmpV17/tmpV18 | 펀드 표준코드 / 운용사코드. 운용사 코드는 DART 법인과 1:1이 아님(대응표에 없는 값 7종, 확인 대기: PM(대현)) | 코드 체계 대조 후 연결 | product_distributor / 법인 |
+| 금투협 tmpV17/tmpV18 | 펀드 표준코드 / 운용사코드. 운용사 코드는 DART 법인과 1:1이 아님(대응표에 없는 값 7종, 처리는 matching-rules.md 「대응표에 없는 운용사 코드」) | 코드 체계 대조 후 연결 | product_distributor / 법인 |
 | 금투협 companyCd | 공시 목록 응답의 운용사 지정 칸(요청 파라미터이기도 함) | 문자열. 수시공시 문서 키의 첫 필드(`document.source_doc_key` 해시 입력) | document.source_key_payload |
 | 금투협 standardDt / tmpV30 | standardDt는 공시 목록 응답에서 YYYYMMDD(표본 `research/samples/kofia_ann_sample.csv`), 판매회사 마스터 조회(`option=S2`)에서 YYYYMM. tmpV30은 YYYYMMDD. 두 형식을 한 칼럼에 섞지 않음 | 공시 목록의 일 단위는 문서 수집 증분 축, 월 단위는 snapshot_month, tmpV30은 observed_date | document 수집 / snapshot_month / observed_date |
 | 금감원 JSON | 루트 키가 reponse, EUC-KR 응답 | 인코딩 확인 후 decode, 원바이트 보존 | raw_object + collection_attempt |
@@ -808,7 +808,7 @@ erDiagram
 | # | 항목 | 관계선이 없는 이유 |
 |---|---|---|
 | 1 | `document.corp_code` ↔ `distributor.corp_code` | 둘 다 DART 법인코드. FK로 명시한 근거 없음. 값 체계는 같아 보임 |
-| 2 | `distributor.kofia_mgmt_code` ↔ `corp_code` 대응 | 같은 표 안이나 대응 규칙 미확인. 문자열 매칭으로 1회 고정 필요. 대응표에 없는 7종 포함 확인대기(9차 미팅), PM(대현) |
+| 2 | `distributor.kofia_mgmt_code` ↔ `corp_code` 대응 | 같은 표 안이나 대응 규칙 미확인. 문자열 매칭으로 1회 고정 필요. 대응표에 없는 7종은 10월 4일 실측으로 정리(matching-rules.md 「대응표에 없는 운용사 코드」), 남은 확인은 코드 237 1건, PM(대현) |
 | 3 | ELS의 `document_product` 매칭 키 | ELS 식별 키 자체가 미정. ELS는 Phase 1 범위 밖(9차 미팅) |
 | 4 | 국가법령정보 | 대응 표 없음. 조인인지 텍스트 참조인지 미정 |
 | 5 | `product.isu_cd` ↔ KRX | 연결 수단이 코드가 아니라 이름. 표 사이의 FK 아님(확인된 사실) |

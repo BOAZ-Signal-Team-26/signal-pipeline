@@ -116,7 +116,7 @@ DTO: `DISFTimeAnnInsDTO`
 - 클래스 행: `uFundNm`이 `└▶`로 시작
 - `tmpV1`: 수시공시에서는 모펀드 코드, 정기공시에서는 자기 코드. `ZZZZZZ…`는 결측이 아니라 수시 모펀드 행 표시자
 - 문서 자연키 `(companyCd, standardDt, announceTtl, tmpV1)`와 수시공시 한정 규칙은 [데이터 테이블·ERD 설계](data-model.md) 「문서와 소스별 키」
-- `companyCd`: 운용사 코드(요청 파라미터이자 응답 필드). 응답의 `companyCd`는 문서 자연키의 첫 필드이며 ERD `document.source_key_payload`에 그대로 보존. 금투협 운용사 코드는 DART 법인(`corp_code`)과 1:1이 아님: 대응표(`research/samples/kofia_mgmt_codes.csv`)에 없는 값 7종이 있어 확인 대기(PM(대현))
+- `companyCd`: 운용사 코드(요청 파라미터이자 응답 필드). 응답의 `companyCd`는 문서 자연키의 첫 필드이며 ERD `document.source_key_payload`에 그대로 보존. 금투협 운용사 코드는 DART 법인(`corp_code`)과 1:1이 아님: 대응표(`research/samples/kofia_mgmt_codes.csv`)에 없는 값 7종이 있음. 처리는 matching-rules.md 「대응표에 없는 운용사 코드」
 - `standardDt` 형식이 호출마다 다름: 공시 목록 응답에서는 `YYYYMMDD`(예 `20260813`, `research/samples/kofia_ann_sample.csv`), 판매회사 마스터 조회(`option=S2`)에서는 `YYYYMM`. 한 칼럼에 섞지 않음(ERD v2.2 수정 7)
 - 증분 축: `standardDt`. 룩백 일수는 [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」
 
@@ -462,7 +462,7 @@ GET https://www.fss.or.kr/fss/kr/openApi/api/openInfoImpr.jsp    # 경영유의�
 
 | 질문 | 결정 필요 주체 | 필요 시점 |
 |---|---|---|
-| DART 법인과 금투협 운용사 코드의 대응표에 없는 값 7종의 처리(운용사 코드 1:1 아님) | PM(대현) 확인 대기 | 법인 매칭 구현 전 |
+| 운용사 코드 237이 한화자산운용의 이전 코드인지(나머지 6종은 10월 4일 Phase 1 대상 아님으로 정리) | PM(대현) | 법인 매칭 구현 전 |
 | DART `viewer.do`에 Referer가 꼭 필요한가 (명세는 「필요」, 실측은 Referer 붙여서만 호출) | 주영 (Referer 없이 1회 호출) | DART 수집기 구현 전 |
 | 금감원 제재 증분 필터가 `inputDate`라는 판정이 다른 달에도 성립하는가 (근거 1건) | 대현 (다른 달 표본으로 재확인) | 제재 수집기 구현 전 |
 | 경영유의사항(`impr`) 본문의 실제 마스킹 수준 (공개 샘플이 제재와 같은 예시 텍스트) | 대현 (`--kind impr`로 2026-09 구간 호출) | 경영유의사항 API 채택 결정 전 |
