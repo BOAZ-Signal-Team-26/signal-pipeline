@@ -6,7 +6,7 @@ name: Auto Labeler
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened, edited, reopened]
   pull_request_target:
     types: [opened, edited, reopened]
 
@@ -28,13 +28,12 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const payload = context.payload;
-            const target = payload.pull_request ?? payload.issue;
-            const title = target.title || '';
-
-            // 제목 맨 앞 `[Type]` 만 본다. 본문 단어로 오분류하지 않기 위함
-            const match = title.match(/^\[(\w+)\]/);
-            if (!match) return;
+            const target = context.payload.pull_request ?? context.payload.issue;
+            const base = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: target.number,
+            };
 
             const labels = {
               feat: '⭐️ FEAT',
@@ -43,36 +42,32 @@ jobs:
               chore: '🧹 CHORE',
               release: '🚀 RELEASE',
             };
-            const key = match[1].toLowerCase();
-            // 허용 타입만 처리. 상속 속성(constructor 등)이 라벨로 잡히지 않게 함
-            if (!Object.prototype.hasOwnProperty.call(labels, key)) return;
-            const label = labels[key];
 
-            try {
-              // 제목을 바꿔 타입이 달라지면 이전 타입 라벨을 뗀다
-              const current = (target.labels || []).map((l) => l.name);
-              for (const name of current) {
-                if (Object.values(labels).includes(name) && name !== label) {
-                  try {
-                    await github.rest.issues.removeLabel({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: target.number,
-                      name,
-                    });
-                  } catch (e) {
-                    if (e.status !== 404) throw e; // 이미 없는 라벨은 무시
-                  }
+            // 이벤트 시점이 아니라 지금 제목·라벨로 판정(제목을 빠르게 여러 번 고친 경우 대비)
+            const { data: cur } = await github.rest.issues.get(base);
+            const title = cur.title || '';
+            const current = (cur.labels || []).map((l) => (typeof l === 'string' ? l : l.name));
+
+            // 제목 맨 앞 `[Type]` 만 본다. 허용 타입만 처리(상속 속성 constructor 등 제외)
+            const match = title.match(/^\[(\w+)\]/);
+            const key = match ? match[1].toLowerCase() : null;
+            const label = key && Object.prototype.hasOwnProperty.call(labels, key) ? labels[key] : null;
+
+            // 맞지 않는 타입 라벨은 뗀다(타입이 바뀌었거나 형식이 깨진 경우 포함)
+            for (const name of current) {
+              if (Object.values(labels).includes(name) && name !== label) {
+                try {
+                  await github.rest.issues.removeLabel({ ...base, name });
+                } catch (e) {
+                  if (e.status !== 404) core.warning(`라벨 제거 실패: ${e.message}`);
                 }
               }
-              if (!current.includes(label)) {
-                await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: target.number,
-                  labels: [label],
-                });
+            }
+
+            if (label && !current.includes(label)) {
+              try {
+                await github.rest.issues.addLabels({ ...base, labels: [label] });
+              } catch (e) {
+                core.warning(`라벨 추가 실패: ${e.message}`);
               }
-            } catch (error) {
-              core.warning(`라벨 변경 실패: ${error.message}`);
             }

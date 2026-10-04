@@ -32,7 +32,13 @@ jobs:
             const isPR = !!payload.pull_request;
             const target = isPR ? payload.pull_request : payload.issue;
             const issue_number = target.number;
-            const title = (target.title || '').trim();
+            // 이벤트 시점이 아니라 지금 제목으로 판정(제목을 빠르게 여러 번 고친 경우 대비)
+            const { data: cur } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+            });
+            const title = (cur.title || '').trim();
 
             // 허용: [Feat] [Fix] [Docs] [Chore] [Release] (대소문자 무시)
             const pattern = /^\[(feat|fix|docs|chore|release)\]\s+.+/i;
