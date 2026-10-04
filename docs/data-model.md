@@ -808,7 +808,7 @@ erDiagram
 | # | 항목 | 관계선이 없는 이유 |
 |---|---|---|
 | 1 | `document.corp_code` ↔ `distributor.corp_code` | 둘 다 DART 법인코드. FK로 명시한 근거 없음. 값 체계는 같아 보임 |
-| 2 | `distributor.kofia_mgmt_code` ↔ `corp_code` 대응 | 같은 표 안이나 대응 규칙 미확인. 문자열 매칭으로 1회 고정 필요. 대응표에 없는 7종은 10월 4일 실측으로 정리(matching-rules.md 「대응표에 없는 운용사 코드」), 남은 확인은 코드 237 1건, PM(대현) |
+| 2 | `distributor.kofia_mgmt_code` ↔ `corp_code` 대응 | 같은 표 안이나 대응 규칙 미확인. 문자열 매칭으로 1회 고정 필요. 대응표에 없는 7종은 10월 4일 실측으로 정리(matching-rules.md 「대응표에 없는 운용사 코드」), PM(대현) |
 | 3 | ELS의 `document_product` 매칭 키 | ELS 식별 키 자체가 미정. ELS는 Phase 1 범위 밖(9차 미팅) |
 | 4 | 국가법령정보 | 대응 표 없음. 조인인지 텍스트 참조인지 미정 |
 | 5 | `product.isu_cd` ↔ KRX | 연결 수단이 코드가 아니라 이름. 표 사이의 FK 아님(확인된 사실) |
