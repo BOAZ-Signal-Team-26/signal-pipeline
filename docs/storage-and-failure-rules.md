@@ -4,8 +4,8 @@
 
 | 항목 | 내용 |
 |---|---|
-| 상태 | 09-22 재검토안 (09-23 경로 계약·v2.1 보완 포함) |
-| 기준일 | 2026-09-23 |
+| 상태 | 09-22 재검토안 (09-23 경로 계약·v2.1 보완 포함, 10월 4일 ERD v2.2 반영: 추출 키·derived 경로·워터마크 표) |
+| 기준일 | 2026-10-04 |
 | 담당 | 대현 |
 | 승인 | 팀 승인 전 |
 | 범위 | 1단계 산출물 2(원본 보관 규칙), 3-1(수집 안 됨·본문 뽑기 실패). 상품 못 찾음은 [상품·법인 매칭 규칙](matching-rules.md) |
@@ -70,13 +70,14 @@ raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext
 
 1. 같으면 새 파일 버전을 만들지 않고 collection_attempt가 기존 raw_object를 참조
 2. 다르면 version_seq를 늘려 새 파일 저장
-3. 같은 파일도 새 run_id의 파서·전처리가 다르면 다시 추출. 중복 다운로드 생략과 재추출 생략을 같은 규칙으로 처리하지 않음
+3. 같은 파일을 같은 파서 버전으로 이미 추출해 EXTRACT_OK가 되었으면 다시 추출하지 않음(추출 키 = 원본 파일 × 파서 버전, v2.2). 재사용은 EXTRACT_OK 행만이며, FAILED·PARTIAL 행은 다음 실행이 같은 키 행을 덮어씀(created_run_id를 그 실행으로 갱신). 완료 결과 불변은 EXTRACT_OK 행에만 적용. EXTRACT_OK 행에 딸린 section 행은 삭제·재발급하지 않음. SCORE 실행은 입력 manifest에 사용한 (raw_object_id, parser_version) 목록을 고정하며 이전 실행이 만든 추출 결과도 읽을 수 있음(created_run_id는 출처 기록일 뿐 입력 판별에 쓰지 않음). 파서·전처리 버전이 다르면 새로 추출. 중복 다운로드 생략과 재추출 생략을 같은 규칙으로 처리하지 않음
 4. 같은 run_id의 재시도는 키를 유지하고 결과를 멱등 처리. 완료된 실행의 결과는 수정하지 않음
 
 | 칼럼 | 뜻 |
 |---|---|
 | `document.version_no` | 확인된 공시 정정 계보 |
 | `raw_object.version_seq` | 파일 바이트 버전 |
+| `file_extraction.parser_version` | 추출에 쓴 파서 버전. 추출 결과의 키 일부 |
 | `run_id` | 처리 실행 |
 
 - 해시가 같다는 이유로 두 공시가 정정 관계가 아니라고 결론 내리지 않음
@@ -136,23 +137,23 @@ RAW_ROOT 정의 (09-23 경로 계약 보완안):
 
 파일 참조 공통 규칙:
 
-- canonical_text_path, input_manifest_path, membership_manifest_path, structure_manifest_path, protocol/response/summary_manifest_path도 같은 루트 기준 상대경로
+- canonical_text_path, input_manifest_path, selection_manifest_path, membership_manifest_path, structure_manifest_path도 같은 루트 기준 상대경로(평가 manifest 경로는 평가 표를 추가할 때 같은 규칙)
 - 절대경로·상위 경로 이동(`..`)·인증 토큰 포함 URL을 파일 참조로 저장하지 않음
 - 스토리지 전환 시 루트/버킷 설정만 바꾸고 상대 객체 키와 해시는 유지. CAS 채택 시 blob_path도 같은 원칙
 
 ```text
-derived/{extract_run_id}/text/{raw_object_id}.txt
-derived/{extract_run_id}/structure/{raw_object_id}.json          # file_extraction.structure_manifest_path
+derived/{raw_sha256}/{parser_version}/text.txt
+derived/{raw_sha256}/{parser_version}/structure.json             # file_extraction.structure_manifest_path
 runs/{run_id}/inputs.json                                        # EXTRACT·SCORE run 모두
+runs/{score_run_id}/selection.json                               # pipeline_run.selection_manifest_path
 runs/{score_run_id}/populations/{population_snapshot_id}.json
-runs/{score_run_id}/eval/{evaluation_run_id}/protocol.json       # evaluation_run.protocol_manifest_path
-runs/{score_run_id}/eval/{evaluation_run_id}/responses.json      # evaluation_run.response_manifest_path
-runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_run.summary_manifest_path
 ```
 
-- `derived/`는 추출 실행(EXTRACT run) 아래, `populations/`·`eval/`은 채점 실행(SCORE run) 아래
-- 채점 실행은 `pipeline_run.upstream_run_id`로 추출 실행을 가리킴 → 산식만 바뀐 재채점은 `derived/`를 새로 만들지 않음
-- `eval/` 하위는 접근 제한 자료. 저장 위치·권한 분리는 「미결」
+- `derived/`의 키는 원본 파일 × 파서 버전(v2.2 수정 2). 원본 파일은 바이트 해시(raw_object.sha256)로 가리키므로 내부 서러게이트 ID(raw_object_id, 추출 실행 번호)가 경로에 들어가지 않음. 이 방식으로 검토 번호 B9(derived 경로의 서러게이트 ID·내용 주소화)가 해소됨. 파서 버전은 위 형식 규칙을 따름
+- 같은 바이트(sha256)가 여러 raw_object로 저장돼도 같은 파서 버전의 결과는 한 경로를 공유하며 내용이 같아 무해함. 쓰기는 sha256 기준 한 번. 파서 버전은 소문자·숫자·`.`·`-`·`_`만 쓰고 전처리 버전을 포함함(전처리가 바뀌면 새 파서 버전)
+- `runs/{run_id}/…`·`populations/`는 실행 아래. 채점 실행은 `pipeline_run.upstream_run_id`로 추출 실행을 가리킴 → 산식만 바뀐 재채점은 `derived/`를 새로 만들지 않음
+- 평가(evaluation) 표 연기(v2.2 수정 1)로 `runs/{score_run_id}/eval/` 경로는 평가 표를 추가할 때 정함. 지금 평가 자료는 CSV와 설정 파일이며, 접근 제한 자료의 저장 위치·권한 분리는 「미결」
+- manifest 저장 기준(수정 8, B7 정정): 큰 불변 자료는 파일(경로 + sha256), SQL로 거르는 값은 칼럼. 정규 JSON은 키 정렬·UTF-8·구분자 고정 한 줄 규칙으로 충분하며 RFC 8785는 요구하지 않음
 - canonical text는 UTF-8/LF, 파일 전체 텍스트 보존. `file_extraction`에 경로·해시·Unicode code point 길이 기록
 - 지표에 따라 표·표준문안을 제외할 수 있으나 원문 텍스트를 전역 삭제하지 않음
 - 입력·모집단 manifest는 완료 후 불변, 해시 검증·백업 대상. 최소 내용은 [데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」
@@ -199,11 +200,13 @@ runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_ru
 | 조사 스크립트의 3회 재시도 | 생산 수집 계약이 아님 |
 | HWP 3.0(94건)·배포용 문서(7건) 추출 실패 | 자동 재시도에서 제외. 해결되지 않는 실패를 매일 반복하면 실제 일시적 실패를 찾을 수 없음 |
 
-워터마크 전진 조건:
+워터마크 전진 조건(v2.2: 소스별 현재 값은 `source_watermark` 표에 기록. 키 = (source, scope_key), 값 = covered_through):
 
 - 해당 구간의 요청·페이지 완전성 검증이 끝났을 때만 전진
 - 정상 EMPTY와 실패·한도 중단을 구분
 - 중간 페이지까지만 받은 구간을 성공으로 승인하지 않음
+- 갱신 순서: 원본 저장 → 수집 시도 기록 → 구간 검증 → 워터마크 전진(전진은 한 트랜잭션). 이전 값의 이력은 pipeline_run의 input manifest에 남음. 검증한 구간의 시작은 covered_from, 끝은 covered_through
+- 검증 실패·부분 응답이면 source_watermark를 갱신하지 않고 기존 값 유지. 검증 방법(건수 대조, 페이지 끝 확인)은 소스별로 정함(「미결」)
 
 | 소스 | 증분/스냅숏 축 | 주의 |
 |---|---|---|
@@ -226,7 +229,7 @@ runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_ru
 
 ## 추출 실패와 절 품질
 
-- 추출 결과는 `file_extraction(raw_object_id, run_id)`에 보존
+- 추출 결과는 `file_extraction(raw_object_id, parser_version)`에 보존(v2.2: 실행 번호가 아니라 파서 버전). EXTRACT_OK 결과가 있으면 재추출하지 않음
 - 옛 raw_object.extract_status의 단일 현재값은 쓰지 않음
 
 | extract_status | 의미 |
@@ -237,6 +240,7 @@ runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_ru
 | EXTRACT_PARTIAL | 일부만 복구됨(배포용 문서 등). 전체 본문 성공으로 세지 않음. 자동 재시도 제외 |
 | OCR_CANDIDATE | OCR 경로가 필요한 입력(BMP 내장 4건 등). 자동 성공 아님 |
 | EXTRACT_NOT_APPLICABLE | 본문 추출 대상이 아닌 표지·API metadata 등 |
+| SECTION_BOUNDARY_NOT_FOUND | section 전용(v2.2 신설). 파일 추출은 성공했으나 이 절의 본문 경계(시작·끝)를 찾지 못함. 파일 추출 실패와 구분. char 범위 NULL 허용. 재시도 시 같은 파서 버전의 행을 덮어쓰거나 새 파서 버전에서 다시 시도 |
 
 품질 신호 규칙:
 
@@ -253,7 +257,7 @@ runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_ru
 
 ## 문서 파싱 상태
 
-- `(document_id, run_id)` 단위 실행별 집계
+- `(document_id, 파서 버전 집합)` 단위 집계(v2.2: 실행별이 아니라 선택한 파일 × 파서 버전 기준)
 - 그 실행이 선택한 파일 버전과 채점 대상 역할 집합만 집계. 과거 파일 버전 전체를 세지 않음
 - 대상 목록은 입력 manifest에 고정
 
@@ -282,7 +286,7 @@ runs/{score_run_id}/eval/{evaluation_run_id}/summary.json        # evaluation_ru
 | DART `document.xml` ZIP 내부 구성(XML만인지, PDF 동봉인지) | 주영 | DART 수집기 구현 전 |
 | 결측 원인을 구분하는 상태값: 문서 4종의 「첨부 없음」과 API 3종의 「필드 비어 있음」이 같은 칼럼 이름을 씀([소스별 데이터 현황표](records/phase1-erd/source-profile.md) 「표 구조를 바꿀 문제 2건」) | [담당 미정] | 09-30 2단계 설계 확정 |
 | 결측률 칸의 분모 칸: 분쟁조정 사건 814 / 금융투자 187 / 첨부 845 / 첨부 213단위가 섞임 | [담당 미정] | 09-30 2단계 설계 확정 |
-| derived 경로의 DB 서러게이트 ID 제거와 manifest 내용 주소화(`manifests/sha256/{ab}/{hash}.json`) (검토 번호 B9) | 팀 | 09-30 (PK 발급 방식과 함께) |
+| 룩백 재조회 방식 확정과 소스별 워터마크 검증 방법(건수 대조·페이지 끝 확인 등). 표는 v2.2의 source_watermark | 주영 | 2단계 설계 |
 | 평가 표·자료의 접근 분리: 같은 DB·RAW_ROOT 유지 vs eval 스키마 + 접근 제한 버킷 (검토 번호 B4). 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
 
 ## 참고

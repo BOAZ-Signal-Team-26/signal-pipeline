@@ -1,5 +1,14 @@
 # 작업 기록
 
+## 2026-10-04 — ERD v2.2 반영 (이슈 #42)
+
+- 기준: 9월 30일 재검토 확정안. 수정 1~9와 B11 안 1은 10월 3일 팀 채널에서 이의 없이 확정, 수정 10은 9차 미팅(9월 30일) 확정. 결정 대기 A(병합)·C(펀드 관측치 표 없음)·E(코드 체계별 두 칼럼)와 10월 4일 판단 항목 3건(펀드 대표 위험등급 칼럼, 클래스 등급 불일치 기록, 문서 작성기준일)은 기본값으로 반영하고 「결정 대기」로 표시했다.
+- [schema.dbml](docs/schema.dbml): 표 20 → 17, 관계 47 → 42, enum 30 → 26. 채점·평가 표 4개 연기, analysis_target을 score에 병합, file_extraction·section 키를 원본 파일 × 파서 버전으로 변경, llm_field_extraction·source_watermark 추가, 채울 수 없는 칼럼 5개 제거, 정규 절 분류·작성기준일·펀드 대표 위험등급 칼럼 추가.
+- 문서: [데이터 테이블·ERD 설계](docs/data-model.md)에 「v2.2」 절(변경표, 결정 대기와 반대 결정 시 범위)과 「예약 계약(승인 뒤 추가)」 신설, 표 목록·ERD(관계선 42개)·미결·결정 표 갱신. [스키마 명세](docs/schema-catalog.md)는 DBML과 칼럼 단위로 맞춤. [원본 보관과 수집·파싱 실패 처리 규칙](docs/storage-and-failure-rules.md)(derived 경로, 재추출 규칙, 워터마크), [매칭 규칙](docs/matching-rules.md)(코드 체계 분기), [DART 절 분할](docs/records/phase1-erd/dart-section-split.md)(제4부 절 구성 실측), [데이터 소스 수집 명세](docs/data-sources.md), [2단계 입력](docs/pipeline-flow.md), [점수 저장과 비교 모집단](docs/scoring-and-population.md), [3단계 입력](docs/io-schema.md), [ERD 설계 변천과 검토 기록](docs/records/phase1-erd/design-review-history.md), 두 README 맞춤.
+- 검증: `@dbml/core` 파싱, 모든 FK 부모 칼럼의 PK/UNIQUE 확인, PostgreSQL 내보내기 성공, 스키마 명세와 DBML 칼럼 대조, Mermaid 관계선 수와 DBML 관계 수 일치.
+- 새로 남긴 미결: 판매 중 여부의 판단 근거, 정규 절 분류 값 규칙(F), LLM 6필드 추출 표의 문서/파일 단위, 문서쌍 지표의 입력 저장 방식, selection manifest 위치, 워터마크 검증 방법.
+- 수행하지 않은 것: 커밋·푸시, Notion 동기화.
+
 ## 2026-10-04 — 펀드 위험등급 처리 규칙 반영
 
 - 기준: Notion 9차 미팅 하위 페이지 「펀드 위험등급 처리 규칙 근거(10/3과제)」(데이터 사이언스(다빈)). PM이 제안대로 채택했다.

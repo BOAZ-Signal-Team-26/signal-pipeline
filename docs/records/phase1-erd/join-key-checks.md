@@ -44,7 +44,7 @@
 ### 소스별 조인 키 대조표 (09-20 시점)
 
 - 출처: 09-20 시점 논리 스키마(표 9개 기준)의 「소스별 조인 키 대조표」. git 이력에서 복원
-- 표 이름(상품·판매사·문서·문서_상품 등)은 표 9개 시점 이름. 현행 20개 표 이름은 [데이터 테이블·ERD 설계](../../data-model.md)
+- 표 이름(상품·판매사·문서·문서_상품 등)은 표 9개 시점 이름. 현행 17개 표 이름은 [데이터 테이블·ERD 설계](../../data-model.md)
 - 「식별」 칸의 J 번호는 옛 문서·DBML 주석이 쓰는 번호. 대조용으로만 둠
 - 판정 네 가지: 코드 / 문자열 / 값적재 / 없음
 - 「현재」 칸: 이후 실측·판정으로 바뀐 행은 「대체됨 → 현행 위치」
@@ -53,7 +53,7 @@
 |---|---|---|---|---|---|---|---|
 | J1 | OPEN DART 표지 노드 | 펀드코드 5자리 | 상품.short_code | 코드 | 확인됨 (DART 표지 10건) | 펀드·ETF 1차 키. 10건 중 10건 존재, ETF 3건 포함 | 유지. [상품·법인 매칭 규칙](../../matching-rules.md) 「코드 매칭」 |
 | J2 | 공공데이터포털 펀드상품기본정보 | srtnCd | 상품.short_code | 코드 | 확인됨 (09-19) | DART 표지 펀드코드 10건 중 7건이 `srtnCd`에 그대로 있음. 형식은 전건 `[A-Z0-9]{5}`(165,118종 전부). 단서: 전역 유일이 아님(4,899종 겹침, 3.0%) | 판정 유지. 「short_code 단독 조인 유지」는 대체됨 → 조인에 쓰되 UNIQUE 아님, 다중 후보 AMBIGUOUS([상품·법인 매칭 규칙](../../matching-rules.md) 「코드 매칭」) |
-| J3 | 공공데이터포털 펀드상품기본정보 | asoStdCd, fndNm, setpDt, fndTp | 상품.standard_code, product_name, sale_start_date, product_category 후보 | 값적재 | 확인됨 (finlife·코드 체계 조사) | 조인 키가 아니라 값 적재. 운용사·위험등급·기준가는 없음 | 「setpDt → sale_start_date」는 대체됨 → `inception_date`(설정일). 판매개시일 원천 아님([데이터 테이블·ERD 설계](../../data-model.md) 「상품과 법인」) |
+| J3 | 공공데이터포털 펀드상품기본정보 | asoStdCd, fndNm, setpDt, fndTp | 상품.standard_code(v2.2: 접두 3자로 kofia_fund_code와 분기), product_name, sale_start_date(대응 칼럼 v2.2에서 제거됨), product_category 후보 | 값적재 | 확인됨 (finlife·코드 체계 조사) | 조인 키가 아니라 값 적재. 운용사·위험등급·기준가는 없음 | 「setpDt → sale_start_date」는 대체됨 → `inception_date`(설정일). 판매개시일 원천 아님([데이터 테이블·ERD 설계](../../data-model.md) 「상품과 법인」) |
 | J4 | OPEN DART | rcept_no, dcmNo | 문서.rcept_no(=source_doc_key), 문서.dcm_no | 코드 | 확인됨 (DART 표지 10건) | 접수번호는 자연키 그대로 | 유지. [데이터 테이블·ERD 설계](../../data-model.md) 「문서와 소스별 키」 |
 | J5 | OPEN DART | corp_code | 판매사.corp_code (제출 법인 = 운용사) | 코드 | 확인됨 (DART 표지 10건) | corp_code ↔ kofia_mgmt_code 대응은 별건(미확인) | 대응 검수 미결([상품·법인 매칭 규칙](../../matching-rules.md) 「미결」) |
 | J6 | OPEN DART 표지 노드 | 투자위험등급, 집합투자기구 명칭, 작성기준일 | 상품.risk_grade, product_name, 문서 메타 | 값적재 | 확인됨 (DART 표지 10건) | 등급은 `(\d)등급` 정규식. 판매회사 명단은 표지에 없음 | 「위험등급 원천 = DART 표지」는 대체됨 → DART 표지 + 금투협 첨부, 충돌 시 임의 선택 금지 |
