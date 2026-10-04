@@ -65,6 +65,15 @@ class RawStore:
                 found.append((int(match.group(1)), path))
         return sorted(found)
 
+    def latest(
+        self, source: str, source_object_key: dict[str, str], file_role: str, ext: str
+    ) -> Path | None:
+        """같은 source·키·역할의 최신 판 파일. 없으면 None. 이미 받은 원본을 건너뛸 때 쓴다."""
+        versions = self._versions(
+            source, object_key_hash(source_object_key), file_role, ext
+        )
+        return versions[-1][1] if versions else None
+
     def save(
         self,
         source: str,

@@ -77,9 +77,26 @@ def test_watermark_first_run_has_no_start(tmp_path: Path) -> None:
 
 def test_watermark_lookback_and_no_regression(tmp_path: Path) -> None:
     mark = Watermark(tmp_path, "dart")
-    assert mark.advance(date(2026, 10, 2), "run-a")
+    assert mark.advance(date(2026, 10, 2), "run-a", first_day=date(2026, 9, 1))
     assert mark.start_date(lookback_days=3) == date(2026, 9, 29)
     assert not mark.advance(date(2026, 10, 1), "run-b")  # 앞선 날로 되돌리지 않음
     assert mark.load() == date(2026, 10, 2)
     assert mark.advance(date(2026, 10, 3), "run-b")
     assert mark.load() == date(2026, 10, 3)
+
+
+def test_lookback_does_not_go_before_first_start(tmp_path: Path) -> None:
+    mark = Watermark(tmp_path, "dart")
+    # 첫 실행이 10월 2일부터 시작해 그날을 마침 → 룩백해도 9월 29일이 아니라 10월 2일부터
+    assert mark.advance(date(2026, 10, 2), "run-a", first_day=date(2026, 10, 2))
+    assert mark.start_date(lookback_days=3) == date(2026, 10, 2)
+    assert mark.advance(date(2026, 10, 10), "run-b", first_day=date(2026, 10, 9))
+    assert mark.start_date(lookback_days=3) == date(2026, 10, 7)
+
+
+def test_first_start_is_kept_after_later_runs(tmp_path: Path) -> None:
+    mark = Watermark(tmp_path, "dart")
+    mark.advance(date(2026, 9, 1), "run-a", first_day=date(2026, 8, 25))
+    mark.advance(date(2026, 9, 2), "run-b", first_day=date(2026, 8, 29))
+    data = json.loads(mark.path.read_text())
+    assert data["first_rcept_dt"] == "2026-08-25" and data["rcept_dt"] == "2026-09-02"
