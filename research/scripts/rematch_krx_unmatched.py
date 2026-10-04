@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""KRX 매칭 실패 229건 재대조 (10월 4일).
+
+용례:
+    python3 research/scripts/rematch_krx_unmatched.py <공공데이터포털 전체 캐시 JSON> <결과 CSV>
+
+입력: research/samples/etf_rule_check.csv 의 「KRX매칭실패」 행, verify_etf_rule.py --cache 로 받은 포털 전체 JSON.
+규칙은 docs/matching-rules.md 「KRX 매칭 실패 처리」.
+"""
+import csv,json,re,sys,collections
+sys.path.insert(0,'research/scripts'); from verify_etf_rule import normalize as N
+r=[x for x in csv.DictReader(open('research/samples/etf_rule_check.csv')) if x['구분']=='KRX매칭실패']
+d=json.load(open(sys.argv[1]))
+F={}
+for f in d:
+    if '상장지수' in f['fndNm'] or 'ETF' in f['fndNm'].upper():
+        F.setdefault(f['srtnCd'],f)  # one row per short code
+F=list(F.values()); FN=[(N(re.sub(r'\([^)]*\)|\[[^\]]*\]','',f['fndNm'])),f) for f in F]
+# 수식어 제거: KRX 괄호 표기((합성)·(H)·(합성 H)) — 포털은 이 표기를 이름 끝에 따로 붙이거나 생략
+ALIAS={'ACE':['KINDEX'],'RISE':['KBSTAR'],'PLUS':['ARIRANG'],'KIWOOM':['KOSEF'],'1Q':[],'SOL':[],'KODEX':[],'TIGER':[],'HANARO':[]}
+TAILS=['증권','특별자산','상장지수','파생','부동산','채권','주식','혼합','투자신탁','재간접','금리','통화','원자재']
+def keys(name):
+    base=re.sub(r'\([^)]*\)','',name).strip(); b=base.split()[0]; rest=base[len(b):]
+    ks=[N(base)]+[N(a+rest) for a in ALIAS.get(b,[])]
+    ks+= [k.replace('TR','') for k in ks if k.endswith('TR')]
+    return ks
+def hit(k):
+    out=[]
+    for n,f in FN:
+        i=n.find(k)
+        if i<0: continue
+        tail=n[i+len(k):]
+        if tail=='' or any(tail.startswith(t) for t in TAILS): out.append(f)
+    return out
+stat=collections.Counter(); rows=[]
+for x in r:
+    found=[]
+    for k in keys(x['KRX종목명']):
+        found=hit(k)
+        if len(found)>1:  # 환헤지 표기로 가름: KRX (H)·(합성 H) ↔ 포털 이름 끝 (H)
+            h='H)' in x['KRX종목명']
+            found=[f for f in found if f['fndNm'].rstrip().endswith('(H)')==h]
+        if found: break
+    st='자동 1:1' if len(found)==1 else ('후보 여러 개' if found else '후보 없음')
+    stat[st]+=1
+    rows.append([st,x['ISU_CD'],x['KRX종목명'],len(found)]+([found[0]['fndNm'],found[0]['srtnCd'],found[0]['asoStdCd']] if len(found)==1 else ['','','']))
+print('1차',dict(stat))
+
+# 2차: 같은 브랜드 안에서 핵심 이름 유사도(사람 확인용 후보)
+import difflib
+BR={'ACE':['ACE','KINDEX'],'RISE':['RISE','KBSTAR'],'PLUS':['PLUS','ARIRANG'],'KIWOOM':['KIWOOM','KOSEF'],'KODEX':['KODEX'],'TIGER':['TIGER'],'SOL':['SOL'],'HANARO':['HANARO'],'1Q':['1Q'],'FOCUS':['FOCUS'],'마이티':['마이티'],'파워':['파워']}
+def core(n):
+    n=re.split(r'(증권|특별자산|부동산|상장지수)',n)[0]
+    return n.replace('적격','').replace('플러스','+')
+stat2=collections.Counter(); out=[]
+for row in rows:
+    if row[0]=='자동 1:1': out.append(row+['']); continue
+    nm=row[2]; b=nm.split()[0]; brands=BR.get(b,[b])
+    k=core(N(re.sub(r'\([^)]*\)','',nm[len(b):]))).replace('+','')
+    best=[]
+    for n,f in FN:
+        bi=[n.find(N(x)) for x in brands if N(x) in n]
+        if not bi: continue
+        c=core(n[min(bi)+len(N(brands[0])) if N(brands[0]) in n else min(bi):]).replace('+','')
+        for x in brands: c=c.replace(N(x),'')
+        best.append((difflib.SequenceMatcher(None,k,c).ratio(),f))
+    best.sort(key=lambda t:-t[0])
+    if best and best[0][0]>=0.85 and (len(best)<2 or best[0][0]-best[1][0]>=0.05):
+        st='유사도 후보(확인 필요)'; f=best[0][1]
+        out.append([st,row[1],nm,row[3],f['fndNm'],f['srtnCd'],f['asoStdCd'],round(best[0][0],2)])
+    else:
+        st='수동'; out.append([st,row[1],nm,row[3],'','','',round(best[0][0],2) if best else 0])
+    stat2[st]+=1
+print('2차',stat2)
+csv.writer(open(sys.argv[2],'w',newline='')).writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)

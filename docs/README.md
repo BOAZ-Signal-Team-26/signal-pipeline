@@ -263,7 +263,7 @@
 | 4 | DART viewer.do Referer 필요 여부 | [데이터 소스 수집 명세](data-sources.md) 「미결」 |
 | 5 | finlife 소스 존치 | [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
 | 6 | 경영유의사항 API 채택 | [데이터 테이블·ERD 설계](data-model.md) 「미결」, [3단계 입력](io-schema.md) 「미결」 |
-| 7 | KRX 매칭 실패 229건 처리 방침 | [2단계 입력](pipeline-flow.md) 「미결」 |
+| 7 | KRX 매칭 실패 229건 처리 방침 → 10월 4일 PM 초안(팀 확인 대기) | [매칭 규칙](matching-rules.md) 「KRX 매칭 실패 처리」 |
 | 8 | CDI 검증 방법(분쟁 검정 폐기 여부) | [3단계 입력](io-schema.md) 「미결」 |
 | 9 | ETF 판매사 축 분석 결론 재작성 | [점수 저장과 비교 모집단](scoring-and-population.md) 「미결」 |
 | 10 | 제재 증분 필터 = inputDate 확정 수준 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「미결」 |
