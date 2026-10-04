@@ -48,7 +48,7 @@ Notion 티켓·회의록·문서, GitHub PR·이슈 본문, 저장소 안 문서
 - 목적: 설계 문서, 소스 확인 스크립트·표본(`research/`). `src/signal_pipeline/`은 `__init__.py`뿐인 빈 뼈대. 일정·WBS는 Project-Management
 - 정본: 읽는 순서와 정본 목록은 `docs/README.md`. 표·칼럼·복합키는 `docs/schema.dbml`, 근거는 `docs/data-model.md`. Notion은 요약본이므로 숫자는 이 저장소에서 가져옴
 - 브랜치: main(배포), dev(통합). 작업 PR은 dev 대상. dev는 직접 푸시 가능. main은 CI 통과와 PR 대화 해결 필수(Project-Management `docs/04-proposals.md` 1-3절, 9월 29일 확정)
-- 브랜치 이름·커밋 메시지 형식: 팀 결정 기록 없음(`docs/04-proposals.md` 1-1·1-2절, 제안 단계). 실제 이력의 관례는 브랜치 `docs/#42-erd-v2.2`, 커밋 `#42 docs: 설명` 형식. 이슈 먼저 만든 뒤 PR 본문에 `Closes #번호` 기재
+- 이슈를 먼저 만든 뒤 브랜치 `<타입>/#<이슈 번호>-<설명>`(예: `docs/#42-erd-v2.2`), 커밋 `#<이슈 번호> <타입>: <한국어 설명>`. 타입은 feat·fix·docs·chore(Project-Management `docs/04-proposals.md` 1-1·1-2절, 10월 4일 확정). PR 본문에 `Closes #번호` 기재
 - PR·이슈 제목은 `[Feat|Fix|Docs|Chore|Release] 내용`. 라벨은 제목 접두어로 자동 부여(`auto-label.yml`). 형식 위반 시 봇 댓글(`title-guard.yml`, 차단 없음)
 - CI: gitleaks, 1MB 초과 파일 차단, 노트북 출력 확인(`ci.yml`). 같은 검사가 로컬 `.pre-commit-config.yaml`에 있음. 커밋 훅 우회 금지
 - 실행: `uv sync` 후 저장소 루트에서 `uv run`. ruff는 `research/` 제외(`pyproject.toml`)
