@@ -37,9 +37,10 @@ for x in r:
     found=[]
     for k in keys(x['KRX종목명']):
         found=hit(k)
-        if len(found)>1:  # 환헤지 표기로 가름: KRX (H)·(합성 H) ↔ 포털 이름 끝 (H)
-            h='H)' in x['KRX종목명']
-            found=[f for f in found if f['fndNm'].rstrip().endswith('(H)')==h]
+        # 환헤지 표기가 다르면 후보에서 뺌(후보 1개여도): KRX (H)·(합성 H) ↔ 포털 이름의 (H)·(합성 H)
+        # 예: KRX `PLUS 미국S&P500(H)`가 포털의 환노출형 `한화 PLUS 미국S&P500`에 붙지 않게 함
+        h='H)' in x['KRX종목명']
+        found=[f for f in found if ('(H)' in f['fndNm'] or '(합성H)' in f['fndNm'].replace(' ',''))==h]
         if found: break
     st='자동 1:1' if len(found)==1 else ('후보 여러 개' if found else '후보 없음')
     stat[st]+=1
@@ -50,7 +51,7 @@ print('1차',dict(stat))
 import difflib
 BR={'ACE':['ACE','KINDEX'],'RISE':['RISE','KBSTAR'],'PLUS':['PLUS','ARIRANG'],'KIWOOM':['KIWOOM','KOSEF'],'KODEX':['KODEX'],'TIGER':['TIGER'],'SOL':['SOL'],'HANARO':['HANARO'],'1Q':['1Q'],'FOCUS':['FOCUS'],'마이티':['마이티'],'파워':['파워']}
 def core(n):
-    n=re.split(r'(증권|특별자산|부동산|상장지수)',n)[0]
+    n=re.split(r'(증권상장|특별자산상장|부동산상장|상장지수|증권투자신탁)',n)[0]  # 상품명 안의 「부동산」 등에서 자르지 않음
     return n.replace('적격','').replace('플러스','+')
 stat2=collections.Counter(); out=[]
 for row in rows:
