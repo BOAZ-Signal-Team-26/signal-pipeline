@@ -4,7 +4,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 상태 | 09-22 재검토안 (09-23 경로 계약·v2.1 보완 포함, 10월 4일 ERD v2.2 반영: 추출 키·derived 경로·워터마크 표) |
+| 상태 | 09-22 재검토안 (09-23 경로 계약·v2.1 보완 포함, 10월 4일 ERD v2.2 반영: 추출 키·derived 경로·워터마크 표, 10월 4일 S3 트리 확정: 원천 키 폴더·소스 7개·적재 순서) |
 | 기준일 | 2026-10-04 |
 | 담당 | 대현 |
 | 승인 | 팀 승인 전 |
@@ -20,7 +20,7 @@
 | 결정 | 근거 |
 |---|---|
 | 원본 바이트는 불변. 덮어쓰지 않고 버전을 쌓음 | 정정본·첨부 교체 때 과거 시점 재현 필요 |
-| 경로는 `raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext}` | 옛 `{문서키}__v1.meta.json`은 DART XML/PDF metadata가 충돌 |
+| raw 경로는 `raw/{source}/{읽을 수 있는 원천 키}/{file_role}__v{n}.{ext}`. 수집일·해시 폴더는 쓰지 않음 | 같은 문서의 v2가 같은 폴더에 쌓여야 비교할 수 있고, 폴더 이름만으로 문서를 알아볼 수 있어야 함 |
 | `storage_path`는 `RAW_ROOT` 기준 상대경로만 저장 | 절대경로는 환경마다 루트가 달라 DB 덤프 이동 시 전부 무효 |
 | 요청(`collection_attempt`)과 원본(`raw_object`)을 다른 단위로 기록 | 타임아웃처럼 바이트가 없는 요청도 기록해야 함 |
 | 같은 source·키에서 바이트 SHA-256이 같으면 새 파일 버전을 만들지 않음. 재추출은 실행(run)별로 판단 | 중복 다운로드 생략과 재추출 생략은 다른 규칙 |
@@ -33,36 +33,71 @@
 ### 파일 경로
 
 ```text
-raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext}
-raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext}.meta.json
+raw/{source}/{원천 키}/{file_role}__v{n}.{ext}
+raw/{source}/{원천 키}/{file_role}__v{n}.{ext}.meta.json
+raw/{source}/{기준일 YYYY-MM-DD}/...                 # 스냅숏형 API만(data_go_fund, krx_etf_daily)
 ```
+
+소스별 실제 모양(키 형식 예시이며 실제 값이 아님):
+
+```text
+raw/dart/{접수번호 14자리}/body_pdf__v1.pdf
+raw/dart/{접수번호 14자리}/cover_html__v1.html
+raw/kofia_disclosure/{companyCd}~{standardDt}~{announceTtl 인코딩}~{tmpV1}/prospectus__v1.pdf
+raw/kofia_disclosure/{companyCd}~{standardDt}~{announceTtl 인코딩}~{tmpV1}/attachment-01__v1.pdf
+raw/fss_sanction/{examMgmtNo}~{emOpenSeq}~{transCode}~{actGbn}/api_response__v1.json
+raw/fss_improvement/{examMgmtNo}~{emOpenSeq}~{transCode}~{actGbn}/api_response__v1.json
+raw/fss_dispute/{게시판 ID}~{게시글 번호}/attachment-01__v1.hwp
+raw/data_go_fund/{기준일}/page-0001.json
+raw/data_go_fund/{기준일}/page-0184.json
+raw/data_go_fund/{기준일}/_complete.json
+raw/krx_etf_daily/{기준일}/api_response__v1.json
+```
+
+- 금투협 4필드 순서: `companyCd`, `standardDt`, `announceTtl`, `tmpV1`([데이터 테이블·ERD 설계](data-model.md) 「문서와 소스별 키」). 수시공시만 이 4필드로 묶음
+- 금감원 제재·경영유의 복합키 순서: `examMgmtNo`, `emOpenSeq`, `transCode`, `actGbn`. 후보 키이며 전수 안정성 미확인(같은 절)
+- 분쟁조정은 게시판 ID + 게시글 번호(예: 게시판 `B0000390`의 게시글). 한 글에 첨부가 1~3건이라 `attachment-01` 식 접미가 붙을 수 있음
+- DART는 접수번호(14자리 숫자) 하나가 폴더 이름
 
 | 요소 | 의미 |
 |---|---|
-| source | 서비스/엔드포인트 이름공간. 제재와 경영유의 API는 구분 |
-| collected_date | 실제 수집 UTC 날짜 YYYY-MM-DD. 원천 기준일과 별개 |
-| object_key_hash | source_object_key의 정규화된 원천 구성 필드를 UTF-8 JSON으로 직렬화한 SHA-256 |
-| source_object_key | 문서: 문서키 + 역할 + 첨부 식별자. API: 서비스 + 기준일/조회기간 + 페이지 + 비밀값 없는 필터 |
+| source | 서비스/엔드포인트 이름공간. 7개: `dart`, `kofia_disclosure`, `fss_sanction`, `fss_improvement`, `fss_dispute`, `data_go_fund`(공공데이터포털 펀드상품기본정보), `krx_etf_daily`(KRX ETF 일별 매매정보). 제재와 경영유의 API는 구분 |
+| 원천 키 | DB `source_object_key`를 만드는 같은 인코딩 함수의 결과. 필드가 여러 개면 `~`로 연결. `/` 등 경로에 쓸 수 없는 문자는 퍼센트 인코딩. 인코딩 후 200바이트를 넘으면 앞부분 + 해시 접미사로 줄임. 원본 필드 값은 meta.json에 JSON으로 보존 |
+| 기준일 폴더 | 스냅숏형 API(`data_go_fund`, `krx_etf_daily`)만 사용. 값은 원천 기준일 YYYY-MM-DD이며 수집일이 아님 |
 | file_role | cover_html / cover_xml / body_pdf / api_response / attachment / prospectus / prospectus_simple / change_summary |
-| version_seq | 동일 source/source_object_key의 바이트 버전. 1부터 시작 |
+| `attachment-01` 식 접미 | 같은 file_role 첨부가 여럿일 때 파일명에 붙임. 파일명 규칙이며 file_role 값이 아님 |
+| n | 동일 source/원천 키의 바이트 버전(`version_seq`). 1부터 시작 |
 | ext | 실제 콘텐츠 형식에 따라 결정. 오류 HTML을 pdf로 저장하지 않음 |
+
+API 스냅숏 저장 단위:
+
+- `data_go_fund`: 기준일 폴더 아래 페이지당 객체 1개(`page-NNNN.json`). 마지막에 `_complete.json`(페이지 수·건수)을 씀. 이 파일이 있어야 그 기준일 스냅숏을 유효로 봄
+- `krx_etf_daily`: 기준일당 파일 1개
+
+압축:
+
+- raw는 압축하지 않음. 받은 바이트를 그대로 저장하므로 `sha256`이 원천 응답의 해시와 같은 뜻을 유지
 
 바꾼 이유:
 
-- 옛 `{문서키}__v1.meta.json`은 DART XML/PDF의 metadata가 충돌함
-- 역할만 추가해도 같은 역할의 여러 첨부를 구분하지 못함
-- 파일 식별자가 경로를 구분하고, meta.json은 확장자까지 포함한 정확한 파일명에 붙임
-- 원천 이름에 슬래시·쿼리·한글이 있어도 경로 구성에 직접 쓰지 않음. 읽기 쉬운 문서키와 원래 파일명은 metadata에 보존
+- 수집일 폴더는 같은 문서를 다시 받을 때마다 폴더가 갈라져 v1과 v2를 한곳에서 볼 수 없음. 원천 키 폴더는 같은 문서의 모든 버전을 한 폴더에 모음
+- 해시 폴더는 사람이 읽을 수 없어 DB 없이는 어느 문서의 파일인지 알 수 없음. 읽을 수 있는 원천 키는 폴더 이름만으로 문서를 찾고, DB 행이 빠진 원본도 `source_object_key`와 대조해 복원할 수 있음
+- 폴더 이름과 DB `source_object_key`를 같은 인코딩 함수로 만들면 두 값이 어긋나지 않고, 사람이 읽는 경로와 DB 조회 키가 하나가 됨
+- 옛 `{문서키}__v1.meta.json`은 DART XML/PDF의 metadata가 충돌했으므로 meta.json은 확장자까지 포함한 정확한 파일명에 붙임
+- 역할만 추가해도 같은 역할의 여러 첨부를 구분하지 못하므로 `attachment-01` 식 접미를 둠
+
 
 ### 원본과 요청의 구분
 
 - `raw_object`: 실제 저장한 바이트의 버전. SHA-256·storage_path 필수
-- `storage_path`: `RAW_ROOT` 기준 상대경로만 저장(09-22). 오브젝트 스토리지로 옮기면 이 상대경로가 그대로 객체 키
+- `storage_path`: `RAW_ROOT` 기준 상대경로만 저장(09-22). 위 「파일 경로」 형식이며, 오브젝트 스토리지로 옮기면 이 상대경로가 그대로 객체 키
 - `collection_attempt`: 요청 한 번. 바이트가 없으면 `raw_object_id=NULL`인 시도만 기록. 가짜 파일·빈 해시를 만들지 않음
 - HTTP 오류라도 응답 바이트가 있으면 원본으로 보존 가능. `collect_status=failed`인 파일은 본문 추출 대상에서 제외
 - 정상 빈 API 응답도 바이트가 있으면 보존하고 시도 outcome=`EMPTY`로 기록
 - 포털·KRX·목록 응답은 `document_id=NULL`로 저장. 파일 보관을 위해 가짜 공시 문서를 만들지 않음
 - 문서와 파일 연결은 별개. 같은 바이트가 여러 문서에 나오면 각 문서의 연결을 남김. CAS로 실체를 공유할지는 별도 결정(「미결」)
+- 고아 객체(S3에는 있으나 `raw_object` 행이 없는 객체)는 삭제하지 않음. 재시도에서 같은 키·같은 바이트가 나오면 그 객체를 채택하고, 주간 보고에 고아 객체 목록만 남김
+- 적재 순서와 단계별 실패 처리는 「적재 순서」
 
 ### 버전·중복·재추출
 
@@ -130,7 +165,7 @@ raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext
 
 RAW_ROOT 정의 (09-23 경로 계약 보완안):
 
-- `raw/`, `derived/`, `runs/`를 포함하는 공통 데이터 루트
+- `raw/`, `derived/`, `runs/`, `assets/`, `eval/`, `exports/`, `backups/`를 포함하는 공통 데이터 루트
 - 예: 로컬 루트 `/data/signal`, storage_path `raw/dart/...` → 실제 경로 `/data/signal/raw/dart/...`
 - 루트를 `/data/signal/raw`로 잡아 `raw/raw`를 만들지 않음
 - 기존 운영 설정이 확인되면 이 규약과 대조
@@ -145,18 +180,86 @@ RAW_ROOT 정의 (09-23 경로 계약 보완안):
 derived/{raw_sha256}/{parser_version}/text.txt
 derived/{raw_sha256}/{parser_version}/structure.json             # file_extraction.structure_manifest_path
 runs/{run_id}/inputs.json                                        # EXTRACT·SCORE run 모두
-runs/{score_run_id}/selection.json                               # pipeline_run.selection_manifest_path
+runs/{score_run_id}/selection.json                               # pipeline_run.selection_manifest_path (채점 실행만)
 runs/{score_run_id}/populations/{population_snapshot_id}.json
+runs/{run_id}/llm/{document_id}/{field_name}/attempt-{n}/request.json
+runs/{run_id}/llm/{document_id}/{field_name}/attempt-{n}/response.json   # llm_field_extraction.raw_response_path
+assets/{종류}/{이름}__v{버전}__{sha256 앞 12자}.{ext}
+eval/pilot/{id}/
+eval/human-eval/{id}/
+eval/sanction-validation/{버전}/
+exports/official.json
+exports/runs/{score_run_id}/documents.parquet
+exports/runs/{score_run_id}/scores.parquet
+exports/runs/{score_run_id}/sensitivity/
+backups/postgres/{YYYY-MM-DD}/signal.dump                        # + signal.dump.sha256
 ```
 
-- `derived/`의 키는 원본 파일 × 파서 버전(v2.2 수정 2). 원본 파일은 바이트 해시(raw_object.sha256)로 가리키므로 내부 서러게이트 ID(raw_object_id, 추출 실행 번호)가 경로에 들어가지 않음. 이 방식으로 검토 번호 B9(derived 경로의 서러게이트 ID·내용 주소화)가 해소됨. 파서 버전은 위 형식 규칙을 따름
-- 같은 바이트(sha256)가 여러 raw_object로 저장돼도 같은 파서 버전의 결과는 한 경로를 공유하며 내용이 같아 무해함. 쓰기는 sha256 기준 한 번. 파서 버전은 소문자·숫자·`.`·`-`·`_`만 쓰고 전처리 버전을 포함함(전처리가 바뀌면 새 파서 버전)
+- `derived/`의 키는 원본 파일 × 파서 버전(v2.2 수정 2). 원본 파일은 바이트 해시(raw_object.sha256)로 가리키므로 내부 서러게이트 ID(raw_object_id, 추출 실행 번호)가 경로에 들어가지 않음. 이 방식으로 검토 번호 B9(derived 경로의 서러게이트 ID·내용 주소화)가 해소됨
+- 같은 바이트(sha256)가 여러 raw_object로 저장돼도 같은 파서 버전의 결과는 한 경로를 공유하며 내용이 같아 무해함. 쓰기는 sha256 기준 한 번
+- 파생 파일은 두 개뿐. 절 텍스트를 따로 저장하지 않음
+  - `text.txt`: canonical text 전체
+  - `structure.json`: 부·절 제목과 글자 범위, 표 영역(글자 범위), 간이 요약 구간
+- 파서 버전 형식 예: `pdftotext-24.02_prep-3`. 소문자·숫자·`.`·`-`·`_`만 쓰고 전처리 버전을 포함함. 추출 도구, 전처리, CPU 아키텍처, 형태소 분석기(텍스트 처리에 영향을 줄 때)가 바뀌면 파서 버전을 올림
 - `runs/{run_id}/…`·`populations/`는 실행 아래. 채점 실행은 `pipeline_run.upstream_run_id`로 추출 실행을 가리킴 → 산식만 바뀐 재채점은 `derived/`를 새로 만들지 않음
-- 평가(evaluation) 표 연기(v2.2 수정 1)로 `runs/{score_run_id}/eval/` 경로는 평가 표를 추가할 때 정함. 지금 평가 자료는 CSV와 설정 파일이며, 접근 제한 자료의 저장 위치·권한 분리는 「미결」
+
+LLM 호출 저장:
+
+- 시도 한 번당 `request.json`과 `response.json` 두 파일. `raw_response_path`는 `response.json`을 가리키고, 응답 바이트의 해시는 `llm_field_extraction.response_sha256`에 기록(이번 ERD v2.2 PR에서 칼럼 추가)
+- 같은 입력의 재호출 생략 여부는 DB 조회로 판단(canonical text sha, prompt sha, 모델, 파라미터, 필드). 생략하면 이전 시도의 경로를 재사용할 수 있음. 생략 규칙 자체는 확정하지 않음(「미결」)
+
+실행 폴더 불변:
+
+- `runs/{run_id}/`(inputs.json, selection.json, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
+
+`assets/`(불변, 이름·버전·해시 12자로 경로가 정해짐):
+
+| 종류 | 내용 |
+|---|---|
+| dictionaries | 사전 |
+| standards | 작성기준 시행일별 판 |
+| metrics | 지표 정의·가중치·기준집단 |
+| prompts | 프롬프트 |
+| morph | 형태소 분석기 버전·옵션 |
+| rules | 표준문안·표 판정 규칙 |
+
+- `config_manifest`가 이 파일의 경로와 sha256을 가리킴
+
+`eval/`(접근 제한 접두어):
+
+- `pilot/{id}/`, `human-eval/{id}/`, `sanction-validation/{버전}/`(제재 사례 매핑표, 대조군). 평가용 사례는 규칙을 만들 때 보지 않도록 하위 폴더를 나눔
+- 전용 IAM 역할만 읽을 수 있음
+
+`exports/`:
+
+- `official.json`: 현재 공식 채점 실행을 가리키는 포인터. `is_official`이 바뀔 때만 갱신
+- `runs/{score_run_id}/`: `documents.parquet`(대표 문서 텍스트·역할·상품군·위험등급·작성기준일·표 제외 텍스트·절 범위), `scores.parquet`, `sensitivity/`
+
+`backups/`:
+
+- `postgres/{YYYY-MM-DD}/signal.dump`와 `signal.dump.sha256`. 날짜별 새 키
+
+- 평가(evaluation) 표 연기(v2.2 수정 1)로 평가 실행 결과의 경로는 평가 표를 추가할 때 정함
 - manifest 저장 기준(수정 8, B7 정정): 큰 불변 자료는 파일(경로 + sha256), SQL로 거르는 값은 칼럼. 정규 JSON은 키 정렬·UTF-8·구분자 고정 한 줄 규칙으로 충분하며 RFC 8785는 요구하지 않음
 - canonical text는 UTF-8/LF, 파일 전체 텍스트 보존. `file_extraction`에 경로·해시·Unicode code point 길이 기록
 - 지표에 따라 표·표준문안을 제외할 수 있으나 원문 텍스트를 전역 삭제하지 않음
 - 입력·모집단 manifest는 완료 후 불변, 해시 검증·백업 대상. 최소 내용은 [데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」
+
+### 적재 순서
+
+1. `collection_attempt` 기록
+2. 응답 완전성 검증
+3. sha256 비교. 같으면 S3 쓰기를 생략하고 기존 `raw_object`를 재사용
+4. S3 쓰기. `.meta.json`을 먼저, 원본을 나중에 쓰며 새 키에만 씀
+5. `raw_object` INSERT와 attempt 갱신을 한 트랜잭션으로 처리
+6. 구간 검증을 통과했을 때만 `source_watermark` 전진(5와 별도 트랜잭션)
+7. 추출: `derived/` `text.txt` → `structure.json` → DB 행
+8. LLM 호출: `runs/…/llm`
+9. 채점: `runs/`
+10. `exports/`
+
+- 4와 5 사이에 중단되면 S3에 `raw_object` 행이 없는 객체가 남음. 삭제하지 않고 재시도에서 같은 키·같은 바이트이면 채택
+- `.meta.json`을 먼저 쓰므로 원본이 있는 객체는 항상 meta.json이 있음
 
 ## 수집 실패
 
@@ -205,14 +308,14 @@ runs/{score_run_id}/populations/{population_snapshot_id}.json
 - 해당 구간의 요청·페이지 완전성 검증이 끝났을 때만 전진
 - 정상 EMPTY와 실패·한도 중단을 구분
 - 중간 페이지까지만 받은 구간을 성공으로 승인하지 않음
-- 갱신 순서: 원본 저장 → 수집 시도 기록 → 구간 검증 → 워터마크 전진(전진은 한 트랜잭션). 이전 값의 이력은 pipeline_run의 input manifest에 남음. 검증한 구간의 시작은 covered_from, 끝은 covered_through
+- 갱신 순서는 「적재 순서」 6번: 구간 검증 통과 뒤 원본 적재 트랜잭션과 별도 트랜잭션으로 전진. 이전 값의 이력은 pipeline_run의 input manifest에 남음. 검증한 구간의 시작은 covered_from, 끝은 covered_through
 - 검증 실패·부분 응답이면 source_watermark를 갱신하지 않고 기존 값 유지. 검증 방법(건수 대조, 페이지 끝 확인)은 소스별로 정함(「미결」)
 
 | 소스 | 증분/스냅숏 축 | 주의 |
 |---|---|---|
 | DART | rcept_dt | 3일 룩백 잠정값(정정본 대비). 접수·원본·첨부 처리 단계 분리 |
-| 포털 | basDt, 요청 beginBasDt | setpDt는 설정일이므로 워터마크 아님 |
-| KRX ETF | basDd/BAS_DD 일별 전체 | 일별 파일 보존. 완전한 거래일 자료만 차집합 비교 |
+| 포털(`data_go_fund`) | basDt, 요청 beginBasDt | setpDt는 설정일이므로 워터마크 아님 |
+| KRX ETF(`krx_etf_daily`) | basDd/BAS_DD 일별 전체 | 일별 파일 보존. 완전한 거래일 자료만 차집합 비교 |
 | 금투협 공시 | standardDt, 7일 룩백 잠정값 | 백필은 1개월 창 권고. 수시공시만 4필드 묶음 |
 | 금투협 판매관계 | 월 기준 + 실제 조회일 | 월 대표일·전건 성공 여부를 함께 보존 |
 | 금감원 제재 | inputDate | actReqDate는 사건일. 표본 중 구간 밖 사건일·구간 안 입력일 사례 1건으로 확인. 표본 확대 재검증 필요 |
@@ -287,7 +390,10 @@ runs/{score_run_id}/populations/{population_snapshot_id}.json
 | 결측 원인을 구분하는 상태값: 문서 4종의 「첨부 없음」과 API 3종의 「필드 비어 있음」이 같은 칼럼 이름을 씀([소스별 데이터 현황표](records/phase1-erd/source-profile.md) 「표 구조를 바꿀 문제 2건」) | [담당 미정] | 09-30 2단계 설계 확정 |
 | 결측률 칸의 분모 칸: 분쟁조정 사건 814 / 금융투자 187 / 첨부 845 / 첨부 213단위가 섞임 | [담당 미정] | 09-30 2단계 설계 확정 |
 | 룩백 재조회 방식 확정과 소스별 워터마크 검증 방법(건수 대조·페이지 끝 확인 등). 표는 v2.2의 source_watermark | 주영 | 2단계 설계 |
-| 평가 표·자료의 접근 분리: 같은 DB·RAW_ROOT 유지 vs eval 스키마 + 접근 제한 버킷 (검토 번호 B4). 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
+| 평가 표·자료의 접근 분리 중 DB 쪽: 같은 DB 유지 vs eval 스키마(검토 번호 B4). 저장소 쪽은 같은 버킷의 `eval/` 접두어 + 전용 IAM으로 정함. 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
+| LLM 같은 입력 재호출 생략 규칙(DB 조회 항목은 정함, 생략 조건 자체는 미정) | 데이터 사이언스(다빈)·데이터 엔지니어링·인프라(주영) | 2026-10-15 추출 시작 전 |
+| 스냅숏형 API 객체(`page-NNNN.json`, `_complete.json`, `krx_etf_daily` 파일)의 meta.json 유무와 같은 기준일 재수집 시 파일명 규칙. 명세는 `page-NNNN.json`과 `_complete.json` 이름만 정함 | 데이터 엔지니어링·인프라(주영) | 수집기 구현 전 |
+| 퍼센트 인코딩 범위(한글 `announceTtl`을 인코딩하는지)와 200바이트 초과 때 해시 접미사 길이·형식 | 데이터 엔지니어링·인프라(주영) | 수집기 구현 전 |
 
 ## 참고
 

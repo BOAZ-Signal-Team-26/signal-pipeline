@@ -48,6 +48,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 |---|---|
 | 확정(10월 3일 팀 채널, 이의 없음) | 수정 1~9, B11 안 1 |
 | 확정(9차 미팅 9월 30일) | 수정 10 두 파트 출력 저장 |
+| 확정(10월 4일 PM 승인) | 수정 11 S3 트리와 llm_field_extraction.response_sha256 추가 |
 | 기본값으로 반영, 결정 대기 | A 병합, C 펀드 관측치 표 없음(manifest 파일), E 체계별 두 칼럼 |
 | 10월 4일 판단 항목, 기본값으로 반영, 결정 대기 | 펀드 대표 위험등급 칼럼, 클래스 등급 불일치 기록, 문서 작성기준일, 간이 대표 역할 |
 | 그대로 미결 | B(run 일치 복합 FK, 현행 유지), D(product_distributor 적재 시점, 표 유지), F(정규 절 분류 값 규칙), G(평가 저장), H(B3·B4 보류), I(score 상태 칼럼으로 정리), B5(대시보드 읽기 뷰, DBML 밖), B12·B13 |
@@ -60,11 +61,12 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | 2 추출 키 변경 | file_extraction PK = (raw_object_id, parser_version). 재사용은 EXTRACT_OK 행만, FAILED/PARTIAL은 다음 실행이 덮어씀. 수정 2로 절 쪽 run 일치 복합 FK는 없어지고 절 검증은 SCORE 입력 manifest로 함, section은 같은 키로 file_extraction 참조. run_id를 끌고 다니던 복합 FK(analysis_target·member의 extraction_run_id 등)와 pipeline_run (run_id, upstream_run_id) 유일키 제거. B9(derived 경로의 서러게이트 ID) 해소 | schema.dbml, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」 |
 | 3 코드 체계 불일치 | 포털 asoStdCd를 접두 3자로 분기해 K55는 kofia_fund_code, KR5/KRM은 standard_code. 결정 대기 E | schema.dbml, [매칭 규칙](matching-rules.md) 「코드 체계 분기」 |
 | 4 절 식별 칼럼 | section.canonical_section_code 추가. 값 규칙은 결정 대기 F | schema.dbml, [DART 절 분할](records/phase1-erd/dart-section-split.md) |
-| 5 빠진 표 2개 | llm_field_extraction(문서 × 필드 × 시도, 모델 이름·프롬프트 해시·토큰 수·근거 위치), source_watermark(소스 × 조회 범위, 구간 완전성 검증 뒤에만 전진) | schema.dbml |
+| 5 빠진 표 2개 | llm_field_extraction(문서 × 필드 × 시도, 모델 이름·프롬프트 해시·토큰 수·근거 위치·응답 해시), source_watermark(소스 × 조회 범위, 구간 완전성 검증 뒤에만 전진) | schema.dbml |
 | 6 채울 수 없는 칼럼 제거 | product의 sale_start_date, sale_end_date, is_public_offering, fin_prdt_cd와 document.pblntf_detail_ty 제거. 판매 중 여부의 판단 근거는 「미결」 | schema.dbml, [점수 저장과 비교 모집단](scoring-and-population.md) 「판매 중 확인」 |
 | 7 형식 오류 정정 | 아래 표 | 이 문서, [데이터 소스 수집 명세](data-sources.md) |
 | 8 B7 정정 | manifest 저장 기준 통일만 채택(큰 불변 자료는 파일, SQL 필터 대상은 칼럼). RFC 8785 요구 삭제, 키 정렬 규칙 한 줄 | 「절과 점수 대상」 6번 |
 | 9 B8 채택 안 함 | 지표 승인 이력 표 없이 metric_definition 칼럼 또는 definition_manifest에 기록 | schema.dbml |
+| 11 S3 트리 확정 | raw 폴더를 수집일·해시 폴더에서 읽을 수 있는 원천 키 폴더로 변경. source 이름공간을 5개에서 7개로 확대(data_go_fund, krx_etf_daily 추가). llm_field_extraction에 response_sha256 칼럼 1개 추가(표 수·관계 수·enum 수는 그대로). raw_object.storage_path와 raw_response_path의 경로 형식 주석 갱신 | schema.dbml, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」「적재 순서」 |
 | 10 두 파트 저장 계약 | 문서에 이미 있음. DBML score_payload 주석을 파트 B 축 1·2, 축 구성별 지표 버전, 작성기준 항목 점검 행과 맞춤 | 「두 파트 출력의 저장 계약」 |
 
 #### 수정 7 형식 오류 정정 6건
@@ -113,7 +115,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | population_snapshot | 실행 안의 비교 층 하나 | 비교 정의·건수·실제 구성원 스냅숏 |
 | match_failure | 매칭 시도 하나 | 상품/법인 후보·실패 사유·해결 기록 |
 | metric_definition | 지표의 불변 버전 | 계산 단위·산식·방향·승인 상태 |
-| llm_field_extraction | 실행 × 문서 × 필드 × 추출 시도 (v2.2 신규) | LLM 6필드 추출 결과·모델 이름·프롬프트 해시·토큰 수·근거 위치 |
+| llm_field_extraction | 실행 × 문서 × 필드 × 추출 시도 (v2.2 신규) | LLM 6필드 추출 결과·모델 이름·프롬프트 해시·토큰 수·근거 위치·응답 파일 경로와 해시 |
 | source_watermark | 소스 × 조회 범위 (v2.2 신규) | 소스별로 어디까지 받았는지. 구간 완전성 검증 뒤에만 전진 |
 
 - 연기한 표 4개(score_dependency, evaluation_run, evaluation_response, analysis_target_member)와 병합한 analysis_target은 표 목록에 없음. 요지: 「예약 계약(승인 뒤 추가)」
@@ -264,6 +266,8 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | fss_sanction / fss_improvement | examMgmtNo, emOpenSeq, transCode, actGbn의 정규 JSON 배열을 SHA-256 **(후보)** | emOpenNo는 저장 표본 8/8 공백. 후보 4필드는 8/8 유일, 전수 안정성 미확인 |
 | fss_dispute | 게시판 ID + 게시글 번호 | 게시판 이름공간 포함 |
 
+- raw 폴더 이름은 이 문서키가 아니라 `source_object_key`를 만드는 같은 인코딩 함수의 결과이며, 필드 순서는 위 표와 같음([원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」)
+- source는 7개이며 `data_go_fund`·`krx_etf_daily`는 API 스냅숏이라 document 행이 없음
 - 금투협 4필드 자연키 근거: [금투협 중복 행 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 1: 금투협 중복 행」
 - 제재 후보키 규칙
   - 구성 필드가 비었거나 같은 키에서 서로 다른 레코드 발견 → raw에 보존, 문서 병합 보류

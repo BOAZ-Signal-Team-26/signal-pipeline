@@ -43,6 +43,18 @@
 | 국가법령정보 | 키(`OC`) | 미호출 | 미확인 | 없음 |
 | finlife | 키 | 펀드·ETF·ELS 없음. 소스 존치 미결 | 개요 페이지만 | 없음 |
 
+저장 소스 이름(`source` 값, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」):
+
+| 소스 | source 값 |
+|---|---|
+| OPEN DART API·공개 뷰어 | `dart` |
+| 금투협 전자공시 | `kofia_disclosure` |
+| 금감원 검사결과제재 | `fss_sanction` |
+| 금감원 경영유의사항 | `fss_improvement` |
+| 금감원 분쟁조정결정례 | `fss_dispute` |
+| 공공데이터포털 펀드상품기본정보 | `data_go_fund` |
+| KRX ETF 일별 매매정보 | `krx_etf_daily` |
+
 - 「공식 명세」가 없는 소스(금투협·KRX·DART 공개 뷰어)는 판독한 내용이 전부이며, 서버가 예고 없이 바뀌면 알 수 없음
 - 금감원 제재·경영유의는 09-20 명세 판독 시점에는 미호출이었고 09-21 개인 키 발급 후 실호출함
 

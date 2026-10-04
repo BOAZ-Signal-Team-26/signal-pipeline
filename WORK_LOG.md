@@ -1,5 +1,14 @@
 # 작업 기록
 
+## 2026-10-04 — S3 트리 확정 반영
+
+- 기준: PM(대현) 승인 S3 트리 확정안. 같은 내용을 signal-infra 저장소 `docs/storage-design.md` 3.2절에도 반영.
+- [원본 보관과 수집·파싱 실패 처리 규칙](docs/storage-and-failure-rules.md): raw 경로를 `raw/{source}/{원천 키}/{file_role}__v{n}.{ext}`로 변경(수집일·해시 폴더 폐지, 스냅숏형 API만 기준일 폴더), 소스별 실제 모양 예시, 「바꾼 이유」, API 스냅숏 저장 단위(`page-NNNN.json` + `_complete.json`), raw 압축 안 함, 고아 객체 정책, `derived/` 파일 2개와 파서 버전 형식, `runs/…/llm`, `assets/`, `eval/`, `exports/`, `backups/` 경로, 「적재 순서」 절 신설.
+- [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md): document.source 소스 7개, raw_object.storage_path 경로 형식, llm_field_extraction.response_sha256 칼럼 추가와 raw_response_path 설명. 표·관계·enum 수는 그대로(17·42·26).
+- [데이터 테이블·ERD 설계](docs/data-model.md) 「v2.2」: 수정 11 추가, 표 목록 문구. [데이터 소스 수집 명세](docs/data-sources.md): 저장 소스 이름 표(`data_go_fund`, `krx_etf_daily`).
+- 새로 남긴 미결: 스냅숏 객체의 meta.json 유무와 재수집 파일명, 퍼센트 인코딩 범위·해시 접미사 형식, LLM 재호출 생략 규칙(기존 유지), 평가 자료 DB 쪽 접근 분리.
+- 수행하지 않은 것: 커밋·푸시, Notion 동기화.
+
 ## 2026-10-04 — ERD v2.2 반영 (이슈 #42)
 
 - 기준: 9월 30일 재검토 확정안. 수정 1~9와 B11 안 1은 10월 3일 팀 채널에서 이의 없이 확정, 수정 10은 9차 미팅(9월 30일) 확정. 결정 대기 A(병합)·C(펀드 관측치 표 없음)·E(코드 체계별 두 칼럼)와 10월 4일 판단 항목 3건(펀드 대표 위험등급 칼럼, 클래스 등급 불일치 기록, 문서 작성기준일)은 기본값으로 반영하고 「결정 대기」로 표시했다.

@@ -73,7 +73,7 @@
 | 칼럼 | 논리 타입 | NULL | 키 | 설명 |
 |---|---|---|---|---|
 | document_id | int | 불가 | PK | 내부 발급 서러게이트 키 |
-| source | varchar | 불가 |  | 소스/엔드포인트 이름공간. dart, kofia_disclosure, fss_sanction, fss_improvement, fss_dispute |
+| source | varchar | 불가 |  | 소스/엔드포인트 이름공간. 7개: dart, kofia_disclosure, fss_sanction, fss_improvement, fss_dispute, data_go_fund(공공데이터포털 펀드상품기본정보), krx_etf_daily(KRX ETF 일별 매매정보). 뒤 두 소스는 API 스냅숏이라 document 행 없이 raw_object(document_id NULL)와 source_watermark에만 나온다 |
 | source_doc_key | varchar | 불가 |  | source 안에서 유일한 원천 식별자. DART rcept_no, 금투협 4필드 해시. 제재공시는 emOpenNo가 아니라 후보 복합키, [데이터 테이블·ERD 설계](data-model.md) 「문서와 소스별 키」 참조 |
 | source_key_payload | text | 불가 |  | 키 생성 전 원천 필드 JSON. 제재 API 후보는 examMgmtNo/emOpenSeq/transCode/actGbn. 빈 키/충돌은 격리 |
 | source_record_payload | text | 허용 |  | 제재 13필드 등 원천 레코드 JSON. API 응답 파일의 원문도 별도 보존 |
@@ -210,7 +210,7 @@
 | source_baseline_date | date | 허용 |  |  |
 | file_role | file_role_enum | 불가 |  | CDI 채점 대상을 가리는 유일한 칸 — 금투협은 문서 1건(공고)에 첨부가 2~3종이고 document_type이 "금투협 수시공시" 한 값이므로, 이 칸이 없으면 어느 파일을 채점할지 정할 자리가 없다 |
 | sha256 | varchar(64) | 불가 |  | 파일 콘텐츠 해시(hex 다이제스트, 64자). [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「버전·중복·재추출」의 재수집 시 버전 증가 여부·중복 저장 판정 키. 동일 바이트 검출에 사용한다. 해시가 다르더라도 요약/본문의 내용 중복은 가능하므로 대표 문서 선택을 대체하지 않는다 |
-| storage_path | text | 불가 |  | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」의 raw/{source}/{collected_date}/{object_key_hash}/{file_role}__v{version_seq}.{ext} 규칙. RAW_ROOT 기준 상대경로만 저장, 절대경로 금지(09-22) |
+| storage_path | text | 불가 |  | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」의 raw/{source}/{원천 키}/{file_role}__v{n}.{ext} 규칙(스냅숏형 API는 원천 키 자리에 기준일). 원천 키는 source_object_key를 만드는 같은 인코딩 함수의 결과. RAW_ROOT 기준 상대경로만 저장, 절대경로 금지(09-22) |
 | blob_path | text | 허용 |  | 2단계 데이터 파이프라인 Flow 설계 후보 칸(09-16 아키텍트 반영). CAS(blobs/{sha256 앞 2자}/{sha256}) 채택이 2단계로 미뤄져 현재는 쓰지 않는다 |
 | file_name | text | 불가 |  | 원본 파일명(서버 저장명 포함) |
 | content_type | varchar | 허용 |  | MIME 타입. 길이 미정 |
@@ -376,7 +376,8 @@
 | evidence_char_start | int | 허용 |  | section과 같은 기준(canonical text의 Unicode code point 반열린 구간), 해당 절 범위 안 |
 | evidence_char_end | int | 허용 |  |  |
 | model_params | text | 허용 |  | 모델 파라미터 JSON(temperature 등) |
-| raw_response_path | text | 허용 |  | 원응답 저장 경로. RAW_ROOT 상대경로 |
+| raw_response_path | text | 허용 |  | 원응답 저장 경로. runs/{run_id}/llm/{document_id}/{field_name}/attempt-{n}/response.json. RAW_ROOT 상대경로 |
+| response_sha256 | varchar(64) | 허용 |  | response.json 바이트의 sha256. 채점 실행 완료 전 재대조에 쓴다 |
 | is_selected | boolean | 불가 |  | 같은 문서·필드의 시도 중 최종 채택한 행. 문서·필드당 true는 최대 1개(적재 검증) |
 | error_reason | text | 허용 |  |  |
 | extracted_at | timestamp | 불가 |  |  |
