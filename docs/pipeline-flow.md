@@ -6,7 +6,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 설계 본문 | 초안 있음(2026-09-30, 「Flow 다이어그램 초안」 절). 4~6단계는 파트 A(고지 점검, 축 4 고지 충실도)·파트 B(읽기 난이도, 축 1~3 합산)로 분리(09-29 팀 논의 결론, 9차 미팅(09-30) 확정). 결정 대기 A·C·D·G는 그림에 표시. 나머지 절은 입력 목록 |
+| 설계 본문 | 초안 있음(2026-09-30, 「Flow 다이어그램 초안」 절). 4~6단계는 파트 A(고지 점검, 축 4 고지 충실도)·파트 B(읽기 난이도, 파일럿 전 축 1·2 합산)로 분리(09-29 팀 논의 결론, 9차 미팅(09-30) 확정). 결정 대기 A·C·D·G는 그림에 표시. 나머지 절은 입력 목록 |
 | 기한 | 2026-09-30 |
 | 입력 기준 | 현재 스키마·키·실행/모집단 계약은 [데이터 테이블·ERD 설계](data-model.md), [DBML](schema.dbml), [스키마 명세](schema-catalog.md) |
 | 확정할 것 | 소스 4종 → 대시보드 흐름 다이어그램, DB·원문 저장소·Airflow 환경 |
@@ -54,9 +54,9 @@ flowchart TB
     E3 --> P0["pipeline_run 생성<br/>run_kind=SCORE<br/>▶ run_id 발급 지점 ②<br/>▶ upstream_run_id → EXTRACT run 참조"]
     P0 --> P1["채점 대상 선정<br/>score에 대상 칼럼 (또는 analysis_target 표)<br/>[결정 대기 A: 표 이름만 달라짐]"]
     P1 --> P2["metric_definition 참조<br/>문서 단위 원점수 → score<br/>절은 근거·고칠 곳 위치용<br/>계산 불가는 상태값 + NULL 원점수"]
-    P2 --> PS{"파트 A(축 4 고지 충실도) /<br/>파트 B(축 1~3 읽기 난이도) 분기<br/>두 파트는 합산하지 않음"}
-    PS -->|파트 A| PA1["파트 A: 축 4 항목별 판정<br/>금소법 19조 항목별 있음/없음/판정 불가<br/>metric_key = 항목별(예: disclosure_item_07)<br/>+ 옆에 작성기준 항목 점검(3-1a, 간이 3-1)"]
-    PS -->|파트 B| PB1["파트 B: 축 1~3 합산<br/>축별 [0,1] 변환 후 동일 비중 합산<br/>metric_key = 파트 B 합산 전용(축 4와 별도)"]
+    P2 --> PS{"파트 A(축 4 고지 충실도) /<br/>파트 B(파일럿 전 축 1·2 읽기 난이도) 분기<br/>두 파트는 합산하지 않음"}
+    PS -->|파트 A| PA1["파트 A: 축 4 항목별 판정<br/>금소법 19조 항목별 있음/없음/판정 불가<br/>metric_key = 항목별(예: disclosure_item_07)<br/>+ 옆에 작성기준 항목 점검<br/>(3-1a, 3-1b-① 위치 준수, 간이 3-1)<br/>순서가 다르면 메모만"]
+    PS -->|파트 B| PB1["파트 B: 파일럿 전 축 1·2 합산<br/>축별 [0,1] 변환 후 각 1/2(잠정)<br/>metric_key = 파트 B 버전 전용<br/>축 3 포함 버전과 별도"]
     PB1 --> P3["펀드 단위 집계<br/>관측 단위 = 고유 fund_key"]
     P3 --> P4["population_snapshot<br/>층 = 상품군 × 위험등급, 층당 30개 이상<br/>▶ 비교 집단 생성 지점<br/>파트 B 전용"]
     P4 --> P5["층내 백분위 → score<br/>30개 미만 층은 원점수만<br/>파트 B 전용"]
@@ -72,7 +72,7 @@ flowchart TB
   end
   subgraph S6["6. 평가: 채점 뒤"]
     PA1 -.-> V1A["제재 사례 매핑표<br/>축 4 검증, 대조군 포함"]
-    P5 -.-> V1B["사람 · LLM 이해도 조사 원응답<br/>축 1~3 검증<br/>CSV + 설정 파일 또는 표<br/>[결정 대기 G]"]
+    P5 -.-> V1B["사람 · LLM 이해도 조사 원응답<br/>파트 B 검증<br/>CSV + 설정 파일 또는 표<br/>[결정 대기 G]"]
   end
 ```
 
@@ -84,9 +84,9 @@ flowchart TB
 | 1 수집 | 소스 워터마크(v2.2 신규) | `collection_attempt`, `raw_object`, 원본 파일(`raw/`), 워터마크 전진. 금감원 제재 수집기(크롤러)는 게시판 정찰 결과가 나오기 전까지 착수 대상에서 제외(조건부) | EXTRACT |
 | 2 등록·매칭 | `raw_object`, `distributor` | `document`, `product`, `document_product`, `fund_group`(fund_key), `match_failure`. `product_distributor`는 D 결정에 따라 | EXTRACT |
 | 3 추출·절 | `raw_object`, `file_extraction`(같은 파일×파서 버전 있으면 건너뜀) | `file_extraction`, `section`(정규 절 분류 포함), 파싱 상태, `derived/` 텍스트, LLM 6필드 추출 결과(v2.2 신규) | EXTRACT. 키는 파일 × 파서 버전(수정 2) |
-| 4 채점 | `section`, `fund_group`, `metric_definition`, upstream EXTRACT run | `pipeline_run`(SCORE), `score`(파트 A 항목별 판정 + 파트 B 합산 원점수·상태·백분위, metric_key로 구분), `population_snapshot`(파트 B 전용). A·C 결정에 따라 `analysis_target`·펀드 관측치 표 | SCORE. `upstream_run_id`로 EXTRACT 참조, 산식만 바뀌면 3단계 재실행 없음 |
+| 4 채점 | `section`, `fund_group`, `metric_definition`, upstream EXTRACT run | `pipeline_run`(SCORE), `score`(파트 A 항목별 판정·작성기준 항목 점검 + 파트 B 합산 원점수·상태·백분위, metric_key로 구분. 파트 B는 버전별 metric_key), `population_snapshot`(파트 B 전용). A·C 결정에 따라 `analysis_target`·펀드 관측치 표 | SCORE. `upstream_run_id`로 EXTRACT 참조, 산식만 바뀌면 3단계 재실행 없음 |
 | 5 게시 | `score`, `population_snapshot`, `section` | `is_official` 전환, 파트 A(항목별 판정 + 감점 표현 위치)·파트 B(층내 백분위 + 고칠 곳 위치) 두 산출물, 읽기 뷰 2개 | SCORE |
-| 6 평가 | `score`, `section` | 제재 사례 매핑표(축 4 검증, 대조군 포함), G 결정에 따라 사람·LLM 이해도 조사(축 1~3 검증) CSV+설정 파일 또는 표 | SCORE run 참조 |
+| 6 평가 | `score`, `section` | 제재 사례 매핑표(축 4 검증, 대조군 포함), G 결정에 따라 사람·LLM 이해도 조사(파트 B 검증) CSV+설정 파일 또는 표 | SCORE run 참조 |
 
 ### 결정 대기가 그림에 미치는 범위
 
