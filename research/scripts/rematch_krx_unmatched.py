@@ -83,7 +83,7 @@ if os.path.exists(sys.argv[2]):
 final=[]
 for o in out:
     c=prev.get(o[1])
-    if o[0]=='자동 1:1': final.append(o+[''])
+    if o[0]=='자동 1:1': final.append(o+[c['메모'] if c else ''])  # 자동 행의 점검 메모도 유지
     elif c and c['결과']=='확정(사람 확인)':
         final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],c['유사도'],c['메모']])
     else: final.append(['보류',o[1],o[2],o[3],'','','',o[7] if len(o)>7 else '',c['메모'] if c else ''])
