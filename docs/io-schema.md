@@ -46,7 +46,14 @@
     - 합산 점수·백분위 없음
   - 파트 B(읽기 난이도) = 축 1 언어 복잡도·축 2 용어 부담·축 3 구조 접근성 합산
     - 축 1~3 각각의 원값·[0,1] 변환값, 가중 합산값, 같은 상품군 × 위험등급 층 안 백분위, 고칠 곳의 위치
-    - 가중치 값은 9차 미팅 결정 대기. 출력에 적용한 가중치 버전을 함께 기록
+    - 가중치 값은 11-12 원점수 산출 전 다빈 제안·팀 승인(9차 미팅). 출력에 적용한 가중치 버전을 함께 기록
+    - 축 하나라도 판정 불가이면 합산값과 백분위도 판정 불가(「결과 상태와 결측」 「축 안 결측」)
+    - 2-1·2-2에는 사전에 없는 단어(미분류)의 종류 수·목록·사전 버전을 함께 기록. 미분류는 2-1 분모에만 들어감
+  - 작성기준 항목 점검(10-02 변수표) = 파트 A 옆 별도 출력, 파트 B에 합산하지 않음
+    - 투자설명서: 작성기준 17~22장 항목 중 있는 개수와 못 찾은 항목명(3-1a)
+    - 간이투자설명서: 작성기준 제25장 21개 항목 중 있는 개수, 자리·순서가 작성기준과 다른 항목명(간이 3-1a·3-1b)
+    - 해당 없는 항목은 사유와 함께 따로 표시하고 누락으로 세지 않음. 비교한 작성기준 판(시행일)을 함께 기록
+    - 펀드에 간이투자설명서 대표가 없으면 간이 점검만 판정 불가(SUMMARY_NOT_FOUND). 파트 A·B는 그대로 냄
   - 산식·검증: [점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」·「검증」
 - 결과 상태 5종 × 정규화 상태 3종 조합을 API가 `score: number|null`로 합치면 0/계산 불가/해당 없음 구분 불가
 - 응답 envelope에 status·reason 필수. 파트 A 항목과 파트 B 각 값에 모두 적용
@@ -78,11 +85,27 @@
       "population": {"key": "...", "member_count": 0, "minimum_required": 30}
     },
     "fix_locations": [{"axis": 1, "quote": "...", "section_id": 0, "char_start": 0, "char_end": 0}]
+  },
+  "drafting_standard_check": {
+    "prospectus": {
+      "standard_effective_date": "...",
+      "result": {"status": "...", "found": 0, "required": 0, "reason": "..."},
+      "missing_items": ["..."],
+      "not_applicable_items": [{"item": "...", "reason": "..."}]
+    },
+    "summary_prospectus": {
+      "standard_effective_date": "...",
+      "result": {"status": "...", "found": 0, "required": 21, "reason": "..."},
+      "missing_items": ["..."],
+      "order_differs_items": ["..."],
+      "not_applicable_items": [{"item": "...", "reason": "..."}]
+    }
   }
 }
 ```
 
 - 예시의 `disclosure_item_07`은 이름 형식 예시. 실제 item_key 목록은 금소법 19조 항목 확정 뒤 정함
+- `drafting_standard_check`는 10-02 변수표의 작성기준 항목 점검(3-1a, 간이 3-1a·3-1b)을 담는 자리. 필드 이름은 제안이며 확정 형식이 아님
 - 예시의 `evidence`·`penalty_phrases`·`fix_locations` 위치 형식(section_id, char_start, char_end)은 결정 요청 B11 결정 뒤 정리([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」). 확정 형식이 아님
 - 상태 정의: [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
 - 식별자

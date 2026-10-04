@@ -50,12 +50,12 @@ flowchart TB
     E2 --> E3["문서 파싱 상태 집계<br/>PARSE_OK / PARTIAL / FAILED"]
     E2 -.-> L1["LLM 6필드 추출 결과 표<br/>(v2.2 신규, 10월 15일 시작)"]
   end
-  subgraph S4["4. 채점: 절 → CDI 점수"]
+  subgraph S4["4. 채점: 문서 → CDI 점수"]
     E3 --> P0["pipeline_run 생성<br/>run_kind=SCORE<br/>▶ run_id 발급 지점 ②<br/>▶ upstream_run_id → EXTRACT run 참조"]
     P0 --> P1["채점 대상 선정<br/>score에 대상 칼럼 (또는 analysis_target 표)<br/>[결정 대기 A: 표 이름만 달라짐]"]
-    P1 --> P2["metric_definition 참조<br/>절 단위 원점수 → score<br/>계산 불가는 상태값 + NULL 원점수"]
+    P1 --> P2["metric_definition 참조<br/>문서 단위 원점수 → score<br/>절은 근거·고칠 곳 위치용<br/>계산 불가는 상태값 + NULL 원점수"]
     P2 --> PS{"파트 A(축 4 고지 충실도) /<br/>파트 B(축 1~3 읽기 난이도) 분기<br/>두 파트는 합산하지 않음"}
-    PS -->|파트 A| PA1["파트 A: 축 4 항목별 판정<br/>금소법 19조 항목별 있음/없음/판정 불가<br/>metric_key = 항목별(예: disclosure_item_07)"]
+    PS -->|파트 A| PA1["파트 A: 축 4 항목별 판정<br/>금소법 19조 항목별 있음/없음/판정 불가<br/>metric_key = 항목별(예: disclosure_item_07)<br/>+ 옆에 작성기준 항목 점검(3-1a, 간이 3-1)"]
     PS -->|파트 B| PB1["파트 B: 축 1~3 합산<br/>축별 [0,1] 변환 후 동일 비중 합산<br/>metric_key = 파트 B 합산 전용(축 4와 별도)"]
     PB1 --> P3["펀드 단위 집계<br/>관측 단위 = 고유 fund_key"]
     P3 --> P4["population_snapshot<br/>층 = 상품군 × 위험등급, 층당 30개 이상<br/>▶ 비교 집단 생성 지점<br/>파트 B 전용"]
