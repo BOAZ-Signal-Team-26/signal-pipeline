@@ -22,7 +22,7 @@ TAILS=['증권','특별자산','상장지수','파생','부동산','채권','주
 def keys(name):
     base=re.sub(r'\([^)]*\)','',name).strip(); b=base.split()[0]; rest=base[len(b):]
     ks=[N(base)]+[N(a+rest) for a in ALIAS.get(b,[])]
-    ks+= [k[:-2] for k in ks if k.endswith('TR')]
+    ks+= [k[:-2]+'TOTALRETURN' for k in ks if k.endswith('TR')]  # 포털은 TR을 Total Return으로 풀어 씀
     return ks
 def hit(k):
     out=[]
@@ -71,5 +71,19 @@ for row in rows:
     else:
         st='수동'; out.append([st,row[1],nm,row[3],'','','',round(best[0][0],2) if best else 0])
     stat2[st]+=1
+# 사람이 확인한 결과(research/samples/krx_rematch_confirmed.csv)를 덮어씀. 파일이 없으면 건너뜀
+import os
+conf={}
+cp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','samples','krx_rematch_confirmed.csv')
+if os.path.exists(cp):
+    for c in csv.DictReader(open(cp,encoding='utf-8')): conf[c['ISU_CD']]=c
+final=[]
+for o in out:
+    c=conf.get(o[1])
+    if o[0]=='자동 1:1': final.append(o)
+    elif c: final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],o[7] if len(o)>7 else ''])
+    else: final.append(['보류']+o[1:])
+out=final
+print('최종',dict(collections.Counter(o[0] for o in out)))
 print('2차',stat2)
-csv.writer(open(sys.argv[2],'w',newline='',encoding='utf-8')).writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)
+csv.writer(open(sys.argv[2],'w',newline='',encoding='utf-8'),lineterminator='\n').writerows([['결과','ISU_CD','KRX종목명','후보수','포털펀드명','srtnCd','asoStdCd','유사도']]+out)

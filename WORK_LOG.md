@@ -9,7 +9,7 @@
 ## 2026-10-04 — KRX 데이터 보관 정책 3건 초안 (PM, 마감 10월 7일)
 
 - 소스 이름 `krx_etf_daily`, 일별 파일 프로젝트 종료까지 보관(삭제 없음, 10년 소급 조회 가능)을 [원본 보관 규칙](docs/storage-and-failure-rules.md) 「KRX 데이터 보관」에 정리.
-- KRX 매칭 실패 229건을 공공데이터포털 전체 목록과 재대조. 괄호 표기 제거·브랜드 개명 4건·환헤지 표기 규칙으로 142건 자동 연결, 유사도 후보 36건과 수동 51건은 사람이 매핑([매칭 규칙](docs/matching-rules.md) 「KRX 매칭 실패 처리」). 결과 `research/samples/krx_unmatched_rematch.csv`, 스크립트 `research/scripts/rematch_krx_unmatched.py`.
+- KRX 매칭 실패 229건을 공공데이터포털 전체 목록과 재대조. 규칙 4개(괄호 표기 제거, 브랜드 개명 4건, 환헤지 표기, `TR`→`Total Return`)로 150건 자동 연결, 42건은 PM(대현) 확인 후 연결, 37건은 보류([매칭 규칙](docs/matching-rules.md) 「KRX 매칭 실패 처리」). 처음에는 `TR`을 떼고 대조해 9건을 `TR`이 아닌 ETF에 잘못 연결했고, 같은 날 발견해 고침. 결과 `research/samples/krx_unmatched_rematch.csv`, 확인 결과 `krx_rematch_confirmed.csv`, 스크립트 `research/scripts/rematch_krx_unmatched.py`.
 - [2단계 입력](docs/pipeline-flow.md) 미결 2행 갱신(229건은 팀 확인 대기, 적재 주기는 주영 유지).
 
 ## 2026-10-04 — 운용사 연결 순서 결정 (ERD v2.2 수정 12)
