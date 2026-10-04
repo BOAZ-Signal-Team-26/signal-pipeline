@@ -1,0 +1,85 @@
+name: Title Guard
+
+# 이슈 / PR 제목이 `[Type] 내용` 양식이 아니면 안내 코멘트를 남깁니다.
+# 차단하지 않으며(소프트 경고), 제목을 고치면 봇이 자기 코멘트를 지웁니다.
+# 출처: BOAZ-website/product-infra 의 같은 파일. 허용 Type은 Signal 타입 4종 + Release
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+concurrency:
+  group: title-guard-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-title:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check title format
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const MARKER = '<!-- title-guard -->';
+            const payload = context.payload;
+            const isPR = !!payload.pull_request;
+            const target = isPR ? payload.pull_request : payload.issue;
+            const issue_number = target.number;
+            const title = (target.title || '').trim();
+
+            // 허용: [Feat] [Fix] [Docs] [Chore] [Release] (대소문자 무시)
+            const pattern = /^\[(feat|fix|docs|chore|release)\]\s+.+/i;
+            const ok = pattern.test(title);
+
+            // 봇이 이전에 남긴 안내 코멘트 찾기 (전체 페이지 조회)
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              per_page: 100,
+            });
+            const mine = comments.filter(
+              (c) => c.user?.login === 'github-actions[bot]' && (c.body || '').includes(MARKER)
+            );
+            const prev = mine[0];
+
+            if (ok) {
+              // 제목이 올바르면 이전 안내 코멘트 제거 (self-clearing)
+              // 겹친 실행으로 여러 개가 생겼어도 모두 지움
+              for (const c of mine) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: c.id,
+                });
+              }
+              return;
+            }
+
+            // 제목이 틀렸는데 이미 안내 코멘트가 있으면 중복 방지
+            if (prev) return;
+
+            const body = [
+              MARKER,
+              '🤖 **제목이 컨벤션 양식과 맞지 않아요.**',
+              '',
+              '`[Type] 내용` 형식으로 맞춰주세요. 예: `[Feat] KRX 수집기 추가`',
+              '',
+              '허용 Type: `[Feat]` `[Fix]` `[Docs]` `[Chore]` `[Release]`',
+              '',
+              '_알림용이며 머지를 막지 않습니다. 제목을 고치면 이 코멘트는 자동으로 사라집니다._',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              body,
+            });
