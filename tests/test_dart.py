@@ -3,6 +3,7 @@ import pytest
 from signal_pipeline.collectors.dart import (
     BODY_NODE,
     COVER_NODE,
+    TARGET_KINDS,
     Kind,
     classify_report,
     find_node,
@@ -81,14 +82,19 @@ def test_parse_tree_reads_every_node_despite_reused_variable_name() -> None:
 
 def test_cover_is_found_by_text_not_by_ele_id() -> None:
     nodes = parse_tree(TREE_PAGE)
-    cover = find_node(nodes, COVER_NODE[Kind.PROSPECTUS])
+    cover = find_node(nodes, COVER_NODE)
     body = find_node(nodes, BODY_NODE)
     assert cover is not None and cover["eleId"] == "2"
     assert body is not None and body["eleId"] == "3"
-    assert find_node(nodes, COVER_NODE[Kind.SHELF]) is None
+    assert find_node(nodes, "일괄신고서") is None
 
 
 def test_find_pdf_link_unescapes_html() -> None:
     page = '<a href="/report/download.do?dcmNo=11600646&amp;flNm=bpm91_abc.pdf">PDF</a>'
     assert find_pdf_link(page) == "download.do?dcmNo=11600646&flNm=bpm91_abc.pdf"
     assert find_pdf_link("<html>본문 없음</html>") is None
+
+
+def test_only_prospectus_is_crawled() -> None:
+    # 신고서는 분류해 건수만 세고 요청하지 않음(10월 5일 결정)
+    assert TARGET_KINDS == {Kind.PROSPECTUS}

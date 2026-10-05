@@ -4,8 +4,10 @@
 
 처리 흐름 (접수일 하루씩, 오름차순)
 1. list_stream: OPEN DART list.json(pblntf_ty=G)을 100건씩 받아 report_nm으로 분류
-2. 투자설명서: 표지 XML(document.xml) + 뷰어 트리(main.do) + 표지 HTML(viewer.do) + 본문 PDF(download.do)
-   증권신고서·일괄신고서: 본문 PDF가 없고 본문이 절마다 HTML로 나뉨(10월 4일 실측) → 뷰어 트리 + 표지 HTML만
+2. 투자설명서(정정본 포함)만 받는다: 표지 XML(document.xml) + 뷰어 트리(main.do) + 표지 HTML(viewer.do)
+   + 본문 PDF(download.do)
+   증권신고서·일괄신고서는 건수만 세고 요청하지 않는다. 목록 응답(api_response)에는 남는다.
+   현재 설계에서 점수 계산에 쓰이지 않고, 첫 실행에서 요청의 약 절반을 차지했음(10월 5일 결정)
 3. 그날 문서를 빠짐없이 처리하면 워터마크를 그날로 전진. 실패가 남은 날 이후로는 전진하지 않음
 
 실행
@@ -33,7 +35,7 @@ from signal_pipeline.common.state import Watermark
 from signal_pipeline.common.storage import RawStore, is_pdf, is_zip
 
 SOURCE = "dart"
-CRAWLER_VERSION = "dart-crawler 0.1"
+CRAWLER_VERSION = "dart-crawler 0.2"
 USER_AGENT = (
     "BOAZ-Signal-crawler/0.1 (+https://github.com/BOAZ-Signal-Team-26/signal-pipeline)"
 )
@@ -67,18 +69,11 @@ class Kind(StrEnum):
     OTHER = "대상 아님"
 
 
+TARGET_KINDS = {Kind.PROSPECTUS}
 # 뷰어 트리에서 표지를 찾을 노드 이름(공백 제거 후 비교). 번호(eleId)로 찾지 않음(docs/data-sources.md)
-COVER_NODE = {
-    Kind.PROSPECTUS: "투자설명서",
-    Kind.REGISTRATION: "증권신고서",
-    Kind.SHELF: "일괄신고서",
-}
+COVER_NODE = "투자설명서"
 BODY_NODE = "[본문]"
-REQUIRED_ROLES = {
-    Kind.PROSPECTUS: ["cover_xml", "viewer_tree", "cover_html", "body_pdf"],
-    Kind.REGISTRATION: ["viewer_tree", "cover_html"],
-    Kind.SHELF: ["viewer_tree", "cover_html"],
-}
+REQUIRED_ROLES = ["cover_xml", "viewer_tree", "cover_html", "body_pdf"]
 EXT = {
     "cover_xml": "zip",
     "viewer_tree": "html",
@@ -323,8 +318,8 @@ class DartCrawler:
             headers={"Referer": referer},
         )
 
-    def cover_html(self, rcept_no: str, kind: Kind, nodes: list[dict]) -> Outcome:
-        node = find_node(nodes, COVER_NODE[kind])
+    def cover_html(self, rcept_no: str, nodes: list[dict]) -> Outcome:
+        node = find_node(nodes, COVER_NODE)
         request_key = f"viewer.do:cover:{rcept_no}"
         if node is None:
             self.summary.permanent_failures.append(f"{rcept_no} 표지 노드 없음")
@@ -407,10 +402,9 @@ class DartCrawler:
             storage_path=path,
         )
 
-    def document(self, item: dict, kind: Kind) -> DocResult:
+    def document(self, item: dict) -> DocResult:
         rcept_no = item["rcept_no"]
-        roles = REQUIRED_ROLES[kind]
-        missing = [r for r in roles if self._latest(rcept_no, r) is None]
+        missing = [r for r in REQUIRED_ROLES if self._latest(rcept_no, r) is None]
         if not missing:
             return DocResult(skipped=True)
 
@@ -422,7 +416,7 @@ class DartCrawler:
             nodes, outcomes["viewer_tree"] = self.viewer_tree(rcept_no)
             if nodes:
                 if "cover_html" in missing:
-                    outcomes["cover_html"] = self.cover_html(rcept_no, kind, nodes)
+                    outcomes["cover_html"] = self.cover_html(rcept_no, nodes)
                 if "body_pdf" in missing:
                     outcomes["body_pdf"] = self.body_pdf(rcept_no, nodes)
                     doc.new_pdf = outcomes["body_pdf"] is Outcome.SUCCESS
@@ -447,12 +441,12 @@ class DartCrawler:
         for item in items:
             kind, _ = classify_report(item.get("report_nm", ""))
             self.summary.kinds[kind.value] += 1
-            if kind is Kind.OTHER:
+            if kind not in TARGET_KINDS:  # 신고서·대상 아님은 건수만
                 continue
             if self.summary.body_pdf_new >= self.max_pdf:
                 self.summary.stopped_by = f"max_pdf {self.max_pdf}"
                 return False, True
-            doc = self.document(item, kind)
+            doc = self.document(item)
             if doc.skipped:
                 self.summary.documents_skipped += 1
                 continue
