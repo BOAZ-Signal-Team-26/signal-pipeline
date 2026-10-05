@@ -32,7 +32,7 @@ from zoneinfo import ZoneInfo
 from signal_pipeline.common.http import FetchResult, HttpClient, Outcome
 from signal_pipeline.common.runlog import RunLog
 from signal_pipeline.common.state import Watermark
-from signal_pipeline.common.storage import RawStore, is_pdf, is_zip
+from signal_pipeline.common.storage import RawStore, encode_source_key, is_pdf, is_zip
 
 SOURCE = "dart"
 CRAWLER_VERSION = "dart-crawler 0.2"
@@ -45,6 +45,7 @@ LIST_URL = "https://opendart.fss.or.kr/api/list.json"
 DOC_URL = "https://opendart.fss.or.kr/api/document.xml"
 VIEWER_BASE = "https://dart.fss.or.kr"
 PAGE_COUNT = 100  # OPEN DART 페이지당 최대 건수
+LIST_FOLDER = "_list"  # 목록 응답 폴더. 14자리 접수번호 폴더와 섞이지 않게 `_`로 시작
 
 # OPEN DART 응답 status (개발가이드 「공시검색」 메시지 설명, 10월 5일 확인)
 STATUS_OUTCOME = {
@@ -152,16 +153,21 @@ class DartCrawler:
     # ---- 요청·저장 공통 ----
 
     def _save(self, rcept_no: str, role: str, content: bytes, meta: dict) -> str:
-        key = {"rcept_no": rcept_no, "file_role": role}
-        stored = self.store.save(SOURCE, key, role, EXT[role], content, meta)
+        stored = self.store.save(
+            SOURCE,
+            encode_source_key([rcept_no]),
+            role,
+            EXT[role],
+            content,
+            {"source_fields": {"rcept_no": rcept_no}, **meta},
+        )
         self.log.log_object(
             stored, source=SOURCE, file_role=role, document_key=rcept_no
         )
         return stored.storage_path
 
     def _latest(self, rcept_no: str, role: str) -> Path | None:
-        key = {"rcept_no": rcept_no, "file_role": role}
-        return self.store.latest(SOURCE, key, role, EXT[role])
+        return self.store.latest(SOURCE, encode_source_key([rcept_no]), role, EXT[role])
 
     # ---- list_stream ----
 
@@ -190,19 +196,24 @@ class DartCrawler:
             rows = data.get("list", []) if outcome is Outcome.SUCCESS else []
             path = None
             if outcome is Outcome.SUCCESS:
-                key = {
-                    "service": "list.json",
-                    "pblntf_ty": "G",
-                    "day": ymd,
-                    "page": page,
-                }
+                # 목록 페이지: raw/dart/_list/{접수일}/page-NNNN__v{n}.json
+                # PR #43에 DART 목록 예시가 없어 스냅숏형 소스(data_go_fund) 모양을 따른 제안
                 stored = self.store.save(
                     SOURCE,
-                    {k: str(v) for k, v in key.items()},
+                    f"{LIST_FOLDER}/{day.isoformat()}",
                     "api_response",
                     "json",
                     result.content or b"",
-                    {"endpoint": result.endpoint, "run_id": self.log.run_id},
+                    {
+                        "endpoint": result.endpoint,
+                        "run_id": self.log.run_id,
+                        "source_fields": {
+                            "pblntf_ty": "G",
+                            "rcept_dt": ymd,
+                            "page": page,
+                        },
+                    },
+                    name=f"page-{page:04d}",
                 )
                 self.log.log_object(
                     stored, source=SOURCE, file_role="api_response", document_key=None
