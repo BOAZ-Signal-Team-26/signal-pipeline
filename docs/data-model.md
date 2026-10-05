@@ -318,7 +318,7 @@
 | # | 대상 | 규칙 |
 |---|---|---|
 | 1 | 앵커 | SECTION은 section_id만, DOCUMENT는 document_id만, FUND는 fund_key만 앵커. DOCUMENT_PAIR는 세 앵커 모두 NULL, 멤버 양쪽이 대상. 나머지 앵커는 NULL |
-| 2 | 멤버 역할 | SECTION: PRIMARY 1개가 같은 section_id·파일·실행·정확한 char 범위. DOCUMENT: PRIMARY 1개 이상의 파일이 모두 그 document_id 소속. FUND: 대표 문서/파일 PRIMARY 1개, 선택 기준·상품/펀드 연결 당시 스냅숏을 selection_manifest와 실행 입력 manifest에 고정. 기준본 충돌이면 공식 통계 제외 |
+| 2 | 멤버 역할 | SECTION: PRIMARY 1개가 같은 section_id·파일·실행·정확한 char 범위. DOCUMENT: PRIMARY 1개 이상의 파일이 모두 그 document_id 소속. FUND: 투자설명서 대표 문서/파일 PRIMARY 1개 + 간이투자설명서 대표 0~1개(10-04 확정. 간이 대표 역할 값은 문서쌍용 SUMMARY와 구분해 v2.2에서 추가), 선택 기준·상품/펀드 연결 당시 스냅숏을 selection_manifest와 실행 입력 manifest에 고정. 기준본 충돌이면 공식 통계 제외 |
 | 3 | 문서쌍 | 목적이 summary_body면 SUMMARY/BODY 각 1개, comparison이면 LEFT/RIGHT 각 1개. 방향 보존. 같은 파일·같은 구간 쌍은 거절. 같은 파일의 다른 구간과 별도 파일 모두 허용. 상품/시점 적합성은 선택 정책으로 검증 |
 | 4 | 근거 | EVIDENCE는 모든 유형에 여러 행 가능. 다른 문서 근거 허용, source provenance 유지. 멤버의 (파일, extraction_run_id)는 추출 FK, 선택 section은 (절, 파일, 실행) 복합 FK |
 | 5 | char 범위 | 모두 NULL(파일 전체) 또는 둘 다 있고 `0 <= start < end <= text_length`. section_id가 있으면 절 범위와 일치. 성공 계산은 필요 텍스트/구조 가용성 검사. 파일 전체 참조만으로 추출 성공 가정 금지 |
@@ -332,18 +332,18 @@
 ### 두 파트 출력의 저장 계약 (09-30 추가)
 
 - 상태: 09-29 팀 논의 결론, 9차 미팅(09-30) 확정
-- 문서 1건의 결과를 두 부분으로 나눠 냄. 파트 A(고지 점검) = 축 4 고지 충실도, 파트 B(읽기 난이도) = 축 1 언어 복잡도·축 2 용어 부담·축 3 구조 접근성 합산
+- 문서 1건의 결과를 두 부분으로 나눠 냄. 파트 A(고지 점검) = 축 4 고지 충실도, 파트 B(읽기 난이도) = 파일럿 전 축 1 언어 복잡도·축 2 용어 부담 합산(10-04). 축 3 구조 접근성은 파일럿 뒤 새 버전에서 다시 넣음
 - 두 파트를 합친 단일 CDI metric_key는 만들지 않음. 산식 쪽 근거: [점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」
 
 | 출력 | metric_key | score 행 | 상태·값 |
 |---|---|---|---|
 | 파트 A 항목 판정 | 금융소비자보호법(금소법) 19조 항목 하나당 하나. 항목 번호 기반(예 `disclosure_item_07:v1`) | DOCUMENT 대상 × 항목마다 한 행 | 있음 = OK·raw_score 1, 없음 = OK·raw_score 0, 판정 불가 = UNDETERMINED·reason_code 필수, 적용 대상 아님 = NOT_APPLICABLE. score_payload의 항목 status(MET/UNMET)와 raw_score 일치는 적재 검증. normalization_status = NOT_REQUESTED |
 | 파트 A 근거 | 위 항목 행의 score_payload | 별도 행 없음 | 근거 위치 목록과 감점 표현 후보. 위치 형식은 B11 결정 대기(아래) |
-| 파트 B 합산 점수 | 축 4 항목과 별도의 metric_key 하나 | 원점수는 DOCUMENT 대상 한 행. 펀드 단위 집계와 층내 백분위는 고유 fund_key 단위([점수 저장과 비교 모집단](scoring-and-population.md) 관측 단위 규정, Flow 4단계 「펀드 단위 집계」) | raw_score = 축 1~3 가중 합산. 층내 백분위는 같은 행의 normalized_score와 population FK(「결과 상태와 결측」 정규화 계약) |
-| 축 1~3 값 | 축마다 metric_key | 축값 행 | 파트 B 합산의 입력. 축 4 항목 행은 파트 B 입력으로 연결하지 않음 |
-| 작성기준 항목 점검 (10-02 변수표) | 투자설명서 항목 존재율(3-1a), 간이 항목 존재율(간이 3-1a), 간이 자리·순서 일치율(간이 3-1b) 각각 하나 | DOCUMENT 대상 한 행 | 파트 A 옆 출력. 파트 B 합산의 score_dependency에 연결하지 않음. 비율은 numerator/denominator, 항목별 결과(있음 / 없음 / 작성기준 순서와 다름 / 해당 없음 + 사유)는 score_payload. 비교한 작성기준 판(시행일)을 payload에 기록. normalization_status = NOT_REQUESTED |
+| 파트 B 합산 점수 | 축 4 항목과 별도의 metric_key 하나 | 원점수는 DOCUMENT 대상 한 행. 펀드 단위 집계와 층내 백분위는 고유 fund_key 단위([점수 저장과 비교 모집단](scoring-and-population.md) 관측 단위 규정, Flow 4단계 「펀드 단위 집계」) | raw_score = 그 버전 축 값의 가중 합산(파일럿 전 축 1·2, score_dependency.applied_weight에 실제 가중치). 축 3을 넣은 버전은 새 metric_key로 두고 점수·백분위·비교 집단을 섞지 않음. 공식 run에는 파트 B 버전 하나만. 층내 백분위는 같은 행의 normalized_score와 population FK(「결과 상태와 결측」 정규화 계약) |
+| 파트 B 축 값(파일럿 전 축 1·2) | 축마다 metric_key | 축값 행 | 파트 B 합산의 입력. 그 버전에 없는 축(파일럿 전 축 3)은 행을 만들지 않고 PENDING으로도 두지 않음. 축 4 항목 행은 파트 B 입력으로 연결하지 않음 |
+| 작성기준 항목 점검 (10-02 변수표) | 투자설명서 항목 존재율(3-1a), 투자설명서 위치 준수(3-1b-①, 작성기준 17-1-6), 간이 항목 존재율(간이 3-1a), 간이 자리·순서 일치율(간이 3-1b) 각각 하나 | DOCUMENT 대상 한 행 | 파트 A 옆 출력. 파트 B 합산의 score_dependency에 연결하지 않음. 비율은 numerator/denominator, 항목별 결과(있음 / 없음 / 작성기준 순서와 다름 / 해당 없음 + 사유)는 score_payload. 비교한 작성기준 판(시행일)을 payload에 기록. normalization_status = NOT_REQUESTED |
 
-- 투자설명서 3-1b(자리·순서)는 파트 B 축 3의 입력이라 위 「축 1~3 값」 쪽 원자값 행으로 둠
+- 투자설명서 3-1b-① 위치 준수는 작성기준 항목 점검 행(파트 A 옆). 3-1b-② 순서 일치도는 점수 행 없이 3-1a 행의 score_payload에 「작성기준 순서와 다른 항목」으로 기록(10-04)
 - 파트 A 요약 수치(충족 항목 수 등)를 낼지는 미결([점수 저장과 비교 모집단](scoring-and-population.md) 「CDI와 고지 충실도」). 내더라도 파트 A 전용 metric_key로 두고 파트 B와 합치지 않음
 - 축·파트 소속: 현재 DBML에 칼럼 없음. 결정 전에는 `definition_manifest`에 기록. 칼럼 승격 여부는 v2.2 작성 때 판단
 - 새 표 불필요: 항목별 metric_key 행과 기존 result_status로 표현됨. ERD 9월 30일 재검토의 결정 대기 항목 I(축 4 판정 상태를 score 칼럼에 둘지, 항목 판정 표를 따로 만들지)는 score 칼럼 쪽으로 정리 가능
