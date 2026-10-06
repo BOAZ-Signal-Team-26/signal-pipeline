@@ -1,0 +1,1168 @@
+ISU_CD,KRX종목명,original_asoStdCd,candidate_asoStdCd,candidate_portal_name,resolved_asoStdCd,review_status,evidence_type,evidence_url,original_review_reasons,review_note
+451060,1Q 200액티브,K55102DZ8758,K55102DZ8758,하나 1Q 200액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0184E0,1Q 200채권혼합50액티브,K55102EU6996,K55102EU6996,하나 1Q 200채권혼합50액티브증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0182R0,1Q K반도체TOP2+,K55102EU0908,K55102EU0908,하나 1Q K반도체TOP2+증권상장지수투자신탁[주식],K55102EU0908,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=4,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0182S0,1Q K반도체TOP2채권혼합50,K55102EU0924,K55102EU0924,하나 1Q K반도체TOP2채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0103T0,1Q K소버린AI,K55102EN9924,K55102EN9924,하나 1Q K소버린AI증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0198D0,1Q SK하이닉스선물단일종목레버리지,K55102EV7951,K55102EV7951,하나 1Q SK하이닉스선물단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463290,1Q 단기금융채액티브,K55102E37825,K55102E37825,하나 1Q 단기금융채액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0131W0,1Q 단기특수은행채액티브,K55102EP6969,K55102EP6969,하나1Q단기특수은행채액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+479080,1Q 머니마켓액티브,K55102EA1314,K55102EA1314,하나 1Q 머니마켓액티브증권상장지수투자신탁 [채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0026S0,1Q 미국S&P500,K55102EK9976,K55102EI0342,하나 1Q 미국S&P500증권상장지수투자신탁[주식],K55102EI0342,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=12,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0052S0,1Q 미국S&P500미국채혼합50액티브,K55102EK9976,K55102EK9976,하나 1Q 미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합),K55102EK9976,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=13,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0069M0,1Q 미국나스닥100,K55102EL5296,K55102EL5296,하나 1Q 미국나스닥100증권상장지수투자신탁[주식],K55102EL5296,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=15,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0111P0,1Q 미국나스닥100미국채혼합50액티브,K55102EO1193,K55102EO1193,하나 1Q 미국나스닥100미국채혼합50액티브증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0083S0,1Q 미국메디컬AI,K55102EM4231,K55102EM4231,하나 1Q 미국메디컬AI증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0004G0,1Q 미국배당TOP30,K55102EG6572,K55102EG6572,하나 1Q 미국배당TOP30증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0131V0,1Q 미국우주항공테크,K55102EP3701,K55102EP3701,하나1Q미국우주항공테크증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0198B0,1Q 삼성전자선물단일종목레버리지,K55102EV7944,K55102EV7944,하나 1Q 삼성전자선물단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0094X0,1Q 샤오미밸류체인액티브,K55102EN6979,K55102EN6979,하나 1Q 샤오미밸류체인액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0224X0,1Q 엔비디아알파벳미국채혼합50,K55102EX2018,K55102EX2018,하나 1Q 엔비디아알파벳미국채혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0172V0,1Q 은액티브,K55102ET0257,K55102ET0257,하나 1Q 은액티브특별자산상장지수투자신탁[은-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0017Y0,1Q 종합채권(AA-이상)액티브,K55102EI0573,K55102EI0573,하나 1Q 종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0052T0,1Q 중단기회사채(A-이상)액티브,K55102EJ9938,K55102EJ9938,하나 1Q 중단기회사채(A-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495330,1Q 코리아밸류업,K55102EF9791,K55102EF9791,하나 1Q 코리아밸류업증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0186S0,1Q 코스닥150채권혼합50액티브,K55102EU8786,K55102EU8786,하나 1Q 코스닥150채권혼합50액티브증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+492500,1Q 현대차그룹채권(A+이상)&국고통안,K55102EE8018,K55102EE8018,하나 1Q 현대차그룹채권(A+이상)&국고통안증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0206G0,1Q 현대차기아채권혼합50,K55102EV2721,K55102EV2721,하나 1Q 현대차기아채권혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473440,ACE 11월만기자동연장회사채AA-이상액티브,K55101E75520,K55101E75520,한국투자ACE11월만기자동연장회사채(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+105190,ACE 200,KR5101877748,KR5101877748,한국투자 ACE 200 증권 상장지수투자신탁(주식),KR5101877748,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/KR5101877748,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+475260,ACE 2월만기자동연장회사채AA-이상액티브,K55101E80470,K55101E80470,한국투자 ACE 2월만기자동연장회사채AA-이상액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385600,ACE 2차전지&친환경차액티브,K55101DH7878,K55101DH7878,한국투자 ACE 2차전지&친환경차액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475270,ACE 5월만기자동연장회사채AA-이상액티브,K55101E80488,K55101E80488,한국투자 ACE 5월만기자동연장회사채AA-이상액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475280,ACE 8월만기자동연장회사채AA-이상액티브,K55101E80496,K55101E80496,한국투자 ACE 8월만기자동연장회사채AA-이상액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469150,ACE AI반도체TOP3+,K55101E67600,K55101E67600,한국투자ACE AI반도체TOP3+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0079X0,ACE BYD밸류체인액티브,K55101EJ7669,K55101EJ7669,한국투자 ACE BYD밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385590,ACE ESG액티브,K55101DI3603,K55101DI3603,한국투자 ACE ESG액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475050,ACE KPOP포커스,K55101E79688,K55101E79688,한국투자 ACE KPOP포커스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+411060,ACE KRX금현물,K55101DN7441,K55101DN7441,한국투자 ACE KRX금현물특별자산상장지수투자신탁(금),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0221Z0,ACE K바이오코스닥액티브,K55101EW2317,K55101EW2317,한국투자 ACE K바이오코스닥액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0210A0,ACE K반도체TOP2+,K55101EW2275,K55101EW2275,한국투자 ACE K반도체TOP2+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0216Z0,ACE K방산TOP5+,K55101EW2283,K55101EW2283,한국투자ACEK방산TOP5+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0172Y0,ACE K수출핵심TOP10산업액티브,K55101ES8039,K55101ES8039,한국투자ACEK수출핵심TOP10산업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0177X0,ACE K휴머노이드로봇산업TOP2+,K55101EU0214,K55101EU0214,한국투자 ACE K휴머노이드로봇산업TOP2+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0194T0,ACE SK하이닉스단일종목레버리지,K55101EV7101,K55101EV7101,한국투자 ACE SK하이닉스단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0139P0,ACE 고배당주,K55101EV6285,K55101EQ7660,한국투자ACE고배당주증권상장지수투자신탁(주식),K55101EQ7660,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EQ7660,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0199C0,ACE 고배당주Plus커버드콜액티브,K55101EV6285,K55101EV6285,한국투자 ACE 고배당주Plus커버드콜액티브 증권 상장지수투자신탁(주식-파생형),K55101EV6285,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101EV6285,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+483340,ACE 구글밸류체인액티브,K55101EB6099,K55101EB6099,한국투자 ACE 구글밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+365780,ACE 국고채10년,K55101D95314,K55101D95314,한국투자 ACE 국고채10년증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494340,ACE 글로벌AI맞춤형반도체,K55101EE6187,K55101EE6187,한국투자 ACE 글로벌AI맞춤형반도체증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+446770,ACE 글로벌반도체TOP4 Plus,K55101DY2753,K55101DY2753,한국투자 ACE 글로벌반도체TOP4 Plus증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+435040,ACE 글로벌브랜드TOP10,K55101DU3912,K55101DU3912,한국투자 ACE 글로벌브랜드TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+497510,ACE 글로벌빅파마,K55101EF6160,K55101EF6160,한국투자 ACE 글로벌빅파마증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+460960,ACE 글로벌인컴TOP10,K55101E30004,K55101E30004,한국투자 ACE 글로벌인컴TOP10증권상장지수투자신탁[혼합-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+414270,ACE 글로벌자율주행액티브,K55101DP1319,K55101DP1319,한국투자 ACE 글로벌자율주행액티브 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+440640,ACE 단기채권알파액티브,K55101DW2771,K55101DW2771,한국투자 ACE 단기채권알파액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494330,ACE 라이프자산주주가치액티브,K55101EE7904,K55101EE7904,한국투자 ACE 라이프자산주주가치액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+152500,ACE 레버리지,KR5101A62068,KR5101A62068,한국투자 ACE 레버리지 증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0153P0,ACE 리츠부동산인프라액티브,K55101EP9774,K55101EP9774,한국투자 ACE 리츠부동산인프라액티브부동산상장지수투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+483330,ACE 마이크로소프트밸류체인액티브,K55101EB6081,K55101EB6081,한국투자 ACE 마이크로소프트밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487340,ACE 머니마켓액티브,K55101EC8482,K55101EC8482,한국투자 ACE 머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0085P0,ACE 미국10년국채액티브,K55101EL9174,K55101EL9166,한국투자 ACE 미국10년국채액티브증권상장지수투자신탁(채권),K55101EL9166,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EL9166,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+476760,ACE 미국30년국채액티브,K55101E03860,K55101E91865,한국투자 ACE 미국30년국채액티브증권상장지수투자신탁[채권],K55101E91865,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E91865,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0118Z0,ACE 미국AI테크핵심산업액티브,K55101EO4453,K55101EO4453,한국투자 ACE 미국AI테크핵심산업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+360200,ACE 미국S&P500,K55101DU8887,K55101D78195,한국투자 ACE 미국S&P500증권상장지수투자신탁(주식),K55101D78195,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101D78195,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+438080,ACE 미국S&P500미국채혼합50액티브,K55101DU8887,K55101DU8887,한국투자ACE미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합),K55101DU8887,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101DU8887,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0155M0,ACE 미국SMR원자력TOP10,K55101ER4245,K55101ER4245,한국투자ACE미국SMR원자력TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+309230,ACE 미국WideMoat동일가중,K55101CF3110,K55101CF3110,한국투자 ACE 미국WideMoat동일가중증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+367380,ACE 미국나스닥100,K55101DB1182,K55101DB1182,한국투자 ACE 미국나스닥100증권상장지수투자신탁(주식),K55101DB1182,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101DB1182,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+438100,ACE 미국나스닥100미국채혼합50액티브,K55101DU8879,K55101DU8879,한국투자 ACE 미국나스닥100미국채혼합50액티브증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+440650,ACE 미국달러단기채권액티브,K55101DW3258,K55101DW3258,한국투자 ACE 미국달러단기채권액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0127M0,ACE 미국대형가치주액티브,K55101EP9626,K55101EP9626,한국투자 ACE 미국대형가치주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0127P0,ACE 미국대형성장주액티브,K55101EP9634,K55101EP9634,한국투자ACE미국대형성장주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+402970,ACE 미국배당다우존스,K55101DN4471,K55101DN4471,한국투자 ACE 미국배당다우존스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0046Y0,ACE 미국배당퀄리티,K55101EK7278,K55101EK7278,한국투자 ACE 미국배당퀄리티증권상장지수투자신탁(주식),K55101EK7278,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101EK7278,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0049M0,ACE 미국배당퀄리티+커버드콜액티브,K55101EK7344,K55101EK7344,한국투자ACE미국배당퀄리티+커버드콜액티브증권상장지수투자신탁(주식-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0049K0,ACE 미국배당퀄리티채권혼합50,K55101EK7294,K55101EK7294,한국투자 ACE 미국배당퀄리티채권혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465580,ACE 미국빅테크TOP7 Plus,K55101E52495,K55101E52479,한국투자 ACE 미국빅테크TOP7 Plus증권상장지수투자신탁(주식),K55101E52479,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52479,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0180V0,ACE 미국우주테크액티브,K55101ET7451,K55101ET7451,한국투자ACE미국우주테크액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473590,ACE 미국주식베스트셀러,K55101E54012,K55101E54012,한국투자 ACE 미국주식베스트셀러증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0008E0,ACE 미국중심중소형제조업,K55101EH5038,K55101EH5038,한국투자 ACE 미국중심중소형제조업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+391600,ACE 미국친환경그린테마,K55101DK6651,K55101DK6651,한국투자ACE미국친환경그린테마증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0228G0,ACE 반도체Plus전략산업,K55101EY1762,K55101EY1762,한국투자 ACE 반도체Plus전략산업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0233A0,ACE 삼성전자SK하이닉스플러스채권혼합50,K55101EY7603,K55101EY7603,한국투자ACE삼성전자SK하이닉스플러스채권혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0194M0,ACE 삼성전자단일종목레버리지,K55101EV7093,K55101EV7093,한국투자 ACE 삼성전자단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+316300,ACE 싱가포르리츠,K55101CG5254,K55101CG5254,한국투자 ACE 싱가포르리츠부동산상장지수투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+277540,ACE 아시아TOP50,K55101BU2759,K55101BU2759,한국투자 ACE 아시아TOP50증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+483320,ACE 엔비디아밸류체인액티브,K55101EB6172,K55101EB6172,한국투자 ACE 엔비디아밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448540,ACE 엔비디아채권혼합,K55101DY6929,K55101DY6929,한국투자 ACE 엔비디아채권혼합증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0099L0,ACE 우량회사채(AA-이상)액티브,K55101EN6525,K55101EN6525,한국투자 ACE 우량회사채(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433500,ACE 원자력TOP10,K55101DU0363,K55101DU0363,한국투자 ACE 원자력TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0102X0,ACE 유럽방산TOP10,K55101EN6293,K55101EN6293,한국투자 ACE 유럽방산TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487920,ACE 인도시장대표BIG5그룹액티브,K55101EC1768,K55101EC1768,한국투자 ACE 인도시장대표Big5그룹액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487910,ACE 인도컨슈머파워액티브,K55101EB6453,K55101EB6453,한국투자 ACE 인도컨슈머파워액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+145670,ACE 인버스,KR5101A59767,KR5101A59767,한국투자 ACE 인버스 증권 상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+497520,ACE 일라이릴리밸류체인,K55101EG1343,K55101EG1343,한국투자 ACE 일라이릴리밸류체인증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469160,ACE 일본반도체,K55101E66032,K55101E66032,한국투자 ACE 일본반도체증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+356540,ACE 종합채권(AA-이상)액티브,K55101D34156,K55101D34156,한국투자 ACE 종합채권(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+447430,ACE 주주환원가치주액티브,K55101DY4338,K55101DY4338,한국투자 ACE 주주환원가치주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+416090,ACE 중국과창판STAR50,K55101DP7530,K55101DP7530,한국투자 ACE 중국과창판STAR50증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+168580,ACE 중국본토CSI300,KR5101AD5756,KR5101AD5756,한국투자 ACE 중국본토 CSI300 증권 자상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+272910,ACE 중장기국공채액티브,K55101BQ9602,K55101BQ9602,한국투자 ACE 중장기국공채액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0087F0,ACE 차이나AI빅테크TOP2+액티브,K55101EM0842,K55101EM0842,한국투자 ACE 차이나AI빅테크TOP2+액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371870,ACE 차이나항셍테크,K55101DC5406,K55101DC5406,한국투자 ACE 차이나항셍테크증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0209Z0,ACE 코리아AI전력TOP10,K55101EU2731,K55101EU2731,한국투자 ACE 코리아AI전력TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+380340,ACE 코리아AI테크핵심산업,K55101DH2341,K55101DH2341,한국투자 ACE 코리아AI테크핵심산업증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496120,ACE 코리아밸류업,K55101EF9826,K55101EF9826,한국투자 ACE 코리아밸류업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+354500,ACE 코스닥150,K55101D41516,K55101D41516,한국투자 ACE 코스닥150증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+305050,ACE 코스피,K55101CC3048,K55101CC3048,한국투자 ACE 코스피증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+457480,ACE 테슬라밸류체인액티브,K55101E19387,K55101E19387,한국투자 ACE 테슬라밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469170,ACE 포스코그룹포커스,K55101E67568,K55101E67568,한국투자 ACE 포스코그룹포커스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0193M0,BNK 27-12 특수채(AAA이상)액티브,K55240EV4951,K55240EV4951,BNK BNK27-12특수채(AAA이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+466810,BNK 2차전지양극재,K55240E62094,K55240E62094,BNK BNK2차전지양극재증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+457930,BNK 미래전략기술액티브,K55240E32568,K55240E32568,BNK BNK미래전략기술액티브 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0218K0,BNK 스마트카,K55240EV4936,K55240EV4936,BNK BNK스마트카증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487750,BNK 온디바이스AI,K55240EC9136,K55240EC9136,BNK BNK온디바이스AI증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+445690,BNK 주주가치액티브,K55240DY2458,K55240DY2458,BNK BNK주주가치액티브 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0120J0,BNK 카카오그룹포커스,K55240EP9438,K55240EP9438,BNK BNK 카카오그룹포커스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+486240,DAISHIN AI반도체&인프라액티브,K55203EA9349,K55203EA9349,대신 DAISHIN AI반도체&인프라액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+434960,DAISHIN K200,K55203DT1106,K55203DT1106,대신 DAISHINK200증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0189Z0,DAISHIN 금융&지주고배당,K55203ET6310,K55203ET6310,대신 DAISHIN 금융&지주고배당증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0174J0,DAISHIN 오피스리츠플러스,K55203EP7502,K55203EP7502,대신 DAISHIN 오피스리츠플러스부동산상장지수투자신탁[재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0220B0,DS 코스닥액티브,K553F0EX3712,K553F0EX3712,디에스 DS코스닥액티브 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0098Z0,FOCUS 200,K55104EN5177,K55104EN5177,브이아이 FOCUS 200 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0176P0,FOCUS AI반도체위클리고정커버드콜,K55104ER1156,K55104ER1156,브이아이 FOCUS AI반도체위클리고정커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448570,FOCUS AI코리아액티브,K55104DY6843,K55104DY6843,브이아이 FOCUS AI코리아 액티브 증권 상장지수 투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0226D0,FOCUS 금융반도체지주채권혼합50액티브,K55104EX3725,K55104EX3725,브이아이 FOCUS 금융반도체지주채권혼합50액티브증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+293180,HANARO 200,K55232DO9372,K55232C57764,NH-Amundi HANARO 200 증권 상장지수투자신탁[주식],K55232C57764,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/etf-data-board,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+407310,HANARO 200 TOP10,K55232DO9372,K55232DO9372,NH-Amundi HANARO 200 TOP10 증권상장지수투자신탁(주식),K55232DO9372,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/en/fund/C7AEF2317DE84872,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+304780,HANARO 200선물레버리지,K55232CC8882,K55232CC8882,NH-Amundi HANARO 200선물레버리지 증권 상장지수투자신탁[주식-파생형],K55232CC8882,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/en/fund/D5AF92D8402E46E2,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+306520,HANARO 200선물인버스,K55232CD6992,K55232CD6992,NH-Amundi HANARO 200선물인버스 증권 상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0123S0,HANARO 26-12 은행채(AA+이상)액티브,K55232EQ5039,K55232EQ5039,NH-Amundi HANARO 26-12은행채(AA+이상)액티브 증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0091M0,HANARO 27-06 회사채(AA-이상)액티브,K55232EN3029,K55232EN3029,NH-Amundi HANARO 27-06 회사채(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448490,HANARO 32-10 국고채액티브,K55232DY8190,K55232DY8190,NH-Amundi HANARO 32-10 국고채액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+454320,HANARO CAPEX설비투자iSelect,K55232E17012,K55232E17012,NH-Amundi HANARO CAPEX설비투자iSelect증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395290,HANARO Fn K-POP&미디어,K55232DL2883,K55232DL2883,NH-Amundi HANARO Fn K-POP&미디어증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395280,HANARO Fn K-게임,K55232DL2875,K55232DL2875,NH-Amundi HANARO Fn K-게임증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+368190,HANARO Fn K-뉴딜디지털플러스,K55232DB8908,K55232DB8908,NH-Amundi HANARO Fn K-뉴딜디지털플러스 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+402460,HANARO Fn K-메타버스MZ,K55232DN6882,K55232DN6882,NH-Amundi HANARO Fn K-메타버스MZ 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395270,HANARO Fn K-반도체,K55232DL2867,K55232DL2867,NH-Amundi HANARO Fn K-반도체증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+438900,HANARO Fn K-푸드,K55232DW2039,K55232DW2039,NH-Amundi HANARO Fn K-푸드증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+367740,HANARO Fn5G산업,K55232DB8353,K55232DB8353,NH-Amundi HANARO Fn5G산업 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+407300,HANARO Fn골프테마,K55232DO9380,K55232DO9380,NH-Amundi HANARO Fn골프테마증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+381560,HANARO Fn전기&수소차,K55232DH1816,K55232DH1816,NH-Amundi HANARO Fn전기&수소차증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+441540,HANARO Fn조선해운,K55232DV7591,K55232DV7591,NH-Amundi HANARO Fn조선해운증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+381570,HANARO Fn친환경에너지,K55232DH1824,K55232DH1824,NH-Amundi HANARO Fn친환경에너지증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+479850,HANARO K-뷰티,K55232E99861,K55232E99861,NH-Amundi HANARO K-뷰티 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+304760,HANARO KRX300,K55232CC8866,K55232CC8866,NH-Amundi HANARO KRX300 증권 상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+322410,HANARO K고배당,K55232CN9895,K55232CN9895,NH-Amundi HANARO K고배당 증권 상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0155N0,HANARO K휴머노이드테마TOP10,K55232ES4162,K55232ES4162,NH-Amundi HANARO K휴머노이드테마TOP10 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+332940,HANARO MSCI Korea TR,K55232CU2974,K55232CU2974,NH-Amundi HANARO MSCI Korea TR 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+322400,HANARO e커머스,K55232CN9911,K55232CN9911,NH-Amundi HANARO e커머스 증권 상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473640,HANARO 글로벌금채굴기업,K55232E64931,K55232E64931,NH-Amundi HANARO 글로벌금채굴기업 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461340,HANARO 글로벌생성형AI액티브,K55232E40014,K55232E40014,NH-Amundi HANARO 글로벌생성형AI액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0040S0,HANARO 글로벌피지컬AI액티브,K55232EK0689,K55232EK0689,NH-Amundi HANARO 글로벌피지컬AI액티브 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+314700,HANARO 농업융복합산업,K55232CI1899,K55232CI1899,NH-Amundi HANARO 농업융복합산업 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+486830,HANARO 머니마켓액티브,K55232EC9151,K55232EC9151,NH-Amundi HANARO 머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0215T0,HANARO 미국AI광통신TOP10,K55232EW1147,K55232EW1147,NH-Amundi HANARO 미국AI광통신TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0181B0,HANARO 미국AI메모리반도체TOP4+,K55232EU6940,K55232EU6940,NH-Amundi HANARO 미국AI메모리반도체TOP4+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+432840,HANARO 미국S&P500,K55232EX2250,K55232DU0555,NH-Amundi HANARO 미국 S&P500 증권상장지수투자신탁(주식),K55232DU0555,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/6841F2BA9FF04317,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0219Z0,HANARO 미국S&P500액티브,K55232EX2250,K55232EX2250,NH-Amundi HANARO 미국S&P500액티브 증권상장지수투자신탁[주식],K55232EX2250,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/3DF9E0B3B0C74485,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+498050,HANARO 바이오코리아액티브,K55232EF5040,K55232EF5040,NH-Amundi HANARO 바이오코리아 액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476260,HANARO 반도체핵심공정주도주,K55232E86629,K55232E86629,NH-Amundi HANARO 반도체핵심공정주도주 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+434730,HANARO 원자력iSelect,K55232DU8475,K55232DU8475,NH-Amundi HANARO 원자력iSelect증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0082F0,HANARO 유럽방산,K55232EM2121,K55232EM2121,NH-Amundi HANARO 유럽방산 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491820,HANARO 전력설비투자,K55232EE1347,K55232EE1347,NH-Amundi HANARO 전력설비투자증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461500,HANARO 종합채권(AA-이상)액티브,K55232E28837,K55232E28837,NH-Amundi HANARO 종합채권(AA-이상) 액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0191W0,HANARO 중기종합채권(A-이상)액티브,K55232EV4365,K55232EV4365,NH-Amundi HANARO 중기종합채권(A-이상) 액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0111J0,HANARO 증권고배당TOP3플러스,K55232EP4074,K55232EP4074,NH-Amundi HANARO 증권고배당TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495750,HANARO 코리아밸류업,K55232EF9588,K55232EF9588,NH-Amundi HANARO 코리아밸류업 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+304770,HANARO 코스닥150,K55232CC8874,K55232CC8874,NH-Amundi HANARO 코스닥150 증권 상장지수투자신탁[주식],K55232CC8874,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/24BBC4A741A44C99,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+306530,HANARO 코스닥150선물레버리지,K55232CD6984,K55232CD6984,NH-Amundi HANARO 코스닥150선물레버리지 증권 상장지수투자신탁[주식-파생형],K55232CD6984,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/4B6539105147466E,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+375760,HANARO 탄소효율그린뉴딜,K55232DE0613,K55232DE0613,NH-Amundi HANARO 탄소효율그린뉴딜 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491700,HK 200,K55224ED5836,K55224ED5836,흥국HK200증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0000Y0,HK 26-12 회사채(AA-이상)액티브,K55224EH0304,K55224EH0304,흥국HK26-12회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+215620,HK S&P코리아로우볼,K55224B12636,K55224B12636,흥국HK S&P코리아로우볼증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0113P0,HK 머니마켓액티브,K55224EO8480,K55224EO8480,흥국HK머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+391670,HK 베스트일레븐액티브,K55224DK4104,K55224DK4104,흥국HK베스트일레븐액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472920,HK 종합채권(AA-이상)액티브,K55224E73350,K55224E73350,흥국HK종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472840,IBK 200,K55234E63129,K55234E63129,IBK IBK 200 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0005G0,IBK K-AI반도체코어테크,K55234EG3166,K55234EG3166,IBK IBK K-AI반도체 코어테크 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0178H0,IBK 미국AI TOP10국채혼합50,K55234ES8484,K55234ES8484,IBK IBK 미국AI TOP10국채혼합50 증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0135Y0,IBK 중기종합채권(AA-이상)액티브,K55234EP3298,K55234EP3298,IBK IBK 중기종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0221V0,IBK 초단기채권액티브,K55234EV3266,K55234EV3266,IBK IBK 초단기채권액티브 증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0191S0,IBK 코스닥150,K55234ET9176,K55234ET9176,IBK IBK 코스닥150 증권상장지수투자신탁[주식],,PENDING,,,MULTIPLE_NAME_CANDIDATES,유일 포털 후보를 찾았으나 IBK자산운용 공식 자료에서 종목코드·상품명 대응을 확인하지 못함
+0208N0,IBK 코스피액티브,K55234ES8492,K55234ES8492,IBK IBK 코스피액티브 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+483570,KCGI 미국S&P500 TOP10,K55365EB1596,K55365EB1596,케이씨지아이 KCGI 미국S&P500 TOP10 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+069660,KIWOOM 200,KR5206352894,KR5206352894,키움 KIWOOM 200 상장지수증권투자신탁[주식],KR5206352894,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=069660,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253250,KIWOOM 200선물레버리지,K55206BG4567,K55206BG4567,키움 KIWOOM 200선물레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+253240,KIWOOM 200선물인버스,K55206BG4575,K55206BG4559,키움 KIWOOM 200선물인버스증권상장지수투자신탁[주식-파생형],K55206BG4559,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=253240,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253230,KIWOOM 200선물인버스2X,K55206BG4575,K55206BG4575,키움 KIWOOM 200선물인버스2X증권상장지수투자신탁[주식-파생형],K55206BG4575,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=253230,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+464240,KIWOOM 26-09회사채(AA-이상)액티브,K55206E39770,K55206E39770,키움 KIWOOM 26-09회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488200,KIWOOM K-2차전지북미공급망,K55206ED2207,K55206ED2207,키움 KIWOOM K-2차전지북미공급망증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488210,KIWOOM K-반도체북미공급망,K55206ED2215,K55206ED2215,키움 KIWOOM K-반도체북미공급망증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+100910,KIWOOM KRX100,KR5206773776,KR5206773776,키움 KIWOOM KRX100 상장지수증권투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0194R0,KIWOOM SK하이닉스선물단일종목레버리지,K55206EV7915,K55206EV7915,키움 KIWOOM SK하이닉스선물단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471460,KIWOOM 국고채30년액티브,K55206E71195,K55206E71195,키움 KIWOOM 국고채30년액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473490,KIWOOM 글로벌AI반도체,K55206E80451,K55206E80451,키움 KIWOOM 글로벌AI반도체증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+489860,KIWOOM 글로벌전력GRID인프라,K55206ED3411,K55206ED3411,키움 KIWOOM 글로벌전력GRID인프라증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+130730,KIWOOM 단기자금,KR5206287710,KR5206287710,키움 KIWOOM 단기자금증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+419890,KIWOOM 단기채권ESG액티브,K55206DR4802,K55206DR4802,키움 KIWOOM 단기채권ESG액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+411860,KIWOOM 독일DAX,K55206DP5553,K55206DP5553,키움 KIWOOM 독일DAX증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476450,KIWOOM 머니마켓액티브,K55206E91755,K55206E91755,키움 KIWOOM 머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+430500,KIWOOM 물가채KIS,K55206DT2960,K55206DT2960,키움 KIWOOM 물가채KIS증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0190M0,KIWOOM 미국AI테크하이베타,K55206ES9643,K55206ES9643,키움KIWOOM미국AI테크하이베타증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0224D0,KIWOOM 미국CPU반도체TOP4+,K55206EX3003,K55206EX3003,키움 KIWOOM 미국CPU반도체TOP4+증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449770,KIWOOM 미국S&P500,K55206DZ1378,K55206DZ1360,키움 KIWOOM 미국S&P500증권상장지수투자신탁[주식],K55206DZ1360,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=449770,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0137W0,KIWOOM 미국S&P500&GOLD,K55206EQ5684,K55206EQ5684,키움 KIWOOM 미국S&P500&GOLD증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0127T0,KIWOOM 미국S&P500&배당다우존스비중전환,K55206EN6347,K55206EN6347,키움 KIWOOM 미국S&P500&배당다우존스비중전환증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0137V0,KIWOOM 미국S&P500모멘텀,K55206EQ3044,K55206EQ3044,키움 KIWOOM 미국S&P500모멘텀증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0107F0,KIWOOM 미국고배당&AI테크,K55206EN6289,K55206EN6289,키움 KIWOOM 미국고배당&AI테크증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138230,KIWOOM 미국달러선물,K55206B56275,KR5206994091,키움 KIWOOM 미국달러선물특별자산상장지수투자신탁[미국달러-파생형],KR5206994091,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=138230,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+225800,KIWOOM 미국달러선물레버리지,K55206B56275,K55206B56275,키움 KIWOOM 미국달러선물레버리지특별자산상장지수투자신탁[미국달러-파생형],K55206B56275,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=225800,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139660,KIWOOM 미국달러선물인버스,K55206B83279,KR5206A16343,키움 KIWOOM 미국달러선물인버스특별자산상장지수투자신탁[미국달러-파생형],KR5206A16343,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=139660,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+230480,KIWOOM 미국달러선물인버스2X,K55206B83279,K55206B83279,키움 KIWOOM 미국달러선물 인버스2X 특별자산상장지수투자신탁[미국달러-파생형],K55206B83279,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=230480,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+373790,KIWOOM 미국방어배당성장나스닥,K55206DC2985,K55206DC2985,키움 KIWOOM 미국방어배당성장나스닥증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+483030,KIWOOM 미국블록버스터바이오테크의약품+,K55206EB3249,K55206EB3249,키움 KIWOOM 미국블록버스터바이오테크의약품+증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+459790,KIWOOM 미국성장기업30액티브,K55206E19798,K55206E19798,키움 KIWOOM 미국성장기업30액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0174R0,KIWOOM 미국성장다우존스,K55206ER7937,K55206ER7937,키움 KIWOOM 미국성장다우존스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+498270,KIWOOM 미국양자컴퓨팅,K55206EE9458,K55206EE9458,키움 KIWOOM 미국양자컴퓨팅증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0207Z0,KIWOOM 미국우주데이터센터인프라,K55206EV4466,K55206EV4466,키움 KIWOOM 미국우주데이터센터인프라증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0216K0,KIWOOM 미국우주테크TOP2채권혼합50,K55206EW2329,K55206EW2329,키움 KIWOOM 미국우주테크TOP2채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+474800,KIWOOM 미국원유에너지기업,K55206E81673,K55206E81673,키움 KIWOOM 미국원유에너지기업증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+104520,KIWOOM 블루칩,KR5206853859,KR5206853859,키움 KIWOOM 블루칩 상장지수증권투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0234N0,KIWOOM 삼성SK그룹TOP4+,K55206EY6435,K55206EY6435,키움KIWOOM삼성SK그룹TOP4+증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0183V0,KIWOOM 삼성전자&SK하이닉스채권혼합50,K55206ES9650,K55206ES9650,키움KIWOOM삼성전자&SK하이닉스채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0194N0,KIWOOM 삼성전자선물단일종목레버리지,K55206EV7907,K55206EV7907,키움 KIWOOM 삼성전자선물단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+483020,KIWOOM 의료AI,K55206EB5608,K55206EB5608,키움 KIWOOM 의료AI증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+454780,KIWOOM 종합채권(AA-이상)액티브,K55206E15705,K55206E15705,키움 KIWOOM 종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+454180,KIWOOM 차이나내수소비TOP CSI,K55206E09914,K55206E09914,키움 KIWOOM 차이나내수소비TOPCSI증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+104530,KIWOOM 코리아고배당,KR5206853842,KR5206853842,키움 KIWOOM 코리아 고배당 상장지수증권투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496090,KIWOOM 코리아밸류업,K55206EF9358,K55206EF9358,키움 KIWOOM 코리아밸류업증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469790,KIWOOM 코리아테크TOP10,K55206E61196,K55206E61196,키움 KIWOOM 코리아테크TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+316670,KIWOOM 코스닥150,K55206EV2718,K55206CJ2971,키움 KIWOOM 코스닥150증권상장지수투자신탁[주식],K55206CJ2971,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=316670,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+291630,KIWOOM 코스닥150선물레버리지,K55206C29098,K55206C29098,키움 KIWOOM 코스닥150선물레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+291620,KIWOOM 코스닥150선물인버스,K55206C29080,K55206C29080,키움 KIWOOM 코스닥150선물인버스증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0198A0,KIWOOM 코스닥150커버드콜액티브,K55206EV2718,K55206EV2718,키움 KIWOOM 코스닥150커버드콜액티브증권상장지수투자신탁[주식-파생형],K55206EV2718,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=0198A0,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0097L0,KIWOOM 한국고배당&미국AI테크,K55206EN5646,K55206EN5646,키움 KIWOOM 한국고배당&미국AI테크증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0220A0,KIWOOM 현대차그룹TOP3채권혼합50,K55206EX4787,K55206EX4787,키움 KIWOOM 현대차그룹TOP3채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+069500,KODEX 200,K55105EX2080,KR5105352888,삼성KODEX200증권상장지수투자신탁[주식],KR5105352888,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20170104/2ETF01_20161229.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+226980,KODEX 200 중소형,K55105B66492,K55105B66492,삼성KODEX200중소형증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+337160,KODEX 200ESG,K55105CX1894,K55105CX1894,삼성KODEX 200ESG 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+337150,KODEX 200exTOP,K55105CX0532,K55105CX0532,삼성KODEX 200exTOP 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+223190,KODEX 200가치저변동,K55105B39242,K55105B39242,삼성KODEX200가치저변동증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252650,KODEX 200동일가중,K55105BG6549,K55105BG6549,삼성KODEX200동일가중증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+360140,KODEX 200롱코스닥150숏선물,K55105D60632,K55105D60632,삼성KODEX 200롱코스닥150숏 선물증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+284430,KODEX 200미국채혼합50,K55105BZ3766,K55105BZ3766,삼성 KODEX 200미국채혼합50증권상장지수투자신탁[채권혼합-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252670,KODEX 200선물인버스2X,K55105BG8438,K55105BG8438,삼성KODEX200선물인버스2X증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494890,KODEX 200액티브,K55105EE6431,K55105EE6431,삼성 KODEX 200액티브증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0219E0,KODEX 200커버드콜액티브,K55105EX2080,K55105EX2080,삼성 KODEX 200커버드콜액티브증권상장지수투자신탁[주식-파생형],K55105EX2080,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=%EC%9B%94%EB%B0%B0%EB%8B%B9,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+498400,KODEX 200타겟위클리커버드콜,K55105EG3659,K55105EG3659,삼성 KODEX 200타겟위클리커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0117L0,KODEX 26-12 금융채(AA-이상)액티브,K55105EN8634,K55105EN8634,삼성 KODEX 26-12 금융채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473290,KODEX 26-12 회사채(AA-이상)액티브,K55105E71496,K55105E71496,삼성KODEX 26-12 회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0007F0,KODEX 27-12 회사채(AA-이상)액티브,K55105EG9086,K55105EG9086,삼성 KODEX 27-12 회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0119H0,KODEX 28-12 회사채(AA-이상)액티브,K55105EN8642,K55105EN8642,삼성KODEX 28-12 회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+305720,KODEX 2차전지산업,K55105E32308,K55105CD4207,삼성KODEX 2차전지산업증권상장지수투자신탁[주식],K55105CD4207,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20230622/2ETFB1_20230531.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+462330,KODEX 2차전지산업레버리지,K55105E32308,K55105E32308,삼성KODEX2차전지산업레버리지증권상장지수투자신탁[주식-파생형],K55105E32308,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250905/2ETFK2_20250829.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+461950,KODEX 2차전지핵심소재10,K55105E32290,K55105E32290,삼성 KODEX 2차전지핵심소재10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+457690,KODEX 33-06 국고채액티브,K55105E17036,K55105E17036,삼성KODEX 33-06국고채액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+457700,KODEX 53-09 국고채액티브,K55105E17044,K55105E17044,삼성KODEX 53-09국고채액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395160,KODEX AI반도체TOP2플러스,K55105DI5372,K55105DI5372,삼성 KODEX AI반도체TOP2플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471990,KODEX AI반도체핵심장비,K55105E71488,K55105E71488,삼성 KODEX AI반도체핵심장비증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487240,KODEX AI전력핵심설비,K55105EC1749,K55105EC1749,삼성KODEX AI전력핵심설비증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+439860,KODEX ESG종합채권(A-이상)액티브,K55105DR2899,K55105DR2899,삼성KODEX ESG종합채권(A-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266370,KODEX IT,K55105BM5634,K55105BM5634,삼성KODEX IT 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+368680,KODEX K-뉴딜디지털플러스,K55105DB2905,K55105DB2905,삼성 KODEX K-뉴딜디지털플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292190,KODEX KRX300,K55105CE6045,K55105C52102,삼성KODEX KRX300증권상장지수투자신탁[주식형],K55105C52102,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20251013/2ETFA4_20250930.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+306950,KODEX KRX300레버리지,K55105CE6045,K55105CE6045,삼성KODEX KRX300레버리지증권상장지수투자신탁[주식-파생형],K55105CE6045,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250805/2ETFB2_20250731.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+229720,KODEX KTOP30,K55105B76798,K55105B76798,삼성KODEX KTOP30증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266360,KODEX K콘텐츠,K55105BM5626,K55105BM5626,삼성KODEX K콘텐츠증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+156080,KODEX MSCI Korea,KR5105AA2075,KR5105AA2075,삼성KODEX MSCI KOREA 증권상장지수투자신탁[주식],KR5105AA2075,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20121112/SHEET2412ETF36_KodexMSCIKorea_20121031.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+251350,KODEX MSCI선진국,K55105BF7266,K55105BF7266,삼성 KODEX MSCI 선진국증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0193T0,KODEX SK하이닉스단일종목레버리지,K55105EV6356,K55105EV6356,삼성 KODEX SK하이닉스단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+329650,KODEX TRF3070,K55105CS1271,K55105CS1271,삼성KODEX TRF 3070 증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+329660,KODEX TRF5050,K55105CS1263,K55105CS1263,삼성KODEX TRF 5050 증권상장지수투자신탁[채권혼합-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+329670,KODEX TRF7030,K55105CS1255,K55105CS1255,삼성KODEX TRF 7030 증권상장지수투자신탁[주식혼합-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395170,KODEX Top10동일가중,K55105DK2011,K55105DK2011,삼성 KODEX Top10동일가중증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+468370,KODEX iShares미국인플레이션국채액티브,K55105E57099,K55105E57099,삼성KODEX iShares미국인플레이션국채액티브증권상장지수투자신탁[채권-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+468630,KODEX iShares미국투자등급회사채액티브,K55105E57073,K55105E57073,삼성KODEX iShares미국투자등급회사채액티브증권상장지수투자신탁[채권-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+468380,KODEX iShares미국하이일드액티브,K55105E57081,K55105E57081,삼성KODEX iShares미국하이일드액티브증권상장지수투자신탁[채권-재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+275290,KODEX 가치주,K55105BQ9434,K55105BQ9434,삼성 KODEX 가치주 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+117700,KODEX 건설,KR5105171502,KR5105171502,삼성KODEX건설증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+300950,KODEX 게임산업,K55105CB0603,K55105CB0603,삼성KODEX게임산업증권상장지수투자신탁[주식형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266390,KODEX 경기소비재,K55105BM5592,K55105BM5592,삼성KODEX 경기소비재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+279530,KODEX 고배당주,K55105BW6366,K55105BW6366,삼성 KODEX 고배당주 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471230,KODEX 국고채10년액티브,K55105E67924,K55105E67924,삼성 KODEX 국고채10년액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+439870,KODEX 국고채30년액티브,K55105DV4568,K55105DV4568,삼성KODEX 국고채30년액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+114260,KODEX 국고채3년,KR5105149383,KR5105149383,삼성 KODEX 국고채3년 증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292770,KODEX 국채선물3년인버스,K55105C60402,K55105C60402,삼성KODEX국채선물3년인버스증권상장지수투자신탁[채권-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476070,KODEX 글로벌비만치료제TOP2 Plus,K55105E79341,K55105E79341,삼성 KODEX 글로벌비만치료제TOP2 Plus증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0064K0,KODEX 금액티브,K55105EK8983,K55105EK8983,삼성 KODEX 금액티브특별자산상장지수투자신탁[금-파생재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0089D0,KODEX 금융고배당TOP10,K55105EM2703,K55105EM2703,삼성 KODEX 금융고배당TOP10증권상장지수투자신탁[주식],K55105EM2703,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260511/2ETFS1_20260430.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+498410,KODEX 금융고배당TOP10타겟위클리커버드콜,K55105EF7263,K55105EF7263,삼성 KODEX 금융고배당TOP10타겟위클리커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0162M0,KODEX 금융채1~2년(AA-이상)PLUS액티브,K55105ER7764,K55105ER7764,삼성 KODEX 금융채1~2년(AA-이상)PLUS액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+102960,KODEX 기계장비,KR5105837854,KR5105837854,삼성KODEX기계장비증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+404260,KODEX 기후변화솔루션,K55105DN4469,K55105DN4469,삼성 KODEX 기후변화솔루션증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+273140,KODEX 단기변동금리부채권액티브,K55105BR3113,K55105BR3113,삼성KODEX 단기변동금리부채권액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+153130,KODEX 단기채권,KR5105A84337,KR5105A84337,삼성KODEX단기채권증권상장지수투자신탁[채권],KR5105A84337,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20200410/2ETF35_20200331.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+214980,KODEX 단기채권PLUS,K55105B00244,K55105B00244,삼성KODEX단기채권PLUS증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487950,KODEX 대만테크고배당다우존스,K55105EB3910,K55105EB3910,삼성 KODEX 대만테크고배당다우존스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+122630,KODEX 레버리지,KR5105191153,KR5105191153,삼성KODEX레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+445290,KODEX 로봇액티브,K55105DW7453,K55105DW7453,삼성 KODEX 로봇액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488770,KODEX 머니마켓액티브,K55105EC8033,K55105EC8033,삼성 KODEX 머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+337120,KODEX 멀티팩터,K55105CX0524,K55105CX0524,삼성 KODEX 멀티팩터증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+401470,KODEX 메타버스액티브,K55105DM5970,K55105DM5970,삼성 KODEX 메타버스액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+244620,KODEX 모멘텀Plus,K55105BD0552,K55105BD0552,삼성KODEX모멘텀PLUS증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+275280,KODEX 모멘텀주,K55105BQ9400,K55105BQ9400,삼성 KODEX 모멘텀주 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+308620,KODEX 미국10년국채선물,K55105CF2639,K55105CF2639,삼성 KODEX 미국10년국채선물증권상장지수투자신탁[채권-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0173Y0,KODEX 미국AI광통신네트워크,K55105ES6112,K55105ES6112,삼성 KODEX 미국AI광통신네트워크증권상장지수투자신탁 [주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0151S0,KODEX 미국AI반도체TOP3플러스,K55105EQ8482,K55105EQ8482,삼성 KODEX 미국AI반도체TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0041D0,KODEX 미국AI소프트웨어TOP10,K55105EH7642,K55105EH7642,삼성 KODEX미국AI소프트웨어TOP10 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487230,KODEX 미국AI전력핵심인프라,K55105EC0527,K55105EC0527,삼성 KODEX 미국AI전력핵심인프라증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+485540,KODEX 미국AI테크TOP10,K55105EB3902,K55105EB3902,삼성KODEX 미국AI테크TOP10증권상장지수투자신탁[주식],K55105EB3902,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20250912183647389.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+483280,KODEX 미국AI테크TOP10타겟커버드콜,K55105EA9041,K55105EA9041,삼성 KODEX 미국AI테크TOP10타겟커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0225V0,KODEX 미국CPU반도체TOP10,K55105EX4193,K55105EX4193,삼성 KODEX 미국CPU반도체TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+428560,KODEX 미국ETF산업Top10 Indxx,K55105DS5107,K55105DS5107,삼성KODEX 미국ETF산업Top10 Indxx증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+379800,KODEX 미국S&P500,K55105EL1938,K55105DF7322,삼성 KODEX 미국S&P500 증권상장지수투자신탁[주식],K55105DF7322,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260305/2ETFE4_20260228.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+453660,KODEX 미국S&P500경기소비재,K55105DZ6528,K55105DZ6528,삼성KODEX 미국S&P500경기소비재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453650,KODEX 미국S&P500금융,K55105DZ6536,K55105DZ6536,삼성KODEX 미국S&P500금융증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0005A0,KODEX 미국S&P500데일리커버드콜OTM,K55105EG1950,K55105EG1950,삼성 KODEX 미국S&P500데일리커버드콜OTM증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0026E0,KODEX 미국S&P500버퍼3월액티브,K55105EH1736,K55105EH1736,삼성 KODEX 미국S&P500버퍼3월액티브증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0068M0,KODEX 미국S&P500버퍼6월액티브,K55105EL1938,K55105EL1938,삼성 KODEX 미국S&P500버퍼6월액티브증권상장지수투자신탁[주식-파생형],K55105EL1938,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/2026011317101936.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0089C0,KODEX 미국S&P500변동성확대시커버드콜,K55105EH3997,K55105EH3997,삼성 KODEX 미국S&P500변동성확대시커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0041E0,KODEX 미국S&P500액티브,K55105EJ6188,K55105EJ6188,삼성 KODEX 미국S&P500액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463640,KODEX 미국S&P500유틸리티,K55105E38388,K55105E38388,삼성 KODEX 미국S&P500유틸리티증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463690,KODEX 미국S&P500커뮤니케이션,K55105E38404,K55105E38404,삼성KODEX 미국S&P500커뮤니케이션증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463680,KODEX 미국S&P500테크놀로지,K55105E38396,K55105E38396,삼성 KODEX 미국S&P500테크놀로지증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453630,KODEX 미국S&P500필수소비재,K55105DZ2634,K55105DZ2634,삼성KODEX 미국S&P500필수소비재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453640,KODEX 미국S&P500헬스케어,K55105DZ2626,K55105DZ2626,삼성KODEX 미국S&P500헬스케어증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0028X0,KODEX 미국금융테크액티브,K55105EI2691,K55105EI2691,삼성 KODEX 미국금융테크액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+379810,KODEX 미국나스닥100,K55105EE2919,K55105DF7272,삼성 KODEX 미국나스닥100 증권상장지수투자신탁[주식],K55105DF7272,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260206/2ETFE3_20260131.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+494300,KODEX 미국나스닥100데일리커버드콜OTM,K55105EE2919,K55105EE2919,삼성 KODEX 미국나스닥100데일리커버드콜OTM증권상장지수투자신탁[주식-파생형],K55105EE2919,ISSUER_REVIEWED,KRX_LISTING_MATCH,https://kind.krx.co.kr/disclosure/etfisudetail.do?method=searchEtfIsuSummary&strIsurCd=49430,SHARED_PORTAL_PRODUCT,KRX KIND의 종목코드·공식 상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+411420,KODEX 미국나스닥AI테크액티브,K55105DO3916,K55105DO3916,삼성 KODEX 미국나스닥AI테크액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261240,KODEX 미국달러선물,K55105BJ8583,K55105BJ8583,삼성KODEX미국달러선물특별자산상장지수투자신탁[미국달러-파생형],K55105BJ8583,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20180110/2ETF73_20171231.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261250,KODEX 미국달러선물레버리지,K55105BJ8591,K55105BJ8591,삼성KODEX미국달러선물레버리지특별자산상장지수투자신탁[미국달러-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261270,KODEX 미국달러선물인버스,K55105BJ8609,K55105BJ8609,삼성KODEX미국달러선물인버스특별자산상장지수투자신탁[미국달러-파생형],K55105BJ8609,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20221011/2ETF75_20220930.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261260,KODEX 미국달러선물인버스2X,K55105BJ8617,K55105BJ8617,삼성KODEX미국달러선물인버스2X특별자산상장지수투자신탁[미국달러-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0144M0,KODEX 미국드론UAM TOP10,K55105EP9614,K55105EP9614,삼성 KODEX 미국드론UAM TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0048J0,KODEX 미국머니마켓액티브,K55105EK2846,K55105EK2846,삼성 KODEX 미국머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+390390,KODEX 미국반도체,K55105DJ0265,K55105DJ0265,삼성 KODEX 미국반도체증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+489250,KODEX 미국배당다우존스,K55105EC8025,K55105EC8025,삼성 KODEX 미국배당다우존스증권상장지수투자신탁[주식],K55105EC8025,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250805/2ETFN9_20250731.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+483290,KODEX 미국배당다우존스타겟커버드콜,K55105EA8589,K55105EA8589,삼성 KODEX 미국배당다우존스타겟커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473460,KODEX 미국서학개미,K55105E67171,K55105E67171,삼성KODEX 미국서학개미증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0144L0,KODEX 미국성장커버드콜액티브,K55105EP9606,K55105EP9606,삼성 KODEX 미국성장커버드콜액티브증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+390400,KODEX 미국스마트모빌리티S&P,K55105DJ2279,K55105DJ2279,삼성KODEX 미국스마트모빌리티S&P증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0167Z0,KODEX 미국우주항공,K55105ES6120,K55105ES6120,삼성 KODEX 미국우주항공증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0132H0,KODEX 미국원자력SMR,K55105EP4797,K55105EP4797,삼성 KODEX 미국원자력SMR증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+419420,KODEX 미국클린에너지나스닥,K55105DK9826,K55105DK9826,삼성KODEX 미국클린에너지나스닥증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491090,KODEX 미국테크TOP3플러스,K55105EE0194,K55105EE0194,삼성KODEX 미국테크TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0038A0,KODEX 미국휴머노이드로봇,K55105EI8383,K55105EI8383,삼성 KODEX 미국휴머노이드로봇증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+244580,KODEX 바이오,K55105BC9695,K55105BC9695,삼성KODEX바이오증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+091160,KODEX 반도체,K55105EU6183,KR5105578185,삼성KODEX반도체증권상장지수투자신탁[주식],KR5105578185,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20120808/SHEET51483Kodex%EB%B0%98%EB%8F%84%EC%B2%B4.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+494310,KODEX 반도체레버리지,K55105EE8742,K55105EE8742,삼성 KODEX반도체레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0190G0,KODEX 반도체타겟위클리커버드콜,K55105EU6183,K55105EU6183,삼성 KODEX 반도체타겟위클리커버드콜증권상장지수투자신탁[주식-파생형],K55105EU6183,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20260504180717732.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0080G0,KODEX 방산TOP10,K55105EL4742,K55105EL4742,삼성 KODEX 방산TOP10증권상장지수투자신탁[주식],K55105EL4742,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260206/2ETFR8_20260131.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0100K0,KODEX 방산TOP10레버리지,K55105EN0383,K55105EN0383,삼성 KODEX 방산TOP10레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+325020,KODEX 배당가치,K55105CP4617,K55105CP4617,삼성KODEX 배당가치증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+244670,KODEX 밸류Plus,K55105BD0586,K55105BD0586,삼성KODEX밸류PLUS증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+140700,KODEX 보험,KR5105A23640,KR5105A23640,삼성KODEX보험증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+102780,KODEX 삼성그룹,KR5105AY4057,KR5105834570,삼성KODEX삼성그룹주증권상장지수투자신탁[주식],KR5105834570,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20120718/SHEET51459Kodex%EC%82%BC%EC%84%B1%EA%B7%B8%EB%A3%B9%EC%A3%BC.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+213610,KODEX 삼성그룹밸류,KR5105AY4057,KR5105AY4057,삼성KODEX삼성그룹밸류증권상장지수투자신탁[주식],KR5105AY4057,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20170206/2ETF47_20170131.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0177N0,KODEX 삼성전자SK하이닉스채권혼합50,K55105EQ9878,K55105EQ9878,삼성 KODEX 삼성전자SK하이닉스채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0193W0,KODEX 삼성전자단일종목레버리지,K55105EV6349,K55105EV6349,삼성 KODEX 삼성전자단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448330,KODEX 삼성전자채권혼합,K55105DX9797,K55105DX9797,삼성 KODEX 삼성전자채권혼합증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+325010,KODEX 성장주,K55105CP4609,K55105CP4609,삼성 KODEX 성장주증권상장지수투자신탁[주식형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385510,KODEX 신재생에너지액티브,K55105DH2776,K55105DH2776,삼성 KODEX 신재생에너지액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+446690,KODEX 아시아AI반도체exChina액티브,K55105DX9912,K55105DX9912,삼성 KODEX 아시아AI반도체exChina액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+437070,KODEX 아시아달러채권ESG플러스액티브,K55105DR4770,K55105DR4770,삼성 KODEX 아시아달러채권ESG플러스액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+117460,KODEX 에너지화학,KR5105166692,KR5105166692,삼성KODEX에너지화학증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+275300,KODEX 우량주,K55105BQ9418,K55105BQ9418,삼성 KODEX 우량주 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+140710,KODEX 운송,KR5105A23632,KR5105A23632,삼성KODEX운송증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0098F0,KODEX 원자력SMR,K55105EN0391,K55105EN0391,삼성 KODEX 원자력SMR증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395150,KODEX 웹툰&드라마,K55105DI5380,K55105DI5380,삼성 KODEX 웹툰&드라마증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+456250,KODEX 유럽명품TOP10 STOXX,K55105E16996,K55105E16996,삼성 KODEX 유럽명품TOP10 STOXX증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+091170,KODEX 은행,KR5105578193,KR5105578193,삼성KODEX은행증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453810,KODEX 인도Nifty50,K55105E00685,K55105E00263,삼성 KODEX 인도Nifty50증권상장지수투자신탁[주식-파생형],K55105E00263,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=kodex+%EC%9D%B8%EB%8F%84nifty50,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0000H0,KODEX 인도Nifty미드캡100,K55105EG1976,K55105EG1976,삼성 KODEX 인도Nifty미드캡100증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+477730,KODEX 인도타타그룹,K55105E89613,K55105E89613,삼성KODEX 인도타타그룹증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+114800,KODEX 인버스,KR5105152130,KR5105152130,삼성KODEX인버스증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+101280,KODEX 일본TOPIX100,KR5105797835,KR5105797835,삼성KODEX일본TOPIX100증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+091180,KODEX 자동차,KR5105578177,KR5105578177,삼성KODEX자동차증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385520,KODEX 자율주행액티브,K55105DH2784,K55105DH2784,삼성 KODEX 자율주행액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+363570,KODEX 장기종합채권(AA-이상)액티브,K55105D79160,K55105D79160,삼성KODEX장기종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0209D0,KODEX 전고체배터리ESS TOP2플러스,K55105EW2453,K55105EW2453,삼성 KODEX 전고체배터리ESS TOP2플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0115D0,KODEX 조선TOP10,K55105EM8924,K55105EM8924,삼성 KODEX 조선TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+273130,KODEX 종합채권(AA-이상)액티브,K55105BR0838,K55105BR0838,삼성KODEX종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0153K0,KODEX 주주환원고배당주,K55105EQ8490,K55105EQ8490,삼성 KODEX 주주환원고배당주증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+102970,KODEX 증권,KR5105837847,KR5105837847,삼성KODEX증권주증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0162L0,KODEX 차이나AI반도체TOP10,K55105ER7772,K55105ER7772,삼성 KODEX 차이나AI반도체TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+428510,KODEX 차이나AI테크액티브,K55105DS5081,K55105DS5081,삼성KODEX 차이나AI테크액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+283580,KODEX 차이나CSI300,K55105BZ2610,K55105BZ2610,삼성KODEX차이나CSI300증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+099140,KODEX 차이나H,KR5105745933,KR5105745933,삼성KODEX 차이나H증권상장지수투자신탁[주식],KR5105745933,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=099140,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0065G0,KODEX 차이나테크TOP10,K55105EK8991,K55105EK8991,삼성 KODEX 차이나테크TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+372330,KODEX 차이나항셍테크,K55105DB9181,K55105DB9181,삼성KODEX 차이나항셍테크증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0048K0,KODEX 차이나휴머노이드로봇,K55105EJ5511,K55105EJ5511,삼성 KODEX 차이나휴머노이드로봇증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+117680,KODEX 철강,KR5105171510,KR5105171510,삼성KODEX철강증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+279540,KODEX 최소변동성,K55105BW6671,K55105BW6671,삼성KODEX 최소변동성 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+445150,KODEX 친환경조선해운액티브,K55105DW7461,K55105DW7461,삼성 KODEX 친환경조선해운액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+211900,KODEX 코리아배당성장,K55105B99147,KR5105AX7259,삼성 KODEX 코리아배당성장증권상장지수투자신탁[주식],KR5105AX7259,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20251020144727705.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+237370,KODEX 코리아배당성장채권혼합,K55105B99147,K55105B99147,삼성 KODEX 코리아배당성장채권혼합증권상장지수투자신탁[채권혼합],K55105B99147,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20161206/2ETF58_20161130.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+495850,KODEX 코리아밸류업,K55105EF9186,K55105EF9186,삼성 KODEX 코리아밸류업증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0115E0,KODEX 코리아소버린AI,K55105EN8626,K55105EN8626,삼성 KODEX 코리아소버린AI증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+373490,KODEX 코리아혁신성장액티브,K55105DC4892,K55105DC4892,삼성 KODEX 코리아혁신성장액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+229200,KODEX 코스닥150,K55105D60640,K55105B74603,삼성KODEX코스닥150증권상장지수투자신탁[주식],K55105B74603,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260406/2ETF54_20260331.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+233740,KODEX 코스닥150레버리지,K55105B91912,K55105B91912,삼성KODEX코스닥150레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+360150,KODEX 코스닥150롱코스피200숏선물,K55105D60640,K55105D60640,삼성KODEX 코스닥150롱코스피200숏 선물증권상장지수투자신탁[주식-파생형],K55105D60640,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20251013/2ETFD4_20250930.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+461450,KODEX 코스닥글로벌,K55105E22598,K55105E22598,삼성KODEX 코스닥글로벌증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+226490,KODEX 코스피,K55105B62905,K55105B62905,삼성KODEX 코스피증권상장지수투자신탁[주식],K55105B62905,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/eng/etf/product/view.do?id=2ETF52,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+237350,KODEX 코스피100,K55105B98537,K55105B98537,삼성 KODEX 코스피100 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+337140,KODEX 코스피대형주,K55105CX1886,K55105CX1886,삼성KODEX 코스피대형주증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+244660,KODEX 퀄리티Plus,K55105BD0578,K55105BD0578,삼성KODEX퀄리티PLUS증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+375770,KODEX 탄소효율그린뉴딜,K55105DD7480,K55105DD7480,삼성KODEX 탄소효율그린뉴딜증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+459560,KODEX 테슬라밸류체인FactSet,K55105E22382,K55105E22382,삼성KODEX 테슬라밸류체인FactSet증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475080,KODEX 테슬라커버드콜채권혼합액티브,K55105E76727,K55105E76727,삼성 KODEX 테슬라커버드콜채권혼합액티브증권상장지수투자신탁[채권혼합-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266410,KODEX 필수소비재,K55105BM5600,K55105BM5600,삼성KODEX 필수소비재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+298770,KODEX 한국대만IT프리미어,K55105C75384,K55105C75384,삼성KODEX한국대만IT프리미어증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476800,KODEX 한국부동산리츠인프라,K55105E84051,K55105E84051,삼성 KODEX 한국부동산리츠인프라부동산상장지수투자신탁[재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266420,KODEX 헬스케어,K55105BM4843,K55105BM4843,삼성KODEX헬스케어증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+364690,KODEX 혁신기술테마액티브,K55105D92619,K55105D92619,삼성KODEX 혁신기술테마액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0204D0,KODEX 현대차로보틱스밸류체인TOP3플러스,K55105EV4203,K55105EV4203,삼성 KODEX 현대차로보틱스밸류체인TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+487130,KoAct AI인프라액티브,K553N9EC3266,K553N9EC3266,삼성액티브 KoAct AI인프라액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0074K0,KoAct K수출핵심기업TOP30액티브,K553N9EL0774,K553N9EL0774,삼성액티브 KoAct K수출핵심기업TOP30액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0222D0,KoAct 고배당액티브,K553N9EX6314,K553N9EX6314,삼성액티브 KoAct고배당액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0219B0,KoAct 광통신&위성네트워크액티브,K553N9EV4881,K553N9EV4881,삼성액티브 KoAct 광통신&위성네트워크액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471040,KoAct 글로벌AI&로봇액티브,K553N9E63887,K553N9E63887,삼성액티브 KoAct 글로벌AI&로봇액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0174B0,KoAct 글로벌AI메모리반도체액티브,K553N9EU0641,K553N9EU0641,삼성액티브 KoAct 글로벌AI메모리반도체액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0132D0,KoAct 글로벌K컬처밸류체인액티브,K553N9EP3691,K553N9EP3691,삼성액티브 KoAct 글로벌K컬처밸류체인액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0020H0,KoAct 글로벌양자컴퓨팅액티브,K553N9EH9532,K553N9EH9532,삼성액티브 KoAct 글로벌양자컴퓨팅액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475070,KoAct 글로벌친환경전력인프라액티브,K553N9E74926,K553N9E74926,삼성액티브 KoAct 글로벌친환경전력인프라액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0015B0,KoAct 미국나스닥성장기업액티브,K553N9EH5654,K553N9EH5654,삼성액티브 KoAct 미국나스닥성장기업액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0104H0,KoAct 미국나스닥채권혼합50액티브,K553N9EG1423,K553N9EG1423,삼성액티브 KoAct 미국나스닥채권혼합50액티브증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0186L0,KoAct 미국로봇피지컬AI액티브,K553N9ET5775,K553N9ET5775,삼성액티브 KoAct 미국로봇피지컬AI액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0113G0,KoAct 미국바이오헬스케어액티브,K553N9EP3964,K553N9EP3964,삼성액티브 KoAct 미국바이오헬스케어액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+497780,KoAct 미국천연가스인프라액티브,K553N9EF5557,K553N9EF5557,삼성액티브 KoAct 미국천연가스인프라액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+490330,KoAct 미국치매&뇌질환치료제액티브,K553N9ED6821,K553N9ED6821,삼성액티브 KoAct 미국치매&뇌질환치료제액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+462900,KoAct 바이오헬스케어액티브,K553N9E27494,K553N9E27494,삼성액티브 KoAct 바이오헬스케어액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+482030,KoAct 반도체&2차전지핵심소재액티브,K553N9E96812,K553N9E96812,삼성액티브 KoAct 반도체&2차전지핵심소재액티브상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476850,KoAct 배당성장액티브,K553N9E80501,K553N9E80501,삼성액티브 KoAct 배당성장액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0051A0,KoAct 브로드컴밸류체인액티브,K553N9EJ5488,K553N9EJ5488,삼성액티브 KoAct 브로드컴밸류체인액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0150K0,KoAct 수소전력ESS인프라액티브,K553N9EQ9994,K553N9EQ9994,삼성액티브 KoAct 수소전력ESS인프라액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0154H0,KoAct 차이나바이오헬스케어액티브,K553N9EM6598,K553N9EM6598,삼성액티브 KoAct 차이나바이오헬스케어액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495230,KoAct 코리아밸류업액티브,K553N9EF9468,K553N9EF9468,삼성액티브 KoAct 코리아밸류업액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0163Y0,KoAct 코스닥액티브,K553N9EU4486,K553N9EU4486,삼성액티브 KoAct 코스닥액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0193G0,KoAct 코스피액티브,K553N9EU7141,K553N9EU7141,삼성액티브 KoAct 코스피액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0093D0,KoAct 팔란티어밸류체인액티브,K553N9EF9815,K553N9EF9815,삼성액티브 KoAct 팔란티어밸류체인액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0232A0,MIDAS 머니마켓액티브,K55303EY2675,K55303EY2675,마이다스 MIDAS 머니마켓액티브 증권 상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0214M0,MIDAS 바이오헬스케어액티브,K55303EX5786,K55303EX5786,마이다스 MIDAS 바이오헬스케어액티브 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488290,MIDAS 일본테크액티브,K55303EC8553,K55303EC8553,마이다스 MIDAS 일본테크액티브 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+438740,MIDAS 중소형액티브,K55303DW3692,K55303DW3692,마이다스 MIDAS 중소형액티브 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0191B0,MIDAS 코스닥액티브,K55303EV2413,K55303EV2413,마이다스 MIDAS 코스닥액티브 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+403790,MIDAS 코스피액티브,K55303DM7976,K55303DM7976,마이다스 MIDAS 코스피액티브 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+152100,PLUS 200,K55213EW5851,KR5213A73001,한화 PLUS 200증권상장지수투자신탁(주식),KR5213A73001,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_200_20260529.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253150,PLUS 200선물레버리지,K55213BH1688,K55213BH1688,한화 PLUS 200선물레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+253160,PLUS 200선물인버스2X,K55213BH1662,K55213BH1662,한화 PLUS 200선물인버스2X증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0203D0,PLUS 200위클리커버드콜채권혼합,K55213EL4469,K55213EL4469,한화 PLUS 200위클리커버드콜채권혼합증권상장지수투자신탁(채권혼합-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0210E0,PLUS 200커버드콜액티브,K55213EW5851,K55213EW5851,한화 PLUS 200커버드콜액티브증권상장지수투자신탁(주식-파생형),K55213EW5851,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/insight/report/detail?n=2145,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+395750,PLUS ESG가치주액티브,K55213DK8967,K55213DK8967,한화 PLUS ESG가치주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+395760,PLUS ESG성장주액티브,K55213DK8959,K55213DK8959,한화 PLUS ESG성장주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453010,PLUS KOFR금리,K55213E07260,K55213E07260,한화 PLUS KOFR금리특별자산상장지수투자신탁(금리),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+429740,PLUS K리츠,K55213DT8232,K55213DT8232,한화 PLUS K리츠부동산상장지수투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449450,PLUS K방산,K55213EO3567,K55213DZ4142,한화 PLUS K방산증권상장지수투자신탁(주식),K55213DZ4142,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006192,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0104G0,PLUS K방산레버리지,K55213EO3567,K55213EO3567,한화 PLUS K방산레버리지증권상장지수투자신탁(주식-파생형),K55213EO3567,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006393,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0090B0,PLUS K방산소부장,K55213EM5713,K55213EM5713,한화 PLUS K방산소부장증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0166S0,PLUS K제조업핵심기업액티브,K55213ES1773,K55213ES1773,한화 PLUS K제조업핵심기업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+269530,PLUS S&P글로벌인프라,K55213BO6514,K55213BO6514,한화 PLUS S&P글로벌인프라 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0226A0,PLUS SK하이닉스샌디스크채권혼합50,K55213EW8111,K55213EW8111,한화 PLUS SK하이닉스샌디스크채권혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+251590,PLUS 고배당저변동50,K55213BG0087,K55213BG0087,한화 PLUS 고배당저변동50증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+161510,PLUS 고배당주,KR5213AC3237,KR5213AC3237,한화 PLUS 고배당주증권상장지수투자신탁(주식),KR5213AC3237,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EA%B3%A0%EB%B0%B0%EB%8B%B9%EC%A3%BC_20260430.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0018C0,PLUS 고배당주위클리고정커버드콜,K55213EH5827,K55213EH5827,한화 PLUS 고배당주위클리고정커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+489030,PLUS 고배당주위클리커버드콜,K55213ED8726,K55213ED8726,한화 PLUS 고배당주위클리커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+251600,PLUS 고배당주채권혼합,K55213BG0095,K55213BG0095,한화 PLUS 고배당주채권혼합증권상장지수투자신탁(채권혼합-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461460,PLUS 국고채10년액티브,K55213E35667,K55213E35667,한화 PLUS 국고채10년액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+451600,PLUS 국고채30년액티브,K55213E00166,K55213E00166,한화 PLUS 국고채30년액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491230,PLUS 국공채머니마켓액티브,K55213EE1068,K55213EE1068,한화 PLUS 국공채머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+289670,PLUS 국채선물10년,K55213C26454,K55213C26454,한화 PLUS 국채선물10년증권상장지수투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+298340,PLUS 국채선물3년,K55213C88959,K55213C88959,한화 PLUS 국채선물3년증권상장지수투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+442580,PLUS 글로벌HBM반도체,K55213DW6843,K55213DW6843,한화 PLUS 글로벌HBM반도체증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496770,PLUS 글로벌방산,K55213EF7411,K55213EF7411,한화 PLUS 글로벌방산증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+419650,PLUS 글로벌수소&차세대연료전지,K55213DQ0364,K55213DQ0364,한화 PLUS 글로벌수소&차세대연료전지증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0007G0,PLUS 글로벌원자력밸류체인,K55213EG9010,K55213EG9010,한화 PLUS 글로벌원자력밸류체인증권상장지수투자신탁(주식형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0166T0,PLUS 글로벌저작권핵심기업액티브,K55213ER7714,K55213ER7714,한화 PLUS 글로벌저작권핵심기업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0035T0,PLUS 글로벌휴머노이드로봇액티브,K55213EJ0693,K55213EJ0693,한화 PLUS 글로벌휴머노이드로봇액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+415920,PLUS 글로벌희토류&전략자원생산기업,K55213DH4276,K55213DH4276,한화 PLUS 글로벌희토류&전략자원생산기업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0138Y0,PLUS 금채권혼합,K55213EQ4548,K55213EQ4548,한화 PLUS 금채권혼합증권상장지수투자신탁(채권혼합-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+278620,PLUS 단기채권액티브,K55213BW6233,K55213BW6233,한화 PLUS 단기채권액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+477050,PLUS 머니마켓액티브,K55213E90027,K55213E90027,한화 PLUS 머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0050E0,PLUS 미국AI에이전트,K55213EJ2715,K55213EJ2715,한화 PLUS 미국AI에이전트증권상장지수투자신탁(주식형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+429760,PLUS 미국S&P500,K55213EK8776,K55213DS7136,한화 PLUS 미국S&P500 증권상장지수투자신탁(주식),K55213DS7136,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006346,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0057H0,PLUS 미국S&P500미국채혼합50액티브,K55213EK8776,K55213EK8776,한화 PLUS 미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합-재간접형),K55213EK8776,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EB%AF%B8%EA%B5%ADS%26P500%EB%AF%B8%EA%B5%AD%EC%B1%84%ED%98%BC%ED%95%A950%EC%95%A1%ED%8B%B0%EB%B8%8C_20260529.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+494410,PLUS 미국S&P500성장주,K55213EF0978,K55213EF0978,한화 PLUS 미국S&P500성장주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0153X0,PLUS 미국고배당주액티브,K55213ER2335,K55213ER2335,한화 PLUS 미국고배당주액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0089B0,PLUS 미국나스닥100미국채혼합50,K55213EM5556,K55213EM5556,한화 PLUS 미국나스닥100미국채혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+287180,PLUS 미국나스닥테크,K55213C03586,K55213C03586,한화 PLUS 미국나스닥테크증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+332610,PLUS 미국단기회사채(AAA~A),K55213CS6311,K55213CS6311,한화 PLUS 미국단기회사채(AAA~A)증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0078V0,PLUS 미국로보택시,K55213EL7496,K55213EL7496,한화 PLUS 미국로보택시증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494420,PLUS 미국배당증가성장주데일리커버드콜,K55213EF1380,K55213EF1380,한화 PLUS 미국배당증가성장주데일리커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0023B0,PLUS 미국양자컴퓨팅TOP10,K55213EI2682,K55213EI2682,한화 PLUS 미국양자컴퓨팅TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+332620,PLUS 미국장기우량회사채,K55213CS6329,K55213CS6329,한화 PLUS 미국장기우량회사채증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464470,PLUS 미국채30년액티브,K55213E52282,K55213E52282,한화 PLUS 미국채30년액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461900,PLUS 미국테크TOP10,K55213E31542,K55213E31534,한화 PLUS 미국테크TOP10증권상장지수투자신탁(주식),K55213E31534,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/customer/notice/detail?n=28085,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0193K0,PLUS 삼성전자단일종목레버리지,K55213EV7817,K55213EV7817,한화 PLUS 삼성전자단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0193L0,PLUS 삼성전자선물단일종목인버스2X,K55213EV7429,K55213EV7429,한화 PLUS 삼성전자선물단일종목인버스2X증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+238670,PLUS 스마트베타Quality채권혼합,K55213BA6478,K55213BA6478,한화 PLUS 스마트베타Quality채권혼합증권상장지수투자신탁(채권혼합-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+447660,PLUS 애플채권혼합,K55213DY4341,K55213DY4341,한화 PLUS 애플채권혼합증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+239660,PLUS 우량회사채50,K55213BB5131,K55213BB5131,한화 PLUS 우량회사채50증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+421320,PLUS 우주항공,K55213DR8713,K55213DR8713,한화 PLUS 우주항공 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0184N0,PLUS 은채권혼합,K55213EU0276,K55213EU0276,한화 PLUS 은채권혼합증권상장지수투자신탁(채권혼합-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464920,PLUS 일본반도체소부장,K55213E52290,K55213E52290,한화 PLUS 일본반도체소부장증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0098N0,PLUS 자사주매입고배당주,K55213EM9962,K55213EM9962,한화 PLUS 자사주매입고배당주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+451000,PLUS 종합채권(AA-이상)액티브,K55213DZ2997,K55213DZ2997,한화 PLUS 종합채권(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+280920,PLUS 주도업종,K55213BX8006,K55213BX8006,한화 PLUS 주도업종증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0184L0,PLUS 중기종합채권(A-이상)액티브,K55213ES9693,K55213ES9693,한화 PLUS 중기종합채권(A-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266550,PLUS 중형주저변동50,K55213BL2888,K55213BL2888,한화 PLUS 중형주저변동50증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0047N0,PLUS 차이나AI테크TOP10,K55213EJ9835,K55213EJ9835,한화 PLUS 차이나AI테크TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0128D0,PLUS 차이나항셍테크위클리타겟커버드콜,K55213EP1719,K55213EP1719,한화 PLUS 차이나항셍테크위클리타겟커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495040,PLUS 코리아밸류업,K55213EF9375,K55213EF9375,한화 PLUS 코리아밸류업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+301400,PLUS 코스닥150,K55213C86276,K55213C86268,한화 PLUS 코스닥150증권상장지수투자신탁(주식),K55213C86268,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006318,MULTIPLE_NAME_CANDIDATES,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+0166N0,PLUS 코스닥150액티브,K55213EN8047,K55213EN8047,한화 PLUS 코스닥150액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+227830,PLUS 코스피,K55213B72955,K55213B72955,한화 PLUS 코스피증권상장지수투자신탁(주식),K55213B72955,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EC%BD%94%EC%8A%A4%ED%94%BC_20260529.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+122090,PLUS 코스피50,KR5213185071,KR5213185071,한화 PLUS 코스피50증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+457990,PLUS 태양광&ESS,K55213E13359,K55213E13359,한화 PLUS 태양광&ESS증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0132K0,PLUS 테슬라위클리커버드콜채권혼합,K55213EP3905,K55213EP3905,한화 PLUS 테슬라위클리커버드콜채권혼합증권상장지수투자신탁(채권혼합-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0000J0,PLUS 한화그룹주,K55213EG3153,K55213EG3153,한화 PLUS 한화그룹주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+148020,RISE 200,KR5223AL4166,KR5223A66905,KB RISE 200 증권 상장지수 투자신탁(주식),KR5223A66905,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4435,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+290080,RISE 200고배당커버드콜ATM,K55223C37096,K55223C37096,KB RISE 200 고배당 커버드콜 ATM 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+284980,RISE 200금융,K55223C02611,K55223C02611,KB RISE 200 금융 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252400,RISE 200선물레버리지,K55223BG9631,K55223BG9631,KB RISE 200선물레버리지 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252410,RISE 200선물인버스,K55223BH1595,K55223BG9649,KB RISE 200선물인버스 증권 상장지수 투자신탁(주식-파생형),K55223BG9649,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4448,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+252420,RISE 200선물인버스2X,K55223BH1595,K55223BH1595,KB RISE 200선물인버스2X 증권 상장지수 투자신탁(주식-파생형),K55223BH1595,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4449,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+475720,RISE 200위클리커버드콜,K55223E88442,K55223E88442,KB RISE 200위클리커버드콜 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+183700,RISE 200채권혼합50,KR5223AL4166,KR5223AL4166,KB RISE 200채권혼합50증권상장지수투자신탁(채권혼합),KR5223AL4166,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/cust/notice/162,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0122W0,RISE 26-11 회사채(AA-이상)액티브,K55223EP2954,K55223EP2954,KB RISE 26-11회사채(AA-이상)액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465330,RISE 2차전지TOP10,K55223E57140,K55223E57140,KB RISE 2차전지TOP10iSelect 증권 상장지수 투자신탁(주식),K55223E57140,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://riseetf.co.kr/upload/cdn/2026/06/10/20260610213e708ce01d4e4.pdf,MULTIPLE_NAME_CANDIDATES,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+422420,RISE 2차전지액티브,K55223DS8611,K55223DS8611,KB RISE 2차전지액티브 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+105780,RISE 5대그룹주,KR5223884903,KR5223884903,KB RISE 5대그룹주 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469070,RISE AI&로봇,K55223E63783,K55223E63783,KB RISE AI&로봇 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0093A0,RISE AI반도체TOP10,K55223EM4862,K55223EM4862,KB RISE AI반도체TOP10 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0101N0,RISE AI전력인프라,K55223EN7310,K55223EN7310,KB RISE AI전력인프라 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+427120,RISE AI플랫폼,K55223DT7141,K55223DT7141,KB RISE AI플랫폼 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+290130,RISE ESG사회책임투자,K55223C37088,K55223C37088,KB RISE ESG 사회책임투자 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+326240,RISE IT플러스,K55223CR0578,K55223CR0578,KB RISE IT플러스 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385560,RISE KIS국고채30년Enhanced,K55223DJ2151,K55223DJ2151,KB RISE KIS국고채30년Enhanced 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+270800,RISE KQ고배당,K55223BR9539,K55223BR9539,KB RISE KQ 고배당 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292050,RISE KRX300,K55223C53515,K55223C53515,KB RISE KRX300 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+388280,RISE K엔터&여행레저,K55223DJ8893,K55223DJ8893,KB RISE K엔터&여행레저 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0192L0,RISE SK하이닉스단일종목레버리지,K55223ET8619,K55223ET8619,KB RISE SK하이닉스단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+234310,RISE V&S셀렉트밸류,K55223BB7382,K55223B91129,KB RISE V&S 셀렉트밸류 증권 상장지수 투자신탁(주식),K55223B91129,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4444?searchFlag=viewtab1,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+241390,RISE V&S셀렉트밸류채권혼합,K55223BB7382,K55223BB7382,KB RISE V&S 셀렉트밸류 채권혼합 증권 상장지수 투자신탁(채권혼합),K55223BB7382,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://riseetf.co.kr/prod/finderDetail/4445,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+300640,RISE 게임테마,K55223CB7639,K55223CB7639,KB RISE 게임테마 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+266160,RISE 고배당,K55223BM7066,K55223BM7066,KB RISE 고배당 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481430,RISE 국고채10년액티브,K55223EB1440,K55223EB1440,KB RISE 국고채10년액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+114100,RISE 국고채3년,KR5223149026,KR5223149026,KB RISE 국고채3년 증권 상장지수 투자신탁(채권),KR5223149026,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4427?searchFlag=viewtab3,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+282000,RISE 국고채3년선물인버스,K55223BY8797,K55223BY8797,KB RISE 국고채3년선물 인버스 증권 상장지수 투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+295000,RISE 국채선물10년,K55223C82712,K55223C82712,KB RISE 국채선물10년 증권 상장지수 투자신탁(채권-파생형),K55223C82712,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4482,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+295020,RISE 국채선물10년인버스,K55223C82720,K55223C82720,KB RISE 국채선물10년 인버스 증권 상장지수 투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+432600,RISE 국채선물3년,K55223DU5613,K55223DU5613,KB RISE 국채선물3년 증권 상장지수 투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0233N0,RISE 글로벌AI낸드메모리반도체,K55223EX9892,K55223EX9892,KB RISE 글로벌AI낸드메모리반도체 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0114X0,RISE 글로벌게임테크TOP3Plus,K55223EO3532,K55223EO3532,KB RISE 글로벌게임테크TOP3Plus 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+437370,RISE 글로벌농업경제,K55223DV1611,K55223DV1611,KB RISE 글로벌농업경제MV 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475380,RISE 글로벌리얼티인컴,K55223E85695,K55223E85695,KB RISE 글로벌리얼티인컴 부동산 상장지수 투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476310,RISE 글로벌비만산업TOP2+,K55223E89259,K55223E89259,KB RISE 글로벌비만산업TOP2+ 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+417450,RISE 글로벌수소경제,K55223DQ9652,K55223DQ9652,KB RISE 글로벌수소경제Indxx 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+442320,RISE 글로벌원자력,K55223DX4944,K55223DX4944,KB RISE 글로벌원자력iSelect 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461490,RISE 글로벌자산배분액티브,K55223E34636,K55223E34636,KB RISE 글로벌자산배분액티브 증권 상장지수 투자신탁(혼합-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+459750,RISE 글로벌주식분산액티브,K55223E32523,K55223E32523,KB RISE 글로벌주식분산액티브 증권 상장지수 투자신탁(주식-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+399580,RISE 글로벌클린에너지,K55223DK6670,K55223DK6670,KB RISE 글로벌클린에너지S&P 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+336160,RISE 금융채액티브,K55223CW3484,K55223CW3484,KB RISE 금융채액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+326230,RISE 내수주플러스,K55223CR0586,K55223CR0586,KB RISE 내수주플러스 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+367760,RISE 네트워크인프라,K55223DB4882,K55223DB4882,KB RISE 네트워크인프라 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+272560,RISE 단기국공채액티브,K55223BR5941,K55223BR5941,KB RISE 단기 국공채 액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385550,RISE 단기채권알파액티브,K55223DJ2169,K55223DJ2169,KB RISE 단기채권알파액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+196230,RISE 단기통안채,KR5223AO8602,KR5223AO8602,KB RISE 단기통안채 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0061Z0,RISE 단기특수은행채액티브,K55223EJ5633,K55223EJ5633,KB RISE 단기특수은행채액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0138D0,RISE 동학개미,K55223EO3508,K55223EO3508,KB RISE 동학개미 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+455890,RISE 머니마켓액티브,K55223E22581,K55223E22581,KB RISE 머니마켓액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481340,RISE 미국30년국채액티브,K55223EB1457,K55223EB1457,KB RISE 미국30년국채액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+485690,RISE 미국AI밸류체인TOP3Plus,K55223EB6860,K55223EB6860,KB RISE 미국AI밸류체인TOP3Plus증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+490590,RISE 미국AI밸류체인데일리고정커버드콜,K55223ED1158,K55223ED1158,KB RISE 미국AI밸류체인데일리고정커버드콜 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0176E0,RISE 미국AI전력인프라액티브,K55223ER9114,K55223ER9114,KB RISE 미국AI전력인프라액티브 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0127R0,RISE 미국AI클라우드인프라,K55223EP2913,K55223EP2913,KB RISE 미국AI클라우드인프라 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495940,RISE 미국AI테크액티브,K55223EF7427,K55223EF7427,KB RISE 미국AI테크액티브 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+379780,RISE 미국S&P500,K55223EP9769,K55223DG4176,KB RISE 미국S&P500 증권 상장지수 투자신탁(주식),K55223DG4176,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/44B3,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0138T0,RISE 미국S&P500데일리고정커버드콜,K55223EP9769,K55223EP9769,KB RISE 미국S&P500데일리고정커버드콜 증권 상장지수 투자신탁(주식),K55223EP9769,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/44J9,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+460660,RISE 미국S&P배당킹,K55223E34644,K55223E34644,KB RISE 미국S&P배당킹 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0115C0,RISE 미국고배당다우존스TOP10,K55223EP0586,K55223EP0586,KB RISE 미국고배당다우존스TOP10 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+354240,RISE 미국고정배당우선증권,K55223D48455,K55223D48455,KB RISE 미국고정배당우선증권ICE 증권 상장지수 투자신탁(주식혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+368590,RISE 미국나스닥100,K55223DB4908,K55223DB4908,KB RISE 미국나스닥100 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+437350,RISE 미국단기투자등급회사채액티브,K55223DV1603,K55223DV1603,KB RISE 미국단기투자등급회사채액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469530,RISE 미국달러선물인버스,K55223E65788,K55223E65788,KB RISE 미국달러선물인버스 특별자산 상장지수 투자신탁(미국달러-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469060,RISE 미국반도체NYSE,K55223E65903,K55223E65903,KB RISE 미국반도체NYSE 증권 상장지수 투자신탁(주식),K55223E65903,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/44F3?searchFlag=viewtab3,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+490600,RISE 미국배당100데일리고정커버드콜,K55223ED1166,K55223ED1166,KB RISE 미국배당100데일리고정커버드콜 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0018Z0,RISE 미국양자컴퓨팅,K55223EI0494,K55223EI0494,KB RISE 미국양자컴퓨팅증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0218J0,RISE 미국우주&로봇TOP2미국채혼합50,K55223EW8028,K55223EW8028,KB RISE 미국우주&로봇TOP2미국채혼합50 증권 상장지수 투자신탁(채권혼합-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0227K0,RISE 미국우주위성통신,K55223EX7284,K55223EX7284,KB RISE 미국우주위성통신 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0013P0,RISE 미국은행TOP10,K55223EH4240,K55223EH4240,KB RISE 미국은행TOP10 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0036Z0,RISE 미국천연가스밸류체인,K55223EJ0162,K55223EJ0162,KB RISE 미국천연가스밸류체인 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491620,RISE 미국테크100데일리고정커버드콜,K55223ED9417,K55223ED9417,KB RISE 미국테크100데일리고정커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0036R0,RISE 미국휴머노이드로봇,K55223EJ0170,K55223EJ0170,KB RISE 미국휴머노이드로봇 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0000Z0,RISE 바이오TOP10액티브,K55223EG4761,K55223EG4761,KB RISE 바이오TOP10액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+446700,RISE 배터리 리사이클링,K55223DY3945,K55223DY3945,KB RISE 배터리리사이클링iSelect 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475350,RISE 버크셔포트폴리오TOP10,K55223E85687,K55223E85687,KB RISE 버크셔포트폴리오TOP10 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+388420,RISE 비메모리반도체액티브,K55223DJ8901,K55223DJ8901,KB RISE 비메모리반도체액티브 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448630,RISE 삼성그룹Top3채권혼합,K55223DY8589,K55223DY8589,KB RISE 삼성그룹Top3채권혼합블룸버그 증권 상장지수 투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0162Z0,RISE 삼성전자SK하이닉스채권혼합50,K55223ES6754,K55223ES6754,KB RISE 삼성전자SK하이닉스채권혼합50 증권 상장지수 투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0192M0,RISE 삼성전자단일종목레버리지,K55223ET8601,K55223ET8601,KB RISE 삼성전자단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+140570,RISE 수출주,KR5223A20043,KR5223A20043,KB RISE 수출주 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0093B0,RISE 엔비디아고정테크100,K55223EM3724,K55223EM3724,KB RISE 엔비디아고정테크100 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+140580,RISE 우량업종대표주,KR5223A20027,KR5223A20027,KB RISE 우량업종대표주 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+498610,RISE 인도디지털성장,K55223EF1479,K55223EF1479,KB RISE 인도디지털성장증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488480,RISE 일본섹터TOP4Plus,K55223EC5739,K55223EC5739,KB RISE 일본섹터TOP4Plus증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385540,RISE 종합채권(A-이상)액티브,K55223DJ2177,K55223DJ2177,KB RISE 종합채권(A-이상)액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+183710,RISE 주식혼합,KR5223AL4158,KR5223AL4158,KB RISE 주식혼합증권상장지수투자신탁(주식혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463300,RISE 중국본토CSI300,K55223E45640,K55223E45640,KB RISE 중국본토CSI300 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+174360,RISE 중국본토대형주CSI100,KR5223AI2538,KR5223AI2538,KB RISE 중국본토 대형주 CSI100 증권 상장지수 자투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+136340,RISE 중기우량회사채,KR5223970371,KR5223970371,KB RISE 중기우량 회사채 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+281990,RISE 중소형고배당,K55223BY3509,K55223BY3509,KB RISE 중소형 고배당 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+272570,RISE 중장기국공채액티브,K55223BR5958,K55223BR5958,KB RISE 중장기 국공채 액티브 증권 상장지수 투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0164G0,RISE 차이나AI반도체TOP4Plus,K55223ER9122,K55223ER9122,KB RISE 차이나AI반도체TOP4Plus 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0094L0,RISE 차이나테크TOP10위클리타겟커버드콜,K55223EL4301,K55223EL4301,KB RISE 차이나테크TOP10위클리타겟커버드콜 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371150,RISE 차이나항셍테크,K55223DC9849,K55223DC9849,KB RISE 차이나항셍테크 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+498860,RISE 코리아금융고배당,K55223EG3144,K55223EG3144,KB RISE 코리아금융고배당 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495050,RISE 코리아밸류업,K55223EM9762,K55223EF9191,KB RISE 코리아밸류업 증권 상장지수 투자신탁(주식),K55223EF9191,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/upload/cdn/2026/04/09/202604091474bd36f2a041c.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0094M0,RISE 코리아밸류업위클리고정커버드콜,K55223EM9762,K55223EM9762,KB RISE 코리아밸류업위클리고정커버드콜 증권 상장지수 투자신탁(주식-파생형),K55223EM9762,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/en,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0151P0,RISE 코리아전략산업액티브,K55223ER2267,K55223ER2267,KB RISE 코리아전략산업액티브 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+270810,RISE 코스닥150,K55223BT0197,K55223BQ7476,KB RISE 코스닥 150 증권 상장지수 투자신탁(주식),K55223BQ7476,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4459,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+278240,RISE 코스닥150선물레버리지,K55223BV8089,K55223BV8089,KB RISE 코스닥150선물레버리지 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+275750,RISE 코스닥150선물인버스,K55223BT0197,K55223BT0197,KB RISE 코스닥150선물인버스증권 상장지수 투자신탁(주식-파생형),K55223BT0197,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4463,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0223A0,RISE 코스닥커버드콜액티브,K55223ET8569,K55223ET8569,KB RISE 코스닥커버드콜액티브 증권 상장지수 투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+302450,RISE 코스피,K55223CC1474,K55223CC1474,KB RISE 코스피 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0047P0,RISE 테슬라고정테크100,K55223EJ7027,K55223EJ7027,KB RISE 테슬라고정테크100 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449580,RISE 테슬라애플아마존채권혼합,K55223DZ2888,K55223DZ2888,KB RISE 테슬라애플아마존채권혼합iSelect 증권 상장지수 투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0047R0,RISE 팔란티어고정테크100,K55223EJ7035,K55223EJ7035,KB RISE 팔란티어고정테크100 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+253280,RISE 헬스케어,K55223BH3559,K55223BH3559,KB RISE 헬스케어 증권 상장지수 투자신탁(주식),K55223BH3559,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.riseetf.co.kr/upload/cdn/2026/05/12/20260512828d6d1c5c09427.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253290,RISE 헬스케어채권혼합,K55223BH3617,K55223BH3617,KB RISE 헬스케어 채권혼합 증권 상장지수 투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0190C0,RISE 현대차고정피지컬AI,K55223ET9427,K55223ET9427,KB RISE 현대차고정피지컬AI 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+411540,SOL 200 Top10,K55210DP5615,K55210DP5615,신한SOL200TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0167B0,SOL 200타겟위클리커버드콜,K55210ES7153,K55210ES7153,신한 SOL 200타겟위클리커버드콜증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488980,SOL 26-12 회사채(AA-이상)액티브,K55210EC9603,K55210EC9603,신한SOL26-12회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0092C0,SOL 27-12 회사채(AA-이상)액티브,K55210EM3463,K55210EM3463,신한SOL27-12회사채(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+455860,SOL 2차전지소부장Fn,K55210E15681,K55210E15681,신한SOL2차전지소부장Fn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0167A0,SOL AI반도체TOP2플러스,K55210ES7146,K55210ES7146,신한 SOL AI반도체TOP2플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+455850,SOL AI반도체소부장,K55210E09965,K55210E09965,신한SOL AI반도체소부장증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+497880,SOL CD금리&머니마켓액티브,K55210EF7273,K55210EF7273,신한SOLCD금리&머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+363510,SOL KIS단기통안채,K55210D56182,K55210D56182,신한 SOL KIS단기통안채증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292500,SOL KRX300,K55210C43489,K55210C43489,신한 SOL KRX300증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+404650,SOL KRX기후변화솔루션,K55210DO1706,K55210DO1706,신한SOLKRX기후변화솔루션증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+490480,SOL K방산,K55210EE0741,K55210EE0741,신한SOL K방산증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0197W0,SOL SK하이닉스단일종목레버리지,K55210EV5947,K55210EV5947,신한 SOL SK하이닉스단일종목레버리지증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0197X0,SOL SK하이닉스선물단일종목인버스2X,K55210EV5962,K55210EV5962,신한 SOL SK하이닉스선물단일종목인버스2X증권상장지수투자신탁[주식-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+438570,SOL 국고채10년,K55210DW6804,K55210DW6804,신한SOL국고채10년증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+474390,SOL 국고채30년액티브,K55210E79489,K55210E79489,신한SOL국고채30년액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+438560,SOL 국고채3년,K55210DW6796,K55210DW6796,신한SOL국고채3년증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0066W0,SOL 국제금,K55210EH0144,K55210EK7169,신한SOL국제금특별자산상장지수투자신탁[금-재간접형],K55210EK7169,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0022T0,SOL 국제금커버드콜액티브,K55210EH0144,K55210EH0144,신한SOL국제금커버드콜액티브특별자산상장지수투자신탁[금-파생재간접형],K55210EH0144,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/main?selectedLanguage=ko,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+423170,SOL 글로벌AI반도체탑픽액티브,K55210DS2478,K55210DS2478,신한SOL글로벌AI반도체탑픽액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+484880,SOL 금융지주플러스고배당,K55210EB4720,K55210EB4720,신한SOL금융지주플러스고배당증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+484890,SOL 머니마켓액티브,K55210EB3979,K55210EB3979,신한SOL머니마켓액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+479620,SOL 미국AI반도체칩메이커,K55210E99222,K55210E99222,신한SOL미국AI반도체칩메이커증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481180,SOL 미국AI소프트웨어,K55210EA9985,K55210EA9985,신한SOL미국AI소프트웨어증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+486450,SOL 미국AI전력인프라,K55210EC2509,K55210EC2509,신한SOL미국AI전력인프라증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433330,SOL 미국S&P500,K55210EF7513,K55210DU6020,신한SOL미국S&P500증권상장지수투자신탁[주식],K55210DU6020,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/strategy/pension?tabIndex=2,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+399110,SOL 미국S&P500ESG,K55210DM8224,K55210DM8224,신한SOL미국S&P500ESG증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0080X0,SOL 미국S&P500미국채혼합50,K55210EL7325,K55210EL7325,신한SOL미국S&P500미국채혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+447620,SOL 미국TOP5채권혼합50,K55210DY4419,K55210DY4419,신한SOL미국TOP5채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476030,SOL 미국나스닥100,K55210E88118,K55210E88118,신한SOL미국나스닥100증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0118S0,SOL 미국넥스트테크TOP10액티브,K55210EN6374,K55210EN6374,신한SOL미국넥스트테크TOP10액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+446720,SOL 미국배당다우존스,K55210DY2868,K55210DY2868,신한SOL미국배당다우존스증권상장지수투자신탁[주식],K55210DY2868,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+493420,SOL 미국배당다우존스2호,K55210EE8074,K55210EE8074,신한SOL미국배당다우존스2호증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+490490,SOL 미국배당미국채혼합50,K55210EE0519,K55210EE0519,신한SOL미국배당미국채혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0023A0,SOL 미국양자컴퓨팅TOP10,K55210EE4925,K55210EE4925,신한SOL미국양자컴퓨팅TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0181L0,SOL 미국우주항공TOP10,K55210ET5800,K55210ET5800,신한SOL미국우주항공TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0051G0,SOL 미국원자력SMR,K55210EJ6834,K55210EJ6834,신한SOL미국원자력SMR증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481190,SOL 미국테크TOP10,K55210EB0017,K55210EB0009,신한SOL미국테크TOP10증권상장지수투자신탁[주식],K55210EB0009,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211059,MULTIPLE_NAME_CANDIDATES,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+475300,SOL 반도체전공정,K55210E84638,K55210E84638,신한SOL반도체전공정증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475310,SOL 반도체후공정,K55210E84646,K55210E84646,신한SOL반도체후공정증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0152E0,SOL 배당성향탑픽액티브,K55210ER5141,K55210ER5141,신한SOL배당성향탑픽액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0207G0,SOL 우주항공밸류체인,K55210EV7778,K55210EV7778,신한SOL우주항공밸류체인증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464610,SOL 의료기기소부장Fn,K55210E48559,K55210E48559,신한SOL의료기기소부장Fn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+466930,SOL 자동차TOP3플러스,K55210E57717,K55210E57717,신한SOL자동차TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464600,SOL 자동차소부장Fn,K55210E48609,K55210E48609,신한SOL자동차소부장Fn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0005D0,SOL 전고체배터리&실리콘음극재,K55210EG4402,K55210EG4402,신한SOL전고체배터리&실리콘음극재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+466920,SOL 조선TOP3플러스,K55210EL7416,K55210E57725,신한SOL조선TOP3플러스증권상장지수투자신탁[주식],K55210E57725,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211028?tabIndex=1,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0080Y0,SOL 조선TOP3플러스레버리지,K55210EL7416,K55210EL7416,신한SOL조선TOP3플러스레버리지증권상장지수투자신탁[주식-파생형],K55210EL7416,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211094,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0141S0,SOL 조선기자재,K55210EQ3030,K55210EQ3030,신한SOL조선기자재증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+436140,SOL 종합채권(AA-이상)액티브,K55210DV5914,K55210DV5914,신한SOL종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0141T0,SOL 중기종합채권(AA-이상)액티브,K55210EQ3055,K55210EQ3055,신한SOL중기종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0016X0,SOL 중단기회사채(A-이상)액티브,K55210EH5770,K55210EH5770,신한SOL중단기회사채(A-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0131A0,SOL 차이나소비트렌드,K55210EP5036,K55210EP5036,신한SOL차이나소비트렌드증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469830,SOL 초단기채권액티브,K55210E67161,K55210E67161,신한SOL초단기채권액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0105E0,SOL 코리아고배당,K55210EN5491,K55210EN5491,신한SOL코리아고배당증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+444200,SOL 코리아메가테크액티브,K55210DX6936,K55210DX6936,신한SOL코리아메가테크액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+450910,SOL 코스닥150,K55210DZ4459,K55210DZ4459,신한SOL코스닥150증권상장지수투자신탁[주식],K55210DZ4459,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0192T0,SOL 코스닥TOP10,K55210EU9981,K55210EU9981,신한SOL코스닥TOP10증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0192S0,SOL 코스피200채권혼합50,K55210EU9643,K55210EU9643,신한SOL코스피200채권혼합50증권상장지수투자신탁[채권혼합],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0040X0,SOL 팔란티어미국채커버드콜혼합,K55210EI9243,K55210EI9243,신한SOL팔란티어미국채커버드콜혼합증권상장지수투자신탁[채권혼합-파생재간접형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0040Y0,SOL 팔란티어커버드콜OTM채권혼합,K55210EI9250,K55210EI9250,신한SOL팔란티어커버드콜OTM채권혼합증권상장지수투자신탁[채권혼합-파생형],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0105D0,SOL 한국AI소프트웨어,K55210EN5913,K55210EN5913,신한SOL한국AI소프트웨어증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0092B0,SOL 한국원자력SMR,K55210EM3158,K55210EM3158,신한SOL한국원자력SMR증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+429980,SOL 한국형글로벌전기차&2차전지액티브,K55210DU0411,K55210DU0411,신한SOL한국형글로벌전기차&2차전지액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0008T0,SOL 화장품TOP3플러스,K55210EG9039,K55210EG9039,신한SOL화장품TOP3플러스증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+102110,TIGER 200,K55301B69897,KR5225812712,미래에셋TIGER200 증권상장지수투자신탁(주식),,PENDING,,,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,유일 변경 후보. 공식 상품 페이지 접근 제한과 검색 미확인으로 보류
+139260,TIGER 200 IT,KR5225A18067,KR5225A18067,미래에셋TIGER200IT증권상장지수투자신탁(주식),KR5225A18067,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126005319.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139220,TIGER 200 건설,KR5225A18018,KR5225A18018,미래에셋TIGER200건설증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+139290,TIGER 200 경기소비재,KR5225A18026,KR5225A18026,미래에셋TIGER200경기소비재증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+139270,TIGER 200 금융,KR5225A18034,KR5225A18034,미래에셋TIGER200금융증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+227550,TIGER 200 산업재,K55301B69905,K55301B69905,미래에셋TIGER200산업재증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+227560,TIGER 200 생활소비재,K55301B69913,K55301B69913,미래에셋TIGER200생활소비재증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+139250,TIGER 200 에너지화학,KR5225A18042,KR5225A18042,미래에셋TIGER200에너지화학증권상장지수투자신탁(주식),KR5225A18042,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250804095126009393.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139230,TIGER 200 중공업,KR5225A18083,KR5225A18083,미래에셋TIGER200중공업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+139240,TIGER 200 철강소재,KR5225A18091,KR5225A18091,미래에셋TIGER200철강소재증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+227540,TIGER 200 헬스케어,K55301B69897,K55301B69897,미래에셋TIGER200헬스케어증권상장지수투자신탁(주식),K55301B69897,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20241226044241006284.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+243880,TIGER 200IT레버리지,K55301BD4689,K55301BD4689,미래에셋TIGER200IT레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252000,TIGER 200동일가중,K55301BG7119,K55301BG7119,미래에셋TIGER200동일가중증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+267770,TIGER 200선물레버리지,K55301BO0239,K55301BO0239,미래에셋TIGER200선물레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+252710,TIGER 200선물인버스2X,K55301BH0360,K55301BH0360,미래에셋TIGER200선물인버스2X증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+243890,TIGER 200에너지화학레버리지,K55301BD4697,K55301BD4697,미래에셋TIGER200에너지화학레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+315270,TIGER 200커뮤니케이션서비스,K55301CI8700,K55301CI8700,미래에셋TIGER200커뮤니케이션서비스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+289480,TIGER 200커버드콜,K55301C25806,K55301C25806,미래에셋TIGER200커버드콜증권상장지수투자신탁(주식-파생형),K55301C25806,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022909008067.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+166400,TIGER 200커버드콜OTM,KR5301AC6688,KR5301AC6688,미래에셋 TIGER 200커버드콜OTM 증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0104N0,TIGER 200타겟위클리커버드콜,K55301EN6416,K55301EN6416,미래에셋TIGER200타겟위클리커버드콜증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+480260,TIGER 27-04회사채(A+이상)액티브,K55301E99955,K55301E99955,미래에셋 TIGER 27-04회사채(A+이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0094K0,TIGER 28-04 회사채(A+이상)액티브,K55301EM5013,K55301EM5013,미래에셋TIGER28-04회사채(A+이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+364980,TIGER 2차전지TOP10,K55301DA5554,K55301DA5554,미래에셋 TIGER 2차전지 TOP10 증권상장지수투자신탁(주식),K55301DA5554,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095324007939.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+412570,TIGER 2차전지TOP10레버리지,K55301DN9130,K55301DN9130,미래에셋 TIGER 2차전지TOP10 레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+462010,TIGER 2차전지소재Fn,K55301E34416,K55301E34416,미래에셋 TIGER 2차전지소재Fn증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+305540,TIGER 2차전지테마,K55301CC8524,K55301CC8524,미래에셋TIGER2차전지테마증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471760,TIGER AI반도체핵심공정,K55301E68273,K55301E68273,미래에셋 TIGER AI반도체핵심공정증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+365040,TIGER AI코리아그로스액티브,K55301D98900,K55301D98900,미래에셋 TIGER AI코리아그로스액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+364960,TIGER BBIG,K55301DA5547,K55301DA5547,미래에셋 TIGER BBIG 증권상장지수투자신탁(주식),K55301DA5547,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250219110509004043.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+412560,TIGER BBIG레버리지,K55301DN9403,K55301DN9403,미래에셋 TIGER BBIG 레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+400970,TIGER Fn메타버스,K55301DM9925,K55301DM9925,미래에셋 TIGER Fn메타버스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+377990,TIGER Fn신재생에너지,K55301DE7374,K55301DE7374,미래에셋 TIGER Fn신재생에너지증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+417630,TIGER KEDI혁신기업ESG30,K55301DQ0219,K55301DQ0219,미래에셋 TIGER KEDI혁신기업ESG30증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292160,TIGER KRX300,K55301C47735,K55301C47735,미래에셋TIGERKRX300증권상장지수투자신탁(주식),K55301C47735,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250513024148002098.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0072R0,TIGER KRX금현물,K55301EI4806,K55301EI4806,미래에셋TIGERKRX금현물특별자산상장지수투자신탁(금),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+404540,TIGER KRX기후변화솔루션,K55301DN6458,K55301DN6458,미래에셋 TIGER KRX기후변화솔루션증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+228820,TIGER KTOP30,K55301B73618,K55301B73618,미래에셋TIGERKTOP30증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+300610,TIGER K게임,K55301CB3302,K55301CB3302,미래에셋TIGERK게임증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463250,TIGER K방산&우주,K55301E34424,K55301E34424,미래에셋TIGERK방산&우주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+445910,TIGER MKF배당귀족,K55301DX5334,K55301DX5334,미래에셋 TIGER MKF배당귀족 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+289260,TIGER MSCI KOREA ESG리더스,K55301C21037,K55301C21037,미래에셋TIGERMSCIKOREAESG리더스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+289250,TIGER MSCI KOREA ESG유니버설,K55301C21029,K55301C21029,미래에셋TIGERMSCIKOREAESG유니버설증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0195S0,TIGER SK하이닉스단일종목레버리지,K55301EV7497,K55301EV7497,미래에셋TIGERSK하이닉스단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453950,TIGER TSMC파운드리밸류체인,K55301E05523,K55301E05523,미래에셋TIGERTSMC파운드리밸류체인증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+364990,TIGER 게임TOP10,K55301DA5588,K55301DA5588,미래에셋 TIGER 게임 TOP10 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+139280,TIGER 경기방어,KR5225A18109,KR5225A18109,미래에셋TIGER경기방어증권상장지수투자신탁(주식),KR5225A18109,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20240904081229008217.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0190Y0,TIGER 구글밸류체인,K55301ER7782,K55301ER7782,미래에셋TIGER구글밸류체인증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+160580,TIGER 구리실물,KR5301AB9295,KR5301AB9295,미래에셋TIGER구리실물특별자산상장지수투자신탁(금속),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+451530,TIGER 국고채30년스트립액티브,K55301DZ7882,K55301DZ7882,미래에셋TIGER국고채30년스트립액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464310,TIGER 글로벌AI&로보틱스 INDXX,K55301E40645,K55301E40645,미래에셋 TIGER 글로벌AI&로보틱스INDXX증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+418670,TIGER 글로벌AI사이버보안,K55301DQ2231,K55301DQ2231,미래에셋TIGER글로벌AI사이버보안INDXX증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+466950,TIGER 글로벌AI액티브,K55301E58613,K55301E58613,미래에셋 TIGER 글로벌AI액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491010,TIGER 글로벌AI전력인프라액티브,K55301EE3190,K55301EE3190,미래에셋TIGER글로벌AI전력인프라액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+412770,TIGER 글로벌AI플랫폼액티브,K55301DP1325,K55301DP1325,미래에셋TIGER글로벌AI플랫폼액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+440340,TIGER 글로벌멀티에셋TIF액티브,K55301DW0591,K55301DW0591,미래에셋 TIGER 글로벌멀티에셋TIF액티브증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476690,TIGER 글로벌비만치료제TOP2Plus,K55301E88149,K55301E88149,미래에셋 TIGER 글로벌비만치료제TOP2 Plus INDXX증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+480310,TIGER 글로벌온디바이스AI,K55301E97694,K55301E97694,미래에셋 TIGER 글로벌온디바이스AI증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+387270,TIGER 글로벌이노베이션액티브,K55301DH6423,K55301DH6423,미래에셋 TIGER 글로벌이노베이션액티브증권상장지수투자신탁(주식-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+394660,TIGER 글로벌자율주행&전기차SOLACTIVE,K55301DJ6538,K55301DJ6538,미래에셋 TIGER 글로벌자율주행&전기차SOLACTIVE증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371450,TIGER 글로벌클라우드컴퓨팅INDXX,K55301DC7616,K55301DC7616,미래에셋TIGER글로벌클라우드컴퓨팅INDXX증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+464930,TIGER 글로벌혁신블루칩TOP10,K55301E40066,K55301E40066,미래에셋 TIGER 글로벌혁신블루칩TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0168K0,TIGER 기술이전바이오액티브,K55301EQ3782,K55301EQ3782,미래에셋TIGER기술이전바이오액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+272580,TIGER 단기채권액티브,K55301BR4790,K55301BR4790,미래에셋 TIGER 단기채권액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+157450,TIGER 단기통안채,KR5301AA4834,KR5301AA4834,미래에셋TIGER단기통안채증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+123320,TIGER 레버리지,KR5225220155,KR5225220155,미래에셋 TIGER레버리지 증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+174350,TIGER 로우볼,KR5301AH8119,KR5301AH8119,미래에셋 TIGER 로우볼 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+329200,TIGER 리츠부동산인프라,K55301EL4868,K55301CS7395,미래에셋 TIGER 리츠부동산인프라혼합자산상장지수투자신탁(재간접형),K55301CS7395,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022707005958.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0086B0,TIGER 리츠부동산인프라TOP10액티브,K55301EL4868,K55301EL4868,미래에셋TIGER리츠부동산인프라TOP10액티브부동산상장지수투자신탁(재간접형),K55301EL4868,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126003841.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+341850,TIGER 리츠부동산인프라채권,K55301CY0731,K55301CY0731,미래에셋TIGER리츠부동산인프라채권부동산상장지수투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0043B0,TIGER 머니마켓액티브,K55301EI2420,K55301EI2420,미래에셋TIGER머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+147970,TIGER 모멘텀,KR5225A65191,KR5225A65191,미래에셋 TIGER 모멘텀 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0142D0,TIGER 미국AI데이터센터TOP4Plus,K55301EQ2982,K55301EQ2982,미래에셋TIGER미국AI데이터센터TOP4Plus증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491830,TIGER 미국AI반도체팹리스,K55301EE2671,K55301EE2671,미래에셋 TIGER 미국AI반도체팹리스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+490090,TIGER 미국AI빅테크10,K55301ED3282,K55301ED3241,미래에셋TIGER미국AI빅테크10증권상장지수투자신탁(주식),K55301ED3241,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250523022929007996.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+493810,TIGER 미국AI빅테크10타겟데일리커버드콜,K55301ED3282,K55301ED3282,미래에셋TIGER미국AI빅테크10타겟데일리커버드콜증권상장지수투자신탁(주식),K55301ED3282,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250523023032004650.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0102A0,TIGER 미국AI소프트웨어TOP4Plus,K55301EM5526,K55301EM5526,미래에셋TIGER미국AI소프트웨어TOP4Plus증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0123G0,TIGER 미국AI전력SMR,K55301EO8635,K55301EO8635,미래에셋TIGER미국AI전력SMR증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+360750,TIGER 미국S&P500,K55301EY0879,K55301D79199,미래에셋 TIGER 미국S&P500증권상장지수투자신탁(주식),K55301D79199,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095324004654.pdf,MULTIPLE_NAME_CANDIDATES,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+488500,TIGER 미국S&P500동일가중,K55301EC3069,K55301EC3069,미래에셋TIGER미국S&P500동일가중증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+429000,TIGER 미국S&P500배당귀족,K55301DS7063,K55301DS7063,미래에셋 TIGER 미국S&P500배당귀족증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+482730,TIGER 미국S&P500타겟데일리커버드콜,K55301EB0231,K55301EB0231,미래에셋TIGER미국S&P500타겟데일리커버드콜증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+133690,TIGER 미국나스닥100,K55301DU4926,KR5225652084,미래에셋TIGER미국나스닥100증권상장지수투자신탁(주식),KR5225652084,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126005665.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+435420,TIGER 미국나스닥100채권혼합50,K55301DU4926,K55301DU4926,미래에셋TIGER미국나스닥100채권혼합50증권상장지수투자신탁(채권혼합),K55301DU4926,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250404040812000469.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+486290,TIGER 미국나스닥100타겟데일리커버드콜,K55301EB5578,K55301EB5578,미래에셋TIGER미국나스닥100타겟데일리커버드콜증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+429010,TIGER 미국나스닥넥스트100,K55301DT2428,K55301DT2428,미래에셋 TIGER 미국나스닥넥스트100증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+245340,TIGER 미국다우존스30,K55301BD8854,K55301BD8854,미래에셋TIGER미국다우존스30증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+329750,TIGER 미국달러단기채권액티브,K55301CR6349,K55301CR6349,미래에셋TIGER미국달러단기채권액티브증권상장지수투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261110,TIGER 미국달러선물레버리지,K55301BK2361,K55301BK2361,미래에셋TIGER미국달러선물레버리지특별자산상장지수투자신탁(달러-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261120,TIGER 미국달러선물인버스2X,K55301BK2346,K55301BK2346,미래에셋TIGER미국달러선물인버스2X특별자산상장지수투자신탁(달러-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494840,TIGER 미국방산TOP10,K55301EE9171,K55301EE9171,미래에셋 TIGER 미국방산TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+458730,TIGER 미국배당다우존스,K55301EG7256,K55301E27634,미래에셋 TIGER 미국배당다우존스증권상장지수투자신탁(주식),K55301E27634,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095349009577.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0008S0,TIGER 미국배당다우존스타겟데일리커버드콜,K55301EG7256,K55301EG7256,미래에셋 TIGER 미국배당다우존스타겟데일리커버드콜증권상장지수투자신탁(주식),K55301EG7256,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250311110032009934.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+458750,TIGER 미국배당다우존스타겟커버드콜1호,K55301E27642,K55301E27642,미래에셋TIGER 미국배당다우존스타겟커버드콜1호증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+458760,TIGER 미국배당다우존스타겟커버드콜2호,K55301E27659,K55301E27659,미래에셋TIGER미국배당다우존스타겟커버드콜2호증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0015K0,TIGER 미국소비트렌드액티브,K55301EH0516,K55301EH0516,미래에셋TIGER미국소비트렌드액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0183J0,TIGER 미국우주테크,K55301ES8102,K55301ES8102,미래에셋TIGER미국우주테크증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+305080,TIGER 미국채10년선물,K55301CD2872,K55301CD2872,미래에셋TIGER미국채10년선물증권상장지수투자신탁(채권-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0046A0,TIGER 미국초단기(3개월이하)국채,K55301EI9524,K55301EI9524,미래에셋TIGER미국초단기(3개월이하)국채증권상장지수투자신탁(채권-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465670,TIGER 미국캐시카우100,K55301E49703,K55301E49703,미래에셋TIGER미국캐시카우100증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0223R0,TIGER 미국테크NYSE100액티브,K55301ES8151,K55301ES8151,미래에셋TIGER미국테크NYSE100액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+381170,TIGER 미국테크TOP10 INDXX,K55301DG0369,K55301DG0369,미래에셋 TIGER 미국테크TOP10 INDXX증권상장지수투자신탁(주식),K55301DG0369,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20240509105027005590.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+472170,TIGER 미국테크TOP10채권혼합,K55301E70402,K55301E70402,미래에셋TIGER미국테크TOP10채권혼합증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+474220,TIGER 미국테크TOP10타겟커버드콜,K55301E79429,K55301E79429,미래에셋TIGER미국테크TOP10타겟커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+497570,TIGER 미국필라델피아AI반도체나스닥,K55301EF4932,K55301EF4932,미래에셋 TIGER 미국필라델피아 AI 반도체나스닥증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+381180,TIGER 미국필라델피아반도체나스닥,K55301DF8777,K55301DF8777,미래에셋 TIGER 미국필라델피아반도체나스닥증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+228810,TIGER 미디어컨텐츠,K55301B73741,K55301B73741,미래에셋TIGER미디어컨텐츠증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+364970,TIGER 바이오TOP10,K55301DA5562,K55301DA5562,미래에셋 TIGER 바이오 TOP10 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+091230,TIGER 반도체,K55301ES2840,KR5225578230,미래에셋TIGER 반도체 증권상장지수투자신탁(주식),,PENDING,,,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,유일 변경 후보. 공식 상품 페이지 접근 제한과 검색 미확인으로 보류
+396500,TIGER 반도체TOP10,K55301ES2840,K55301DL2400,미래에셋TIGER반도체TOP10증권상장지수투자신탁(주식),K55301DL2400,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022714004396.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+488080,TIGER 반도체TOP10레버리지,K55301EC6161,K55301EC6161,미래에셋 TIGER 반도체TOP10레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0177R0,TIGER 반도체TOP10커버드콜액티브,K55301ES2840,K55301ES2840,미래에셋TIGER반도체TOP10커버드콜액티브증권상장지수투자신탁(주식-파생형),K55301ES2840,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://securities.miraeasset.com/public/hks4412/040/0519ACTIVE.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+211560,TIGER 배당성장,KR5301AX7368,KR5301AX7368,미래에셋TIGER배당성장증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472150,TIGER 배당커버드콜액티브,K55301DY9046,K55301DY9046,미래에셋TIGER배당커버드콜액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138520,TIGER 삼성그룹,KR5225A01840,KR5225A01840,미래에셋 TIGER 삼성그룹 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0233J0,TIGER 삼성전자SK하이닉스미국채혼합50,K55301EW2661,K55301EW2661,미래에셋TIGER삼성전자SK하이닉스미국채혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0195R0,TIGER 삼성전자단일종목레버리지,K55301EV7505,K55301EV7505,미래에셋TIGER삼성전자단일종목레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+157490,TIGER 소프트웨어,KR5301AA1269,KR5301AA1269,미래에셋TIGER소프트웨어증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+228800,TIGER 여행레저,K55301B73758,K55301B73758,미래에셋TIGER여행레저증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+227570,TIGER 우량가치,K55301B69921,K55301B69921,미래에셋TIGER우량가치증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+438330,TIGER 우량회사채액티브,K55301DW0609,K55301DW0609,미래에셋TIGER우량회사채액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261140,TIGER 우선주,K55301BJ4477,K55301BJ4477,미래에셋TIGER우선주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+245350,TIGER 유로스탁스배당30,K55301BD8862,K55301BD8862,미래에셋TIGER유로스탁스배당30증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0189B0,TIGER 은액티브,K55301ET0066,K55301ET0066,미래에셋TIGER은액티브특별자산상장지수투자신탁(은-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+091220,TIGER 은행,KR5225578248,KR5225578248,미래에셋 TIGER 은행 증권상장지수투자신탁(주식),KR5225578248,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20220610040851005258.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+466940,TIGER 은행고배당플러스TOP10,K55301E61591,K55301E61591,미래에셋 TIGER 은행고배당플러스TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+307510,TIGER 의료기기,K55301CC2055,K55301CC2055,미래에셋TIGER의료기기증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453870,TIGER 인도니프티50,K55301E05564,K55301E05564,미래에셋TIGER인도니프티50증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+479730,TIGER 인도빌리언컨슈머,K55301E98973,K55301E98973,미래에셋 TIGER 인도빌리언컨슈머증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+123310,TIGER 인버스,KR5225220130,KR5225220130,미래에셋 TIGER 인버스 증권 상장지수투자신탁(주식-파생형),KR5225220130,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250311110104007498.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+365000,TIGER 인터넷TOP10,K55301DA5570,K55301DA5570,미래에셋 TIGER 인터넷TOP10 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+241180,TIGER 일본니케이225,K55301BB3675,K55301BB3675,미래에셋TIGER일본니케이225증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465660,TIGER 일본반도체FACTSET,K55301E49406,K55301E49406,미래에셋TIGER일본반도체FACTSET증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292560,TIGER 일본엔선물,K55301C59425,K55301C59425,미래에셋TIGER일본엔선물특별자산상장지수투자신탁(엔-파생형),K55301C59425,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250611092633008393.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+494670,TIGER 조선TOP10,K55301EE9692,K55301EE9692,미래에셋 TIGER 조선TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+451540,TIGER 종합채권(AA-이상)액티브,K55301DZ7460,K55301DZ7460,미래에셋TIGER종합채권(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+150460,TIGER 중국소비테마,KR5225A75083,KR5225A75083,미래에셋 TIGER 중국소비테마 증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0192Z0,TIGER 중기종합채권(A-이상)액티브,K55301EV0294,K55301EV0294,미래에셋TIGER중기종합채권(A-이상)액티브증권상장지수투자신탁(채권형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+302190,TIGER 중장기국채,K55301CA9094,K55301CA9094,미래에셋TIGER중장기국채증권상장지수투자신탁(채권-파생형),K55301CA9094,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20230713095258002042.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+157500,TIGER 증권,KR5301AA1251,KR5301AA1251,미래에셋TIGER증권증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+307520,TIGER 지주회사,K55301CC2063,K55301CC2063,미래에셋TIGER지주회사증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0067Y0,TIGER 차이나AI소프트웨어,K55301EK5932,K55301EK5932,미래에셋TIGER차이나AI소프트웨어증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+192090,TIGER 차이나CSI300,KR5301AU9086,KR5301AL9756,미래에셋TIGER차이나CSI300증권상장지수자투자신탁(주식-파생형),KR5301AL9756,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092529009329.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+245360,TIGER 차이나HSCEI,K55301BD8870,K55301BD8870,미래에셋TIGER차이나HSCEI증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0067V0,TIGER 차이나글로벌리더스TOP3+,K55301EL0767,K55301EL0767,미래에셋TIGER차이나글로벌리더스TOP3+증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371470,TIGER 차이나바이오테크SOLACTIVE,K55301DC7590,K55301DC7590,미래에셋TIGER차이나바이오테크SOLACTIVE증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+396520,TIGER 차이나반도체FACTSET,K55301DL2376,K55301DL2376,미래에셋 TIGER 차이나반도체FACTSET증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371460,TIGER 차이나전기차SOLACTIVE,K55301DC7608,K55301DC7608,미래에셋TIGER차이나전기차SOLACTIVE증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0133E0,TIGER 차이나증권,K55301EP6877,,,,PENDING,,,MULTIPLE_NAME_CANDIDATES,"포털 상품 두 개: K55301EP6877(2026-01-30), KR5225874118(2009-10-20). 설정일만으로 확정하지 않음"
+396510,TIGER 차이나클린에너지SOLACTIVE,K55301DL2350,K55301DL2350,미래에셋 TIGER 차이나클린에너지SOLACTIVE증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0047A0,TIGER 차이나테크TOP10,K55301EJ2577,K55301EJ2577,미래에셋TIGER차이나테크TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+371160,TIGER 차이나항셍테크,K55301DC8499,K55301DC8499,미래에셋 TIGER 차이나항셍테크증권상장지수투자신탁(주식),K55301DC8499,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250708095910006559.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0053L0,TIGER 차이나휴머노이드로봇,K55301EK0321,K55301EK0321,미래에셋TIGER차이나휴머노이드로봇증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0117V0,TIGER 코리아AI전력기기TOP3플러스,K55301EO3131,K55301EO3131,미래에셋TIGER코리아AI전력기기TOP3플러스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+292150,TIGER 코리아TOP10,K55301C47545,K55301C47545,미래에셋TIGER코리아TOP10증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0052D0,TIGER 코리아배당다우존스,K55301EK1139,K55301EK1139,미래에셋TIGER코리아배당다우존스증권상장지수투자신탁(주식),K55301EK1139,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250708095820002111.pdf,MULTIPLE_NAME_CANDIDATES,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0104P0,TIGER 코리아배당다우존스위클리커버드콜,K55301EN6424,K55301EN6424,미래에셋TIGER코리아배당다우존스위클리커버드콜증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496080,TIGER 코리아밸류업,K55301EF9618,K55301EF9618,미래에셋 TIGER 코리아밸류업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0091P0,TIGER 코리아원자력,K55301EM4685,K55301EM4685,미래에셋TIGER코리아원자력증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+471780,TIGER 코리아테크액티브,K55301E68232,K55301E68232,미래에셋 TIGER 코리아테크액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0148J0,TIGER 코리아휴머노이드로봇산업,K55301EQ3394,K55301EQ3394,미래에셋TIGER코리아휴머노이드로봇산업증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+232080,TIGER 코스닥150,K55301BJ7017,K55301B84235,미래에셋TIGER코스닥150증권상장지수투자신탁(주식),K55301B84235,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092530009636.pdf,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+233160,TIGER 코스닥150 레버리지,K55301B88376,K55301B88376,미래에셋TIGER코스닥150레버리지증권상장지수투자신탁(주식-파생형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261060,TIGER 코스닥150IT,K55301BJ7017,K55301BJ7017,미래에셋TIGER코스닥150IT증권상장지수투자신탁(주식),K55301BJ7017,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20241108075444003344.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261070,TIGER 코스닥150바이오테크,K55301BJ7009,K55301BJ7009,미래에셋TIGER코스닥150바이오테크증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461580,TIGER 코스닥글로벌,K55301E34366,K55301E34366,미래에셋 TIGER 코스닥글로벌증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0204S0,TIGER 코스닥액티브,K55301EU5260,K55301EU5260,미래에셋TIGER코스닥액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+277630,TIGER 코스피,KR5301AX7376,K55301BV2921,미래에셋TIGER코스피증권상장지수투자신탁(주식),,PENDING,,,MULTIPLE_NAME_CANDIDATES;SHARED_PORTAL_PRODUCT,유일 변경 후보. 공식 상품 페이지 접근 제한과 검색 미확인으로 보류
+210780,TIGER 코스피고배당,KR5301AX7376,KR5301AX7376,미래에셋TIGER코스피고배당증권상장지수투자신탁(주식),KR5301AX7376,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250513023943002021.pdf,SHARED_PORTAL_PRODUCT,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+277640,TIGER 코스피대형주,K55301BV2962,K55301BV2962,미래에셋TIGER코스피대형주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+277650,TIGER 코스피중형주,K55301BV2954,K55301BV2954,미래에셋TIGER코스피중형주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+376410,TIGER 탄소효율그린뉴딜,K55301DE5626,K55301DE5626,미래에셋 TIGER 탄소효율그린뉴딜증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+447770,TIGER 테슬라채권혼합Fn,K55301DY0649,K55301DY0649,미래에셋 TIGER 테슬라채권혼합Fn증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0060H0,TIGER 토탈월드스탁액티브,K55301EK7888,K55301EK7888,미래에셋TIGER토탈월드스탁액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+387280,TIGER 퓨처모빌리티액티브,K55301DH5144,K55301DH5144,미래에셋 TIGER 퓨처모빌리티액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+143860,TIGER 헬스케어,KR5225A46670,KR5225A46670,미래에셋TIGER헬스케어증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+228790,TIGER 화장품,K55301B73766,K55301B73766,미래에셋TIGER화장품증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+441800,TIME Korea플러스배당액티브,K553J1DW4846,K553J1DW4846,타임폴리오 TIME Korea플러스배당액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+463050,TIME K바이오액티브,K553J1E46927,K553J1E46927,타임폴리오 TIME K바이오액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+404120,TIME K신재생에너지액티브,K553J1DO1974,K553J1DO1974,타임폴리오 TIME K신재생에너지액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385710,TIME K이노베이션액티브,K553J1DJ0288,K553J1DJ0288,타임폴리오 TIME K이노베이션액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+410870,TIME K컬처액티브,K553J1DP1767,K553J1DP1767,타임폴리오 TIME K컬처액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+456600,TIME 글로벌AI인공지능액티브,K553J1E23876,K553J1E23876,타임폴리오 TIME 글로벌AI인공지능액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+485810,TIME 글로벌바이오액티브,K553J1EB9138,K553J1EB9138,타임폴리오 TIME 글로벌바이오액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494180,TIME 글로벌소비트렌드액티브,K553J1EF1685,K553J1EF1685,타임폴리오 TIME 글로벌소비트렌드액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+478150,TIME 글로벌우주테크&방산액티브,K553J1E98415,K553J1E98415,타임폴리오 TIME 글로벌우주테크&방산액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0113D0,TIME 글로벌탑픽액티브,K553J1EP1634,K553J1EP1634,타임폴리오 TIME 글로벌탑픽액티브증권상장지수투자신탁(주식-재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0185L0,TIME 글로벌휴머노이드로봇산업액티브,K553J1EU9150,K553J1EU9150,타임폴리오 TIME 글로벌휴머노이드로봇산업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+426020,TIME 미국S&P500액티브,K553J1DT1904,K553J1DT1904,타임폴리오 TIME 미국S&P500액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+426030,TIME 미국나스닥100액티브,K553J1DT1912,K553J1DT1912,타임폴리오 TIME 미국나스닥100액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0019K0,TIME 미국나스닥100채권혼합50액티브,K553J1EI5410,K553J1EI5410,타임폴리오 TIME 미국나스닥100채권혼합50액티브증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0043Y0,TIME 차이나AI테크액티브,K553J1EK6638,K553J1EK6638,타임폴리오 TIME 차이나AI테크액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495060,TIME 코리아밸류업액티브,K553J1EF9274,K553J1EF9274,타임폴리오 TIME 코리아밸류업액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0162Y0,TIME 코스닥액티브,K553J1ET1739,K553J1ET1739,타임폴리오 TIME 코스닥액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+385720,TIME 코스피액티브,K553J1DJ0270,K553J1DJ0270,타임폴리오 TIME 코스피액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+108590,TREX 200,KR5307905228,KR5307905228,유리TREX200증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+145850,TREX 펀더멘탈 200,KR5307A60883,KR5307A60883,유리TREX펀더멘탈200증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472720,TRUSTON 주주가치액티브,K55363E76664,K55363E76664,트러스톤 TRUSTON 주주가치액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496130,TRUSTON 코리아밸류업액티브,K55363EF9738,K55363EF9738,트러스톤 TRUSTON 코리아밸류업액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0184V0,UNICORN K바이오액티브,K55373EU5008,K55373EU5008,현대UNICORN K바이오 액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433250,UNICORN R&D 액티브,K55373DU6130,K55373DU6130,현대UNICORNR&D액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494220,UNICORN SK하이닉스밸류체인액티브,K55373EF1006,K55373EF1006,현대UNICORNSK하이닉스밸류체인액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+470310,UNICORN 생성형AI강소기업액티브,K55373E72456,K55373E72456,현대UNICORN생성형AI강소기업액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476000,UNICORN 포스트IPO액티브,K55373E91357,K55373E91357,현대UNICORN포스트IPO액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+448100,WON 200,K55107DY2526,K55107DY2526,우리WON200증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+413930,WON AI ESG액티브,K55107DP6908,K55107DP6908,우리WON AI ESG액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0088N0,WON K-글로벌수급상위,K55107EN0027,K55107EN0027,우리 WON K-글로벌수급상위증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+458030,WON 국공채머니마켓액티브,K55107E28500,K55107E28500,우리WON국공채머니마켓액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+426150,WON 대한민국국고채액티브,K55107DT5260,K55107DT5260,우리WON대한민국국고채액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0177A0,WON 두산그룹포커스,K55107ET9055,K55107ET9055,우리WON두산그룹포커스증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+444490,WON 미국S&P500,K55107DX3483,K55107DX3483,우리WON미국S&P500증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+489290,WON 미국빌리어네어,K55107ED8337,K55107ED8337,우리WON미국빌리어네어증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+440910,WON 미국우주항공방산,K55107DW3997,K55107DW3997,우리WON미국우주항공방산증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+474590,WON 반도체밸류체인액티브,K55107E85195,K55107E85195,우리WON반도체밸류체인액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0203S0,WON 삼성전자현대차채권혼합50,K55107EV6271,K55107EV6271,우리WON삼성전자현대차채권혼합50증권상장지수투자신탁(채권혼합),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+496020,WON 전단채플러스액티브,K55107EG2030,K55107EG2030,우리WON전단채플러스액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+488720,WON 종합채권(AA-이상)액티브,K55107E34441,K55107E34441,우리WON종합채권(AA-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0203R0,WON 중단기종합채권(A-이상)액티브,K55107EU9953,K55107EU9953,우리 WON 중단기종합채권(A-이상)액티브증권상장지수투자신탁(채권),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0154F0,WON 초대형IB&금융지주,K55107EP7079,K55107EP7079,우리WON초대형IB&금융지주증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0226G0,WON 피지컬AI TOP2플러스액티브,K55107EX7947,K55107EX7947,우리WON피지컬AI TOP2플러스액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+480460,WON 한국부동산TOP3플러스,K55107EA8553,K55107EA8553,우리WON한국부동산TOP3플러스부동산상장지수투자신탁(재간접형),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0053M0,더제이 중소형포커스액티브,K553H6EK8245,K553H6EK8245,더제이 더제이 중소형포커스액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465780,마이티 26-09 특수채(AAA)액티브,K55216E57284,K55216E57284,DB마이티26-09특수채(AAA)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0191M0,마이티 5월만기자동연장특수채(AAA)액티브,K55216EV7079,K55216EV7079,DB마이티5월만기자동연장특수채(AAA)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0222F0,마이티 AI데이터센터밸류체인,K55216EX5527,K55216EX5527,DB마이티AI데이터센터밸류체인증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+442260,마이티 다이나믹퀀트액티브,K55216DW2765,K55216DW2765,DB마이티다이나믹퀀트액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0001P0,마이티 바이오시밀러&CDMO액티브,K55216EG6021,K55216EG6021,DB마이티바이오시밀러&CDMO액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0229F0,마이티 신약포커스바이오액티브,K55216EY5252,K55216EY5252,DB마이티신약포커스바이오액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0007N0,아이엠에셋 200,K55368EH4351,K55368EH4351,iM에셋 아이엠에셋 200 증권 상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+462340,에셋플러스 글로벌다이나믹시니어액티브,K55364E27897,K55364E27897,에셋플러스 에셋플러스 글로벌다이나믹시니어액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433220,에셋플러스 글로벌대장장이액티브,K55364DP8696,K55364DP8696,에셋플러스 에셋플러스글로벌대장장이액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+451150,에셋플러스 글로벌영에이지액티브,K55364DY2573,K55364DY2573,에셋플러스 에셋플러스글로벌영에이지액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+477490,에셋플러스 글로벌일등기업포커스10액티브,K55364E79047,K55364E79047,에셋플러스 에셋플러스 글로벌일등기업 포커스10 액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+407830,에셋플러스 글로벌플랫폼액티브,K55364DO6345,K55364DO6345,에셋플러스 에셋플러스글로벌플랫폼액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0002C0,에셋플러스 인도일등기업포커스20액티브,K55364ED4870,K55364ED4870,에셋플러스 에셋플러스 인도일등기업 포커스20액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+474920,에셋플러스 차이나일등기업포커스10액티브,K55364E70822,K55364E70822,에셋플러스 에셋플러스 차이나일등기업 포커스10액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+442090,에셋플러스 코리아대장장이액티브,K55364DP6658,K55364DP6658,에셋플러스 에셋플러스코리아대장장이액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+407820,에셋플러스 코리아플랫폼액티브,K55364DO6337,K55364DO6337,에셋플러스 에셋플러스코리아플랫폼액티브증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491510,파워 K-주주가치액티브,K55207EE5208,K55207EE5208,교보악사 파워 K-주주가치액티브증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+192720,파워 고배당저변동성,KR5207AN0410,KR5207AN0410,교보악사파워고배당저변동성증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+498180,파워 종합채권(AA-이상)액티브,K55207EF7450,K55207EF7450,교보악사 파워 종합채권(AA-이상)액티브증권상장지수투자신탁[채권],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491610,1Q CD금리액티브(합성),K55102ED3689,K55102ED3689,하나 1Q CD금리액티브증권상장지수투자신탁[채권혼합-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+332500,ACE 200TR,K55101CT6711,K55101CT6711,한국투자 ACE 200 Total Return증권상장지수투자신탁(주식),K55101CT6711,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101CT6711,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+226380,ACE Fn성장소비주도주,K55101B54539,K55101B54539,한국투자 ACE 성장소비주도주증권상장지수투자신탁(주식),K55101B54539,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+291130,ACE MSCI멕시코(합성),K55101C31949,K55101C31949,한국투자 ACE MSCI멕시코증권상장지수투자신탁(주식-파생형)(합성),K55101C31949,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101C31949,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+256440,ACE MSCI인도네시아(합성),K55101BI4108,K55101BI4108,한국투자 ACE MSCI인도네시아증권상장지수투자신탁(주식-파생형)(합성),K55101BI4108,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BI4108,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+261920,ACE MSCI필리핀(합성),K55101BJ5096,K55101BJ5096,한국투자 ACE MSCI필리핀증권상장지수투자신탁(주식-파생형)(합성),K55101BJ5096,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BJ5096,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+225130,ACE 골드선물 레버리지(합성 H),K55101B44423,K55101B44423,한국투자 ACE 골드선물레버리지특별자산상장지수투자신탁(금-파생형)(합성 H),K55101B44423,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101B44423,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+114460,ACE 국고채3년,KR5101148215,KR5101148215,한국투자 ACE 국고채 증권 상장지수투자신탁(채권),KR5101148215,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+190620,ACE 단기통안채,,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+265690,ACE 러시아MSCI(합성),K55101BM2890,K55101BM2890,한국투자 ACE 러시아MSCI증권상장지수투자신탁(주식-파생형)(합성),K55101BM2890,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BM2890,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+0085N0,ACE 미국10년국채액티브(H),K55101EL9174,K55101EL9174,한국투자 ACE 미국10년국채액티브증권상장지수투자신탁[채권](H),K55101EL9174,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EL9174,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+452250,ACE 미국30년국채선물레버리지(합성 H),K55101DZ9039,K55101DZ9039,한국투자ACE미국30년국채선물레버리지 증권상장지수투자신탁(채권-파생형)(합성H),K55101DZ9039,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101DZ9039,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+453850,ACE 미국30년국채액티브(H),K55101E03860,K55101E03860,한국투자 ACE 미국30년국채액티브증권상장지수투자신탁[채권](H),K55101E03860,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E03860,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+476750,ACE 미국30년국채엔화노출액티브(H),K55101E91790,K55101E91790,한국투자 ACE 미국30년국채엔화노출액티브증권상장지수투자신탁[채권](H),K55101E91790,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E91790,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+480030,ACE 미국500데일리타겟커버드콜(합성),K55101E97755,K55101E97755,한국투자 ACE 미국500데일리타겟커버드콜 증권 상장지수투자신탁(주식-파생형)(합성),K55101E97755,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E97755,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+280320,ACE 미국IT인터넷(합성 H),K55101BW5925,K55101BW5925,한국투자 ACE 미국IT인터넷증권상장지수투자신탁(주식-파생형)(합성 H),K55101BW5925,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BW5925,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+456880,ACE 미국달러SOFR금리(합성),K55101E19692,K55101E19692,한국투자 ACE 미국SOFR금리특별자산상장지수투자신탁[금리-파생형](합성),K55101E19692,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+480040,ACE 미국반도체데일리타겟커버드콜(합성),K55101E96450,K55101E96450,한국투자 ACE 미국반도체 데일리타겟커버드콜 증권 상장지수투자신탁(주식-파생형)(합성),K55101E96450,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E96450,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+181480,ACE 미국부동산리츠(합성 H),KR5101AJ9786,KR5101AJ9786,한국투자 ACE 미국부동산리츠 부동산상장지수투자신탁(파생형)(합성 H),KR5101AJ9786,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/KR5101AJ9786,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+480020,ACE 미국빅테크7+데일리타겟커버드콜(합성),K55101E97763,K55101E97763,한국투자 ACE 미국빅테크7+ 데일리타겟커버드콜 증권상장지수투자신탁(주식-파생형)(합성),K55101E97763,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E97763,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+465610,ACE 미국빅테크TOP7 Plus레버리지(합성),K55101E52487,K55101E52487,한국투자 ACE 미국빅테크TOP7 Plus레버리지증권상장지수투자신탁(주식-파생형)(합성),K55101E52487,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52487,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+465620,ACE 미국빅테크TOP7 Plus인버스(합성),K55101E52495,K55101E52495,한국투자 ACE 미국빅테크TOP7 Plus인버스증권상장지수투자신탁(주식-파생형)(합성),K55101E52495,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52495,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+455660,ACE 미국하이일드액티브(H),K55101E13018,K55101E13018,한국투자 ACE 미국하이일드액티브증권상장지수투자신탁[채권-재간접형](H),K55101E13018,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E13018,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+245710,ACE 베트남VN30(합성),K55101BE0852,K55101BE0852,한국투자 ACE 베트남VN30증권상장지수투자신탁(주식-파생형)(합성),K55101BE0852,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BE0852,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+131890,ACE 삼성그룹동일가중,KR5101299273,KR5101299273,한국투자 ACE 삼성그룹주 동일가중 증권 상장지수투자신탁(주식),KR5101299273,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+108450,ACE 삼성그룹섹터가중,KR5101897761,KR5101897761,한국투자 ACE 삼성그룹주SW 증권 상장지수투자신탁(주식),KR5101897761,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+238720,ACE 일본Nikkei225(H),K55101BA8230,K55101BA8230,한국투자 ACE 일본Nikkei225증권상장지수투자신탁(주식-파생형)(H),K55101BA8230,ISSUER_REVIEWED,ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BA8230,,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+196030,ACE 일본TOPIX레버리지(H),KR5101AR9802,KR5101AR9802,한국투자 ACE 일본 레버리지 증권 상장지수투자신탁(주식-재간접파생형)(H),KR5101AR9802,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+205720,ACE 일본TOPIX인버스(합성 H),KR5101AV1027,KR5101AV1027,한국투자 ACE 일본인버스 증권 상장지수투자신탁(주식-파생형)(합성 H),KR5101AV1027,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+219900,ACE 중국본토CSI300레버리지(합성),K55101B26297,K55101B26297,한국투자 ACE 중국본토레버리지CSI300증권상장지수투자신탁(주식혼합-파생형)(합성),K55101B26297,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+285690,FOCUS ESG리더스,,K55104C03165,브이아이 FOCUS ESG Leaders 150 증권 상장지수 투자신탁[주식],,PENDING,,,PENDING,영문 정식명칭 후보 발견. 공식 상품 목록과 KRX 코드의 직접 대응 미확인
+0073X0,FOCUS 알리바바미국채커버드콜혼합,,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+332930,HANARO 200TR,K55232CU2966,K55232CU2966,NH-Amundi HANARO 200 Total Return 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453060,HANARO KOFR금리액티브(합성),K55232E07666,K55232E07666,NH-Amundi HANARO KOFR금리액티브특별자산상장지수투자신탁(금리-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+354350,HANARO 글로벌럭셔리S&P(합성),K55232D37269,K55232D37269,NH-Amundi HANARO 글로벌럭셔리S&P 증권상장지수투자신탁(파생)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+401590,HANARO 글로벌탄소배출권선물ICE(합성),K55232DN1263,K55232DN1263,NH-Amundi HANARO 글로벌탄소배출권선물ICE특별자산상장지수투자신탁(탄소배출권-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+294400,KIWOOM 200TR,K55206C46472,K55206C46472,키움 KIWOOM 200TotalReturn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+458210,KIWOOM CD금리액티브(합성),K55206E24624,K55206E24624,키움 KIWOOM CD금리액티브특별자산상장지수투자신탁[금리-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+435530,KIWOOM TDF2030액티브 적격,K55206DU2520,K55206DU2520,키움 KIWOOM 적격TDF2030액티브증권상장지수투자신탁[주식혼합-재간접형],K55206DU2520,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+435540,KIWOOM TDF2040액티브 적격,K55206DU2538,K55206DU2538,키움 KIWOOM 적격TDF2040액티브증권상장지수투자신탁[주식혼합-재간접형],K55206DU2538,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+435550,KIWOOM TDF2050액티브 적격,K55206DU2546,K55206DU2546,키움 KIWOOM 적격TDF2050액티브증권상장지수투자신탁[주식혼합-재간접형],K55206DU2546,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+148070,KIWOOM 국고채10년,KR5206A65050,KR5206A65050,키움 KIWOOM 10년국고채증권상장지수투자신탁[채권],KR5206A65050,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+167860,KIWOOM 국고채10년레버리지,KR5206AC1297,KR5206AC1297,키움 KIWOOM 10년국고채레버리지증권상장지수투자신탁[채권-파생형],KR5206AC1297,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+114470,KIWOOM 국고채3년,KR5206150033,KR5206150033,키움 KIWOOM 국고채상장지수증권투자신탁[채권],KR5206150033,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0127V0,KIWOOM 미국S&P500 TOP10&배당다우비중전환,K55206EN6354,K55206EN6354,키움 KIWOOM 미국S&P500 TOP10&배당다우존스비중전환증권상장지수투자신탁[주식],K55206EN6354,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+449780,KIWOOM 미국S&P500(H),K55206DZ1378,K55206DZ1378,키움 KIWOOM 미국S&P500증권상장지수투자신탁[주식](H),K55206DZ1378,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=449780,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+453080,KIWOOM 미국나스닥100(H),K55206E01648,K55206E01648,키움 KIWOOM 미국나스닥100증권상장지수투자신탁[주식](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+460270,KIWOOM 미국달러SOFR금리액티브(합성),K55206E24574,K55206E24574,키움 KIWOOM 미국달러SOFR금리액티브특별자산상장지수투자신탁[금리-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0084E0,KIWOOM 미국대형주500월간목표헤지액티브,K55206EJ7150,K55206EJ7150,키움KIWOOM US대형500월간목표헤지액티브증권상장지수투자신탁[혼합-파생재간접형],K55206EJ7150,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0084D0,KIWOOM 미국테크100월간목표헤지액티브,K55206EJ7242,K55206EJ7242,키움KIWOOM US테크100월간목표헤지액티브증권상장지수투자신탁[혼합-파생재간접형],K55206EJ7242,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0015E0,KIWOOM 엔비디아미국30년국채혼합액티브(H),K55206EI0479,K55206EI0479,키움KIWOOM엔비디아미국30년국채혼합액티브증권상장지수투자신탁[채권혼합](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+200250,KIWOOM 인도Nifty50(합성),KR5206AS8419,KR5206AS8419,키움 KIWOOM NIFTY50인디아증권상장지수투자신탁[주식-파생형](합성),KR5206AS8419,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+153270,KIWOOM 코스피100,KR5391A83228,KR5391A83228,키움 KIWOOM 100 증권상장지수투자신탁[주식],KR5391A83228,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+122260,KIWOOM 통안채1년,KR5206184115,KR5206184115,키움 KIWOOM 통안채상장지수증권투자신탁[채권],KR5206184115,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0015F0,KIWOOM 팔란티어미국30년국채혼합액티브(H),K55206EI0487,K55206EI0487,키움KIWOOM팔란티어미국30년국채혼합액티브증권상장지수투자신탁[채권혼합](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+363580,KODEX 200IT TR,K55105D67108,K55105D67108,삼성KODEX 200 IT Total Return증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+278530,KODEX 200TR,K55105BW3843,K55105BW3843,삼성KODEX 200 Total Return 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+271060,KODEX 3대농산물선물(H),K55105BP4386,K55105BP4386,삼성KODEX3대농산물선물특별자산상장지수투자신탁[농산물-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481050,KODEX CD1년금리플러스액티브(합성),K55105E94878,K55105E94878,삼성 KODEX CD1년금리플러스액티브증권상장지수투자신탁[채권혼합-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+459580,KODEX CD금리액티브(합성),K55105E24776,K55105E24776,삼성KODEX CD금리액티브증권상장지수투자신탁[채권혼합-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+423160,KODEX KOFR금리액티브(합성),K55105DR9373,K55105DR9373,삼성KODEX KOFR금리액티브특별자산상장지수투자신탁[금리-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+291890,KODEX MSCI EM선물(H),K55105C52086,K55105C52086,삼성KODEX SGX  MSCI EM선물증권상장지수투자신탁[주식-파생형](H),K55105C52086,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+289040,KODEX MSCI KOREA ESG유니버설,K55105BZ5845,K55105BZ5845,삼성KODEX MSCI ESG유니버설증권상장지수투자신탁[주식형],K55105BZ5845,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+278540,KODEX MSCI Korea TR,K55105BW1235,K55105BW1235,삼성KODEX MSCI KOREA Total Return 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+269420,KODEX S&P글로벌인프라(합성),K55105BN5708,K55105BN5708,삼성KODEX S&P글로벌인프라증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433970,KODEX TDF2030액티브 적격,K55105DT5353,K55105DT5353,삼성 KODEX 적격 TDF2030액티브증권상장지수투자신탁[채권혼합-재간접형],K55105DT5353,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+433980,KODEX TDF2040액티브 적격,K55105DT5361,K55105DT5361,삼성 KODEX 적격 TDF2040액티브증권상장지수투자신탁[주식혼합-재간접형],K55105DT5361,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+434060,KODEX TDF2050액티브 적격,K55105DT5379,K55105DT5379,삼성 KODEX 적격 TDF2050액티브증권상장지수투자신탁[주식혼합-재간접형],K55105DT5379,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0082V0,KODEX TDF2060액티브 적격,K55105EI4473,K55105EI4473,삼성 KODEX 적격 TDF2060액티브증권상장지수투자신탁[주식혼합-재간접형],K55105EI4473,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+315930,KODEX Top5PlusTR,K55105CG9781,K55105CG9781,삼성KODEX Top5Plus Total Return증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+261220,KODEX WTI원유선물(H),K55105BJ8567,K55105BJ8567,삼성KODEX WTI원유선물특별자산상장지수투자신탁[원유-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+271050,KODEX WTI원유선물인버스(H),K55105BP4345,K55105BP4345,삼성KODEXWTI원유선물인버스특별자산상장지수투자신탁[원유-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+132030,KODEX 골드선물(H),KR5105705846,KR5105705846,삼성KODEX골드선물특별자산상장지수투자신탁[금-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+280940,KODEX 골드선물인버스(H),K55105BY2041,K55105BY2041,삼성KODEX골드선물인버스특별자산상장지수투자신탁[금-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138910,KODEX 구리선물(H),KR5105A08898,KR5105A08898,삼성KODEX구리선물 특별자산상장지수투자신탁[구리-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+152380,KODEX 국채선물10년,KR5105A81382,KR5105A81382,삼성KODEX10년국채선물증권상장지수투자신탁[채권-파생형],KR5105A81382,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+176950,KODEX 국채선물10년인버스,KR5105AI5534,KR5105AI5534,삼성KODEX10년국채선물인버스증권상장지수투자신탁[채권-파생형],KR5105AI5534,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+276990,KODEX 글로벌로봇(합성),K55105BT6494,K55105BT6494,삼성 KODEX 글로벌로봇 증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+321410,KODEX 멀티에셋하이인컴(H),K55105CK0701,K55105CK0701,삼성KODEX 모닝스타멀티에셋하이인컴증권상장지수투자신탁 [채권혼합-파생재간접형](H),K55105CK0701,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0091C0,KODEX 미국10년국채액티브(H),K55105EM2711,K55105EM2711,삼성 KODEX 미국10년국채액티브증권상장지수투자신탁[채권-재간접형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+484790,KODEX 미국30년국채액티브(H),K55105EB5592,K55105EB5592,삼성 KODEX 미국30년국채액티브증권상장지수투자신탁[채권-재간접형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+304660,KODEX 미국30년국채울트라선물(H),K55105CD0072,K55105CD0072,삼성 KODEX 미국30년국채울트라선물증권상장지수투자신탁[채권-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+304670,KODEX 미국30년국채울트라선물인버스(H),K55105CD0213,K55105CD0213,삼성 KODEX 미국30년국채울트라선물인버스증권상장지수투자신탁[채권-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+481060,KODEX 미국30년국채타겟커버드콜(합성 H),K55105EA0792,K55105EA0792,삼성 KODEX 미국30년국채타겟커버드콜증권상장지수투자신탁[채권-파생형](합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449180,KODEX 미국S&P500(H),K55105DY7584,K55105DY7584,삼성KODEX 미국S&P500증권상장지수투자신탁[주식](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+276970,KODEX 미국S&P500배당귀족커버드콜(합성 H),K55105BT6551,K55105BT6551,삼성KODEX 미국S&P500배당귀족커버드콜증권상장지수투자신탁[주식-파생형](합성)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+200030,KODEX 미국S&P500산업재(합성),KR5105AS6399,KR5105AS6399,삼성KODEX 미국S&P500산업재증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+219480,KODEX 미국S&P500선물(H),,K55105B29847,삼성KODEX S&P500선물증권상장지수투자신탁[주식-파생형](H),K55105B29847,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20171211/2ETF50_20171130.pdf,PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+218420,KODEX 미국S&P500에너지(합성),K55105B19418,K55105B19418,삼성KODEX 미국S&P500에너지증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+185680,KODEX 미국S&P바이오(합성),KR5105AL9630,KR5105AL9630,삼성KODEX 합성-미국 바이오테크증권상장지수투자신탁[주식-파생형],KR5105AL9630,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+449190,KODEX 미국나스닥100(H),K55105DY7576,K55105DY7576,삼성KODEX 미국나스닥100증권상장지수투자신탁[주식](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+409820,KODEX 미국나스닥100레버리지(합성 H),K55105DO3122,K55105DO3122,삼성KODEX 미국나스닥100레버리지증권상장지수투자신탁[주식-파생형](합성H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+304940,KODEX 미국나스닥100선물(H),K55105CC4992,K55105CC4992,삼성KODEX 미국나스닥100선물증권상장지수투자신탁[주식-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+409810,KODEX 미국나스닥100선물인버스(H),K55105DO3262,K55105DO3262,삼성KODEX 미국나스닥100선물인버스증권상장지수투자신탁[주식-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+455030,KODEX 미국달러SOFR금리액티브(합성),K55105E10130,K55105E10130,삼성KODEX 미국달러SOFR금리액티브특별자산상장지수투자신탁[금리-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+280930,KODEX 미국러셀2000(H),K55105BX6175,K55105BX6175,삼성KODEX 미국러셀2000증권상장지수투자신탁[주식-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+441640,KODEX 미국배당커버드콜액티브,K55105DW2744,K55105DW2744,삼성 KODEX 미국배당커버드콜S&P액티브증권상장지수투자신탁[주식-파생형],K55105DW2744,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+352560,KODEX 미국부동산리츠(H),K55105D15560,K55105D15560,삼성 KODEX 미국부동산리츠부동산상장지수투자신탁[REITs-파생재간접형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+314250,KODEX 미국빅테크10(H),K55105CG9971,K55105CG9971,삼성 KODEX 미국빅테크10증권상장지수투자신탁[주식-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+437080,KODEX 미국종합채권ESG액티브(H),K55105DR4788,K55105DR4788,삼성KODEX 미국종합채권ESG액티브증권상장지수투자신탁[채권](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+400570,KODEX 유럽탄소배출권선물ICE(H),K55105DL9742,K55105DL9742,삼성KODEX 유럽탄소배출권선물ICE특별자산상장지수투자신탁[탄소배출권-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+144600,KODEX 은선물(H),KR5105A43069,KR5105A43069,삼성KODEX은선물특별자산상장지수투자신탁(은-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453820,KODEX 인도Nifty50레버리지(합성),K55105E00685,K55105E00685,삼성 KODEX 인도Nifty50레버리지증권상장지수투자신탁[주식-파생형](합성),K55105E00685,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=kodex+%EC%9D%B8%EB%8F%84nifty50,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+352540,KODEX 일본부동산리츠(H),K55105D15578,K55105D15578,삼성 KODEX 일본부동산리츠부동산상장지수투자신탁[REITs-파생재간접형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+419430,KODEX 차이나2차전지MSCI(합성),K55105DQ0258,K55105DQ0258,삼성KODEX 차이나2차전지MSCI증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+169950,KODEX 차이나A50,KR5105AE5728,KR5105AE5728,삼성KODEX 차이나FTSEChinaA50증권상장지수자투자신탁[주식-파생형],KR5105AE5728,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+204450,KODEX 차이나H레버리지(H),KR5105AV0181,KR5105AV0181,삼성KODEX 차이나H레버리지증권상장지수투자신탁[주식-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+415340,KODEX 차이나과창판STAR50(합성),K55105DF0137,K55105DF0137,삼성KODEX 차이나과창판STAR50증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+256750,KODEX 차이나심천ChiNext(합성),K55105BI6737,K55105BI6737,삼성KODEX 차이나심천ChiNext증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0231Z0,KODEX 코리아TDF2065액티브 적격,K55105EY1149,K55105EY1149,삼성KODEX 코리아 적격TDF 2065 액티브증권상장지수투자신탁[주식혼합-재간접형],K55105EY1149,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+251340,KODEX 코스닥150선물인버스,K55105BF4255,K55105BF4255,삼성KODEX코스닥150인버스증권상장지수투자신탁[주식-파생형],K55105BF4255,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+359210,KODEX 코스피TR,K55105D41822,K55105D41822,삼성KODEX 코스피 Total Return 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138920,KODEX 콩선물(H),KR5105A08930,KR5105A08930,삼성KODEX콩선물 특별자산상장지수투자신탁[콩-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+450190,KODEX 한중반도체(합성),K55105DY8616,K55105DY8616,삼성 KODEX 한중반도체증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+450180,KODEX 한중전기차(합성),K55105DY8624,K55105DY8624,삼성 KODEX 한중전기차증권상장지수투자신탁[주식-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491220,PLUS 200TR,K55213EE1753,K55213EE1753,한화 PLUS 200 Total Return증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+433880,PLUS TDF2060액티브 적격,K55213DU6050,K55213DU6050,한화 PLUS 적격TDF2060액티브증권상장지수투자신탁(주식혼합-재간접형),K55213DU6050,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+189400,PLUS 글로벌MSCI(합성 H),KR5213AL1578,KR5213AL1578,한화 PLUS 글로벌MSCI증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+269540,PLUS 미국S&P500(H),,K55213BO8445,한화 PLUS S&P500증권상장지수투자신탁(주식)(H),K55213BO8445,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EB%AF%B8%EA%B5%ADS%26P500%28H%29_20260529.pdf,PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+213630,PLUS 미국다우존스고배당주(합성 H),KR5213AY7810,KR5213AY7810,한화 PLUS 미국다우존스고배당주증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+456200,PLUS 미국달러SOFR금리액티브(합성),K55213E23085,K55213E23085,한화 PLUS 미국달러SOFR금리액티브특별자산상장지수투자신탁(금리-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461910,PLUS 미국테크TOP10레버리지(합성),K55213E31542,K55213E31542,한화 PLUS 미국테크TOP10레버리지증권상장지수투자신탁(주식혼합-파생형)(합성),K55213E31542,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.plusetf.co.kr/customer/notice/detail?n=28085,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+195970,PLUS 선진국MSCI(합성 H),KR5213AR7124,KR5213AR7124,한화 PLUS 선진국MSCI증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+195980,PLUS 신흥국MSCI(합성 H),KR5213AR7165,KR5213AR7165,한화 PLUS 신흥국MSCI증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+256450,PLUS 심천차이넥스트(합성),K55213BI7197,K55213BI7197,한화 PLUS 심천차이넥스트증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+489000,PLUS 일본엔화초단기국채(합성),K55213ED2661,K55213ED2661,한화 PLUS 일본엔화초단기국채 증권상장지수투자신탁(채권-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+328370,PLUS 코스피TR,K55213CQ4342,K55213CQ4342,한화 PLUS 코스피Total Return증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+361580,RISE 200TR,K55223D93485,K55223D93485,KB RISE 200 Total Return 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+465350,RISE 2차전지TOP10인버스(합성),K55223E57157,K55223E57157,KB RISE 2차전지TOP10인버스iSelect 증권 상장지수 투자신탁(주식-파생형)(합성),K55223E57157,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+477080,RISE CD금리액티브(합성),K55223E89887,K55223E89887,KB RISE CD금리액티브 특별자산 상장지수 투자신탁(금리-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+479520,RISE KOFR금리액티브(합성),K55223E98490,K55223E98490,KB RISE KOFR금리액티브 증권 상장지수 투자신탁(채권혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+442550,RISE TDF2030액티브 적격,K55223DX5230,K55223DX5230,KB RISE 적격TDF2030액티브 증권 상장지수 투자신탁(주식혼합-재간접형),K55223DX5230,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+442560,RISE TDF2040액티브 적격,K55223DX5248,K55223DX5248,KB RISE 적격TDF2040액티브 증권 상장지수 투자신탁(주식혼합-재간접형),K55223DX5248,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+442570,RISE TDF2050액티브 적격,K55223DX5255,K55223DX5255,KB RISE 적격TDF2050액티브 증권 상장지수 투자신탁(주식혼합-재간접형),K55223DX5255,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+451670,RISE 국채30년레버리지(합성),K55223E00629,K55223E00629,KB RISE 국채30년레버리지KAP 증권 상장지수 투자신탁(채권-파생형)(합성),K55223E00629,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+375270,RISE 글로벌데이터센터리츠(합성),K55223DE1216,K55223DE1216,KB RISE 글로벌 데이터센터 리츠 부동산 상장지수 투자신탁(파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+276650,RISE 글로벌테크놀로지(합성 H),K55223BU6548,K55223BU6548,KB RISE 글로벌테크놀로지증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+315960,RISE 대형고배당10TR,K55223CJ3036,K55223CJ3036,KB RISE 대형고배당10 Total Return 증권 상장지수 투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+401170,RISE 메타버스,K55223DN5018,K55223DN5018,KB RISE iSelect메타버스 증권 상장지수 투자신탁(주식),K55223DN5018,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+472870,RISE 미국30년국채엔화노출(합성 H),K55223E77825,K55223E77825,KB RISE 미국30년국채엔화노출 증권 상장지수 투자신탁(채권-파생형)(합성H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472830,RISE 미국30년국채커버드콜(합성),K55223E76066,K55223E76066,KB RISE 미국30년국채커버드콜 증권 상장지수 투자신탁(채권-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+453330,RISE 미국S&P500(H),K55223E05289,K55223E05289,KB RISE 미국S&P500 증권 상장지수 투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0005C0,RISE 미국S&P500엔화노출(합성 H),K55223EG9927,K55223EG9927,KB RISE 미국S&P500엔화노출 증권 상장지수 투자신탁(주식-파생형)(합성H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+219390,RISE 미국S&P원유생산기업(합성 H),K55223B28170,K55223B28170,KB RISE 미국S&P원유생산기업 증권 상장지수 투자신탁(주식-파생형)(합성H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+455960,RISE 미국달러SOFR금리액티브(합성),K55223E20338,K55223E20338,KB RISE 미국달러SOFR금리액티브 특별자산 상장지수 투자신탁(금리-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+469050,RISE 미국반도체NYSE(H),K55223E65911,K55223E65911,KB RISE 미국반도체NYSE 증권 상장지수 투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+491630,RISE 미국반도체인버스(합성 H),K55223ED9425,K55223ED9425,KB RISE 미국반도체인버스증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+267440,RISE 미국장기국채선물(H),K55223BN1084,K55223BN1084,KB RISE 미국장기국채선물 증권 상장지수 투자신탁(채권-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+267490,RISE 미국장기국채선물레버리지(합성 H),K55223BN1118,K55223BN1118,KB RISE 미국장기국채선물 레버리지 증권 상장지수 투자신탁(채권-파생형)(합성H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+267450,RISE 미국장기국채선물인버스(H),K55223BN1092,K55223BN1092,KB RISE 미국장기국채선물 인버스 증권 상장지수 투자신탁(채권-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+367770,RISE 수소경제테마,K55223DB4890,K55223DB4890,KB RISE Fn수소경제테마 증권 상장지수 투자신탁(주식),K55223DB4890,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+379790,RISE 유로스탁스50(H),K55223DG4184,K55223DG4184,KB RISE 유로스탁스50 증권 상장지수 투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+310080,RISE 중국MSCI China(H),K55223CG2510,K55223CG2510,KB RISE 중국 MSCI China 증권 상장지수 투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+250730,RISE 차이나HSCEI(H),K55223BF0979,K55223BF0979,KB RISE 차이나HSCEI 증권 상장지수 투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+291680,RISE 차이나H선물인버스(H),K55223C53507,K55223C53507,KB RISE 차이나H선물인버스 증권 상장지수 투자신탁(주식-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0013R0,RISE 테슬라미국채타겟커버드콜혼합(합성),K55223EH6161,K55223EH6161,KB RISE TSLA-UST타겟커버드콜증권상장지수투자신탁(채권혼합-파생재간접형)(합성),K55223EH6161,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+334690,RISE 팔라듐선물(H),K55223CV8484,K55223CV8484,KB RISE 팔라듐선물 특별자산 상장지수 투자신탁(파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+334700,RISE 팔라듐선물인버스(H),K55223CV8492,K55223CV8492,KB RISE 팔라듐선물인버스 특별자산 상장지수 투자신탁(파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+295040,SOL 200TR,K55210C54247,K55210C54247,신한 SOL 200 Total Return 증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+400590,SOL 글로벌탄소배출권선물ICE(합성),K55210DN2358,K55210DN2358,신한SOL글로벌탄소배출권선물ICE특별자산상장지수투자신탁[탄소배출권-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+461600,SOL 미국30년국채액티브(H),K55210E40440,K55210E40440,신한SOL미국30년국채액티브증권상장지수투자신탁[채권](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+473330,SOL 미국30년국채커버드콜(합성),K55210E76444,K55210E76444,신한SOL미국30년국채커버드콜증권상장지수투자신탁[채권-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+494210,SOL 미국500타겟데일리커버드콜액티브,K55210EC9637,K55210EC9637,신한SOL미국500타켓데일리커버드콜액티브증권상장지수투자신탁[주식-파생형],K55210EC9637,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+499150,SOL 미국S&P500엔화노출(H),K55210EF7513,K55210EF7513,신한SOL미국S&P500엔화노출증권상장지수투자신탁[주식-파생형](H),K55210EF7513,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.soletf.com/ko/strategy/pension?tabIndex=2,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+452360,SOL 미국배당다우존스(H),K55210E06284,K55210E06284,신한SOL미국배당다우존스증권상장지수투자신탁[주식](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+400580,SOL 유럽탄소배출권선물S&P(H),K55210DN2341,K55210DN2341,신한SOL유럽탄소배출권선물S&P특별자산상장지수투자신탁[탄소배출권-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+220130,SOL 차이나강소기업CSI500(합성 H),K55210B21701,K55210B21701,신한 SOL 차이나강소기업CSI500증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+415760,SOL 차이나육성산업액티브(합성),K55210DQ3494,K55210DQ3494,신한SOL차이나육성산업액티브증권상장지수투자신탁[주식혼합-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+413220,SOL 차이나태양광CSI(합성),K55210DP7488,K55210DP7488,신한SOL차이나태양광CSI증권상장지수투자신탁[주식혼합-파생형](합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+495550,SOL 코리아밸류업TR,K55210EF9550,K55210EF9550,신한SOL코리아밸류업TotalReturn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+0139F0,TIGER 12월자동연장금융채(AA-이상)액티브,K55301EP6638,K55301EP6638,미래에셋TIGER12월만기자동연장금융채(AA-이상)액티브증권상장지수투자신탁(채권),K55301EP6638,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+310960,TIGER 200TR,K55301CG5203,K55301CG5203,미래에셋TIGER200TotalReturn증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+475630,TIGER CD1년금리액티브(합성),K55301E85343,K55301E85343,미래에셋TIGERCD1년금리액티브증권상장지수투자신탁(채권혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+357870,TIGER CD금리투자KIS(합성),K55301D61007,K55301D61007,미래에셋TIGERCD금리투자KIS특별자산상장지수투자신탁(CD-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+499660,TIGER CD금리플러스액티브(합성),K55301EF8008,K55301EF8008,미래에셋TIGERCD금리플러스액티브증권상장지수투자신탁(채권혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449170,TIGER KOFR금리액티브(합성),K55301DY1209,K55301DY1209,미래에셋TIGERKOFR금리액티브증권상장지수투자신탁(채권혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138530,TIGER LG그룹플러스,KR5225A04026,KR5225A04026,미래에셋 TIGER LG그룹+ 증권상장지수투자신탁(주식),KR5225A04026,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+310970,TIGER MSCI Korea TR,K55301CG5815,K55301CG5815,미래에셋TIGERMSCIKOREATotalReturn증권상장지수투자신탁(주식),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+269370,TIGER S&P글로벌인프라(합성),K55301BO5469,K55301BO5469,미래에셋TIGERS&P글로벌인프라증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+248270,TIGER S&P글로벌헬스케어(합성),K55301BE6980,K55301BE6980,미래에셋TIGER글로벌헬스케어증권상장지수투자신탁(주식-파생형)(합성),K55301BE6980,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0025N0,TIGER TDF2045 적격,K55301EH7354,K55301EH7354,미래에셋TIGER적격TDF2045증권상장지수투자신탁(주식혼합),K55301EH7354,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+237440,TIGER 경기방어채권혼합,K55301BA0110,K55301BA0110,미래에셋TIGER경기방어혼합증권상장지수투자신탁(채권혼합),K55301BA0110,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+319640,TIGER 골드선물(H),K55301CM5189,K55301CM5189,미래에셋TIGER골드선물특별자산상장지수투자신탁[금-파생형](H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+114820,TIGER 국채3년,KR5225151061,KR5225151061,미래에셋TIGER 국채3 증권 상장지수투자신탁(채권),KR5225151061,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+275980,TIGER 글로벌4차산업혁신기술(합성 H),K55301BS2819,K55301BS2819,미래에셋TIGER모닝스타글로벌4차산업혁신기술증권상장지수투자신탁(주식-파생형)(합성 H),K55301BS2819,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+394670,TIGER 글로벌리튬&2차전지SOLACTIVE(합성),K55301DJ6520,K55301DJ6520,미래에셋TIGER글로벌리튬&2차전지SOLACTIVE증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+276000,TIGER 글로벌자원생산기업(합성 H),K55301BS2827,K55301BS2827,미래에셋TIGER모닝스타글로벌자원생산기업증권상장지수투자신탁(주식-파생형)(합성 H),K55301BS2827,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+139320,TIGER 금은선물(H),KR5225A17119,KR5225A17119,미래에셋TIGER금은선물특별자산상장지수투자신탁(금속-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+137610,TIGER 농산물선물Enhanced(H),KR5225987118,KR5225987118,미래에셋TIGER농산물선물특별자산상장지수투자신탁(농산물-파생형)(H),KR5225987118,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+182490,TIGER 단기선진하이일드(합성 H),KR5301AK4675,KR5301AK4675,미래에셋TIGER단기선진국하이일드증권상장지수투자신탁(채권-파생형)(합성 H),KR5301AK4675,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+105010,TIGER 라틴35,KR5225844749,KR5225844749,미래에셋TIGER라틴 증권상장지수투자신탁(주식),KR5225844749,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0086C0,TIGER 리츠부동산인프라10채권혼합액티브,K55301EL7275,K55301EL7275,미래에셋TIGER리츠인프라10채권액티브증권상장지수투자신탁(채권혼합-재간접형),K55301EL7275,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+458250,TIGER 미국30년국채스트립액티브(합성 H),K55301E15670,K55301E15670,미래에셋TIGER미국30년국채스트립액티브증권상장지수투자신탁(채권-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+476550,TIGER 미국30년국채커버드콜액티브(H),K55301E88107,K55301E88107,미래에셋TIGER미국30년국채커버드콜액티브증권상장지수투자신탁(채권-재간접형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+182480,TIGER 미국MSCI리츠(합성 H),KR5301AJ8059,KR5301AJ8059,미래에셋TIGERMSCIUS리츠부동산상장지수투자신탁(파생형)(합성 H),KR5301AJ8059,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+448290,TIGER 미국S&P500(H),K55301DY6612,K55301DY6612,미래에셋TIGER미국S&P500증권상장지수투자신탁(주식-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+225040,TIGER 미국S&P500레버리지(합성 H),K55301B52687,K55301B52687,미래에셋TIGERS&P500레버리지증권상장지수투자신탁(주식혼합-파생형)(합성 H),K55301B52687,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+143850,TIGER 미국S&P500선물(H),KR5225A46688,KR5225A46688,미래에셋TIGERS&P500선물증권상장지수투자신탁(주식-파생형)(H),KR5225A46688,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+225030,TIGER 미국S&P500선물인버스(H),K55301B52679,K55301B52679,미래에셋TIGERS&P500인버스선물증권상장지수투자신탁(주식-파생형)(H),K55301B52679,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+448300,TIGER 미국나스닥100(H),K55301DY5762,K55301DY5762,미래에셋TIGER미국나스닥100증권상장지수투자신탁(주식-파생형)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+418660,TIGER 미국나스닥100레버리지(합성),K55301DQ3577,K55301DQ3577,미래에셋 TIGER 미국나스닥100레버리지증권상장지수투자신탁(주식혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+441680,TIGER 미국나스닥100커버드콜(합성),K55301DX0400,K55301DX0400,미래에셋 TIGER 미국나스닥100커버드콜증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+203780,TIGER 미국나스닥바이오,KR5301AT7943,KR5301AT7943,미래에셋TIGER나스닥바이오 증권상장지수투자신탁(주식),KR5301AT7943,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+456610,TIGER 미국달러SOFR금리액티브(합성),K55301E17064,K55301E17064,미래에셋TIGER미국달러SOFR금리액티브특별자산상장지수투자신탁(금리-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+472160,TIGER 미국테크TOP10 INDXX(H),K55301E73182,K55301E73182,미래에셋TIGER미국테크TOP10INDXX증권상장지수투자신탁(주식)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+458260,TIGER 미국투자등급회사채액티브(H),K55301E15696,K55301E15696,미래에셋TIGER미국투자등급회사채액티브증권상장지수투자신탁(채권)(H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+423920,TIGER 미국필라델피아반도체레버리지(합성),K55301DS3146,K55301DS3146,미래에셋TIGER필라델피아반도체레버리지증권상장지수투자신탁(주식혼합-파생형)(합성),K55301DS3146,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0000D0,TIGER 엔비디아미국채커버드콜밸런스(합성),,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+130680,TIGER 원유선물Enhanced(H),KR5225287949,KR5225287949,미래에셋TIGER원유선물특별자산상장지수투자신탁(원유-파생형)(H),KR5225287949,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+217770,TIGER 원유선물인버스(H),,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+195930,TIGER 유로스탁스50(합성 H),KR5301AR6038,KR5301AR6038,미래에셋TIGER유로스탁스50증권상장지수투자신탁(주식-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+225050,TIGER 유로스탁스레버리지(합성 H),K55301B52695,K55301B52695,미래에셋TIGER유로스탁스50레버리지증권상장지수투자신탁(주식혼합-파생형)(합성 H),K55301B52695,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+225060,TIGER 이머징마켓MSCI레버리지(합성 H),K55301B52703,K55301B52703,미래에셋TIGERMSCIEM레버리지증권상장지수투자신탁(주식혼합-파생형)(합성 H),K55301B52703,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+236350,TIGER 인도니프티50레버리지(합성),,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+195920,TIGER 일본TOPIX(합성 H),,KR5301AR6046,미래에셋TIGER일본증권상장지수투자신탁(주식-파생형)(합성 H),KR5301AR6046,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092529002223.pdf,PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+204480,TIGER 차이나CSI300레버리지(합성),KR5301AU9086,KR5301AU9086,미래에셋TIGER차이나CSI300레버리지증권상장지수투자신탁(주식혼합-파생재간접형)(합성),KR5301AU9086,ISSUER_REVIEWED,ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250404024858009570.pdf,SHARED_PORTAL_PRODUCT;PENDING,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+217780,TIGER 차이나CSI300인버스(합성),K55301B17573,K55301B17573,미래에셋TIGER차이나CSI300인버스증권상장지수투자신탁(채권혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+414780,TIGER 차이나과창판STAR50(합성),K55301DG2696,K55301DG2696,미래에셋 TIGER 차이나과창판STAR50증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+456680,TIGER 차이나전기차레버리지(합성),K55301E17478,K55301E17478,미래에셋 TIGER 차이나전기차레버리지증권상장지수투자신탁(주식혼합-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+117690,TIGER 차이나항셍30,,,,,PENDING,,,PENDING,포털 원본에서 적합 후보 없음. 비슷한 이름의 다른 상품으로 대체하지 않음
+438320,TIGER 차이나항셍테크레버리지(합성 H),K55301DV8900,K55301DV8900,미래에셋TIGER차이나항셍테크레버리지증권상장지수투자신탁(주식혼합-파생형)(합성 H),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+250780,TIGER 코스닥150선물인버스,K55301BF1170,K55301BF1170,미래에셋TIGER코스닥150인버스증권상장지수투자신탁(주식-파생형),K55301BF1170,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+449690,TIGER 한중반도체(합성),K55301DZ0994,K55301DZ0994,미래에셋TIGER 한중반도체증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+449680,TIGER 한중전기차(합성),K55301DZ1141,K55301DZ1141,미래에셋TIGER 한중전기차증권상장지수투자신탁(주식-파생형)(합성),,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+138540,TIGER 현대차그룹플러스,KR5225A04034,KR5225A04034,미래에셋 TIGER  현대차그룹+ 증권상장지수투자신탁(주식),KR5225A04034,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+0112X0,마이티 200TR,K55216EP3761,K55216EP3761,DB마이티200TotalReturn증권상장지수투자신탁[주식],,STRUCTURAL_PASS_ONLY,,,,후보 수·중복 검사 통과. 상품 동일성 확인 전
+159800,마이티 코스피100,KR5216AB3979,KR5216AB3979,DB마이티K100증권상장지수투자신탁[주식],KR5216AB3979,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+152870,파워 200,KR5207A82418,KR5207A82418,교보악사파워K200증권상장지수투자신탁(주식),KR5207A82418,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도
+140950,파워 코스피100,KR5207A24857,KR5207A24857,교보악사파워K100증권상장지수투자신탁(주식),KR5207A24857,PREVIOUS_MANUAL,PREVIOUS_REVIEW_MEMO,,,기존 사람 확인 판정 유지. 운용사 근거 검토와 별도

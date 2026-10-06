@@ -1,0 +1,25 @@
+{
+  "scope": "KRX 2026-09-04 snapshot; issuer review 2026-10-04. Identity confirmation does not establish current listing or CDI eligibility.",
+  "row_count": 1167,
+  "statuses": {
+    "STRUCTURAL_PASS_ONLY": 932,
+    "ISSUER_REVIEWED": 153,
+    "PENDING": 12,
+    "PREVIOUS_MANUAL": 70
+  },
+  "issuer_confirmed_corrections": 46,
+  "issuer_confirmed_new_links": 3,
+  "candidate_changes": 49,
+  "candidate_missing": 7,
+  "candidate_portal_collision_groups": 0,
+  "resolved_portal_collision_groups": 0,
+  "inputs_sha256": {
+    "krx_match_audit.csv": "56b1e40d67cb4f756a2d65a2df7c497de443fbcf2120ec2d7c86e38b0255244e",
+    "krx_duplicate_link_proposals.csv": "ef473da31e4305088d34327dcf41ccfdc0cce8075cba7305502a4847cf55bbbe",
+    "krx_other_review_proposals.csv": "f90573d8414704515ee021de18ab2e710f23f09ad6984ef84b1607f302efc22a",
+    "krx_issuer_review.csv": "8dbfd5f70591ebab827bdd9fa0a4970356d76c437f8471567508dae51dceea67",
+    "funds.json": "37fd93acc726a240705bf850c101215a5e043ae053a0e2e4251e4fb8a395d208"
+  },
+  "issuer_confirmed_kept_links": 104,
+  "ace_portal_code_promotions_2026_10_06": 17
+}

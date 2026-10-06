@@ -21,10 +21,10 @@ Enum product_category_enum {
 }
 
 Enum etf_confidence_enum {
-  KRX_CONFIRMED [note: '1차 판정. KRX ISU_CD 대조로 확정 (records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 2: ETF 이름 규칙」)']
+  KRX_CONFIRMED [note: 'KRX 목록의 ETF와 포털 상품의 연결을 확인. 두 소스에 공통 종목코드가 없어 이름 규칙 또는 사람 확인으로 연결하며 방식·근거는 버전 고정한 대응표에 보존(matching-rules.md 「ETF 판정」)']
   NAME_ONLY [note: '2차 판정. "상장지수" 문자열 포함 = 후보 선별용. 누락 0/938이지만 "재현율 100%"로 읽지 않는다 — 붙지 않은 229건의 이름 표기는 미측정 (matching-rules.md 「ETF 판정」)']
   NOT_ETF [note: '비ETF로 확인된 상품. 이름에 상장지수가 없다는 이유만으로 부여하지 않음']
-  PENDING [note: '대조 실패, 보류. KRX 1,167건 중 229건 (records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 2: ETF 이름 규칙」). CDI 정규화 모집단 제외 대상 (scoring-and-population.md 「정규화와 층내 백분위」)']
+  PENDING [note: '대조 실패 또는 보류. 초기 감사 재검토 148건 중 공식 자료 검토 153건을 확인했고 새 대응표에서 12건은 보류. 구조 검사만 통과한 932건은 NAME_ONLY, 이전 사람 확인 70건은 별도 유지. 현재 상태는 krx_link_review_v2.csv의 review_status로 판단. CDI 정규화 모집단 제외(matching-rules.md 「KRX 매칭 실패 처리」)']
 }
 
 Enum distributor_type_enum {

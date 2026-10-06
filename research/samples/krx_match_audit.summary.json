@@ -1,0 +1,25 @@
+{
+  "scope": "KRX 2026-09-04 snapshot; structural link checks, not product identity certification",
+  "inputs_sha256": {
+    "funds.json": "37fd93acc726a240705bf850c101215a5e043ae053a0e2e4251e4fb8a395d208",
+    "krx.json": "c1a1b2ca2b515e2af9eaf5e650e48c06086eac73f16c734b767437e1bbad10e9",
+    "etf_rule_check.csv": "444547fe267c5ea61267dcc0df45c932dc4e7064179cc0504c79ff00af1b9a4d",
+    "krx_unmatched_rematch.csv": "3096c64f4f80fe4a6bf1c7fe0f980679bafe51ad2007c70c6858453ad22cd1e5"
+  },
+  "counts": {
+    "일치": 938,
+    "자동 1:1": 141,
+    "확정(사람 확인)": 70,
+    "보류": 18
+  },
+  "cohorts": {
+    "9월 이름 규칙": 938,
+    "10월 재대조": 229
+  },
+  "review_rows": 148,
+  "reason_counts": {
+    "MULTIPLE_NAME_CANDIDATES": 93,
+    "SHARED_PORTAL_PRODUCT": 91,
+    "PENDING": 18
+  }
+}

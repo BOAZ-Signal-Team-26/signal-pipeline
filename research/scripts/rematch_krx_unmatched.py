@@ -11,13 +11,16 @@
 """
 import csv,json,re,sys,collections
 sys.path.insert(0,'research/scripts'); from verify_etf_rule import normalize as N
-r=[x for x in csv.DictReader(open('research/samples/etf_rule_check.csv',encoding='utf-8')) if x['구분']=='KRX매칭실패']
+base_rows=list(csv.DictReader(open('research/samples/etf_rule_check.csv',encoding='utf-8')))
+r=[x for x in base_rows if x['구분']=='KRX매칭실패']
+base_claims=collections.defaultdict(set)
+for x in base_rows:
+    if x['구분'] in ('일치','누락') and x['asoStdCd']:
+        base_claims[x['asoStdCd']].add(x['ISU_CD'])
 d=json.load(open(sys.argv[1],encoding='utf-8'))
-F={}
-for f in d:
-    if '상장지수' in f['fndNm'] or 'ETF' in f['fndNm'].upper():
-        F.setdefault(f['srtnCd'],f)  # one row per short code
-F=list(F.values()); FN=[(N(re.sub(r'\([^)]*\)|\[[^\]]*\]','',f['fndNm'])),f) for f in F]
+# srtnCd는 전역 유일키가 아니다. 같은 코드의 다른 상품도 후보에 남겨 모호하면 보류한다.
+F=[f for f in d if '상장지수' in f['fndNm'] or 'ETF' in f['fndNm'].upper()]
+FN=[(N(re.sub(r'\([^)]*\)|\[[^\]]*\]','',f['fndNm'])),f) for f in F]
 # 수식어 제거: KRX 괄호 표기((합성)·(H)·(합성 H)) — 포털은 이 표기를 이름 끝에 따로 붙이거나 생략
 ALIAS={'ACE':['KINDEX'],'RISE':['KBSTAR'],'PLUS':['ARIRANG'],'KIWOOM':['KOSEF'],'1Q':[],'SOL':[],'KODEX':[],'TIGER':[],'HANARO':[]}
 TAILS=['증권','특별자산','상장지수','파생','부동산','채권','주식','혼합','투자신탁','재간접','금리','통화','원자재']
@@ -83,9 +86,13 @@ if os.path.exists(sys.argv[2]):
 final=[]
 for o in out:
     c=prev.get(o[1])
-    if o[0]=='자동 1:1': final.append(o+[c['메모'] if c else ''])  # 자동 행의 점검 메모도 유지
-    elif c and c['결과']=='확정(사람 확인)':
+    other_krx=base_claims.get(o[6],set())-{o[1]} if o[6] else set()
+    if c and c['결과']=='확정(사람 확인)':
         final.append(['확정(사람 확인)',o[1],o[2],1,c['포털펀드명'],c['srtnCd'],c['asoStdCd'],c['유사도'],c['메모']])
+    elif other_krx:
+        note='기존 KRX 종목과 포털 상품 중복: '+','.join(sorted(other_krx))
+        final.append(['보류',o[1],o[2],o[3],o[4],o[5],o[6],o[7] if len(o)>7 else '',note])
+    elif o[0]=='자동 1:1': final.append(o+[c['메모'] if c else ''])  # 자동 행의 점검 메모도 유지
     else: final.append(['보류',o[1],o[2],o[3],'','','',o[7] if len(o)>7 else '',c['메모'] if c else ''])
 out=final
 print('최종',dict(collections.Counter(o[0] for o in out)))
