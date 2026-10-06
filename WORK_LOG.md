@@ -14,6 +14,7 @@
 - 수집 결과(10월 5일, `--from 2026-09-01 --max-pdf 500`): 본문 PDF 500건(810MB, 평균 1.62MB, 모두 `%PDF-` 확인), 접수일 9월 1일~29일 완료·워터마크 9월 29일, 요청 2,552번, 61분. 결과 분류 SUCCESS 2,384·PERMANENT_FAILED 146·EMPTY 10. 투자설명서 503건 중 `document.xml` 014가 146건(29%). 표지·본문 노드 없음 3건. 다운로드 타임아웃 12번은 재시도로 모두 성공
 - 경로 변경(10월 5일): 수집분 1,884개를 옛 경로(수집일·해시 폴더)에서 새 경로로 옮김(바이트 그대로, SHA-256 대조 일치). 실행 기록의 `storage_path`를 고치고 대응표 `runs/_path_migration_20261005.tsv`를 남김
 - 검증: pytest 40개 통과(재시도·분류·인증값 제외, 경로·원천 키 인코딩·판 번호, 실행 기록·워터마크·룩백, report_nm 분류·트리 파싱·노드 찾기·PDF 링크), `ruff format`·`ruff check` 통과. 경로 변경 뒤 같은 명령을 다시 실행해 신규 0건·건너뜀 50건·요청 4번 확인(9월 26일~29일)
+- PR #47 리뷰 반영(10월 7일): 목록 조회 실패를 실행 요약 `list_failures`에 기록하고 하나라도 있으면 실행을 `FAILED`·종료 코드 1로 끝냄. 인증 키(`crtfc_key` 등)를 담은 요청만 리다이렉트를 따르지 않음(3xx는 `PERMANENT_FAILED`). 테스트 2개 추가해 pytest 42개 통과, 실제 목록 API 1회 호출로 정상 응답 확인. 문서 단위 재시도 실패로 미완료가 된 날은 아직 실행 상태에 반영하지 않음
 - 수행하지 않은 것: 문서 반영(`data-sources.md`에 신고서 구조·OPEN DART status 코드표, ERD `file_role_enum`에 `viewer_tree` 추가)은 PM 검토 뒤로 미룸. S3 저장(`RAW_ROOT`가 로컬 폴더), DB 기록(`collection_attempt`·`source_watermark`), 공공데이터포털·KRX 수집(2차), 절 단위 분할, CI에 pytest 추가
 
 ## 2026-10-04 — 10-02 CDI 4축 변수표 반영
