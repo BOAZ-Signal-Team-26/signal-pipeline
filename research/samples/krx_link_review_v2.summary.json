@@ -14,12 +14,25 @@
   "candidate_portal_collision_groups": 0,
   "resolved_portal_collision_groups": 0,
   "inputs_sha256": {
-    "krx_match_audit.csv": "56b1e40d67cb4f756a2d65a2df7c497de443fbcf2120ec2d7c86e38b0255244e",
-    "krx_duplicate_link_proposals.csv": "ef473da31e4305088d34327dcf41ccfdc0cce8075cba7305502a4847cf55bbbe",
-    "krx_other_review_proposals.csv": "f90573d8414704515ee021de18ab2e710f23f09ad6984ef84b1607f302efc22a",
     "krx_issuer_review.csv": "8dbfd5f70591ebab827bdd9fa0a4970356d76c437f8471567508dae51dceea67",
     "funds.json": "37fd93acc726a240705bf850c101215a5e043ae053a0e2e4251e4fb8a395d208"
   },
   "issuer_confirmed_kept_links": 104,
-  "ace_portal_code_promotions_2026_10_06": 17
+  "ace_portal_code_promotions_2026_10_06": 17,
+  "intermediate_files_removed_2026_10_06": {
+    "files": [
+      "krx_match_audit.csv",
+      "krx_match_audit.summary.json",
+      "krx_duplicate_link_proposals.csv",
+      "krx_other_review_proposals.csv",
+      "krx_unmatched_rematch.csv",
+      "krx_clean_sample_review.csv"
+    ],
+    "scripts": [
+      "audit_krx_matches.py",
+      "propose_krx_duplicate_links.py",
+      "build_krx_review_table.py"
+    ],
+    "note": "정본 대응표 krx_link_review_v2.csv와 근거표 krx_issuer_review.csv만 유지. 229건 재대조 메모는 review_note 열에 합침. 제거한 파일은 git 이력에 보존"
+  }
 }
