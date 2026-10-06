@@ -130,11 +130,16 @@ class HttpClient:
             request_params=redact(params),
             outcome=Outcome.RETRYABLE_FAILED,
         )
+        # 인증 키를 쿼리에 담은 요청은 리다이렉트를 따르지 않음(다른 호스트로 키가 넘어가지 않게).
+        # 3xx는 classify_status에 따라 PERMANENT_FAILED로 기록됨
+        follow = not (SECRET_PARAM_NAMES & set(params or {}))
         for attempt_no in range(1, self.max_retries + 2):
             self._wait_interval()
             attempted_at = _now()
             try:
-                response = self._client.get(url, params=params, headers=headers)
+                response = self._client.get(
+                    url, params=params, headers=headers, follow_redirects=follow
+                )
             except httpx.TransportError as error:  # 타임아웃·연결 오류
                 status, outcome, reason = None, Outcome.RETRYABLE_FAILED, repr(error)
             else:

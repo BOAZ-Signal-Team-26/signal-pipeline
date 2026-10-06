@@ -63,6 +63,28 @@ def test_no_retry_for_non_retryable(status: int) -> None:
     assert result.content is None
 
 
+def test_redirect_not_followed_when_secret_in_params() -> None:
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url.host)
+        if request.url.host == "example.test":
+            return httpx.Response(302, headers={"Location": "https://other.test/b"})
+        return httpx.Response(200, content=b"ok")
+
+    client = HttpClient(
+        "test", min_interval=0, backoff_base=0, transport=httpx.MockTransport(handler)
+    )
+    with_key = client.fetch("https://example.test/a", params={"crtfc_key": "SECRET"})
+    assert with_key.outcome is Outcome.PERMANENT_FAILED
+    assert with_key.http_status == 302 and len(with_key.tries) == 1
+    assert seen == ["example.test"]  # 다른 호스트로 요청하지 않음
+
+    without_key = client.fetch("https://example.test/a", params={"page": "1"})
+    assert without_key.outcome is Outcome.SUCCESS
+    assert seen[-1] == "other.test"
+
+
 def test_secrets_are_not_recorded() -> None:
     params = {"crtfc_key": "SECRET", "serviceKey": "S", "rcept_no": "20261002000026"}
     result = make_client([200]).fetch("https://example.test/a?x=1", params=params)
