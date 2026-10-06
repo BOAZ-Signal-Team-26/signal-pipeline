@@ -1,15 +1,24 @@
+from datetime import date
+from pathlib import Path
+
+import httpx
 import pytest
 
 from signal_pipeline.collectors.dart import (
     BODY_NODE,
     COVER_NODE,
     TARGET_KINDS,
+    DartCrawler,
     Kind,
     classify_report,
     find_node,
     find_pdf_link,
     parse_tree,
 )
+from signal_pipeline.common.http import HttpClient
+from signal_pipeline.common.runlog import RunLog
+from signal_pipeline.common.state import Watermark
+from signal_pipeline.common.storage import RawStore
 
 # DART 공개 뷰어 main.do의 트리 스크립트 형태(10월 5일 실제 응답 20261002000011에서 줄여 옮김).
 # 정정본은 「정 정 신 고 (보고)」 노드가 앞에 붙어 표지가 eleId=2가 된다
@@ -98,3 +107,21 @@ def test_find_pdf_link_unescapes_html() -> None:
 def test_only_prospectus_is_crawled() -> None:
     # 신고서는 분류해 건수만 세고 요청하지 않음(10월 5일 결정)
     assert TARGET_KINDS == {Kind.PROSPECTUS}
+
+
+def test_list_failure_is_recorded_and_fails_run(tmp_path: Path) -> None:
+    # 목록 조회가 404로 끝나는 날: 그날 미완료, 요약에 기록, 실행은 실패(PR #47 리뷰)
+    client = HttpClient(
+        "test",
+        min_interval=0,
+        backoff_base=0,
+        transport=httpx.MockTransport(lambda request: httpx.Response(404)),
+    )
+    log = RunLog(tmp_path, baseline_date="2026-10-01", config={})
+    crawler = DartCrawler(client, RawStore(tmp_path), log, api_key="K", max_pdf=1)
+    mark = Watermark(tmp_path, "dart")
+    day = date(2026, 10, 1)
+    assert crawler.run(day, day, mark) is False
+    assert crawler.summary.list_failures == ["2026-10-01 PERMANENT_FAILED"]
+    assert crawler.summary.days_done == []
+    assert mark.load() is None

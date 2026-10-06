@@ -132,6 +132,7 @@ class Summary:
     body_pdf_new: int = 0
     cover_xml_014: list[str] = field(default_factory=list)
     permanent_failures: list[str] = field(default_factory=list)
+    list_failures: list[str] = field(default_factory=list)
     lookback_new: list[str] = field(default_factory=list)
     stopped_by: str | None = None
 
@@ -447,6 +448,8 @@ class DartCrawler:
         """(그날 완료 여부, 실행을 멈춰야 하는지)."""
         items, outcome = self.list_stream(day)
         if outcome is not Outcome.SUCCESS:
+            # 목록을 못 받은 날은 미완료. 실행을 FAILED로 끝내도록 기록(워터마크는 그날 앞에서 멈춤)
+            self.summary.list_failures.append(f"{day.isoformat()} {outcome}")
             return False, outcome in STOP_OUTCOMES
         complete = True
         for item in items:
@@ -489,7 +492,8 @@ class DartCrawler:
             if stop:
                 break
             current += timedelta(days=1)
-        return self.summary.stopped_by not in {str(o) for o in STOP_OUTCOMES}
+        stopped = self.summary.stopped_by in {str(o) for o in STOP_OUTCOMES}
+        return not stopped and not self.summary.list_failures
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -561,6 +565,7 @@ def main(argv: list[str] | None = None) -> int:
             "body_pdf_new": summary.body_pdf_new,
             "cover_xml_014": summary.cover_xml_014,
             "permanent_failures": summary.permanent_failures,
+            "list_failures": summary.list_failures,
             "lookback_new": summary.lookback_new,
             "watermark": str(mark.load()),
             "stopped_by": summary.stopped_by,
