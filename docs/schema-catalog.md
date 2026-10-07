@@ -245,7 +245,7 @@
 
 | 칼럼 | 논리 타입 | NULL | 키 | 설명 |
 |---|---|---|---|---|
-| run_id | varchar | 불가 | PK | 실행 식별자. 같은 실행 재시도에는 유지. run_kind로 추출 실행과 채점 실행을 구분([데이터 테이블·ERD 설계](data-model.md) 「실행과 비교 모집단」) |
+| run_id | varchar | 불가 | PK | 실행 식별자. 같은 실행 안의 요청 재시도에는 유지하고, 실패한 채점 실행을 다시 돌릴 때는 새 run_id 발급. run_kind로 추출 실행과 채점 실행을 구분([데이터 테이블·ERD 설계](data-model.md) 「실행과 비교 모집단」) |
 | run_kind | run_kind_enum | 불가 |  | EXTRACT: 수집·추출·절·매칭·fund_group. SCORE: 대상·점수·모집단. 전체 처리 1회 = EXTRACT 1개 + 그것을 참조하는 SCORE 1개 |
 | upstream_run_id | varchar | 허용 | FK | SCORE는 필수(참조하는 EXTRACT run). EXTRACT는 NULL. 대상은 SUCCEEDED인 EXTRACT run이고 baseline_date가 같아야 함(적재 검증) |
 | is_official | boolean | 불가 |  | 기본 false. 대시보드/API가 서빙하는 공식 채점 실행. SCORE run만 true 가능, 동시에 true는 최대 1개(적재 검증). SUCCEEDED에서만 허용. 기준일별 과거 스냅숏 서빙은 서빙 계약 결정(검토 번호 B5, [데이터 테이블·ERD 설계](data-model.md) 「미결」)에서 확장 |

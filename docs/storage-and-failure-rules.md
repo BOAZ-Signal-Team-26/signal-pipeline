@@ -183,6 +183,8 @@ derived/{raw_sha256}/{parser_version}/text.txt
 derived/{raw_sha256}/{parser_version}/structure.json             # file_extraction.structure_manifest_path
 runs/{run_id}/inputs.json                                        # EXTRACT·SCORE run 모두
 runs/{score_run_id}/selection.json                               # pipeline_run.selection_manifest_path (채점 실행만)
+runs/{score_run_id}/documents.parquet                            # 채점 입력(데이터 처리 요구 명세)
+runs/{score_run_id}/excluded.parquet                             # 비교 집단 제외 목록
 runs/{score_run_id}/populations/{population_snapshot_id}.json
 runs/{run_id}/llm/{document_id}/{field_name}/attempt-{n}/request.json
 runs/{run_id}/llm/{document_id}/{field_name}/attempt-{n}/response.json   # llm_field_extraction.raw_response_path
@@ -191,7 +193,6 @@ eval/pilot/{id}/
 eval/human-eval/{id}/
 eval/sanction-validation/{버전}/
 exports/official.json
-exports/runs/{score_run_id}/documents.parquet
 exports/runs/{score_run_id}/scores.parquet
 exports/runs/{score_run_id}/sensitivity/
 backups/postgres/{YYYY-MM-DD}/signal.dump                        # + signal.dump.sha256
@@ -212,7 +213,8 @@ LLM 호출 저장:
 
 실행 폴더 불변:
 
-- `runs/{run_id}/`(inputs.json, selection.json, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
+- `runs/{run_id}/`(inputs.json, selection.json, documents.parquet, excluded.parquet, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
+- 채점 입력 파일(inputs.json, selection.json, documents.parquet, excluded.parquet)은 실행 시작 때 한 번 쓰고 이후 바꾸지 않음. 두 parquet의 sha256은 inputs.json에 기록. 실패한 채점 실행을 다시 돌릴 때는 새 score_run_id를 발급
 
 `assets/`(불변, 이름·버전·해시 12자로 경로가 정해짐):
 
@@ -235,7 +237,7 @@ LLM 호출 저장:
 `exports/`:
 
 - `official.json`: 현재 공식 채점 실행을 가리키는 포인터. `is_official`이 바뀔 때만 갱신
-- `runs/{score_run_id}/`: `documents.parquet`(대표 문서 텍스트·역할·상품군·위험등급·작성기준일·표 제외 텍스트·절 범위), `scores.parquet`, `sensitivity/`
+- `runs/{score_run_id}/`: `scores.parquet`, `sensitivity/`. 채점 결과만 둠. 채점 입력 `documents.parquet`·`excluded.parquet`는 실행 폴더 `runs/{score_run_id}/`에 둠
 
 `backups/`:
 
@@ -257,8 +259,9 @@ LLM 호출 저장:
 6. 구간 검증을 통과했을 때만 `source_watermark` 전진(5와 별도 트랜잭션)
 7. 추출: `derived/` `text.txt` → `structure.json` → DB 행
 8. LLM 호출: `runs/…/llm`
-9. 채점: `runs/`
-10. `exports/`
+9. 채점 입력: `runs/{score_run_id}/` inputs.json·selection.json·documents.parquet·excluded.parquet
+10. 채점: `runs/`
+11. `exports/`
 
 - 4와 5 사이에 중단되면 S3에 `raw_object` 행이 없는 객체가 남음. 삭제하지 않고 재시도에서 같은 키·같은 바이트이면 채택
 - `.meta.json`을 먼저 쓰므로 원본이 있는 객체는 항상 meta.json이 있음
