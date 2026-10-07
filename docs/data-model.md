@@ -824,8 +824,8 @@ erDiagram
 | 순서 | 절차 |
 |---|---|
 | 1 | 기존 DB 적용 여부부터 확인. 이번 작업은 논리 스키마와 문서 변경이며 운영 DB 마이그레이션 실행 아님 |
-| 2 | 기존 section마다 SECTION 대상 score 행을 정하되, 이미 score 행이 있는 section은 새로 삽입하지 않고 3단계에서 그 행을 변환함(v2.2: 대상·멤버 표가 없어 score가 대상 칼럼을 가짐). 기존 score_type에 해당하는 승인된 metric 버전 식별. 알 수 없는 산식은 추측하지 않고 격리 |
-| 3 | 2단계에서 만든 SECTION 대상 행과 기존 score 행을 짝지어 한 행으로 만듦: 기존 score 행이 있으면 그 행의 score_id를 유지한 채 대상 칼럼을 채우고(새 행을 따로 삽입하지 않음), 짝이 없는 section만 2단계에서 새 행을 삽입함. 같은 section에 대해 두 행이 생기지 않는지 (run_id, target_key, metric_key, assessor_key) 유일성으로 검증함. 채울 칼럼: target_type·대상 칼럼(section_id·document_id·fund_key 중 하나)·target_key·metric_key·assessor_key 채움. 실제 숫자가 있는 행만 OK. 기존 weight는 사용한 문서별 산식이 확인될 때 score_payload의 가중치 계약으로 이관(v2.2는 score_dependency 표가 없음). 백분위는 모집단·단위가 검증된 경우만 이관 |
+| 2 | 이관 단위는 (section, 지표). 기존 행의 score_type마다 승인된 metric 버전과 assessor를 대응시킨 표를 먼저 만듦(score_type → metric_key·assessor_key). 대응을 알 수 없는 score_type은 추측하지 않고 격리. 기존 v1 고유키 (run_id, section_id, score_type) 행 하나가 v2 행 하나가 됨(v2.2: 대상·멤버 표가 없어 score가 대상 칼럼을 가짐) |
+| 3 | 기존 score 행마다 2단계 대응표로 metric_key·assessor_key를 정하고 그 행의 score_id를 유지한 채 대상 칼럼을 채움(새 행을 따로 삽입하지 않음). 한 section에 score_type이 여러 개면 각 행을 따로 변환함. 기존 행이 없는 (section, 지표)만 새 행을 삽입함. 같은 (section, 지표)에 두 행이 생기지 않는지 (run_id, target_key, metric_key, assessor_key) 유일성으로 검증함. 채울 칼럼: target_type·대상 칼럼(section_id·document_id·fund_key 중 하나)·target_key·metric_key·assessor_key 채움. 실제 숫자가 있는 행만 OK. 기존 weight는 사용한 문서별 산식이 확인될 때 score_payload의 가중치 계약으로 이관(v2.2는 score_dependency 표가 없음). 백분위는 모집단·단위가 검증된 경우만 이관 |
 | 4 | 파일 구조를 재추출하지 않았다면 structure_status=NOT_REQUESTED. 기존 데이터에 페이지/좌표를 가정해 채우지 않음 |
 | 5 | 입력·모집단·대상·지표 연결 검증 뒤 구형 score 칼럼 소비자를 v2로 전환. 실제 데이터가 있으면 행 수/해시/점수 동등성 대조와 되돌리기용 백업 선행 |
 

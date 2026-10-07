@@ -1,5 +1,13 @@
 # 작업 기록
 
+## 2026-10-07 — ERD v2.2 PR 리뷰 반영: 채점 입력 위치와 워터마크 시작일
+
+- 데이터 처리 요구 명세(PR #49) 결정 반영: `documents.parquet`·`excluded.parquet`를 `exports/runs/`에서 실행 폴더 `runs/{score_run_id}/`로 옮김. `exports/`에는 채점 결과만 둠. 채점 입력 파일은 실행 시작 때 한 번 쓰고 바꾸지 않으며, 실패한 채점 실행은 새 score_run_id로 다시 돌림([원본 보관 규칙](docs/storage-and-failure-rules.md) 「실행 폴더 불변」「적재 순서」).
+- run_id 설명에서 같은 실행 안의 요청 재시도(유지)와 채점 재실행(새 run_id)을 구분.
+- 데이터 엔지니어링·인프라(주영) 리뷰 2번 반영: `covered_from`을 누적 구간의 시작일(첫 실행 시작일, 바꾸지 않음, 룩백 하한)로 확정.
+- CodeRabbit 지적 반영: v1 → v2 이관을 (section, 지표) 단위로 바꾸고 score_type → metric_key·assessor_key 대응표를 먼저 만들도록 명시([데이터 테이블·ERD 설계](docs/data-model.md) 「v1 → v2 이관 절차」).
+- 바꾸지 않은 것: 표 17·관계 42·enum 26, 칼럼 구성. 리뷰 1번(실행별 추출 시도 기록)·3번(LLM 추출 입력 특정)은 이번에 정하지 않음(10월 14일·15일 전 결정).
+
 ## 2026-10-06 — KRX 대응표 정본만 유지
 
 - KRX ETF 1,167건 대응표의 중간 산출물 9개(초기 감사표·요약, 중복·기타 후보표, 229건 재대조 CSV, 40건 표본 목록, 생성 스크립트 3개)를 저장소에서 제거. 정본 `research/samples/krx_link_review_v2.csv`와 근거표 `krx_issuer_review.csv`, 재대조 스크립트 `rematch_krx_unmatched.py`만 유지. 229건 재대조의 행별 메모는 정본의 `review_note` 열에 합침. 제거 파일은 git 이력에 보존.

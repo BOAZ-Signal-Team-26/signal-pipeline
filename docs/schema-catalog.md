@@ -395,7 +395,7 @@
 |---|---|---|---|---|
 | source | varchar | 불가 | PK | document.source와 같은 이름공간 또는 소스/엔드포인트 이름 |
 | scope_key | varchar | 불가 | PK | 비밀값 제외 서비스+조회조건의 정규화 키(collection_attempt.request_key 규약). 소스당 증분 축이 여러 개면 구분 |
-| covered_from | date | 불가 |  | 검증한 구간의 시작 기준일(포함). 구간 [covered_from, covered_through] 전체가 완전성 검증을 통과해야 한다 |
+| covered_from | date | 불가 |  | 누적 구간의 시작 기준일(포함). 첫 실행의 시작일로 정하고 이후 바꾸지 않음. 룩백 재조회는 이 날짜보다 앞으로 가지 않음. 구간 [covered_from, covered_through] 전체가 완전성 검증을 통과해야 한다 |
 | covered_through | date | 불가 |  | 이 날짜(포함)까지 받았다고 검증된 기준일. 증분 축은 소스별(DART rcept_dt, 금투협 standardDt 등, data-sources.md) |
 | verified_run_id | varchar | 불가 | FK | 구간 완전성을 검증한 EXTRACT run |
 | verification_note | text | 허용 |  | 검증 방법과 결과. 구간 완전성 검증(건수 대조, 페이지 끝 확인 등) 뒤에만 전진한다. 검증 실패·부분 응답이면 갱신하지 않고 기존 값을 유지 |
