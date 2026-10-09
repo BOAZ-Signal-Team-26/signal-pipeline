@@ -196,6 +196,7 @@ eval/sanction-validation/{버전}/
 exports/official.json
 exports/runs/{score_run_id}/scores.parquet
 exports/runs/{score_run_id}/sensitivity/
+exports/runs/{score_run_id}/dashboard_documents.parquet       # 대시보드 전용 내보내기(칼럼은 미결)
 backups/postgres/{YYYY-MM-DD}/signal.dump                        # + signal.dump.sha256
 ```
 
@@ -242,7 +243,7 @@ LLM 호출 저장:
 `exports/`:
 
 - `official.json`: 현재 공식 채점 실행을 가리키는 포인터. `is_official`이 바뀔 때만 갱신
-- `runs/{score_run_id}/`: `scores.parquet`, `sensitivity/`. 채점 결과만 둠. 채점 입력 `documents.parquet`·`excluded.parquet`는 실행 폴더 `runs/{score_run_id}/`에 둠
+- `runs/{score_run_id}/`: `scores.parquet`, `sensitivity/`. 채점 결과와 대시보드 전용 내보내기 `dashboard_documents.parquet`만 둠. 채점 입력 `documents.parquet`·`excluded.parquet`는 실행 폴더 `runs/{score_run_id}/`에 둠. 대시보드는 `exports/`만 읽으므로(signal-infra `docs/storage-design.md` 3.9) 채점 실행 마지막 단계에서 드릴다운 화면에 필요한 칼럼을 이 파일로 씀. 담을 칼럼(문서 전문 포함 여부)은 「미결」
 
 `backups/`:
 
@@ -359,6 +360,7 @@ LLM 호출 저장:
 - 옛 raw_object.extract_status의 단일 현재값은 쓰지 않음
 - 실행별 추출 시도 기록(10월 9일 PM(대현) 확정, 데이터 엔지니어링·인프라(주영) 리뷰 제안): `file_extraction`은 FAILED·PARTIAL 행을 다음 실행이 덮어쓰므로 실행마다의 실패 기록이 남지 않음. 그래서 EXTRACT 실행은 `runs/{run_id}/extraction_attempts.jsonl`에 시도 1건당 1줄을 씀. 표는 추가하지 않음
   - 칼럼: `run_id`, `raw_object_id`, `raw_sha256`, `parser_version`, `action`(EXTRACTED / SKIPPED_EXISTING_OK), `extract_status`, `error_reason`, `started_at`, `finished_at`
+  - 쓰는 방식: 실행 중에는 로컬 임시 파일에 덧붙이고, 실행이 끝날 때 `runs/{run_id}/`에 한 번 올림. `runs/`는 조건부 쓰기만 허용해 같은 키를 다시 쓸 수 없음
   - 이미 EXTRACT_OK인 파일을 건너뛴 것도 `SKIPPED_EXISTING_OK`로 한 줄 남김. 그 실행의 처리 분모에 들어감
   - 실행별 파일 단위 실패 건수·실패율·유형은 이 파일에서 셈. `file_extraction`은 파일 × 파서 버전의 현재 상태만 담음
   - 크롤러의 요청 시도 기록(`runs/{run_id}/attempts.jsonl`, `collection_attempt` 칼럼)과 같은 방식. 실행 완료 뒤 불변(「실행 폴더 불변」)
@@ -419,6 +421,7 @@ LLM 호출 저장:
 | 결측률 칸의 분모 칸: 분쟁조정 사건 814 / 금융투자 187 / 첨부 845 / 첨부 213단위가 섞임 | [담당 미정] | 09-30 2단계 설계 확정 |
 | KRX 휴장일 0행 응답을 확인하는 방법(거래소 영업일 정보), DART 응답 `total_count`와 받은 행 수 대조 구현. 룩백 재조회 방식과 나머지 소스별 검증 방법은 PR #49 8절로 정함(10월 9일) | 데이터 엔지니어링·인프라(주영) | 크롤러 2차(10월 14일) |
 | 평가 표·자료의 접근 분리 중 DB 쪽: 같은 DB 유지 vs eval 스키마(검토 번호 B4). 저장소 쪽은 같은 버킷의 `eval/` 접두어 + 전용 IAM으로 정함. 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
+| 대시보드 전용 내보내기 `dashboard_documents.parquet`에 담을 칼럼. 드릴다운·근거 절 화면에 필요한 것만(절 범위, 근거 위치, 펀드·문서 식별자 등) 담을지, 문서 전문까지 담을지. 전문은 행마다 수십만 자라 펀드 수천 개면 GB 규모 | 데이터 사이언스(다빈)·PM(대현) | 대시보드 구현 전 |
 | 스냅숏형 API 객체(`page-NNNN__v{n}.json`, `_complete__v{n}.json`)에도 `.meta.json`을 둘지. 재수집 파일명은 10월 4일 확정(같은 기준일 바이트가 바뀌면 `r2/`, `r3/` 폴더) | 데이터 엔지니어링·인프라(주영) | 수집기 구현 전 |
 
 ## 참고
