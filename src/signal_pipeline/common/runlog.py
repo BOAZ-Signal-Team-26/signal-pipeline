@@ -75,7 +75,7 @@ class RunLog:
             json.dumps(self.run, ensure_ascii=False, indent=1), encoding="utf-8"
         )
 
-    def _append(self, name: str, record: dict[str, object]) -> None:
+    def append(self, name: str, record: dict[str, object]) -> None:
         with (self.dir / name).open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
@@ -107,7 +107,7 @@ class RunLog:
                 else attempt.error_reason
             )
             self._attempt_id += 1
-            self._append(
+            self.append(
                 "attempts.jsonl",
                 {
                     "attempt_id": self._attempt_id,
@@ -138,7 +138,7 @@ class RunLog:
         file_role: str,
         document_key: str | None,
     ) -> None:
-        self._append(
+        self.append(
             "raw_objects.jsonl",
             {
                 "source": source,
