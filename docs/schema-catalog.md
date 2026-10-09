@@ -103,7 +103,7 @@
 | version_no | int | 허용 |  | 계산값 | 파생 칼럼(09-14 티켓 메모 반영, 신설). lineage 안에서 received_date 순번 |
 | is_current | boolean | 허용 |  | 계산값 | 파생 칼럼(09-14 티켓 메모 반영, 신설). 물리 칼럼으로 둘지는 2단계 데이터 파이프라인 Flow 설계의 이력 설계에서 결정 |
 | initial_submit_date | date | 허용 |  | 원본값 | 정정본이면 정정신고 요소에 적힌 최초제출일. 원본이면 received_date와 같다 |
-| report_base_date | date | 허용 |  | 원본값 | v2.2 결정 대기(10월 4일 판단 항목). 문서 작성기준일. 작성기준 항목 점검이 이 시점의 작성기준 판과 비교한다. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일). 반대 결정 시 칼럼 제거 후 manifest로 이동 |
+| report_base_date | date | 허용 |  | 원본값 | v2.2(10월 7일 10차 미팅 확정). 문서 작성기준일. 작성기준 항목 점검이 이 시점의 작성기준 판과 비교한다. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일). 반대 결정 시 칼럼 제거 후 manifest로 이동 |
 | received_date | date | 불가 |  | 원본값 | 접수일자. 분쟁조정은 게시일로 채움. 금소법 시행(2021년) 이후 자료만 거르는 기준이라 필수 유지(9차 미팅). 현재 조사 스크립트 `research/scripts/fetch_fss_dispute.py`의 `listing()`은 게시일을 파싱하지 않음(수집기 미구현). 분석·리서치(민석) 확인대기, 2026-10-04 |
 
 - UNIQUE: (source, source_doc_key)
@@ -245,7 +245,7 @@
 | manager_id | int | 불가 | FK | 판정값 |  |
 | created_run_id | varchar | 불가 | FK | 관리값 | 최초 발급한 EXTRACT run |
 | grouping_evidence | text | 불가 |  | 판정값 | JSON. 모자/호수/유형을 보존한 매칭 근거와 최초 원천키 |
-| representative_risk_grade | int | 허용 |  | 판정값 | 1~6(CHECK). 등급이 있으면 근거 문서·구분 필수(적재 검증). 작성기준일은 근거 문서의 document.report_base_date를 씀(중복 칼럼 없음). v2.2 결정 대기(10월 4일 판단 항목). 펀드 대표 위험등급 1~6. 규칙은 [데이터 테이블·ERD 설계](data-model.md) 「상품과 법인」(종류형 펀드는 등급 하나). 출처가 없으면 NULL이며 통계에서 사유와 함께 제외. 반대 결정 시 이 칼럼 3개를 제거하고 product.risk_grade로 층 배정 |
+| representative_risk_grade | int | 허용 |  | 판정값 | 1~6(CHECK). 등급이 있으면 근거 문서·구분 필수(적재 검증). 작성기준일은 근거 문서의 document.report_base_date를 씀(중복 칼럼 없음). v2.2(10월 7일 10차 미팅 확정). 펀드 대표 위험등급 1~6. 규칙은 [데이터 테이블·ERD 설계](data-model.md) 「상품과 법인」(종류형 펀드는 등급 하나). 출처가 없으면 NULL이며 통계에서 사유와 함께 제외. 반대 결정 시 이 칼럼 3개를 제거하고 product.risk_grade로 층 배정 |
 | risk_grade_source_document_id | int | 허용 | FK | 판정값 | 대표 등급을 읽은 문서. representative_risk_grade가 있으면 필수 |
 | risk_grade_source_kind | risk_grade_source_enum | 허용 |  | 판정값 | 간이투자설명서 표제인지 투자설명서 표지인지. 간이가 있으면 간이 우선(PM 결정) |
 
@@ -442,7 +442,7 @@
 
 `html`, `json`, `xml`, `zip`, `unknown`, `pdf`, `hwp5`, `hwp3`, `hwp_dist`, `xml_only`
 
-### risk_grade_source_enum (v2.2, 결정 대기)
+### risk_grade_source_enum (v2.2, 10월 7일 확정)
 
 `SIMPLE_PROSPECTUS_TITLE`, `PROSPECTUS_COVER`
 

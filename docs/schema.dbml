@@ -224,7 +224,7 @@ Table document {
   corp_code varchar [note: 'DART 법인코드(제출 법인=운용사). distributor.corp_code와 값 체계가 같아 보이나 FK로 명시된 바 없어 관계선을 긋지 않았다(data-model.md 「ERD」의 그림에 넣지 않은 관계 1번). 8자리(09-30 목록 API 실측으로 확인)']
   document_type document_type_enum [not null]
   report_name text [note: 'DART 보고서명 원문(예: "[기재정정] 투자설명서"). document_type은 이 값에서 파생']
-  report_base_date date [note: 'v2.2 결정 대기(10월 4일 판단 항목). 문서 작성기준일. 작성기준 항목 점검이 이 시점의 작성기준 판과 비교한다. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일). 반대 결정 시 칼럼 제거 후 manifest로 이동']
+  report_base_date date [note: 'v2.2(10월 7일 10차 미팅 확정). 문서 작성기준일. 작성기준 항목 점검이 이 시점의 작성기준 판과 비교한다. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일). 반대 결정 시 칼럼 제거 후 manifest로 이동']
   // v2.2: pblntf_detail_ty 제거. 목록 API 응답에 없고 요청 필터도 효과가 없어 채울 수 없다. 문서 종류는 report_name으로 판별.
   // 파일 형식은 raw_object.body_format에 둔다. 문서 하나에 HTML/PDF/HWP가 공존한다.
   distributor_id int [ref: > distributor.distributor_id, note: '상품 연결이 없는 문서(분쟁조정·제재공시 등)를 판매사 축에 붙이기 위한 칼럼. nullable. 분쟁조정은 판매사명도 마스킹이라 이 값조차 못 채운다 — "문서 표에만 존재하는 미연결 레코드"가 정상 상태다(records/phase1-erd/join-key-checks.md 「분쟁조정 마스킹」)']
@@ -419,7 +419,7 @@ Table fund_group {
   manager_id int [ref: > distributor.distributor_id, not null]
   created_run_id varchar [ref: > pipeline_run.run_id, not null, note: '최초 발급한 EXTRACT run']
   grouping_evidence text [not null, note: 'JSON. 모자/호수/유형을 보존한 매칭 근거와 최초 원천키']
-  representative_risk_grade int [note: '1~6(CHECK). 등급이 있으면 근거 문서·구분 필수(적재 검증). 작성기준일은 근거 문서의 document.report_base_date를 쓴다(중복 칼럼 없음). v2.2 결정 대기(10월 4일 판단 항목). 펀드 대표 위험등급 1~6. 규칙은 data-model.md 「상품과 법인」(종류형 펀드는 등급 하나). 출처가 없으면 NULL이며 통계에서 사유와 함께 제외. 반대 결정 시 이 칼럼 3개를 제거하고 product.risk_grade로 층 배정']
+  representative_risk_grade int [note: '1~6(CHECK). 등급이 있으면 근거 문서·구분 필수(적재 검증). 작성기준일은 근거 문서의 document.report_base_date를 쓴다(중복 칼럼 없음). v2.2(10월 7일 10차 미팅 확정). 펀드 대표 위험등급 1~6. 규칙은 data-model.md 「상품과 법인」(종류형 펀드는 등급 하나). 출처가 없으면 NULL이며 통계에서 사유와 함께 제외. 반대 결정 시 이 칼럼 3개를 제거하고 product.risk_grade로 층 배정']
   risk_grade_source_document_id int [ref: > document.document_id, note: '대표 등급을 읽은 문서(어느 문서에서 왔는지). representative_risk_grade가 있으면 필수']
   risk_grade_source_kind risk_grade_source_enum [note: '간이투자설명서 표제인지 투자설명서 표지인지. 간이가 있으면 간이 우선(PM 결정)']
   indexes {
