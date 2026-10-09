@@ -89,3 +89,17 @@ def test_heading_without_title_on_same_line() -> None:
     result = split_sections(text)
     check(result, text)
     assert [p.part_seq for p in result.parts] == [1, 2, 3]
+
+
+def test_later_title_mentioned_before_earlier_section() -> None:
+    # 제1부 본문 앞쪽에 「2. 투자전략」으로 시작하는 줄이 먼저 나와도 1절 뒤에서 찾는다
+    body = []
+    for line in body_block():
+        body.append(line)
+        if line.strip().startswith("제1부"):
+            body.append("2. 투자전략 요약표")
+    text = make(toc_block(), ["* 용어정리"], body)
+    result = split_sections(text)
+    check(result, text)
+    second = result.sections[1]
+    assert text[second.char_start :].startswith("2. 투자전략")

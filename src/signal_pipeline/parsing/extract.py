@@ -33,7 +33,8 @@ from signal_pipeline.parsing.dart_sections import (
     split_sections,
 )
 
-PREP_VERSION = 1  # 후처리(CRLF→LF 등) 규칙을 바꾸면 올린다
+# 후처리(CRLF→LF 등)·부절 분할 규칙을 바꾸면 올린다. 2: 절을 앞 절 뒤에서만 찾음
+PREP_VERSION = 2
 SCHEMA_VERSION = 1
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 # 잠정값. 실측으로 검증되지 않았다

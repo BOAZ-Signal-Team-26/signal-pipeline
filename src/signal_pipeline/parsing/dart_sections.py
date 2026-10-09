@@ -108,8 +108,15 @@ def normalize(text: str) -> str:
     return re.sub(r"[^0-9A-Za-z가-힣]", "", text)
 
 
-def _find_start(body: list[tuple[int, str]], number: int, name: str) -> int | None:
-    """본문 줄(줄 번호, 정규화 텍스트) 중 절 시작 줄 번호. 못 찾으면 None."""
+def _find_start(
+    body: list[tuple[int, str]], number: int, name: str, after: int
+) -> int | None:
+    """본문 줄(줄 번호, 정규화 텍스트) 중 `after` 뒤의 절 시작 줄 번호. 못 찾으면 None.
+
+    앞 절보다 뒤에서만 찾는다. 뒤 절 제목이 앞쪽 본문 줄에 맞으면 구간이 거꾸로 잡힌다
+    (10월 10일 502건 실측 12건).
+    """
+    body = [(i, text) for i, text in body if i > after]
     key = normalize(name)
     head = normalize(f"{number}.") + key[:12]
     spot = next((i for i, text in body if text.startswith(head)), None)
@@ -155,10 +162,12 @@ def split_sections(text: str) -> SplitResult:
         parts.append(Part(part, title, part_start, part_end))
 
         body = [(i, normalize(lines[i])) for i in range(start + 1, end)]
-        spots = [
-            (number, name, _find_start(body, number, name))
-            for number, name in contents.get(part, [])
-        ]
+        spots: list[tuple[int, str, int | None]] = []
+        last = start
+        for number, name in contents.get(part, []):
+            spot = _find_start(body, number, name, last)
+            spots.append((number, name, spot))
+            last = spot if spot is not None else last
         # 찾은 절의 끝 = 다음으로 찾은 절의 시작, 마지막이면 부의 끝
         starts = [offsets[s] for _, _, s in spots if s is not None]
         ends = iter(starts[1:] + [part_end])
