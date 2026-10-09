@@ -678,7 +678,7 @@ Table source_watermark {
     (source, scope_key) [pk]
     verified_run_id
   }
-  Note: '소스별로 어디까지 받았는지의 현재 값. 갱신 순서는 storage-and-failure-rules.md 「적재 순서」를 따른다: collection_attempt 기록 -> 응답 완전성 검증 -> sha256 비교 -> S3 쓰기 -> raw_object INSERT와 attempt 갱신(한 트랜잭션) -> 구간 검증을 통과했을 때만 워터마크 전진(앞 트랜잭션과 별도 트랜잭션). 이전 값의 이력은 pipeline_run의 input manifest에 남는다. 룩백 재조회 방식은 미결(data-model.md 「미결」). 룩백 일수·전진 규칙은 storage-and-failure-rules.md 「재시도와 워터마크」.'
+  Note: '소스별로 어디까지 받았는지의 현재 값. 갱신 순서는 storage-and-failure-rules.md 「적재 순서」를 따른다: collection_attempt 기록 -> 응답 완전성 검증 -> sha256 비교 -> S3 쓰기 -> raw_object INSERT와 attempt 갱신(한 트랜잭션) -> 구간 검증을 통과했을 때만 워터마크 전진(앞 트랜잭션과 별도 트랜잭션). 이전 값의 이력은 pipeline_run의 input manifest에 남는다. 룩백 재조회 방식과 소스별 구간 검증은 storage-and-failure-rules.md 「재시도와 워터마크」(PR #49 8절). 룩백 일수·전진 규칙은 storage-and-failure-rules.md 「재시도와 워터마크」.'
 }
 
 // 추가 검증 규칙(범위/조건부 필수/상태 조합)은 data-model.md 「절과 점수 대상」·「적재 검증 규칙」.
