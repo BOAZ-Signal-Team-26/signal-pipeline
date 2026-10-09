@@ -210,7 +210,11 @@ backups/postgres/{YYYY-MM-DD}/signal.dump                        # + signal.dump
 LLM 호출 저장:
 
 - 시도 한 번당 `request.json`과 `response.json` 두 파일. `raw_response_path`는 `response.json`을 가리키고, 응답 바이트의 해시는 `llm_field_extraction.response_sha256`에 기록(이번 ERD v2.2 PR에서 칼럼 추가)
-- 같은 입력의 재호출 생략 여부는 DB 조회로 판단(canonical text sha, prompt sha, 모델, 파라미터, 필드). 생략하면 이전 시도의 경로를 재사용할 수 있음. 생략 규칙 자체는 확정하지 않음(「미결」)
+- 입력 특정(10월 9일 PM(대현) 확정, 데이터 엔지니어링·인프라(주영) PR #43 리뷰 3번): `llm_field_extraction.input_sha256` = LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 추출은 문서 단위라 `raw_object_id`는 NULL 허용 그대로 둠. (raw_object_id, parser_version) 필수 안은 채택하지 않음(파일 여러 개를 한 행에 담을 수 없고, 보낸 텍스트가 절 일부·전처리 결과일 수 있음)
+- 해시 규칙: UTF-8, 줄바꿈 LF, 앞뒤 공백 제거하지 않음, 절을 이어 붙일 때 구분자는 빈 줄 하나(`\n\n`). 규칙을 바꾸면 전처리 버전처럼 프롬프트 설정 파일에 버전을 올림
+- `request.json`이 입력의 정본: 보낸 문서 텍스트, `input_sha256`, `inputs` 목록(`raw_object_id`, `raw_sha256`, `parser_version`, `section_ids` 또는 문자 범위). DB 칼럼은 조회용 해시
+- 재호출 생략: (`document_id`, `field_name`, `input_sha256`, `prompt_sha256`, `model_name`, `model_params`)가 모두 같고 이전 시도가 `result_status = OK`일 때만 다시 호출하지 않고 그 결과를 재사용. FAILED는 다시 호출. `model_params`는 키 정렬·UTF-8·구분자 고정 한 줄 JSON으로 정규화해 비교. 파서 버전이 올라도 보낸 텍스트가 같으면 해시가 같아 재호출하지 않음
+- 적재 검증: `request.json`의 문서 텍스트로 다시 계산한 sha256이 `input_sha256`과 같음. `inputs`의 원본 파일은 같은 document_id 소속
 
 실행 폴더 불변:
 
@@ -415,7 +419,6 @@ LLM 호출 저장:
 | 결측률 칸의 분모 칸: 분쟁조정 사건 814 / 금융투자 187 / 첨부 845 / 첨부 213단위가 섞임 | [담당 미정] | 09-30 2단계 설계 확정 |
 | KRX 휴장일 0행 응답을 확인하는 방법(거래소 영업일 정보), DART 응답 `total_count`와 받은 행 수 대조 구현. 룩백 재조회 방식과 나머지 소스별 검증 방법은 PR #49 8절로 정함(10월 9일) | 데이터 엔지니어링·인프라(주영) | 크롤러 2차(10월 14일) |
 | 평가 표·자료의 접근 분리 중 DB 쪽: 같은 DB 유지 vs eval 스키마(검토 번호 B4). 저장소 쪽은 같은 버킷의 `eval/` 접두어 + 전용 IAM으로 정함. 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
-| LLM 같은 입력 재호출 생략 규칙(DB 조회 항목은 정함, 생략 조건 자체는 미정) | 데이터 사이언스(다빈)·데이터 엔지니어링·인프라(주영) | 2026-10-15 추출 시작 전 |
 | 스냅숏형 API 객체(`page-NNNN__v{n}.json`, `_complete__v{n}.json`)에도 `.meta.json`을 둘지. 재수집 파일명은 10월 4일 확정(같은 기준일 바이트가 바뀌면 `r2/`, `r3/` 폴더) | 데이터 엔지니어링·인프라(주영) | 수집기 구현 전 |
 
 ## 참고

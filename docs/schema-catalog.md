@@ -381,6 +381,7 @@
 | attempt_no | int | 불가 |  | 관리값 | 같은 run·문서·필드의 재시도 순번, 1부터 |
 | model_name | varchar | 불가 |  | 관리값 | 실제 호출한 모델 이름 |
 | prompt_sha256 | varchar(64) | 불가 |  | 관리값 | 프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일 |
+| input_sha256 | varchar(64) | 불가 |  | 관리값 | 10월 9일 추가. LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 해시 규칙과 입력 출처 목록(request.json의 inputs)은 storage-and-failure-rules.md 「LLM 호출 저장」. 재호출 생략 키의 일부 |
 | input_tokens | int | 허용 |  | 관리값 |  |
 | output_tokens | int | 허용 |  | 관리값 |  |
 | result_status | result_status_enum | 불가 |  | 판정값 | OK이면 value_json 필수. 호출·파싱 실패는 FAILED. 문서에서 값을 찾지 못한 「없음」 결과는 기존 enum 값(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음)에 맞는 것이 없어 정의 보류(data-model.md 「미결」) |
@@ -396,6 +397,7 @@
 | extracted_at | timestamp | 불가 |  | 관리값 |  |
 
 - UNIQUE: (run_id, document_id, field_name, attempt_no)
+- INDEX: (document_id, field_name, input_sha256, prompt_sha256) — 재호출 생략 조회
 - FK: (run_id) → pipeline_run(run_id)
 - FK: (document_id) → document(document_id)
 - FK: (raw_object_id) → raw_object(raw_object_id)

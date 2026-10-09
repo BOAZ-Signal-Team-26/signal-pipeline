@@ -644,6 +644,7 @@ Table llm_field_extraction {
   attempt_no int [not null, note: '같은 run·문서·필드의 재시도 순번, 1부터']
   model_name varchar [not null, note: '실제 호출한 모델 이름']
   prompt_sha256 varchar(64) [not null, note: '프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일']
+  input_sha256 varchar(64) [not null, note: '10월 9일 추가. LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 해시 규칙과 입력 출처 목록(request.json의 inputs)은 storage-and-failure-rules.md 「LLM 호출 저장」. 재호출 생략 키의 일부']
   input_tokens int
   output_tokens int
   result_status result_status_enum [not null, note: 'OK이면 value_json 필수. 호출·파싱 실패는 FAILED. 문서에서 값을 찾지 못한 「없음」 결과는 기존 enum 값(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음)에 맞는 것이 없어 정의 보류(data-model.md 「미결」)']
@@ -660,9 +661,10 @@ Table llm_field_extraction {
 
   indexes {
     (run_id, document_id, field_name, attempt_no) [unique]
+    (document_id, field_name, input_sha256, prompt_sha256)
     evidence_section_id
   }
-  Note: '한 행 = 문서(또는 파일) x 필드 x 추출 시도. 10월 15일 추출 시작 전 필수. 근거가 여러 구간이면 value_json 안에 목록으로 두고 대표 구간만 칼럼에 둔다(io-schema.md 「LLM 추출 결과 JSON 요구」와 맞춰 확정).'
+  Note: '한 행 = 문서(또는 파일) x 필드 x 추출 시도. LLM 추출 시작 전 필수. 입력 특정은 input_sha256(칼럼)과 request.json의 inputs(정본). 근거가 여러 구간이면 value_json 안에 목록으로 두고 대표 구간만 칼럼에 둔다(io-schema.md 「LLM 추출 결과 JSON 요구」와 맞춰 확정).'
 }
 
 Table source_watermark {

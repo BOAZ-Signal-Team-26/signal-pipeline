@@ -37,6 +37,7 @@
   - 수수료 등 중첩 구조·자유 텍스트·목록: 임의 단일 문자열·실수로 평탄화 금지. 값·단위·적용 클래스·근거 section/offset 정의 필요
   - 금액·비율: 단위 없이 숫자만 넘기지 않음
 - LLM 6필드 출력은 점수 출력과 별도 계약
+- 입력 기록(10월 9일): 시도마다 `request.json`에 보낸 문서 텍스트, `input_sha256`, `inputs`(원본 파일·파서 버전·절 또는 문자 범위)를 남기고 `llm_field_extraction.input_sha256`에 같은 해시를 적음. 해시 규칙과 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」
 
 ## CDI 출력 요구
 
