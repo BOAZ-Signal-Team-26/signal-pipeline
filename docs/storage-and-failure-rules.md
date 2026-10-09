@@ -107,7 +107,7 @@ API 스냅숏 저장 단위:
 
 1. 같으면 새 파일 버전을 만들지 않고 collection_attempt가 기존 raw_object를 참조
 2. 다르면 version_seq를 늘려 새 파일 저장
-3. 같은 파일을 같은 파서 버전으로 이미 추출해 EXTRACT_OK가 되었으면 다시 추출하지 않음(추출 키 = 원본 파일 × 파서 버전, v2.2). 재사용은 EXTRACT_OK 행만이며, FAILED·PARTIAL 행은 다음 실행이 같은 키 행을 덮어씀(created_run_id를 그 실행으로 갱신). 완료 결과 불변은 EXTRACT_OK 행에만 적용. EXTRACT_OK 행에 딸린 section 행은 삭제·재발급하지 않음. SCORE 실행은 입력 manifest에 사용한 (raw_object_id, parser_version) 목록을 고정하며 이전 실행이 만든 추출 결과도 읽을 수 있음(created_run_id는 출처 기록일 뿐 입력 판별에 쓰지 않음). 파서·전처리 버전이 다르면 새로 추출. 중복 다운로드 생략과 재추출 생략을 같은 규칙으로 처리하지 않음
+3. 같은 파일을 같은 파서 버전으로 이미 추출해 EXTRACT_OK가 되었으면 다시 추출하지 않음(추출 키 = 원본 파일 × 파서 버전, v2.2). 재사용은 EXTRACT_OK 행만이며, FAILED·PARTIAL 행은 다음 실행이 같은 키 행을 덮어씀(created_run_id를 그 실행으로 갱신). 완료 결과 불변은 EXTRACT_OK 행에만 적용. EXTRACT_OK 행에 딸린 section 행은 삭제·재발급하지 않음. SCORE 실행은 입력 manifest에 사용한 (raw_object_id, parser_version) 목록을 고정하며 이전 실행이 만든 추출 결과도 읽을 수 있음(created_run_id는 출처 기록일 뿐 입력 판별에 쓰지 않음). 파서·전처리 버전이 다르면 새로 추출. 중복 다운로드 생략과 재추출 생략을 같은 규칙으로 처리하지 않음. 덮어쓰기로 사라지는 실행별 실패 기록은 `runs/{run_id}/extraction_attempts.jsonl`에 남김(아래 「추출 실패와 절 품질」, 10월 9일)
 4. 같은 run_id의 재시도는 키를 유지하고 결과를 멱등 처리. 완료된 실행의 결과는 수정하지 않음
 
 | 칼럼 | 뜻 |
@@ -182,6 +182,7 @@ RAW_ROOT 정의 (09-23 경로 계약 보완안):
 derived/{raw_sha256}/{parser_version}/text.txt
 derived/{raw_sha256}/{parser_version}/structure.json             # file_extraction.structure_manifest_path
 runs/{run_id}/inputs.json                                        # EXTRACT·SCORE run 모두
+runs/{run_id}/extraction_attempts.jsonl                         # EXTRACT run. 추출 시도 1건당 1줄
 runs/{score_run_id}/selection.json                               # pipeline_run.selection_manifest_path (채점 실행만)
 runs/{score_run_id}/documents.parquet                            # 채점 입력(데이터 처리 요구 명세)
 runs/{score_run_id}/excluded.parquet                             # 비교 집단 제외 목록
@@ -213,7 +214,7 @@ LLM 호출 저장:
 
 실행 폴더 불변:
 
-- `runs/{run_id}/`(inputs.json, selection.json, documents.parquet, excluded.parquet, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
+- `runs/{run_id}/`(inputs.json, extraction_attempts.jsonl, selection.json, documents.parquet, excluded.parquet, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
 - 채점 입력 파일(inputs.json, selection.json, documents.parquet, excluded.parquet)은 실행 시작 때 한 번 쓰고 이후 바꾸지 않음. 두 parquet의 sha256은 inputs.json에 기록. 실패한 채점 실행을 다시 돌릴 때는 새 score_run_id를 발급
 
 `assets/`(불변, 이름·버전·해시 12자로 경로가 정해짐):
@@ -350,6 +351,11 @@ LLM 호출 저장:
 
 - 추출 결과는 `file_extraction(raw_object_id, parser_version)`에 보존(v2.2: 실행 번호가 아니라 파서 버전). EXTRACT_OK 결과가 있으면 재추출하지 않음
 - 옛 raw_object.extract_status의 단일 현재값은 쓰지 않음
+- 실행별 추출 시도 기록(10월 9일 PM(대현) 확정, 데이터 엔지니어링·인프라(주영) 리뷰 제안): `file_extraction`은 FAILED·PARTIAL 행을 다음 실행이 덮어쓰므로 실행마다의 실패 기록이 남지 않음. 그래서 EXTRACT 실행은 `runs/{run_id}/extraction_attempts.jsonl`에 시도 1건당 1줄을 씀. 표는 추가하지 않음
+  - 칼럼: `run_id`, `raw_object_id`, `raw_sha256`, `parser_version`, `action`(EXTRACTED / SKIPPED_EXISTING_OK), `extract_status`, `error_reason`, `started_at`, `finished_at`
+  - 이미 EXTRACT_OK인 파일을 건너뛴 것도 `SKIPPED_EXISTING_OK`로 한 줄 남김. 그 실행의 처리 분모에 들어감
+  - 실행별 파일 단위 실패 건수·실패율·유형은 이 파일에서 셈. `file_extraction`은 파일 × 파서 버전의 현재 상태만 담음
+  - 크롤러의 요청 시도 기록(`runs/{run_id}/attempts.jsonl`, `collection_attempt` 칼럼)과 같은 방식. 실행 완료 뒤 불변(「실행 폴더 불변」)
 
 | extract_status | 의미 |
 |---|---|

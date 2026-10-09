@@ -492,7 +492,7 @@ Table file_extraction {
     (raw_object_id, parser_version) [pk]
     created_run_id
   }
-  Note: '원본 파일은 불변, 추출은 파서 버전별(v2.2). 재사용은 EXTRACT_OK 행만. FAILED/PARTIAL은 재시도 대상이라 같은 키 행을 덮어쓴다. SCORE run은 upstream EXTRACT run이 만들지 않은(이전 실행이 만든) 추출 결과·절도 읽을 수 있다. EXTRACT_OK이면 텍스트 경로/해시/길이 필수. 파일 전체 텍스트를 남겨 표/요약/보일러플레이트의 지표별 처리를 가능하게 한다.'
+  Note: '원본 파일은 불변, 추출은 파서 버전별(v2.2). 재사용은 EXTRACT_OK 행만. FAILED/PARTIAL은 재시도 대상이라 같은 키 행을 덮어쓴다. 실행별 시도 이력은 이 표가 아니라 runs/{run_id}/extraction_attempts.jsonl에 남긴다(10월 9일). SCORE run은 upstream EXTRACT run이 만들지 않은(이전 실행이 만든) 추출 결과·절도 읽을 수 있다. EXTRACT_OK이면 텍스트 경로/해시/길이 필수. 파일 전체 텍스트를 남겨 표/요약/보일러플레이트의 지표별 처리를 가능하게 한다.'
 }
 
 Table population_snapshot {

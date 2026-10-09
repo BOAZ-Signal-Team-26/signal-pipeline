@@ -332,7 +332,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | collection_attempt | http_status, source_result_code | HTTP 200과 소스 오류 코드 033 구분 |
 | file_extraction | PK(raw_object_id, parser_version) | 같은 원본을 다른 파서 버전으로 처리한 이력 보존. 같은 파서 버전으로 이미 추출한 파일은 다시 추출하지 않음(v2.2). created_run_id는 출처 기록 |
 | file_extraction | canonical_text_path/sha256, text_length | 파일 전체 UTF-8 텍스트·해시·Unicode code point 길이 |
-| file_extraction | extract_status, error_reason | 성공/부분/미지원/실패 등 실행별 상태 |
+| file_extraction | extract_status, error_reason | 성공/부분/미지원/실패 등 파일 × 파서 버전의 현재 상태. 실행별 시도 이력은 `runs/{run_id}/extraction_attempts.jsonl`(10월 9일, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「추출 실패와 절 품질」) |
 | file_extraction | structure_status, structure_manifest_path/sha256 | 페이지·블록 구조 추출 결과(v2) |
 
 - DART 공개 뷰어 표지: HTML(`cover_html`)
@@ -916,7 +916,6 @@ erDiagram
 | selection manifest를 pipeline_run의 칼럼 2개로 두는 위치. 대상 선택 근거와 역할별 대표 문서의 기록 자리 | 대현 | 2단계 설계 |
 | 룩백 재조회 방식 확정(DART 3일·금투협 7일 잠정값)과 소스별 워터마크 검증 방법(건수 대조·페이지 끝 확인 등) | 데이터 엔지니어링·인프라(주영) | 2단계 설계 |
 | K55·KR5·KRM 외 접두 asoStdCd의 보존 위치(match_failure로 보낼지) | [담당 미정] | 상품 적재 구현 전 |
-| 추출 실패·부분 성공(FAILED/PARTIAL) 행을 다음 실행이 덮어쓰면 이전 실행의 실패 기록이 사라짐. 실행별 추출 시도·상태 이력을 별도로 남길지(표 1개 추가 또는 실행 결과 파일에 기록). 이번 버전은 덮어쓰기 유지, EXTRACT_OK 행만 불변 | 데이터 엔지니어링·인프라(주영) | 데이터 처리 요구 명세(10월 7일) |
 | LLM 같은 입력(같은 문서·파서·프롬프트·모델) 재호출 생략 규칙 | 데이터 사이언스(다빈)·데이터 엔지니어링·인프라(주영) | 2026-10-15 추출 시작 전 |
 | llm_field_extraction에서 문서에 값이 없다는 「없음」 결과를 result_status 어느 값으로 둘지(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음이라 맞는 값 없음) | 대현 | 2026-10-14 (3단계 입출력 Schema) |
 | 수집 주기·신선도 목표, KRX 일별 스냅숏 적재 주기 | 데이터 처리 요구 명세에서 정함 | [확인 필요: 일자] |
