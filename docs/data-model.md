@@ -789,7 +789,7 @@ erDiagram
   - 본문과 표 영역 구분: ASL은 표 제외, 전문용어 밀도는 표 포함. 절 안 표 구간을 구조 manifest에 둘지 별도 칼럼으로 둘지 미정
   - 미분류 단어 기록: 2-1·2-2 행의 `score_payload`에 종류 수·목록·사전 버전. 칼럼 추가 없이 payload로 충분
   - 역할별 대표: 펀드마다 투자설명서 대표와 간이 대표를 따로 고름(10-04 PM 확정). 선택 결과를 FUND 대상의 selection_manifest에 역할별로 기록
-  - 펀드 대표 위험등급: 다빈 제안은 fund_group에 대표 위험등급 칼럼 1개. 지금은 product(클래스) 단위 `risk_grade`만 있음. 클래스 등급 불일치 기록 위치와 함께 v2.2에서 판단
+  - 펀드 대표 위험등급: `fund_group.representative_risk_grade`와 근거 칼럼 2개(`risk_grade_source_document_id`, `risk_grade_source_kind`)를 둠. 작성기준일은 근거 문서의 `document.report_base_date`. ERD v2.2(PR #43)에서 추가, 10월 7일 10차 미팅 확정. 클래스 등급 불일치 기록 위치는 v2.2 결정 대기로 남음
   - 간이투자설명서 구분: DART에서는 투자설명서 PDF 안의 절, 금투협에서는 별도 PDF. 간이 3-1이 어느 쪽을 읽는지는 [점수 저장과 비교 모집단](scoring-and-population.md) 「미결」
 
 ### 09-30 결정 요청 (검토 번호 B1~B13)
