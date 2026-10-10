@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from pathlib import Path
 
@@ -159,6 +160,23 @@ def test_child_error_is_reported_not_raised(monkeypatch: pytest.MonkeyPatch) -> 
     monkeypatch.setattr(parallel, "START_METHOD", "fork")
     got = parallel.run_isolated(crash, [(1,)], workers=1, timeout=5)
     assert got[0][0] == "error"
+
+
+def big(size: int) -> str:
+    return "가" * size
+
+
+def vanish(_: int) -> str:
+    os._exit(9)  # 결과를 남기지 않고 프로세스가 끝남
+
+
+def test_large_result_and_silent_exit(monkeypatch: pytest.MonkeyPatch) -> None:
+    # 결과는 파이프가 아니라 파일로 받으므로 큰 결과도 시간 제한 안에서 온다
+    monkeypatch.setattr(parallel, "START_METHOD", "fork")
+    got = parallel.run_isolated(big, [(5_000_000,)], workers=1, timeout=30)
+    assert got[0][0] == "ok" and len(got[0][1]) == 5_000_000
+    got = parallel.run_isolated(vanish, [(1,)], workers=1, timeout=5)
+    assert got == [("died", "종료 코드 9")]
 
 
 def test_run_records_timeout_as_failed_and_continues(
