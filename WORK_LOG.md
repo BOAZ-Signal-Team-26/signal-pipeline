@@ -43,6 +43,7 @@
 - 실행(`extract.py`, `parallel.py` 신설)
   - 건너뛰기: `structure.json`의 `text_sha256`이 `text.txt`와 같은 EXTRACT_OK 문서 전부(UNAVAILABLE 포함)
   - 파일 단위 병렬(기본 4개, `--workers`). 파일마다 별도 프로세스(spawn)를 띄우고 300초가 지나면 프로세스를 종료해 `EXTRACT_FAILED`(`timeout`)로 기록. 기록 순서는 입력 순서. 프로세스가 결과 없이 끝난 경우도 같은 방식으로 기록(`died`)
+  - 결과는 파이프 대신 임시 파일(pickle, `.tmp`에 쓴 뒤 교체)로 받고, 부모는 `multiprocessing.connection.wait`로 프로세스 종료 신호를 기다림. 파이프 수신 대기로 300초 제한이 무시되던 문제(PR #51 CodeRabbit 지적)와, 결과가 크면 자식이 파이프에 막히던 문제를 함께 해결(10월 10일)
 - 분할 규칙 보완(layout 텍스트에서 나타난 형태, 각각 시험 추가)
   - 표제 줄 길이는 연속 공백을 하나로 보고 잼(글자 간격 공백으로 60자를 넘어 놓친 문서)
   - 목차 옆 세로 글자(「CONTENTS」)가 줄 앞에 붙은 형태를 인식(7건)
@@ -55,7 +56,7 @@
   - 처리 시간 655초(4개 병렬, arm64). 같은 명령 두 번째 실행은 502건 모두 `SKIPPED_EXISTING_OK`(20초)
   - 5개 부 중 4개만 찾은 문서 3건(prep-3은 5개): 본문 부 표제가 한 줄로 잡히지 않음. 확인한 1건은 표제가 앞 문장 끝에 붙음(pdfplumber가 세로 간격이 가까운 줄을 한 줄로 합침). 규칙을 맞추지 않고 그대로 둠
   - 깨진 PDF 확인(임시 폴더): 0바이트·시그니처 없음은 `EXTRACT_UNSUPPORTED_FORMAT`, 잘린 PDF·본문 없는 PDF는 `EXTRACT_FAILED`(pdfplumber 오류 사유), 시간 제한 3초로 줄이면 117쪽 PDF가 `timeout`으로 끝남
-- 검증: pytest 82개 통과(기존 59개 유지·수정 + 요약정보·other, 제목 줄 범위, 머리글, 표 bbox → 글자 범위, 색 판정, 쪽 안 줄 정렬, UNAVAILABLE 건너뛰기, 시간 초과·프로세스 종료, 책갈피 대조), `ruff format`·`ruff check` 통과
+- 검증: pytest 83개 통과(기존 59개 유지·수정 + 요약정보·other, 제목 줄 범위, 머리글, 표 bbox → 글자 범위, 색 판정, 쪽 안 줄 정렬, UNAVAILABLE 건너뛰기, 시간 초과·프로세스 종료·큰 결과(500만 자)와 결과 없는 종료, 책갈피 대조), `ruff format`·`ruff check` 통과
 - 바꾸지 않은 것: 분할 알고리즘(RULE), 책갈피 우선 분할(대조 결과를 PM이 본 뒤 정함), `source_section_no` 문자열, `canonical_section_code`(null), `blocks`(null), 하위 제목(「가.」「(1)」) 구간
 - 수행하지 않은 것(2차): 문장이 든 표를 ASL에서 뺄지 정하는 일(데이터 사이언스(다빈)), DB 적재, S3 업로드, OCR, 간이투자설명서만 담긴 PDF 2건의 구조화
 
