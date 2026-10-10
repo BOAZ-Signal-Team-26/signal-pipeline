@@ -1,4 +1,5 @@
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -91,3 +92,35 @@ def test_no_part_keeps_text_without_structure(
     assert summary["document_fail"]["source_keys"] == [KEY]
     assert extract.quality_flags("짧음") == ["SHORT_TEXT"]
     assert "BROKEN_CHARS" in extract.quality_flags("�" * 600)
+
+
+def test_pdftotext_timeout_becomes_pdf_text_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def hang(*args: object, **kwargs: object) -> None:
+        raise subprocess.TimeoutExpired("pdftotext", kwargs["timeout"])
+
+    monkeypatch.setattr(extract.subprocess, "run", hang)
+    with pytest.raises(extract.PdfTextError):
+        extract.pdf_to_text(Path("x.pdf"))
+
+
+def test_unexpected_error_in_one_file_does_not_stop_run(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    RawStore(root).save("dart", "20261002000027", "body_pdf", "pdf", b"%PDF-1.4 b", {})
+    real = extract.process_file
+
+    def flaky(root: Path, pdf: Path, run_id: str, version: str):
+        if pdf.parent.name == KEY:
+            raise OSError("읽기 실패")
+        return real(root, pdf, run_id, version)
+
+    monkeypatch.setattr(extract, "process_file", flaky)
+    summary = extract.run(root)
+    assert summary["N_files"] == 2 and summary["extract_ok"] == 1
+    failed = next(r for r in lines(root, run_id_of(root)) if r["source_key"] == KEY)
+    assert failed["extract_status"] == "EXTRACT_FAILED"
+    assert "OSError" in failed["error_reason"]
+    run_json = json.loads((root / "runs" / run_id_of(root) / "run.json").read_text())
+    assert run_json["status"] == "SUCCEEDED"

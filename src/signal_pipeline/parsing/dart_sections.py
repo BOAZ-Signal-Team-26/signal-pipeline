@@ -2,7 +2,7 @@
 
 알고리즘은 research/scripts/dart_sections.py에서 옮겼다(근거: docs/records/phase1-erd/dart-section-split.md).
 - 「제N부」 표제 행의 첫 오름차순 묶음(셋 이상)이 목차다. 그 뒤에서 번호가 커지는 표제만 골라 본문 부로 본다.
-  본문에서 부를 셋 이상 못 고르면 목차 없는 문서로 본다
+  그 뒤에 표제가 없으면 목차 없는 문서로 보고, 1~2개뿐이면 구조를 만들지 않는다
 - 목차에서 부별 절 목록을 읽고, 본문에서 정규화한 제목 앞부분이 일치하는 줄을 절 시작으로 본다
 - 결과는 줄 번호가 아니라 글자 위치(text 안의 반열린 구간 [start, end))로 낸다
 """
@@ -169,6 +169,12 @@ def split_sections(text: str) -> SplitResult:
     if len(body_run) >= 3:
         contents = toc(lines, first, body_run[0][0])
         toc_part_count = len(first)
+    elif body_run:
+        # 목차 뒤 본문 표제가 1~2개면 목차를 부로 쓸 수도, 본문만으로 나눌 수도 없다
+        # (10월 10일 502건 실측 0건)
+        raise SectionSplitError(
+            f"목차 뒤 본문 「제N부」 표제가 {len(body_run)}개뿐이다"
+        )
     else:
         contents: dict[int, list[tuple[int, str]]] = {}
         body_run = ascending([m for m in marks if m[0] >= first[0][0]])

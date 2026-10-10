@@ -119,3 +119,10 @@ def test_repeated_page_header_and_appendix_heading_do_not_split_body() -> None:
     check(result, text)
     assert [p.part_seq for p in result.parts] == [1, 2, 3]
     assert all(s.char_start is not None for s in result.sections)
+
+
+def test_only_one_or_two_body_headings_after_toc_raises() -> None:
+    # 목차는 제1~3부인데 본문에서 「제N부」 표제를 하나만 찾으면 목차 표제를 부로 쓰지 않는다
+    body = [x for x in body_block() if not x.strip().startswith(("제2부", "제3부"))]
+    with pytest.raises(SectionSplitError):
+        split_sections(make(toc_block(), ["* 용어정리"], body))

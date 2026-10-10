@@ -38,6 +38,7 @@ from signal_pipeline.parsing.dart_sections import (
 PREP_VERSION = 3
 SCHEMA_VERSION = 1
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
+PDFTOTEXT_TIMEOUT_SECONDS = 300  # 502건 중 가장 오래 걸린 파일도 수 초 안에 끝남
 # 잠정값. 실측으로 검증되지 않았다
 SHORT_TEXT_CHARS = 500
 BROKEN_RATIO = 0.3
@@ -64,11 +65,17 @@ def parser_version() -> str:
 
 def pdf_to_text(path: Path) -> str:
     """`pdftotext -layout`로 텍스트화. 줄바꿈은 LF로 통일. 빈 결과는 빈 문자열(OCR 후보 판정은 호출자)."""
-    result = subprocess.run(
-        ["pdftotext", "-layout", "-enc", "UTF-8", str(path), "-"],
-        capture_output=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            ["pdftotext", "-layout", "-enc", "UTF-8", str(path), "-"],
+            capture_output=True,
+            check=False,
+            timeout=PDFTOTEXT_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise PdfTextError(
+            f"pdftotext {PDFTOTEXT_TIMEOUT_SECONDS}초 시간 초과"
+        ) from exc
     if result.returncode != 0:
         reason = result.stderr.decode("utf-8", "replace").strip()[:200]
         raise PdfTextError(f"pdftotext 반환코드 {result.returncode}: {reason}")
@@ -153,7 +160,7 @@ def _now() -> str:
 
 
 def _record(
-    run_id: str, raw_path: str, sha: str, key: str, version: str, started: str
+    run_id: str, raw_path: str, sha: str | None, key: str, version: str, started: str
 ) -> dict:
     """키 순서가 고정된 기록 틀. 처리 결과로 칸을 채운다."""
     return {
@@ -419,6 +426,21 @@ def latest_pdfs(store: RawStore) -> list[Path]:
     return [p for p in found if p is not None]
 
 
+def _process_isolated(root: Path, pdf: Path, run_id: str, version: str) -> FileResult:
+    """파일 1건의 예상 밖 오류(읽기 실패, 깨진 structure.json 등)가 실행 전체를 멈추지 않게 한다."""
+    started = _now()
+    try:
+        return process_file(root, pdf, run_id, version)
+    except Exception as exc:  # noqa: BLE001 — 파일 단위 격리. 사유는 기록에 남김
+        rec = _record(
+            run_id, str(pdf.relative_to(root)), None, pdf.parent.name, version, started
+        )
+        rec["extract_status"] = "EXTRACT_FAILED"
+        rec["error_reason"] = f"예상 밖 오류 {type(exc).__name__}: {exc}"[:200]
+        rec["finished_at"] = _now()
+        return FileResult(rec)
+
+
 def run(root: Path, limit: int | None = None) -> dict[str, object]:
     began = time.monotonic()
     version = parser_version()
@@ -428,7 +450,7 @@ def run(root: Path, limit: int | None = None) -> dict[str, object]:
         datetime.now(UTC).date().isoformat(),
         {"parser_version": version, "limit": limit},
     )
-    results = [process_file(root, pdf, log.run_id, version) for pdf in pdfs]
+    results = [_process_isolated(root, pdf, log.run_id, version) for pdf in pdfs]
     for r in results:  # 실행 끝에 한 번 쓴다
         log.append("extraction_attempts.jsonl", r.record)
         log.outcomes[str(r.record["extract_status"])] += 1

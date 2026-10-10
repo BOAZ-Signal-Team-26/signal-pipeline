@@ -19,7 +19,8 @@
   - 500자 미만 절 32.1%, 깨진 문자 비율 0.3 이상 절 0건(두 기준 모두 미검증 잠정값). 처리 시간 약 2분(arm64)
   - 접수번호 2건(20260918000190, 20260918000389)은 PDF 바이트가 같아 파생 텍스트 하나를 함께 씀
 - 형식 메모: `extraction_attempts.jsonl` 칼럼은 PR #43 목록에 `raw_storage_path`·`source_key`·`structure_status`·`text_*`·`structure_*`·`section_count`·`section_found_count`를 더함. DB 전이라 `raw_object_id`는 null
-- 검증: pytest 56개 통과(분할 규칙·글자 위치 불변식·회귀 3건, 건너뛰기·실패 기록), `ruff format`·`ruff check` 통과
+- 검증: pytest 59개 통과(분할 규칙·글자 위치 불변식·회귀 3건, 건너뛰기·실패 기록, pdftotext 시간 제한·파일 단위 오류 격리), `ruff format`·`ruff check` 통과
+- PR #51 CodeRabbit 리뷰 반영(10월 10일): 목차 뒤 본문 「제N부」 표제가 1~2개면 목차 표제를 부로 쓰지 않고 구조 없음으로 기록(502건 중 해당 0건이라 결과 변화 없음), pdftotext 300초 시간 제한, 파일 1건의 예상 밖 오류는 `EXTRACT_FAILED`로 기록하고 실행 계속
 - 수행하지 않은 것: 표 영역·`blocks`(PR #49), 간이투자설명서 구간 분리, `canonical_section_code` 값, DB 적재, S3 업로드, OCR, 데이터 사이언스(다빈) 표본 검토
 
 ## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
