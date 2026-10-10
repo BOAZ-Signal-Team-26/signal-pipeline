@@ -136,10 +136,10 @@ class RawStore:
             **meta,
         }
         meta_path = path.with_name(path.name + ".meta.json")
-        _write_atomic(
+        write_atomic(
             meta_path, json.dumps(record, ensure_ascii=False, indent=1).encode()
         )
-        _write_atomic(path, content)
+        write_atomic(path, content)
         return StoredObject(
             str(path.relative_to(self.root)),
             digest,
@@ -149,7 +149,7 @@ class RawStore:
         )
 
 
-def _write_atomic(path: Path, data: bytes) -> None:
+def write_atomic(path: Path, data: bytes) -> None:
     """임시 파일에 다 쓴 뒤 이름을 바꾼다. 중간에 끊겨도 반쪽 파일이 남지 않는다."""
     temp = path.with_name(path.name + ".part")
     temp.write_bytes(data)

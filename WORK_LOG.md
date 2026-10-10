@@ -1,5 +1,65 @@
 # 작업 기록
 
+## 2026-10-10 — DART 투자설명서 텍스트 추출·절 분할과 실패율 산출 (#50)
+
+- 범위: 크롤러가 받은 본문 PDF(`raw/dart/{접수번호}/body_pdf__v{n}.pdf`, 접수번호별 최신 판)를 텍스트로 바꾸고 부·절로 나눠, 파일·문서·절 단위 실패율을 실행마다 남긴다
+- 코드(`src/signal_pipeline/parsing/`)
+  - `dart_sections.py`: 순수 함수. `research/scripts/dart_sections.py` 알고리즘을 옮기고 결과를 줄 번호 대신 글자 위치(반열린 구간)로 냄. 「제N부」를 못 찾으면 `SectionSplitError`
+  - `extract.py`: `pdftotext -layout -enc UTF-8`, 파서 버전 `pdftotext-{주.부}_prep-{n}`. PR #43 경로 `derived/{raw_sha256}/{parser_version}/text.txt`·`structure.json`(text.txt를 먼저 씀). `structure.json`의 `text_sha256`이 text.txt와 같으면 건너뜀. `runs/{run_id}/extraction_attempts.jsonl`은 실행 끝에 한 번 씀, `run.json`에 실패율 요약
+  - #47 공통 모듈의 `_write_atomic`·`_append`를 공개 이름 `write_atomic`·`append`로 바꿈(크롤러 호출부 함께 수정)
+- 실데이터에서 고친 분할 규칙(옮긴 알고리즘 기준)
+  - 띄어 쓴 표제(「제 3 부」), 표제만 있는 줄, 목차 줄 끝 점선·쪽 번호를 인식(20건 중 5건 「제N부」 미검출 → 0건)
+  - 절을 앞 절보다 뒤에서만 찾음. 뒤 절 제목이 앞쪽 본문에 먼저 맞아 구간이 거꾸로 잡힌 12건 해결(`prep-2`)
+  - 목차 뒤에서는 앞에서 고른 부보다 번호가 큰 표제만 고름. 쪽 머리글 「제 1 부」·「제 2 부 [별첨1]」 반복으로 본문 부를 놓친 문서 해결(`prep-3`)
+- 결과(10월 10일, 9월 1일~29일 공시 본문 PDF 502건, `pdftotext-24.09_prep-3`)
+  - 텍스트화 502/502(100%), 파일 실패 0건
+  - 「제N부」 미검출 2건(20260903000270, 20260911000012): 둘 다 간이투자설명서만 담긴 PDF라 부·절 구조 없음으로 기록
+  - 부 적중 2,418/2,418, 5개 부를 모두 찾은 문서 500/500
+  - 절 적중 15,475/16,080(96.2%). 문서별 최저 77.4%, 하위 10% 88.6%, 중앙값 97.1%
+  - 500자 미만 절 32.1%, 깨진 문자 비율 0.3 이상 절 0건(두 기준 모두 미검증 잠정값). 처리 시간 약 2분(arm64)
+  - 접수번호 2건(20260918000190, 20260918000389)은 PDF 바이트가 같아 파생 텍스트 하나를 함께 씀
+- 형식 메모: `extraction_attempts.jsonl` 칼럼은 PR #43 목록에 `raw_storage_path`·`source_key`·`structure_status`·`text_*`·`structure_*`·`section_count`·`section_found_count`를 더함. DB 전이라 `raw_object_id`는 null
+- 검증: pytest 59개 통과(분할 규칙·글자 위치 불변식·회귀 3건, 건너뛰기·실패 기록, pdftotext 시간 제한·파일 단위 오류 격리), `ruff format`·`ruff check` 통과
+- PR #51 CodeRabbit 리뷰 반영(10월 10일): 목차 뒤 본문 「제N부」 표제가 1~2개면 목차 표제를 부로 쓰지 않고 구조 없음으로 기록(502건 중 해당 0건이라 결과 변화 없음), pdftotext 300초 시간 제한, 파일 1건의 예상 밖 오류는 `EXTRACT_FAILED`로 기록하고 실행 계속
+- 수행하지 않은 것(1차): 표 영역·`blocks`(PR #49), 간이투자설명서 구간 분리, `canonical_section_code` 값, DB 적재, S3 업로드, OCR, 데이터 사이언스(다빈) 표본 검토 → 표 영역은 아래 2차에서 함
+
+### 2차 변경 (PM 결정 10월 10일, 파서 버전 `pdfplumber-0.11_prep-4`)
+
+- 결정 2건
+  - PDF 추출 라이브러리를 pdfplumber(MIT)로 통일. PR #49 4-3의 「남는 제약」(표를 찾은 도구와 텍스트를 만든 도구가 같아야 함) 때문에 텍스트 추출도 pdftotext에서 pdfplumber로 바꿈
+  - `source_section_no`는 문자열 유지(PR #43 ERD 기준). 코드 변경 없음
+- 텍스트 추출(`pdf_layout.py` 신설, `extract.py`)
+  - 쪽마다 보이지 않는 요소(흰색으로 채우고 외곽선 없는 사각형, 흰색 선; 패턴 등 숫자가 아닌 색은 보이는 것)를 뺀 쪽에서 layout 텍스트와 표(`find_tables` 기본 설정)를 같이 얻음. 쪽 사이는 `\f`, UTF-8·LF
+  - 출력 글자마다 원래 PDF 글자(pdfplumber text map)를 알 수 있어 표 bbox를 글자 범위로 바꿈(글자 중심이 bbox 안인 첫 글자~끝 글자)
+  - 줄 끝 공백과 쪽 앞뒤 빈 줄은 뗌. NUL(일부 PDF가 공백 대신 냄)과 `\r`은 공백으로 바꿈
+  - pdfplumber 기본 layout은 글자 묶음(똑바른 글자·회전 글자) 순서대로 줄을 쌓아, 쪽 머리글을 나중에 그린 PDF에서 「제3부 …」 표제가 쪽 끝으로 밀림(41건). 글자를 위 → 아래로 다시 정렬해 만듦(`layout_textmap`)
+- `structure.json`(스키마 2, PR #49 2절·4-2·4-3)
+  - 절 원소: `section_title` → `title`(본문 줄 제목 그대로, 못 찾은 절은 목차 제목), `title_char_start`·`title_char_end`(제목 줄 범위) 추가, `char_start`는 제목 줄 시작 포함. `section_kind` = `body` / `summary` / `other`, 요약정보·other는 `part_seq`·`source_section_no`가 null, `section_seq`는 글자 위치 순 전역 순번
+  - 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(없으면 「요약정보」만 있는 줄). 다음 줄이 「제N부」면 목차 항목이라 건너뜀. 끝: 목차가 뒤에 없으면 첫 본문 부 직전, 요약정보 뒤에 정식 투자설명서의 표지·목차가 오는 문서(109건)는 그 목차가 있는 쪽의 시작까지. 그 사이와 맨 앞은 `other`. 「제N부」를 못 찾은 문서는 요약정보 끝을 정할 수 없어 구간을 만들지 않음
+  - `page_furniture_regions`: 쪽마다 첫·끝 줄 중 숫자를 #로 바꿨을 때 쪽의 30% 이상(최소 3쪽)에서 반복되는 줄, 쪽 번호만 있는 끝 줄. 텍스트에서 지우지 않음
+  - `table_regions`: `{char_start, char_end, has_sentences}`. `has_sentences`는 표 안에 「다.」로 끝나는 문장이 있음
+  - `headings_source`: PDF 책갈피가 있으면 `BOOKMARK`, 없으면 `RULE`. 분할은 두 경우 모두 지금 규칙(RULE) 그대로. 책갈피가 있는 문서는 규칙으로 찾은 부·절을 책갈피와 대조한 개수를 `bookmark_check`에 남기고 요약에 재현율·정밀도를 냄
+  - `structure_status`(AVAILABLE / UNAVAILABLE)를 `structure.json`에도 기록. 「제N부」를 못 찾은 문서(UNAVAILABLE)도 `structure.json`을 씀(표·머리글 구간은 있고 `parts`·`sections`는 빈 목록)
+- 실행(`extract.py`, `parallel.py` 신설)
+  - 건너뛰기: `structure.json`의 `text_sha256`이 `text.txt`와 같은 EXTRACT_OK 문서 전부(UNAVAILABLE 포함)
+  - 파일 단위 병렬(기본 4개, `--workers`). 파일마다 별도 프로세스(spawn)를 띄우고 300초가 지나면 프로세스를 종료해 `EXTRACT_FAILED`(`timeout`)로 기록. 기록 순서는 입력 순서. 프로세스가 결과 없이 끝난 경우도 같은 방식으로 기록(`died`)
+  - 결과는 파이프 대신 임시 파일(pickle, `.tmp`에 쓴 뒤 교체)로 받고, 부모는 `multiprocessing.connection.wait`로 프로세스 종료 신호를 기다림. 파이프 수신 대기로 300초 제한이 무시되던 문제(PR #51 CodeRabbit 지적)와, 결과가 크면 자식이 파이프에 막히던 문제를 함께 해결(10월 10일)
+- 분할 규칙 보완(layout 텍스트에서 나타난 형태, 각각 시험 추가)
+  - 표제 줄 길이는 연속 공백을 하나로 보고 잼(글자 간격 공백으로 60자를 넘어 놓친 문서)
+  - 목차 옆 세로 글자(「CONTENTS」)가 줄 앞에 붙은 형태를 인식(7건)
+- 결과(10월 10일, 같은 502건, `pdfplumber-0.11_prep-4`; 괄호는 `pdftotext-24.09_prep-3`)
+  - 텍스트화 502/502(502/502), 파일 실패 0건. 「제N부」 미검출 2건(2건, 같은 문서 둘)
+  - 부 적중 2,416/2,418(2,418/2,418), 5개 부를 모두 찾은 문서 497/500(500/500). 절 적중 15,467/16,080(15,475/16,080, 96.2%). 문서별 최저 64.5%(77.4%), 하위 10% 88.6%(88.6%), 중앙값 97.1%(97.1%)
+  - 요약정보 구간이 있는 문서 469건(줄 시작 표시가 있는 문서 중 목차 항목뿐인 24건은 요약정보 없음으로 봄). 머리글 구간이 있는 문서 499건
+  - 표 51,328개, 표가 하나도 없는 문서 0건, 문장이 든 표 15,754개. 표 안 글자 비율 중앙값 55.0%(PR #49 10월 7일 확인은 생성 도구별 40~53%; 이번 값은 표 구간에 칸 사이 공백이 포함돼 5~10%p 높음)
+  - 책갈피 문서 149건: 부 재현율 100%·정밀도 96.0%, 절 재현율 95.9%·정밀도 90.3%
+  - 처리 시간 655초(4개 병렬, arm64). 같은 명령 두 번째 실행은 502건 모두 `SKIPPED_EXISTING_OK`(20초)
+  - 5개 부 중 4개만 찾은 문서 3건(prep-3은 5개): 본문 부 표제가 한 줄로 잡히지 않음. 확인한 1건은 표제가 앞 문장 끝에 붙음(pdfplumber가 세로 간격이 가까운 줄을 한 줄로 합침). 규칙을 맞추지 않고 그대로 둠
+  - 깨진 PDF 확인(임시 폴더): 0바이트·시그니처 없음은 `EXTRACT_UNSUPPORTED_FORMAT`, 잘린 PDF·본문 없는 PDF는 `EXTRACT_FAILED`(pdfplumber 오류 사유), 시간 제한 3초로 줄이면 117쪽 PDF가 `timeout`으로 끝남
+- 검증: pytest 83개 통과(기존 59개 유지·수정 + 요약정보·other, 제목 줄 범위, 머리글, 표 bbox → 글자 범위, 색 판정, 쪽 안 줄 정렬, UNAVAILABLE 건너뛰기, 시간 초과·프로세스 종료·큰 결과(500만 자)와 결과 없는 종료, 책갈피 대조), `ruff format`·`ruff check` 통과
+- 바꾸지 않은 것: 분할 알고리즘(RULE), 책갈피 우선 분할(대조 결과를 PM이 본 뒤 정함), `source_section_no` 문자열, `canonical_section_code`(null), `blocks`(null), 하위 제목(「가.」「(1)」) 구간
+- 수행하지 않은 것(2차): 문장이 든 표를 ASL에서 뺄지 정하는 일(데이터 사이언스(다빈)), DB 적재, S3 업로드, OCR, 간이투자설명서만 담긴 PDF 2건의 구조화
+
 ## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
 
 - 범위: OPEN DART 목록(`list.json`, `pblntf_ty=G`)에서 report_nm으로 투자설명서(정정본 포함)를 골라 표지 XML(`document.xml`)·뷰어 트리(`main.do`)·뷰어 표지(`viewer.do`)·본문 PDF(`download.do`)를 받는다. 증권신고서·일괄신고서는 건수만 세고 받지 않는다(목록 응답 원본에는 남음)
