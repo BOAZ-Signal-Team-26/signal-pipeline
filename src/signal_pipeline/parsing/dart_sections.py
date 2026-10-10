@@ -5,12 +5,13 @@
   그 뒤에 표제가 없으면 목차 없는 문서로 보고, 1~2개뿐이면 구조를 만들지 않는다
 - 목차에서 부별 절 목록을 읽고, 본문에서 정규화한 제목 앞부분이 일치하는 줄을 절 시작으로 본다
 - 결과는 줄 번호가 아니라 글자 위치(text 안의 반열린 구간 [start, end))로 낸다
+- 부·절 체계 밖 앞부분은 요약정보(`summary`)와 표지·목차·유의사항(`other`) 구간으로 함께 낸다(PR #49 4-2 ⑤)
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 # 「제N부」로 시작하고 그 줄에 표제만 있는 행. 들여쓰기는 조건에 넣지 않는다.
 # 숫자 앞뒤 공백(「제 3 부」)과 표제가 다음 줄에 있는 경우(「제1부」만 있는 줄)도 받는다.
@@ -18,8 +19,14 @@ from dataclasses import dataclass
 PART = re.compile(r"^제\s*([1-5])\s*부\.?(?:\s+(\S.*))?$")
 # 목차 줄 끝의 점선과 쪽 번호(「제1부 모집 … ........ 13」). 떼지 않으면 MAX_HEAD를 넘어 걸러진다.
 LEADER = re.compile(r"\s*[.·ㆍ…]{4,}\s*\d*\s*$")
-TOC_SEC = re.compile(r"^\s*(\d{1,2})\.\s*(.+?)\s*$")
+# 목차 옆에 세로로 쓴 「CONTENTS」 글자(줄 앞 대문자 한 글자)가 layout 텍스트에서 줄 앞에 붙을 수 있다(10월 10일 502건 중 7건)
+SIDE_TAB = re.compile(r"^[A-Z]\s+(?=제)")
+TOC_SEC = re.compile(r"^\s*(?:[A-Z]\s+)?(\d{1,2})\.\s*(.+?)\s*$")
 MAX_HEAD = 60
+# 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(10월 10일 501건 실측 483건).
+# 없으면 줄에 「요약정보」만 있는 표제(예: 「요약 정보」)를 쓴다. 모두 첫 「제N부」 앞에서만 찾는다
+SUMMARY_MARK = re.compile(r"^\s*[\[<]\s*요\s*약\s*정\s*보\s*[\]>]")
+SUMMARY_BARE = re.compile(r"^\s*요\s*약\s*정\s*보\s*$")
 
 FOUND = "EXTRACT_OK"
 NOT_FOUND = "SECTION_BOUNDARY_NOT_FOUND"
@@ -41,10 +48,15 @@ class Part:
 
 @dataclass(frozen=True)
 class Section:
+    """section_kind가 summary·other이면 part_seq·source_section_no는 None."""
+
     section_seq: int
-    part_seq: int
-    source_section_no: str
-    section_title: str
+    section_kind: str  # body / summary / other
+    part_seq: int | None
+    source_section_no: str | None
+    title: str | None  # 본문 줄의 제목. 못 찾은 절은 목차의 제목, other는 None
+    title_char_start: int | None
+    title_char_end: int | None
     char_start: int | None
     char_end: int | None
     extract_status: str
@@ -62,9 +74,10 @@ def part_marks(lines: list[str]) -> list[Mark]:
     """「제N부」 표제 행 목록."""
     marks: list[Mark] = []
     for index, line in enumerate(lines):
-        stripped = LEADER.sub("", line.strip())
+        stripped = SIDE_TAB.sub("", LEADER.sub("", line.strip()))
         match = PART.match(stripped)
-        if match and len(stripped) < MAX_HEAD:
+        # layout 텍스트는 글자 간격을 공백으로 늘려 표제 줄이 길어지므로 연속 공백은 하나로 보고 잰다
+        if match and len(re.sub(r"\s+", " ", stripped)) < MAX_HEAD:
             marks.append((index, int(match.group(1)), stripped))
     return marks
 
@@ -151,6 +164,39 @@ def _find_start(
     return spot
 
 
+def _next_is_part(lines: list[str], index: int) -> bool:
+    """다음 비어 있지 않은 줄이 「제N부」 표제면 True. 목차 속 「<요약정보>」 항목을 거르는 데 쓴다."""
+    for line in lines[index + 1 :]:
+        if line.strip():
+            return PART.match(LEADER.sub("", line.strip())) is not None
+    return False
+
+
+def find_summary(lines: list[str], limit: int) -> int | None:
+    """요약정보 시작 줄 번호(0부터, `limit` 앞에서만). 없으면 None."""
+    for pattern in (SUMMARY_MARK, SUMMARY_BARE):
+        for index in range(min(limit, len(lines))):
+            if pattern.match(lines[index]) and not _next_is_part(lines, index):
+                return index
+    return None
+
+
+def _line_section(
+    kind: str, lines: list[str], offsets: list[int], index: int, end: int
+) -> Section:
+    title_end = offsets[index] + len(lines[index].rstrip())
+    return Section(
+        0, kind, None, None, lines[index].strip(), offsets[index], title_end,
+        offsets[index], end, FOUND,
+    )  # fmt: skip
+
+
+def _other(start: int, end: int) -> list[Section]:
+    if end <= start:
+        return []
+    return [Section(0, "other", None, None, None, None, None, start, end, FOUND)]
+
+
 def split_sections(text: str) -> SplitResult:
     """텍스트 → 부·절 구조. 「제N부」가 없으면 SectionSplitError."""
     lines = text.split("\n")
@@ -181,7 +227,7 @@ def split_sections(text: str) -> SplitResult:
         toc_part_count = 0
 
     parts: list[Part] = []
-    sections: list[Section] = []
+    body: list[Section] = []
     bounds = [m[0] for m in body_run] + [len(lines)]
     for index, (start, part, title) in enumerate(body_run):
         end = bounds[index + 1]
@@ -189,31 +235,71 @@ def split_sections(text: str) -> SplitResult:
         part_end = offsets[end] if end < len(lines) else len(text)
         parts.append(Part(part, title, part_start, part_end))
 
-        body = [(i, normalize(lines[i])) for i in range(start + 1, end)]
+        lined = [(i, normalize(lines[i])) for i in range(start + 1, end)]
         spots: list[tuple[int, str, int | None]] = []
         last = start
         for number, name in contents.get(part, []):
-            spot = _find_start(body, number, name, last)
+            spot = _find_start(lined, number, name, last)
             spots.append((number, name, spot))
             last = spot if spot is not None else last
         # 찾은 절의 끝 = 다음으로 찾은 절의 시작, 마지막이면 부의 끝
         starts = [offsets[s] for _, _, s in spots if s is not None]
         ends = iter(starts[1:] + [part_end])
         for number, name, spot in spots:
-            sections.append(
+            found = spot is not None
+            body.append(
                 Section(
-                    section_seq=len(sections) + 1,
+                    section_seq=0,
+                    section_kind="body",
                     part_seq=part,
                     source_section_no=str(number),
-                    section_title=name,
-                    char_start=None if spot is None else offsets[spot],
-                    char_end=None if spot is None else next(ends),
-                    extract_status=NOT_FOUND if spot is None else FOUND,
+                    title=lines[spot].strip() if found else name,
+                    title_char_start=offsets[spot] if found else None,
+                    title_char_end=(
+                        offsets[spot] + len(lines[spot].rstrip()) if found else None
+                    ),
+                    char_start=offsets[spot] if found else None,
+                    char_end=next(ends) if found else None,
+                    extract_status=FOUND if found else NOT_FOUND,
                 )
             )
+    front = _front_sections(text, lines, offsets, body_run[0][0], first[0][0])
+    sections = [
+        replace(sec, section_seq=seq) for seq, sec in enumerate(front + body, 1)
+    ]
     return SplitResult(
         parts, sections, sum(len(v) for v in contents.values()), toc_part_count
     )
+
+
+def _front_sections(
+    text: str,
+    lines: list[str],
+    offsets: list[int],
+    body_line: int,
+    toc_line: int,
+) -> list[Section]:
+    """첫 본문 부 앞의 요약정보(summary)·그 밖(other) 구간. 글자 위치 순.
+
+    끝 경계(10월 10일 502건 텍스트를 열어 확인):
+    - 요약정보 뒤에 목차가 없으면 첫 본문 부 직전까지. 요약정보 뒤에는 「[집합투자기구 공시 정보 안내]」
+      상자뿐이고 곧바로 「제1부」 본문이 이어진다
+    - 요약정보(간이투자설명서 부분) 뒤에 정식 투자설명서의 표지·목차가 오는 문서(109건)는
+      목차가 있는 쪽의 시작(쪽 구분 \\f)까지가 요약정보이고, 그 뒤 본문 부 앞까지는 other
+    """
+    body_start = offsets[body_line] if body_line < len(lines) else len(text)
+    spot = find_summary(lines, body_line)
+    if spot is None:
+        return _other(0, body_start)
+    summary_end = body_start
+    if spot < toc_line < body_line:
+        page_start = text.rfind("\f", 0, offsets[toc_line]) + 1
+        summary_end = page_start if page_start > offsets[spot] else offsets[toc_line]
+    return [
+        *_other(0, offsets[spot]),
+        _line_section("summary", lines, offsets, spot, summary_end),
+        *_other(summary_end, body_start),
+    ]
 
 
 def invariant_violations(result: SplitResult, text_length: int) -> list[str]:
@@ -221,7 +307,7 @@ def invariant_violations(result: SplitResult, text_length: int) -> list[str]:
     problems: list[str] = []
     prev_end = 0
     for expected_seq, sec in enumerate(result.sections, 1):
-        where = f"절 {sec.part_seq}부 {sec.source_section_no}"
+        where = f"절 {sec.section_kind} {sec.part_seq}부 {sec.source_section_no}"
         if sec.section_seq != expected_seq:
             problems.append(f"{where}: section_seq {sec.section_seq} != {expected_seq}")
         if sec.char_start is None or sec.char_end is None:
