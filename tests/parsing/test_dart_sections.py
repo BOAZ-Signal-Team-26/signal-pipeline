@@ -103,3 +103,19 @@ def test_later_title_mentioned_before_earlier_section() -> None:
     check(result, text)
     second = result.sections[1]
     assert text[second.char_start :].startswith("2. 투자전략")
+
+
+def test_repeated_page_header_and_appendix_heading_do_not_split_body() -> None:
+    # 본문 부마다 머리글 「제 1 부」가 반복되고, 제2부 안에 「제 2 부 [별첨1]」이 다시 나온다
+    body = []
+    for line in body_block():
+        body.append(line)
+        if line.strip().startswith(("제2부", "제3부")):
+            body.append("제 1 부. 모집 또는 매출에 관한 사항")
+        if line.strip().startswith("제2부"):
+            body.append("제 2 부 [별첨1]. 모집합투자기구에 관한 사항")
+    text = make(toc_block(), ["* 용어정리"], body)
+    result = split_sections(text)
+    check(result, text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3]
+    assert all(s.char_start is not None for s in result.sections)

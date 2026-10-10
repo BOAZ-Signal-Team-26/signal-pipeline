@@ -1,7 +1,8 @@
 """DART 투자설명서 본문 텍스트를 부·절 단위로 나눈다(순수 함수, I/O 없음).
 
-알고리즘은 research/scripts/dart_sections.py를 그대로 옮겼다(근거: docs/records/phase1-erd/dart-section-split.md).
-- 「제N부」 표제 행을 오름차순 묶음으로 끊는다. 묶음이 둘이면 앞이 목차, 뒤가 본문이다. 하나면 목차 없음
+알고리즘은 research/scripts/dart_sections.py에서 옮겼다(근거: docs/records/phase1-erd/dart-section-split.md).
+- 「제N부」 표제 행의 첫 오름차순 묶음(셋 이상)이 목차다. 그 뒤에서 번호가 커지는 표제만 골라 본문 부로 본다.
+  본문에서 부를 셋 이상 못 고르면 목차 없는 문서로 본다
 - 목차에서 부별 절 목록을 읽고, 본문에서 정규화한 제목 앞부분이 일치하는 줄을 절 시작으로 본다
 - 결과는 줄 번호가 아니라 글자 위치(text 안의 반열린 구간 [start, end))로 낸다
 """
@@ -57,18 +58,23 @@ class SplitResult:
     toc_part_count: int  # 목차 묶음에서 읽은 부 수. 목차가 없으면 0
 
 
-def part_runs(lines: list[str]) -> list[list[Mark]]:
-    """「제N부」 표제 행을 찾아 오름차순 묶음으로 나눈다.
-
-    들여쓰기로 목차와 본문을 가를 수 없다(문서마다 제각각). 대신 순서는 일정하다:
-    제1~5부가 오름차순으로 한 번 나오면 목차, 다시 한 번 나오면 본문이다.
-    """
+def part_marks(lines: list[str]) -> list[Mark]:
+    """「제N부」 표제 행 목록."""
     marks: list[Mark] = []
     for index, line in enumerate(lines):
         stripped = LEADER.sub("", line.strip())
         match = PART.match(stripped)
         if match and len(stripped) < MAX_HEAD:
             marks.append((index, int(match.group(1)), stripped))
+    return marks
+
+
+def part_runs(marks: list[Mark]) -> list[list[Mark]]:
+    """「제N부」 표제 행을 오름차순 묶음으로 나눈다.
+
+    들여쓰기로 목차와 본문을 가를 수 없다(문서마다 제각각). 대신 순서는 일정하다:
+    제1~5부가 오름차순으로 한 번 나오면 목차, 다시 한 번 나오면 본문이다.
+    """
     runs: list[list[Mark]] = []
     for mark in marks:
         if runs and mark[1] > runs[-1][-1][1]:
@@ -76,6 +82,19 @@ def part_runs(lines: list[str]) -> list[list[Mark]]:
         else:
             runs.append([mark])
     return runs
+
+
+def ascending(marks: list[Mark]) -> list[Mark]:
+    """앞에서 고른 부보다 번호가 큰 표제만 차례로 고른다.
+
+    본문에는 쪽 머리글로 반복되는 「제 1 부」, 「제 2 부 [별첨1]」 같은 표제가 섞여
+    오름차순 묶음이 끊긴다(10월 10일 502건 실측). 반복·되돌아간 표제는 건너뛴다.
+    """
+    picked: list[Mark] = []
+    for mark in marks:
+        if not picked or mark[1] > picked[-1][1]:
+            picked.append(mark)
+    return picked
 
 
 def toc(
@@ -140,17 +159,20 @@ def split_sections(text: str) -> SplitResult:
     for line in lines:
         offsets.append(offsets[-1] + len(line) + 1)
 
-    runs = [r for r in part_runs(lines) if len(r) >= 3]
+    marks = part_marks(lines)
+    runs = [r for r in part_runs(marks) if len(r) >= 3]
     if not runs:
         raise SectionSplitError("「제N부」 표제를 찾지 못했다")
-    if len(runs) == 1:
-        contents: dict[int, list[tuple[int, str]]] = {}
-        body_run = runs[0]
-        toc_part_count = 0
+    # 첫 묶음 = 목차. 그 뒤에서 부를 셋 이상 고르면 본문, 아니면 목차 없는 문서
+    first = runs[0]
+    body_run = ascending([m for m in marks if m[0] > first[-1][0]])
+    if len(body_run) >= 3:
+        contents = toc(lines, first, body_run[0][0])
+        toc_part_count = len(first)
     else:
-        contents = toc(lines, runs[0], runs[1][0][0])
-        body_run = runs[1]
-        toc_part_count = len(runs[0])
+        contents: dict[int, list[tuple[int, str]]] = {}
+        body_run = ascending([m for m in marks if m[0] >= first[0][0]])
+        toc_part_count = 0
 
     parts: list[Part] = []
     sections: list[Section] = []

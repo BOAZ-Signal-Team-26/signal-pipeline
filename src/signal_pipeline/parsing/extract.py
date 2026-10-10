@@ -33,8 +33,9 @@ from signal_pipeline.parsing.dart_sections import (
     split_sections,
 )
 
-# 후처리(CRLF→LF 등)·부절 분할 규칙을 바꾸면 올린다. 2: 절을 앞 절 뒤에서만 찾음
-PREP_VERSION = 2
+# 후처리(CRLF→LF 등)·부절 분할 규칙을 바꾸면 올린다
+# 2: 절을 앞 절 뒤에서만 찾음. 3: 본문 부를 반복·되돌아간 표제를 건너뛰며 고름
+PREP_VERSION = 3
 SCHEMA_VERSION = 1
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 # 잠정값. 실측으로 검증되지 않았다
@@ -346,7 +347,8 @@ def summarize(
             "source_keys": unavailable,
         },
         "part_hit": {
-            "found": sum(len(d["parts"]) for d in toc_docs),
+            # 목차에 부가 4개만 있는 문서가 있어 문서별로 목차 부 수를 넘지 않게 센다
+            "found": sum(min(len(d["parts"]), d["toc_part_count"]) for d in toc_docs),
             "toc": sum(d["toc_part_count"] for d in toc_docs),
             "all_5_docs": sum(len(d["parts"]) == 5 for d in docs),
             "split_attempted_docs": len(docs),
