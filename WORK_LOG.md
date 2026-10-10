@@ -1,5 +1,27 @@
 # 작업 기록
 
+## 2026-10-10 — DART 투자설명서 텍스트 추출·절 분할과 실패율 산출 (#50)
+
+- 범위: 크롤러가 받은 본문 PDF(`raw/dart/{접수번호}/body_pdf__v{n}.pdf`, 접수번호별 최신 판)를 텍스트로 바꾸고 부·절로 나눠, 파일·문서·절 단위 실패율을 실행마다 남긴다
+- 코드(`src/signal_pipeline/parsing/`)
+  - `dart_sections.py`: 순수 함수. `research/scripts/dart_sections.py` 알고리즘을 옮기고 결과를 줄 번호 대신 글자 위치(반열린 구간)로 냄. 「제N부」를 못 찾으면 `SectionSplitError`
+  - `extract.py`: `pdftotext -layout -enc UTF-8`, 파서 버전 `pdftotext-{주.부}_prep-{n}`. PR #43 경로 `derived/{raw_sha256}/{parser_version}/text.txt`·`structure.json`(text.txt를 먼저 씀). `structure.json`의 `text_sha256`이 text.txt와 같으면 건너뜀. `runs/{run_id}/extraction_attempts.jsonl`은 실행 끝에 한 번 씀, `run.json`에 실패율 요약
+  - #47 공통 모듈의 `_write_atomic`·`_append`를 공개 이름 `write_atomic`·`append`로 바꿈(크롤러 호출부 함께 수정)
+- 실데이터에서 고친 분할 규칙(옮긴 알고리즘 기준)
+  - 띄어 쓴 표제(「제 3 부」), 표제만 있는 줄, 목차 줄 끝 점선·쪽 번호를 인식(20건 중 5건 「제N부」 미검출 → 0건)
+  - 절을 앞 절보다 뒤에서만 찾음. 뒤 절 제목이 앞쪽 본문에 먼저 맞아 구간이 거꾸로 잡힌 12건 해결(`prep-2`)
+  - 목차 뒤에서는 앞에서 고른 부보다 번호가 큰 표제만 고름. 쪽 머리글 「제 1 부」·「제 2 부 [별첨1]」 반복으로 본문 부를 놓친 문서 해결(`prep-3`)
+- 결과(10월 10일, 9월 1일~29일 공시 본문 PDF 502건, `pdftotext-24.09_prep-3`)
+  - 텍스트화 502/502(100%), 파일 실패 0건
+  - 「제N부」 미검출 2건(20260903000270, 20260911000012): 둘 다 간이투자설명서만 담긴 PDF라 부·절 구조 없음으로 기록
+  - 부 적중 2,418/2,418, 5개 부를 모두 찾은 문서 500/500
+  - 절 적중 15,475/16,080(96.2%). 문서별 최저 77.4%, 하위 10% 88.6%, 중앙값 97.1%
+  - 500자 미만 절 32.1%, 깨진 문자 비율 0.3 이상 절 0건(두 기준 모두 미검증 잠정값). 처리 시간 약 2분(arm64)
+  - 접수번호 2건(20260918000190, 20260918000389)은 PDF 바이트가 같아 파생 텍스트 하나를 함께 씀
+- 형식 메모: `extraction_attempts.jsonl` 칼럼은 PR #43 목록에 `raw_storage_path`·`source_key`·`structure_status`·`text_*`·`structure_*`·`section_count`·`section_found_count`를 더함. DB 전이라 `raw_object_id`는 null
+- 검증: pytest 56개 통과(분할 규칙·글자 위치 불변식·회귀 3건, 건너뛰기·실패 기록), `ruff format`·`ruff check` 통과
+- 수행하지 않은 것: 표 영역·`blocks`(PR #49), 간이투자설명서 구간 분리, `canonical_section_code` 값, DB 적재, S3 업로드, OCR, 데이터 사이언스(다빈) 표본 검토
+
 ## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
 
 - 범위: OPEN DART 목록(`list.json`, `pblntf_ty=G`)에서 report_nm으로 투자설명서(정정본 포함)를 골라 표지 XML(`document.xml`)·뷰어 트리(`main.do`)·뷰어 표지(`viewer.do`)·본문 PDF(`download.do`)를 받는다. 증권신고서·일괄신고서는 건수만 세고 받지 않는다(목록 응답 원본에는 남음)
