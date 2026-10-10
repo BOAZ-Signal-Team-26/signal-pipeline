@@ -1,0 +1,38 @@
+{
+  "scope": "KRX 2026-09-04 snapshot; issuer review 2026-10-04. Identity confirmation does not establish current listing or CDI eligibility.",
+  "row_count": 1167,
+  "statuses": {
+    "STRUCTURAL_PASS_ONLY": 932,
+    "ISSUER_REVIEWED": 153,
+    "PENDING": 12,
+    "PREVIOUS_MANUAL": 70
+  },
+  "issuer_confirmed_corrections": 46,
+  "issuer_confirmed_new_links": 3,
+  "candidate_changes": 49,
+  "candidate_missing": 7,
+  "candidate_portal_collision_groups": 0,
+  "resolved_portal_collision_groups": 0,
+  "inputs_sha256": {
+    "krx_issuer_review.csv": "8dbfd5f70591ebab827bdd9fa0a4970356d76c437f8471567508dae51dceea67",
+    "funds.json": "37fd93acc726a240705bf850c101215a5e043ae053a0e2e4251e4fb8a395d208"
+  },
+  "issuer_confirmed_kept_links": 104,
+  "ace_portal_code_promotions_2026_10_06": 17,
+  "intermediate_files_removed_2026_10_06": {
+    "files": [
+      "krx_match_audit.csv",
+      "krx_match_audit.summary.json",
+      "krx_duplicate_link_proposals.csv",
+      "krx_other_review_proposals.csv",
+      "krx_unmatched_rematch.csv",
+      "krx_clean_sample_review.csv"
+    ],
+    "scripts": [
+      "audit_krx_matches.py",
+      "propose_krx_duplicate_links.py",
+      "build_krx_review_table.py"
+    ],
+    "note": "정본 대응표 krx_link_review_v2.csv와 근거표 krx_issuer_review.csv만 유지. 229건 재대조 메모는 review_note 열에 합침. 제거한 파일은 git 이력에 보존"
+  }
+}

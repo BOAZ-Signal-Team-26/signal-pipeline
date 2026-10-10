@@ -7,7 +7,7 @@
 | 순서 | 문서 | 읽으면 알게 되는 것 |
 |---|---|---|
 | 1 | README (이 문서) | 프로젝트 전제, 단계, 현재 상태 |
-| 2 | [데이터 테이블·ERD 설계](data-model.md) | 표 20개가 각각 무엇을 담는지, 표끼리 어떻게 이어지는지 |
+| 2 | [데이터 테이블·ERD 설계](data-model.md) | 표 17개가 각각 무엇을 담는지, 표끼리 어떻게 이어지는지 |
 | 3 | [데이터 소스 수집 명세](data-sources.md) | 각 소스에서 무엇을 어떻게 받는지 |
 | 4 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) | 받은 원본을 어떻게 보관하고 실패를 어떻게 기록하는지 |
 | 5 | [상품·법인 매칭 규칙](matching-rules.md) | 문서를 상품·법인에 어떻게 붙이는지 |
@@ -21,6 +21,7 @@
 ### 한 줄 정의
 
 - 판매 중인 금융상품 설명서를 전수 채점해 절마다 설명 난독성 점수를 산출하고, 그 기준을 비대면 가입 플로우에 적용해 개선안 도출
+- 측정 범위의 한계: 금소법 설명서와 DART 투자설명서는 같은 문서가 아님. 공모펀드는 설명서의 상품정보 부분을 투자설명서로 대신 판정함(10월 7일 조사) → [점수 저장과 비교 모집단](scoring-and-population.md) 「측정 범위의 한계: 투자설명서로 대신 판정」
 
 ### 최종 산출물 3종
 
@@ -82,7 +83,7 @@
 
 | 단계 | 기한 | 상태 | 현행 설계 문서의 해당 절 | 근거 기록 폴더 |
 |---|---|---|---|---|
-| 1단계 데이터 테이블·ERD 설계 | 9월 16일 | 확정 전 (v2.1 검토안, 팀·CDI 산식 담당 승인 미완료) | [데이터 테이블·ERD 설계](data-model.md) 전체, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 전체, [상품·법인 매칭 규칙](matching-rules.md) 전체, [점수 저장과 비교 모집단](scoring-and-population.md) 전체, [데이터 소스 수집 명세](data-sources.md) 전체 | [records/phase1-erd/](records/phase1-erd/) |
+| 1단계 데이터 테이블·ERD 설계 | 9월 16일 | 확정 전 (v2.2 검토안, 결정 대기 항목·CDI 산식 담당 승인 미완료) | [데이터 테이블·ERD 설계](data-model.md) 전체, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 전체, [상품·법인 매칭 규칙](matching-rules.md) 전체, [점수 저장과 비교 모집단](scoring-and-population.md) 전체, [데이터 소스 수집 명세](data-sources.md) 전체 | [records/phase1-erd/](records/phase1-erd/) |
 | 2단계 데이터 파이프라인 Flow 설계 | 9월 30일 | 시작 전 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md) | 기록이 생기면 records/phase2-pipeline/ |
 | 3단계 입출력 Schema 설계 | 10월 14일 | 착수 전 | [3단계 입출력 Schema 설계 입력](io-schema.md) | 기록이 생기면 records/phase3-io-schema/ |
 
@@ -95,17 +96,17 @@
 - 현행 설계 문서는 단계와 무관하게 `docs/` 바로 아래 주제별로 둠
 - 프로세스·WBS·스프린트 계획: [Project-Management](https://github.com/BOAZ-Signal-Team-26/Project-Management). 이 저장소는 「무엇을 어떻게 만들 것인가」만 다룸
 
-### 현재 검토안 (2026-09-23)
+### 현재 검토안 (2026-10-04)
 
 | 항목 | 값 |
 |---|---|
-| 판 | ERD v2.1 |
-| 규모 | 20개 표 · 47개 관계 · enum 30개 |
-| v2.1 반영 | 추출 run/채점 run 분리, 공식 run 마커, 모집단 유일키 수정, enum 통일 |
-| 담는 것 | 절·문서·문서쌍·펀드 대상, 계산 불가 결과, 점수 집계 근거, 사람·LLM 원응답 |
+| 판 | ERD v2.2 (이전 v2.1) |
+| 규모 | 17개 표 · 42개 관계 · enum 26개 (v2.1: 20개 표 · 47개 관계 · enum 30개) |
+| v2.2 반영 | 채점·평가 표 4개 연기, analysis_target을 score에 병합(결정 대기), 추출 키 = 원본 파일 × 파서 버전, 표 2개 추가(LLM 6필드 추출 결과, 소스 워터마크), 채울 수 없는 칼럼 제거, 코드 체계별 두 칼럼(결정 대기) |
+| 담는 것 | 절·문서·펀드 대상(문서쌍은 Phase 2), 계산 불가 결과, 근거 위치, LLM 6필드 추출 결과 |
 | 정본 | [데이터 테이블·ERD 설계](data-model.md), [DBML](schema.dbml), [스키마 명세](schema-catalog.md) |
 | 승인 | 팀·CDI 산식 담당 승인 미완료. 운영 DB 적용 미완료 |
-| 09-30 결정 대기 | 표 제외 등 10건(검토 번호 B1~B10) + 09-30 추가 3건(B11~B13, 두 파트 출력의 저장 계약) → [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
+| 결정 대기 | A·C·E, 10월 4일 판단 항목 3건, 그대로 미결인 항목 → [데이터 테이블·ERD 설계](data-model.md) 「v2.2」·「미결」 |
 | 이전 검토 근거 | [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) |
 
 ### 저장소 구성
@@ -167,8 +168,9 @@
 | [금투협 수시공시 중복 행과 ETF 이름 규칙 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) | 09-19 금투협 중복 행, ETF 「상장지수」 이름 규칙 |
 | [조인 키 확인 기록](records/phase1-erd/join-key-checks.md) | 소스 간 연결 판정 현황표, srtnCd·판매회사·분쟁조정·제재공시 실측 |
 | [DART 본문 PDF 부·절 분할 실현성 검증](records/phase1-erd/dart-section-split.md) | 09-20 부·절 분할 |
+| [운용사 코드 대조 기록](records/phase1-erd/manager-code-check.md) | 10-04 대응표에 없는 운용사 코드 7종 실측과 처리 |
 | [소스별 데이터 현황표](records/phase1-erd/source-profile.md) | 문서 4종 × 7항목 |
-| [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) | 9 → 14 → 20개 표 변천, 09-22·09-23 재검토, v2 6관점 검토 |
+| [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) | 9 → 14 → 20 → 17개 표 변천(v2.2 17개 포함), 09-22·09-23 재검토, v2 6관점 검토 |
 
 - 검증 스크립트와 표본 CSV: [research/](../research/)
 
@@ -203,7 +205,7 @@
 | gate-a/17 DART 부·절 분할 (검증 3) | [DART 본문 PDF 부·절 분할 실현성 검증](records/phase1-erd/dart-section-split.md) | 전체 |
 | gate-a/18 스키마 재검토(09-22) | [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) | 「9표 → 14표 재검토(09-22)」. 4절 → [데이터 테이블·ERD 설계](data-model.md) 「원천 필드 → 논리 타입 → 목적지」「자료형·결측 공통 규칙」, 5절 → 「적재 검증 규칙」, 6절 → 「표 설계 근거」 |
 | gate-a/19 미결정 포함 재검토 | 같은 문서 | 「미결정 포함 재검토(09-23)」. 5절 권고 → [점수 저장과 비교 모집단](scoring-and-population.md) 「CDI 지표 설계 권고(승인 아님)」 |
-| gate-a/20 ERD 재설계 v2 | [데이터 테이블·ERD 설계](data-model.md) | 무결성 계약 → 「절과 점수 대상」, 구조 정보 → 「원본·수집 시도·추출」, 평가 → 「평가 데이터」, 이관 → 「v1 → v2 이관 절차」, v2.1 절 → 「실행과 비교 모집단」. 점수·결측·모집단 계약 → [점수 저장과 비교 모집단](scoring-and-population.md) |
+| gate-a/20 ERD 재설계 v2 | [데이터 테이블·ERD 설계](data-model.md) | 무결성 계약 → 「절과 점수 대상」, 구조 정보 → 「원본·수집 시도·추출」, 평가 → 「예약 계약(승인 뒤 추가)」, 이관 → 「v1 → v2 이관 절차」, v2.1 절 → 「실행과 비교 모집단」, v2.2 절 → 「v2.2」. 점수·결측·모집단 계약 → [점수 저장과 비교 모집단](scoring-and-population.md) |
 | gate-a/21 스키마 명세 | [스키마 명세](schema-catalog.md) | 전체 |
 | gate-a/22 ERD v2 6관점 검토 | [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) | 「v2 6관점 검토」. 09-30 결정 요청 B1~B10 → [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
 | gate-a/schema.dbml | [DBML](schema.dbml) | — |
@@ -262,7 +264,7 @@
 | 4 | DART viewer.do Referer 필요 여부 | [데이터 소스 수집 명세](data-sources.md) 「미결」 |
 | 5 | finlife 소스 존치 | [데이터 테이블·ERD 설계](data-model.md) 「미결」 |
 | 6 | 경영유의사항 API 채택 | [데이터 테이블·ERD 설계](data-model.md) 「미결」, [3단계 입력](io-schema.md) 「미결」 |
-| 7 | KRX 매칭 실패 229건 처리 방침 | [2단계 입력](pipeline-flow.md) 「미결」 |
+| 7 | KRX 매칭 실패 229건 처리 방침 → 10월 4일 PM 초안, 10월 6일 1,167종목 재감사 반영(팀 확인 대기) | [매칭 규칙](matching-rules.md) 「KRX 매칭 실패 처리」 |
 | 8 | CDI 검증 방법(분쟁 검정 폐기 여부) | [3단계 입력](io-schema.md) 「미결」 |
 | 9 | ETF 판매사 축 분석 결론 재작성 | [점수 저장과 비교 모집단](scoring-and-population.md) 「미결」 |
 | 10 | 제재 증분 필터 = inputDate 확정 수준 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「미결」 |

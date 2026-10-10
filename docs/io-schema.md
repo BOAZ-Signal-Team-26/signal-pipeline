@@ -28,6 +28,7 @@
 - 6필드: 유형·판매사·위험등급·수수료·원금손실·핵심 위험
   - 이름·타입·출처 절 미확정(6필드 확정 티켓)
   - 원본/근거 구간은 보존, 이름·타입은 임의 확정하지 않음
+- 예약 필드(6필드 밖): `risk_grade_basis`(위험등급 산정 기준. 주간 수익률 변동성, VaR 등 산정 방식 이름), `risk_grade_measure`(그 기준의 측정값). 원본 추출값으로 받음. 예약, 추출 미실시. 10월 21일 100건 비용 실측 뒤 추출 여부 결정(PM(대현) 10월 8일). 저장은 llm_field_extraction의 field_name 값이라 표 구조 변경 없음([데이터 테이블·ERD 설계](data-model.md) 「product / fund_group」 risk_grade)
 - 필드별 요구
   - 값 상태: 값 있음 / 미발견 / 추출 실패 구분
   - 근거 구간: section 또는 파일 + char 범위
@@ -36,6 +37,7 @@
   - 수수료 등 중첩 구조·자유 텍스트·목록: 임의 단일 문자열·실수로 평탄화 금지. 값·단위·적용 클래스·근거 section/offset 정의 필요
   - 금액·비율: 단위 없이 숫자만 넘기지 않음
 - LLM 6필드 출력은 점수 출력과 별도 계약
+- 입력 기록(10월 9일): 시도마다 `request.json`에 보낸 문서 텍스트, `input_sha256`, `inputs`(원본 파일·파서 버전·절 또는 문자 범위)를 남기고 `llm_field_extraction.input_sha256`에 같은 해시를 적음. 해시 규칙과 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」
 
 ## CDI 출력 요구
 
@@ -113,10 +115,10 @@
 - 예시의 `evidence`·`penalty_phrases`·`fix_locations` 위치 형식(section_id, char_start, char_end)은 결정 요청 B11 결정 뒤 정리([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」). 확정 형식이 아님
 - 상태 정의: [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
 - 식별자
-  - 공개 가능: document_id, product_id, fund_key, distributor_id
-  - run 파라미터 동반: `(run_id, section_id)`, metric_key
-  - 내부 전용·노출 금지: target_id/target_key, member_id, score_id, score_payload 안의 member_id/block_id, raw_object_id, 파일 경로
-  - 근거 구간은 서버가 `(run_id, section_id)` + char 범위 + 인용 텍스트로 해석해 전달
+  - 공개 가능: document_id, product_id, fund_key, distributor_id, section_id(v2.2: 키가 원본 파일 × 파서 버전이라 run 불필요)
+  - run 파라미터 동반: run_id, metric_key
+  - 내부 전용·노출 금지: score_id, target_key, raw_object_id, 파일 경로
+  - 근거 구간은 서버가 `section_id` + char 범위 + 인용 텍스트로 해석해 전달(B11 안 1)
   - 규칙 정본: [스키마 명세](schema-catalog.md) 「공개 식별자 규칙」
 - 출력 문구: 확인 가능한 사실로만 씀. 「제재 가능성」 같은 추정 표현 대신 「19조 N번 항목을 문서에서 찾지 못함」(09-29 팀 논의 결론, 9차 미팅(09-30) 확정)
 - 승인 점수만 거르는 조회 계층(`is_official` ∧ `APPROVED`)과 서빙 API 계약: 09-30 결정 대기(검토 번호 B5, [데이터 테이블·ERD 설계](data-model.md) 「미결」)
@@ -129,10 +131,10 @@
 
 | 항목 | 현재 모양 | 정의 위치 |
 |---|---|---|
-| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{member_id,block_id,char_start,char_end}]}]`, `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」. 저장 계약은 항목별 score 행 기준으로 바뀜([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 참조). 이 items 배열 구조와 member_id 근거 형식은 결정 요청 B11 결정 뒤 정리 |
-| target_key | `{contract_version:2, target_type, anchor, members:[…], selection_policy_version}`의 정규 JSON SHA-256. run 안 재시도 멱등성 키, 공개 ID 아님 | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
-| 구조 manifest | `{contract_version,raw_object_id,run_id,canonical_text_sha256,coordinate_system,blocks,missing_regions}` | [데이터 테이블·ERD 설계](data-model.md) 「원본·수집 시도·추출」 |
-| 평가 protocol_manifest | 문서쌍·target_ids·문항/정답/채점기준·조건·반복·프롬프트·계획 응답 슬롯 | [데이터 테이블·ERD 설계](data-model.md) 「평가 데이터」 |
+| score_payload v2 | `contract_version`, `unit`, `items[{item_key,status,reason,evidence[{section_id,char_start,char_end}]}]`(v2.2: B11 안 1, member_id·block_id 제거), `applicable_count`, `assessed_count`, `coverage`, `preprocessing` | [점수 저장과 비교 모집단](scoring-and-population.md) 「고지 항목 판정」. 저장 계약은 항목별 score 행 기준으로 바뀜([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 참조). 근거 위치는 B11 안 1로 확정되어 `evidence[{section_id,char_start,char_end}]` 형식만 씀(`member_id`는 쓰지 않음) |
+| target_key | `{contract_version:3, target_type, anchor, selection_policy_version}`(v2.2: members 제거)의 정규 JSON SHA-256. run 안 재시도 멱등성 키, 공개 ID 아님 | [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」 |
+| 구조 manifest | `{contract_version,raw_object_id,parser_version,canonical_text_sha256,coordinate_system,blocks,missing_regions}` | [데이터 테이블·ERD 설계](data-model.md) 「원본·수집 시도·추출」 |
+| 평가 protocol_manifest | 문서쌍·target_ids·문항/정답/채점기준·조건·반복·프롬프트·계획 응답 슬롯(evaluation 표는 v2.2에서 연기) | [데이터 테이블·ERD 설계](data-model.md) 「예약 계약(승인 뒤 추가)」 |
 
 - 6관점 검토 지적: 미정 상태에서 3단계 계약을 스키마가 먼저 정함. 정규 JSON 규칙을 RFC 8785로 고정할지는 09-30 결정 대기(검토 번호 B7)
 

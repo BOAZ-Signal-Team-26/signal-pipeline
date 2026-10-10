@@ -43,6 +43,18 @@
 | 국가법령정보 | 키(`OC`) | 미호출 | 미확인 | 없음 |
 | finlife | 키 | 펀드·ETF·ELS 없음. 소스 존치 미결 | 개요 페이지만 | 없음 |
 
+저장 소스 이름(`source` 값, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」):
+
+| 소스 | source 값 |
+|---|---|
+| OPEN DART API·공개 뷰어 | `dart` |
+| 금투협 전자공시 | `kofia_disclosure` |
+| 금감원 검사결과제재 | `fss_sanction` |
+| 금감원 경영유의사항 | `fss_improvement` |
+| 금감원 분쟁조정결정례 | `fss_dispute` |
+| 공공데이터포털 펀드상품기본정보 | `data_go_fund` |
+| KRX ETF 일별 매매정보 | `krx_etf_daily` |
+
 - 「공식 명세」가 없는 소스(금투협·KRX·DART 공개 뷰어)는 판독한 내용이 전부이며, 서버가 예고 없이 바뀌면 알 수 없음
 - 금감원 제재·경영유의는 09-20 명세 판독 시점에는 미호출이었고 09-21 개인 키 발급 후 실호출함
 
@@ -104,6 +116,8 @@ DTO: `DISFTimeAnnInsDTO`
 - 클래스 행: `uFundNm`이 `└▶`로 시작
 - `tmpV1`: 수시공시에서는 모펀드 코드, 정기공시에서는 자기 코드. `ZZZZZZ…`는 결측이 아니라 수시 모펀드 행 표시자
 - 문서 자연키 `(companyCd, standardDt, announceTtl, tmpV1)`와 수시공시 한정 규칙은 [데이터 테이블·ERD 설계](data-model.md) 「문서와 소스별 키」
+- `companyCd`: 운용사 코드(요청 파라미터이자 응답 필드). 응답의 `companyCd`는 문서 자연키의 첫 필드이며 ERD `document.source_key_payload`에 그대로 보존. 금투협 운용사 코드는 DART 법인(`corp_code`)과 1:1이 아님: 대응표(`research/samples/kofia_mgmt_codes.csv`)에 없는 값 7종이 있음. 처리는 matching-rules.md 「대응표에 없는 운용사 코드」
+- `standardDt` 형식이 호출마다 다름: 공시 목록 응답에서는 `YYYYMMDD`(예 `20260813`, `research/samples/kofia_ann_sample.csv`), 판매회사 마스터 조회(`option=S2`)에서는 `YYYYMM`. 한 칼럼에 섞지 않음(ERD v2.2 수정 7)
 - 증분 축: `standardDt`. 룩백 일수는 [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」
 
 ### 조회 창 실측 (09-20)
@@ -205,6 +219,7 @@ Header: AUTH_KEY: {키}
 - 두 메시지를 구분해야 키 문제인지 승인 문제인지 알 수 있음
 - 응답 구조 (09-20 실측): 루트 키 `OutBlock_1` 하나, 값이 행 배열
 - 행 필드 19개: `BAS_DD` `ISU_CD` `ISU_NM` `TDD_CLSPRC` `CMPPREVDD_PRC` `FLUC_RT` `NAV` `TDD_OPNPRC` `TDD_HGPRC` `TDD_LWPRC` `ACC_TRDVOL` `ACC_TRDVAL` `MKTCAP` `INVSTASST_NETASST_TOTAMT` `LIST_SHRS` `IDX_IND_NM` `OBJ_STKPRC_IDX` `CMPPREVDD_IDX` `FLUC_RT_IDX`
+- `ISU_CD`는 6자리 영숫자(숫자만 있는 코드와 `0184E0`처럼 영문이 섞인 코드가 함께 있음. ETF 대조 표본 `research/samples/etf_rule_check.csv`의 1,167건이 모두 6자리, 숫자만 864건·영문 포함 303건. ERD v2.2 수정 7)
 - 사용 필드: `ISU_CD`·`ISU_NM`. `NAV`·`MKTCAP`·`LIST_SHRS`는 규모 지표로 사용 가능
 - 수치 필드 표기(구분자·단위·결측 토큰)는 확인대기(9차 미팅). 데이터 엔지니어링·인프라(주영)가 API 조회로 확인
 - `ISU_NM`은 정식 펀드명이 아니라 상장 약명 (`1Q 200액티브` vs `하나1Q200액티브증권상장지수투자신탁[주식]`). 공공데이터포털과 완전일치율 0.0%, 포함매칭 최대치 80.4% ([금투협 중복 행·ETF 이름 규칙 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) 「이름 공간 차이」)
@@ -286,7 +301,7 @@ GET https://opendart.fss.or.kr/api/list.json?crtfc_key={키}&bgn_de={YYYYMMDD}&e
 - 응답 JSON. 최상위 키 `status`(정상 `000`)·`message`·`page_no`·`page_count`·`total_count`·`total_page`·`list`
 - `list` 항목 필드 9개: `corp_cls`(1자), `corp_code`(8자), `corp_name`, `flr_nm`, `rcept_dt`(YYYYMMDD 8자), `rcept_no`(14자), `report_nm`, `rm`, `stock_code`(펀드는 빈 문자열)
 - 최근 7일(09-23~09-30) 펀드공시(G) 147건. 이번 페이지 100건의 `report_nm` 앞머리: 투자설명서 55, 증권발행실적보고서 36, 일괄신고서 6, 증권신고서 3
-- **`pblntf_detail_ty`는 응답에 없고, 요청 필터로 넣어도 효과가 없음.** G001·G002·G003 세 값 모두 필터 없는 호출과 같은 147건. 문서 종류 판별은 `report_nm`으로만 가능. ERD `document.pblntf_detail_ty` 칼럼은 이 API로 채울 수 없음(「미결」)
+- **`pblntf_detail_ty`는 응답에 없고, 요청 필터로 넣어도 효과가 없음.** G001·G002·G003 세 값 모두 필터 없는 호출과 같은 147건. 문서 종류 판별은 `report_nm`으로만 가능. 이 API로 채울 수 없어 ERD v2.2에서 `document.pblntf_detail_ty` 칼럼을 제거함
 - 증분 축: `rcept_dt`. 룩백 일수와 그 이유(정정본)는 [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」
 
 **원문 API**
@@ -447,7 +462,6 @@ GET https://www.fss.or.kr/fss/kr/openApi/api/openInfoImpr.jsp    # 경영유의�
 
 | 질문 | 결정 필요 주체 | 필요 시점 |
 |---|---|---|
-| ERD `document.pblntf_detail_ty` 칼럼을 유지하는가. 목록 API 응답에 없고 요청 필터도 효과가 없어 채울 수 없음(09-30 실측) | PM(대현)·데이터 엔지니어링·인프라(주영) (ERD v2.2에서 「채울 수 없는 칼럼」으로 처리 여부) | ERD v2.2 작성 시 |
 | DART `viewer.do`에 Referer가 꼭 필요한가 (명세는 「필요」, 실측은 Referer 붙여서만 호출) | 주영 (Referer 없이 1회 호출) | DART 수집기 구현 전 |
 | 금감원 제재 증분 필터가 `inputDate`라는 판정이 다른 달에도 성립하는가 (근거 1건) | 대현 (다른 달 표본으로 재확인) | 제재 수집기 구현 전 |
 | 경영유의사항(`impr`) 본문의 실제 마스킹 수준 (공개 샘플이 제재와 같은 예시 텍스트) | 대현 (`--kind impr`로 2026-09 구간 호출) | 경영유의사항 API 채택 결정 전 |
@@ -458,7 +472,7 @@ GET https://www.fss.or.kr/fss/kr/openApi/api/openInfoImpr.jsp    # 경영유의�
 | 금감원 법인 키의 1회 조회기간 상한과 일일 한도 초기화 시점 | [담당 미정] (법인 키 발급 후 확인) | 법인 키 신청 시 |
 | 국가법령정보 연결 방식 (조인인가 텍스트 참조인가, 금소법 「설명서」와 투자설명서의 대응) | 팀 (미팅 안건. 키로 해결되지 않음) | 3단계 입출력 Schema 설계(10-14) 전 |
 | finlife를 소스에서 빼는가, 금융회사 마스터(`fin_co_no`)·연금저축펀드 용도로 남기는가 (09-16 안건, 결과 기록 없음) | 팀 (09-16 회의록 확인) | 09-30 2단계 설계 확정 전 |
-| finlife `fin_prdt_cd`가 8종 공통 필드인가 | [담당 미정] (존치로 결정되면 명세 확인) | finlife 존치 결정 후 |
+| finlife `fin_prdt_cd`가 8종 공통 필드인가(ERD 칼럼은 v2.2에서 제거) | [담당 미정] (존치로 결정되면 명세 확인) | finlife 존치 결정 후 |
 
 ## 참고
 
