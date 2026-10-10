@@ -1,5 +1,22 @@
 # 작업 기록
 
+## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
+
+- 범위: OPEN DART 목록(`list.json`, `pblntf_ty=G`)에서 report_nm으로 투자설명서(정정본 포함)를 골라 표지 XML(`document.xml`)·뷰어 트리(`main.do`)·뷰어 표지(`viewer.do`)·본문 PDF(`download.do`)를 받는다. 증권신고서·일괄신고서는 건수만 세고 받지 않는다(목록 응답 원본에는 남음)
+- 공통 모듈(`src/signal_pipeline/common/`)
+  - `http.py`: httpx 클라이언트. 간격 1초·동시 1개, 타임아웃·5xx는 최초 1회 + 재시도 최대 5회(1·2·4·8·16초), 401·403·429는 재시도 없음, 결과를 `attempt_outcome_enum` 6종으로 분류, 기록에서 인증 인자 제외
+  - `storage.py`: 10월 4일 확정 경로(PR #43) `raw/{source}/{원천 키}/{file_role}__v{n}.{ext}` + `.meta.json`. 원천 키 인코딩(`/`·`~`·`%`·제어 문자만, 200바이트 초과 시 `-h` + SHA-256 앞 12자), 같은 바이트면 새 판을 만들지 않음, `.meta.json`을 먼저 쓰고 원본을 나중에 씀
+  - `runlog.py`: `runs/{run_id}/run.json`(`pipeline_run` 칼럼), `attempts.jsonl`(`collection_attempt`, 시도 1번 = 1줄), `raw_objects.jsonl`(종료 시 `input_manifest`). DB 가동 전이라 `document_id`는 접수번호, `raw_object_id`는 `storage_path`로 대신함
+  - `state.py`: 접수일 하루 단위 워터마크. 그날을 빠짐없이 받았을 때만 전진, 다음 실행은 워터마크 − 룩백 3일(잠정)부터. 룩백은 첫 실행 시작일보다 앞으로 가지 않음
+- 결정: 저장 위치는 환경변수 `RAW_ROOT`(`.env.example`에 항목 추가), run_id는 `extract-{UTC 시각}-{임의 4자}`, User-Agent는 프로젝트명 + 저장소 주소, `document.xml` 014(파일 없음)는 `PERMANENT_FAILED`로 기록하고 그날 완료를 막지 않음
+- 제안(확인 필요): DART 목록 응답 경로 `raw/dart/_list/{접수일}/page-NNNN__v{n}.json`. PR #43에 DART 목록 예시가 없어 스냅숏형 소스(`data_go_fund`) 모양을 따름
+- 10월 4일 실호출 확인: 증권신고서·일괄신고서는 본문 PDF가 없고 본문이 절마다 HTML 노드로 나뉨, `document.xml`은 014. 시험 실행에서 신고서 요청이 전체의 약 절반이라 수집 대상에서 제외(10월 5일)
+- 수집 결과(10월 5일, `--from 2026-09-01 --max-pdf 500`): 본문 PDF 500건(810MB, 평균 1.62MB, 모두 `%PDF-` 확인), 접수일 9월 1일~29일 완료·워터마크 9월 29일, 요청 2,552번, 61분. 결과 분류 SUCCESS 2,384·PERMANENT_FAILED 146·EMPTY 10. 투자설명서 503건 중 `document.xml` 014가 146건(29%). 표지·본문 노드 없음 3건. 다운로드 타임아웃 12번은 재시도로 모두 성공
+- 경로 변경(10월 5일): 수집분 1,884개를 옛 경로(수집일·해시 폴더)에서 새 경로로 옮김(바이트 그대로, SHA-256 대조 일치). 실행 기록의 `storage_path`를 고치고 대응표 `runs/_path_migration_20261005.tsv`를 남김
+- 검증: pytest 40개 통과(재시도·분류·인증값 제외, 경로·원천 키 인코딩·판 번호, 실행 기록·워터마크·룩백, report_nm 분류·트리 파싱·노드 찾기·PDF 링크), `ruff format`·`ruff check` 통과. 경로 변경 뒤 같은 명령을 다시 실행해 신규 0건·건너뜀 50건·요청 4번 확인(9월 26일~29일)
+- PR #47 리뷰 반영(10월 7일): 목록 조회 실패를 실행 요약 `list_failures`에 기록하고 하나라도 있으면 실행을 `FAILED`·종료 코드 1로 끝냄. 인증 키(`crtfc_key` 등)를 담은 요청만 리다이렉트를 따르지 않음(3xx는 `PERMANENT_FAILED`). 테스트 2개 추가해 pytest 42개 통과, 실제 목록 API 1회 호출로 정상 응답 확인. 문서 단위 재시도 실패로 미완료가 된 날은 아직 실행 상태에 반영하지 않음
+- 수행하지 않은 것: 문서 반영(`data-sources.md`에 신고서 구조·OPEN DART status 코드표, ERD `file_role_enum`에 `viewer_tree` 추가)은 PM 검토 뒤로 미룸. S3 저장(`RAW_ROOT`가 로컬 폴더), DB 기록(`collection_attempt`·`source_watermark`), 공공데이터포털·KRX 수집(2차), 절 단위 분할, CI에 pytest 추가
+
 ## 2026-10-04 — 10-02 CDI 4축 변수표 반영
 
 - 기준: Notion 「CDI 4축 변수표 (10/2)」(데이터 사이언스(다빈)). 9차 미팅(09-30) 회의록과 dev 브랜치 문서를 대조한 뒤, 변수표를 지표 구성의 기준으로 삼고 설계 문서를 맞췄다.
