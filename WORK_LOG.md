@@ -1,5 +1,24 @@
 # 작업 기록
 
+## 2026-10-11 — 데이터 처리 요구 명세: PR #49 리뷰 반영과 `structure.json` 필드 정의
+
+- 기준: PR #49 리뷰(PM(대현) 10월 7일·8일, 데이터 사이언스(다빈) 10월 10일), PR #51의 PM(대현) 요청(10월 10일), 10차 미팅(10월 7일)
+- [데이터 처리 요구 명세](docs/processing-requirements.md)
+  - 2절: 입력 파일 불변·재실행은 새 `score_run_id` 문장 추가. `documents.parquet`·`excluded.parquet` 위치를 `runs/{score_run_id}/`로 확정, `exports/` 사본 없음
+  - 칼럼: `text_excl_tables`·`headings_source` 삭제. `source_section_no`를 문자열로 변경. 파서 버전 예시를 `pdfplumber-0.11_prep-4`로 변경
+  - 4-2: 분할은 규칙, 책갈피는 검증에만 씀(10월 10일 PM 결정)
+  - 4-3: ASL은 받는 쪽이 `text`에서 구간을 빼서 계산. 구간 합치기 규칙 추가. 칸 안에 문장이 있는 표는 ASL에 넣고 표를 모두 뺀 ASL은 비교용(10월 10일 다빈 결정). 텍스트·표 모두 pdfplumber
+  - 4-6 신설: `structure.json` 필드(최상위, `blocks` 5종, 책갈피 대조, 표 분리 실패 시 다시 추출, 넣지 않는 것과 이유)
+  - 5절: 표 분리 실패 표기를 `table_regions = NULL`로. 6절: 사유 코드 9개 확정
+  - 8절: PR #43 반영 위치, PR #47 미병합, 금감원 게시판 크롤러 보류(10월 7일), 다루지 않는 소스 표시
+  - 상태 표·10절: PM 승인, 다빈 의견 반영 기록
+  - 미결: 결정된 4행 삭제(`documents.parquet` 위치, 사유 코드, 표 안 문장, PDF 라이브러리). `has_sentences` 판정 기준 1행 추가
+- 바꾸지 않은 것
+  - `structure.json` 필드 이름: PR #51 리뷰에서 확정
+  - `has_sentences` 판정 기준: 「다.」 유지, PR #51 표본 실측 뒤 결정
+  - `scoring-and-population.md`의 ASL 정의(「표 제외」): PM 담당 문서라 PR #49 답글로 알림
+  - 8절 소스별 검증 방법
+
 ## 2026-10-04 — 10-02 CDI 4축 변수표 반영
 
 - 기준: Notion 「CDI 4축 변수표 (10/2)」(데이터 사이언스(다빈)). 9차 미팅(09-30) 회의록과 dev 브랜치 문서를 대조한 뒤, 변수표를 지표 구성의 기준으로 삼고 설계 문서를 맞췄다.
