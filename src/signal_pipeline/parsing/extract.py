@@ -52,7 +52,8 @@ from signal_pipeline.parsing.regions import (
 # 2: 절을 앞 절 뒤에서만 찾음. 3: 본문 부를 반복·되돌아간 표제를 건너뛰며 고름
 # 4: pdftotext → pdfplumber(PR #49 4-3), 요약정보·other 구간, 표·머리글 구간, 모든 EXTRACT_OK에 structure.json
 # 5: PR #49 4-6 형식(blocks 5종, 표 분리 상태, 책갈피 없으면 대조 null), PR #43 필드 이름
-PREP_VERSION = 5
+# 6: 목차·본문 절 제목이 앞부분만 같아도 찾음, 앞 문장에 붙은 「제N부」 표제를 찾음(PR #51 표본 검토)
+PREP_VERSION = 6
 CONTRACT_VERSION = 3
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 FILE_TIMEOUT_SECONDS = 300  # 파일 1건 제한. pdfplumber는 502건 평균 수 초~수십 초

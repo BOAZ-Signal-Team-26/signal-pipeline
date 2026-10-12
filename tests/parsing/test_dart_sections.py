@@ -226,3 +226,65 @@ def test_side_tab_letters_in_toc_and_heading() -> None:
     result = split_sections(text)
     check(result, text)
     assert result.toc_part_count == 3 and result.toc_section_count == 5
+
+
+def test_body_title_shorter_than_toc_title_is_found() -> None:
+    # 목차 「운용전문인력에 관한 사항」, 본문 「3. 운용전문인력」(PR #51 표본 검토)
+    toc = [
+        "제1부 모집",
+        "   1. 투자대상",
+        "   2. 투자전략",
+        "   3. 운용전문인력에 관한 사항",
+    ]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문 " * 5, "2. 투자전략", "본문 " * 5]
+    body += [
+        "3. 운용전문인력",
+        "본문 " * 5,
+        "   제2부 발행인",
+        "1. 회사의 개요",
+        "본문",
+    ]
+    body += ["   제3부 투자위험", "1. 위험요인", "본문"]
+    text = make(toc, body)
+    sec = next(s for s in split_sections(text).sections if s.source_section_no == "3")
+    assert sec.char_start is not None and sec.title == "3. 운용전문인력"
+
+
+def test_numbered_list_line_is_not_taken_as_prefix_title() -> None:
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 운용전문인력에 관한 사항"]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = [
+        "   제1부 모집",
+        "1. 투자대상",
+        "2. 운용 방법은 아래와 같으며 투자신탁재산인 증권을 운용한다",
+    ]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    sec = next(
+        s for s in split_sections(make(toc, body)).sections
+        if s.part_seq == 1 and s.source_section_no == "2"
+    )  # fmt: skip
+    assert sec.char_start is None
+
+
+def test_part_heading_glued_to_previous_sentence() -> None:
+    # 「…업무 등제 5부. 기타 …」: pdfplumber가 두 줄을 한 줄로 합침(20260918000258)
+    toc = ["제1부 모집", "   1. 투자대상", "제2부 발행인", "   1. 회사의 개요"]
+    toc += ["제3부 투자위험", "   1. 위험요인", "제4부 관련회사", "   1. 신탁업자"]
+    toc += ["제5부 기타 투자자보호를 위해 필요한 사항", "   1. 이해관계인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문", "   제2부 발행인", "1. 회사의 개요"]
+    body += ["※ 자세한 내용은 제5부의 내용 중 해지 사항을 참조", "   제3부 투자위험"]
+    body += ["1. 위험요인", "본문", "   제4부 관련회사", "1. 신탁업자"]
+    body += ["(6) 채권관련 컨설팅 업무 등제 5부. 기타 투자자보호를 위해 필요한 사항"]
+    body += ["1. 이해관계인", "본문"]
+    text = make(toc, body)
+    result = split_sections(text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3, 4, 5]
+    fourth, fifth = result.parts[3], result.parts[4]
+    assert text[fifth.char_start :].startswith("제 5부.") or text[
+        fifth.char_start :
+    ].startswith("제5부.")
+    assert text[: fifth.char_start].endswith("업무 등")
+    assert fourth.char_end == fifth.char_start
+    assert any(s.part_seq == 5 and s.char_start for s in result.sections)
+    assert not invariant_violations(result, len(text))

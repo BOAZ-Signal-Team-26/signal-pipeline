@@ -21,7 +21,7 @@ def layout(text: str = TEXT, **kwargs: object) -> PdfLayout:
 @pytest.fixture
 def root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     RawStore(tmp_path).save("dart", KEY, "body_pdf", "pdf", b"%PDF-1.4 fake", {})
-    monkeypatch.setattr(extract, "parser_version", lambda: "pdfplumber-0.11_prep-5")
+    monkeypatch.setattr(extract, "parser_version", lambda: "pdfplumber-0.11_prep-6")
     monkeypatch.setattr(extract, "read_pdf", lambda path: layout())
     # 자식 프로세스가 위 대체를 물려받도록 fork를 쓴다(운영은 spawn)
     monkeypatch.setattr(parallel, "START_METHOD", "fork")
@@ -178,7 +178,7 @@ def test_workers_default_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_parser_version_format() -> None:
-    assert extract.re.fullmatch(r"pdfplumber-\d+\.\d+_prep-5", extract.parser_version())
+    assert extract.re.fullmatch(r"pdfplumber-\d+\.\d+_prep-6", extract.parser_version())
 
 
 def slow(seconds: float) -> str:
