@@ -6,11 +6,11 @@
 
 | 항목 | 내용 |
 |---|---|
-| 상태 | 초안. PM(대현) 승인(10월 7일), 데이터 사이언스(다빈) 리뷰 의견 반영 후 승인 대기(10월 10일 의견) |
+| 상태 | 초안. PM(대현) 승인(10월 7일·11일), 데이터 사이언스(다빈) 승인(10월 12일) |
 | 작성일 | 10월 7일 |
 | 담당 | 정 데이터 사이언스(다빈) / 부 데이터 엔지니어링·인프라(주영). 초안은 주영, 승인은 다빈 |
 | 근거 | Notion 티켓 「데이터 사이언스가 사용할 데이터 포맷 결정 (데이터 처리 요구 명세)」(10월 4일 변경 포함), 이슈 #48 |
-| 기준 판 | ERD v2.2(PR #43, 10월 6일 갱신분). PR #43이 병합되기 전이라 링크한 문서의 현재 dev 판과 다른 곳이 있음. 8절은 PR #43 10월 9일 갱신분과 대조함(10월 11일) |
+| 기준 판 | ERD v2.2(PR #43, 10월 6일 갱신분). PR #43이 병합되기 전이라 링크한 문서의 현재 dev 판과 다른 곳이 있음. 8절은 PR #43 10월 11일 갱신분과 대조함(10월 12일) |
 | 범위 밖 | 채점 결과를 받는 쪽 계약(두 파트 출력)은 [3단계 입출력 Schema 설계 입력](io-schema.md) 「CDI 출력 요구」와 [데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」 |
 
 ## 1. 범위
@@ -63,6 +63,7 @@
 | table_regions | list<struct{char_start, char_end, has_sentences}> | `[{12034, 13310, true}]` | 표 영역. `has_sentences`는 칸 안에 문장이 있는 표인지. 4-3. `structure.json` 블록에서 옮김(4-6) |
 | table_split_status | string | `OK` | `OK` / `FAILED` / `NOT_ATTEMPTED`(5절) |
 | page_furniture_regions | list<struct{char_start, char_end}> | `[{0, 18}]` | 쪽 머리글·쪽 번호 구간. 지표 계산에서 뺌(4-2 ④). `structure.json` 블록에서 옮김(4-6) |
+| summary_labels | list<struct{text, char_start, char_end}> | `[{"투자목적", 2310, 2314}]` | 요약정보 표 첫 열 칸의 항목 이름. `structure.json` `summary_label` 블록에서 옮김(4-6). `SIMPLE` 행에만 값, `PROSPECTUS` 행은 NULL. 요약정보 구간에 표가 없으면 빈 목록, 표 분리 실패면 NULL(5절). 간이 3-1a·3-1b 점검에 씀(10월 12일 데이터 사이언스(다빈) 요청) |
 | representative_risk_grade | int8 | `2` | fund_group.representative_risk_grade(1~6, 1이 가장 높은 위험). 층 배정 기준 |
 | risk_grade_source_kind | string | `SIMPLE_PROSPECTUS_TITLE` | fund_group.risk_grade_source_kind |
 | class_grade_mismatch | bool | `false` | 펀드 안 클래스의 위험등급이 대표 등급과 다른지. 제외가 아니라 확인 대상(6절) |
@@ -206,7 +207,7 @@
 | `table` | `has_sentences`(칸 안에 「다.」로 끝나는 문장이 있는지, 4-3) | ASL 구간 빼기(4-3) | `table_regions` |
 | `page_furniture` | 없음 | 쪽 머리글·쪽 번호. 지표에서 뺌(4-2 ④) | `page_furniture_regions` |
 | `subheading` | `title`, `level`(1 = 「가.」, 2 = 「(1)」), `section_seq`(속한 절), `title_char_start`, `title_char_end` | 하위 제목 위치(4-2 ②). section 행은 만들지 않음 | 옮기지 않음 |
-| `summary_label` | `text`(항목 이름 원문) | 요약정보 표 왼쪽 칸 항목 이름(「투자목적」 등). 10월 10일 데이터 사이언스(다빈) 요청 | 옮기지 않음 |
+| `summary_label` | `text`(항목 이름 원문) | 요약정보 표 왼쪽 칸 항목 이름(「투자목적」 등). 10월 10일 데이터 사이언스(다빈) 요청 | `summary_labels`(`SIMPLE` 행) |
 | `emphasis` | `bold`(굵게 보이는지), `bold_method`(`font` 굵은 글꼴 / `stroke` 외곽선 덧그리기), `color`(`#RRGGBB`, 검정이면 null) | 3-4 중요 문구 강조 재개 대비(4-5) | 옮기지 않음 |
 
 - `subheading` 범위는 제목 줄 시작부터 다음 같은 수준 이상 제목 직전까지(4-2 ① 규칙과 같음)
@@ -252,6 +253,7 @@
 | 부·절 제목을 찾지 못함 | `headings_status = NOT_FOUND`, `sections` 빈 목록 | 3-1a, 3-1b-① | UNDETERMINED / HEADINGS_NOT_FOUND |
 | 일부 절 경계를 못 찾음 | `headings_status = PARTIAL`, 해당 원소 `SECTION_BOUNDARY_NOT_FOUND` | 그 절을 쓰는 점검 | 지표 정의에 따름 |
 | 간이 대표 없음 | `SIMPLE` 행 없음 | 간이 3-1a·3-1b | UNDETERMINED / SUMMARY_NOT_FOUND |
+| 요약정보 표 항목 이름을 읽지 못함 | `SIMPLE` 행 `summary_labels = NULL`(표 분리 실패) | 간이 3-1a·3-1b | UNDETERMINED / SUMMARY_TABLE_LABELS_FAILED |
 | 맨 뒤 용어 목록 없음 | 용어 목록 절 없음(제5부 `body` 중 해당 제목 없음) | 3-2 | UNDETERMINED / GLOSSARY_ABSENT |
 | 작성기준일을 읽지 못함 | `report_base_date = NULL`, `report_base_date_status = UNREADABLE`, `standard_version = NULL` | 3-1a, 3-1b-①, 간이 3-1 | UNDETERMINED / STANDARD_DATE_UNREADABLE |
 
@@ -298,6 +300,9 @@ PR #43 미결 「룩백 재조회 방식과 소스별 워터마크 검증 방법
   - 구간의 모든 페이지를 받고 아래 검증을 통과했을 때만 전진. 앞선 날로 되돌리지 않음
   - `covered_from`은 누적 구간의 시작(첫 실행 시작일). 룩백은 `covered_from`보다 앞으로 가지 않음. 받은 적 없는 날을 룩백으로 처음 받으면 「룩백 구간 신규 발견 수」가 부풀어 룩백 일수 판단 근거로 쓸 수 없기 때문(10월 5일 크롤러 실측)
   - 룩백 재조회: 다음 실행은 `covered_through − 룩백 일수`부터 목록을 다시 받음. 이미 원본이 있는 문서는 원문을 다시 요청하지 않고, 새로 나타난 문서만 받음. 실행마다 룩백 구간 신규 발견 수를 기록해 룩백 일수 확정 근거로 씀
+    - 룩백 구간 신규 발견 수: 이전 실행이 이미 검증한 구간(`covered_from` ~ 이전 `covered_through`) 안에서 이번 실행에 처음 나타난 문서 수. 이번 실행이 처음 받는 날의 문서는 세지 않음
+    - 함께 기록: 새로 나타난 문서마다 지연 일수(처음 발견한 실행 날짜 − 증분 축 날짜. DART는 `rcept_dt`, 금투협 공시는 `standardDt`). 룩백 일수는 이 분포로 정함
+    - 기록 위치: 실행 요약(`runs/{run_id}/run.json`)
   - 검증에 실패한 구간이 있으면 그 앞에서 워터마크를 멈추고 실행을 `FAILED`로 끝냄(PR #47 리뷰 반영)
 
 | 소스 | 증분 축 | 룩백 | 구간 완전성 검증 | 상태 |
@@ -306,9 +311,12 @@ PR #43 미결 「룩백 재조회 방식과 소스별 워터마크 검증 방법
 | 공공데이터포털 펀드 | 기준일 `basDt`, 전건 스냅숏 | 없음(매번 전건) | `response.body.totalCount`와 누적 행 수 대조 | 크롤러 2차(10월 14일) |
 | KRX ETF | 기준일 `basDd`, 일별 전건 | 없음(일별 파일) | 응답에 `respCode` 키가 없고 `OutBlock_1`이 배열이며 행의 `BAS_DD`가 요청 기준일과 같음. 0행은 거래소 영업일 정보로 휴장일임을 확인한 경우에만 정상 0건(EMPTY)으로 기록하고 전진. 확인 방법이 정해지기 전에는 0행이면 전진하지 않음 | 크롤러 2차. 휴장일 응답 미확인 |
 | 금투협 공시 | `standardDt` | 7일(잠정) | 응답이 `</root>`로 끝나고 `dbio_total_count_`와 `<list>` 행 수가 같음 | 수집기 미정 |
-| 금감원 제재 | 입력일 `inputDate` | 미정 | `resultCode` `1`·`900`만 정상 | 게시판 크롤러 보류(10월 7일 10차 미팅). 재개 여부는 PM(대현) 검토(10월 14일) 결과에 따름. API 정기 수집도 보류 대상인지는 PR #43 리뷰에서 확인 요청(10월 11일) |
+| 금감원 제재 | 입력일 `inputDate` | 미정 | `resultCode` `1`·`900`만 정상 | 정기 수집 보류: 게시판 크롤러는 10월 7일 10차 미팅에서 보류, API 정기 수집도 같은 검토 결과까지 보류(PR #43 답글, 10월 11일). 재개 여부는 PM(대현) 검토(10월 14일) 결과에 따름. 축 4 검증용 사례 표본 확보는 이 보류와 별개 |
 
-- 이 절은 위 5종만 다룸. 금투협 판매관계·분쟁조정·국가법령의 구간 완전성 검증은 해당 수집기 구현 전에 정함. finlife는 CDI 범위 제외라 대상 아님
+- 이 절은 위 5종만 다룸. 나머지는 PR #43 원본 보관 규칙 「미결」에서 정함
+  - 금투협 판매관계·분쟁조정: 해당 수집기 구현 전. 금투협 판매관계는 `source` 값 이름도 함께 정함(지금 `source` 값 7개에 없음)
+  - 국가법령: 원천 계약과 연결 방식([데이터 소스 수집 명세](data-sources.md) 「미결」) 확인 뒤
+  - finlife: 현재 수집 대상 아님. 소스 존치는 [데이터 소스 수집 명세](data-sources.md) 「미결」
 
 ## 9. 7차 미팅 결정 3건 반영 확인
 
@@ -324,7 +332,7 @@ PR #43 미결 「룩백 재조회 방식과 소스별 워터마크 검증 방법
 |---|---|
 | 데이터 엔지니어링·인프라(주영): 이 명세로 만들 수 있음 확인 | 10월 7일 확인. 작성기준 판(4-4)은 판 목록 자산 파일이 생긴 뒤 |
 | PM(대현) 리뷰·승인 | 10월 7일 승인. 수정 요청(입력 불변 문장, `text_excl_tables` 제거, `structure.json` 필드 정의, 「하나」 문구, PR #51 요청 3건) 반영 |
-| 데이터 사이언스(다빈) 리뷰·승인 | 10월 10일 의견(표 안 문장은 ASL에 넣음, 사유 코드·`report_base_date_status` 확정, 요약정보 항목 이름 요청) 반영. 승인 대기 |
+| 데이터 사이언스(다빈) 리뷰·승인 | 10월 10일 의견(표 안 문장은 ASL에 넣음, 사유 코드·`report_base_date_status` 확정, 요약정보 항목 이름 요청) 반영. 10월 12일 승인. 승인 때 요청한 `summary_labels` 칼럼 추가 |
 
 ## 미결
 
