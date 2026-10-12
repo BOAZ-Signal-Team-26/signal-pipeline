@@ -4,7 +4,7 @@ PR #49 4-3: 눈에 보이지 않는 그림 요소(흰색으로 채우고 외곽�
 텍스트(layout)와 표(find_tables 기본 설정)를 같이 얻는다. 표를 찾은 도구와 텍스트를 만든 도구가 같아서
 표의 페이지 영역(bbox)을 텍스트 글자 범위로 바꿀 수 있다.
 표 찾기만 실패하면 파일 전체를 실패로 두지 않고 표 분리 상태를 FAILED로 낸다(PR #49 4-6).
-강조(PR #49 4-5): 굵은 글꼴, 외곽선 덧그리기(PDF 글자 그리기 방식 Tr 1·2·5·6), 유채색 글자.
+강조(PR #49 4-5): 굵은 글꼴, 외곽선 덧그리기(PDF 글자 그리기 방식 Tr 1·2·5·6), 검정이 아닌 글자.
 순수 함수(is_white·is_invisible·trim_page·table_char_ranges·cell_label·emphasis_runs)와
 pdfplumber 호출(read_pdf)을 나눴다.
 """
@@ -29,9 +29,6 @@ PAGE_BREAK = "\f"
 WHITE_TOLERANCE = 1e-3
 BOLD_FONT = re.compile(r"bold|black|heavy", re.IGNORECASE)
 STROKE_RENDER_MODES = {1, 2, 5, 6}  # 글자 외곽선을 그리는 방식(채움+외곽선 포함)
-# 이보다 채도가 낮으면 무채색으로 보고 색을 null로 둔다. MS Word 문서 본문이 짙은 회색(0.23, 0.22, 0.22)이라
-# 「검정만 null」로 하면 본문 전체가 강조가 된다
-CHROMA_MIN = 0.15
 # 줄바꿈으로 오해될 글자는 공백으로 바꾼다(LF·쪽 구분 \f 이외의 줄 구분 글자 제거)
 _REPLACED = {"\r": " ", "\f": " ", "\x00": " "}  # \x00: 일부 PDF가 공백을 NUL로 냄
 
@@ -205,23 +202,24 @@ def cell_label(text: str, origins: list[dict | None], bbox: Bbox) -> Label | Non
 
 
 def hex_color(color: object) -> str | None:
-    """유채색이면 #RRGGBB. 무채색(검정·회색·흰색)·읽을 수 없는 색은 None."""
+    """#RRGGBB. 검정·읽을 수 없는 색은 None(PR #49 4-6 「검정이면 null」)."""
     if isinstance(color, (int, float)):
         color = (color,)
     if not isinstance(color, (tuple, list)) or not color:
         return None
     if not all(isinstance(v, (int, float)) for v in color):
         return None
-    if len(color) == 3:
+    if len(color) == 1:  # 회색조
+        rgb = (color[0],) * 3
+    elif len(color) == 3:
         rgb = tuple(color)
     elif len(color) == 4:  # CMYK → RGB
         c, m, y, k = color
         rgb = ((1 - c) * (1 - k), (1 - m) * (1 - k), (1 - y) * (1 - k))
-    else:  # 회색조
+    else:
         return None
-    if max(rgb) - min(rgb) < CHROMA_MIN:
-        return None
-    return "#" + "".join(f"{round(min(max(v, 0), 1) * 255):02X}" for v in rgb)
+    code = "#" + "".join(f"{round(min(max(v, 0), 1) * 255):02X}" for v in rgb)
+    return None if code == "#000000" else code
 
 
 def char_style(origin: dict) -> tuple[str | None, str | None] | None:

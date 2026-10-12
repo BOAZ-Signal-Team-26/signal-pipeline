@@ -7,9 +7,9 @@
 - 필드 이름을 PR #43 설계에 맞춤(10월 12일 PM 결정, `file_extraction` 칼럼 이름과 같게): `schema_version` → `contract_version`(값 3), `text_sha256` → `canonical_text_sha256`, `text_path` → `canonical_text_path`. 실행 기록은 `structure_path`·`structure_sha256` → `structure_manifest_path`·`structure_manifest_sha256`. 원본은 `raw_sha256` 유지
 - `structure.json`
   - 최상위 `table_regions`·`page_furniture_regions` → `blocks` 원소(`kind`, `char_start`, `char_end`, 시작 위치 순)
-  - 새 블록 3종: `subheading`(「가.」 level 1, 「(1)」 level 2. 범위를 찾은 본문 절 안에서만, 표·머리글 안 줄은 제외), `summary_label`(요약정보 구간 안 표의 첫 열 칸), `emphasis`(굵게 보이는지, `font`/`stroke`, 유채색이면 `#RRGGBB`)
+  - 새 블록 3종: `subheading`(「가.」 level 1, 「(1)」 level 2. 범위를 찾은 본문 절 안에서만, 표·머리글 안 줄은 제외), `summary_label`(요약정보 구간 안 표의 첫 열 칸), `emphasis`(굵게 보이는지, `font`/`stroke`, 색 `#RRGGBB`, 검정이면 null)
   - 외곽선 덧그리기는 PDF 글자 그리기 방식(Tr 1·2·5·6)으로 판별. pdfminer가 글자에 이 값을 남기지 않아 `pdf_layout._track_render_mode`에서 글자를 만들 때 붙임
-  - 색은 무채색(검정·회색·흰색)이면 null. 4-6은 「검정이면 null」이지만 MS Word 문서 본문이 짙은 회색(0.23, 0.22, 0.22)이라 검정만 빼면 본문 전체가 강조가 됨
+  - 색은 4-6대로 검정만 null. MS Word 문서는 본문이 짙은 회색(#3B3838)이라 본문 줄도 `emphasis` 블록으로 남음
   - `table_split_status`(OK/FAILED) 추가. `find_tables` 오류는 파일 실패가 아니라 표 분리 실패로 기록: 표·첫 열 칸 없음, 텍스트·절은 그대로, 구조가 있으면 `structure_status = PARTIAL`, 실행 기록 `error_reason`에 「표 분리 실패: 쪽·오류」. 표 분리가 실패한 결과는 다음 실행에서 건너뛰지 않고 다시 추출
   - `headings_source` 삭제. 책갈피가 없으면 `bookmark_check = null`. 대조할 때 숫자가 아닌 절 번호는 건너뜀
 - 실행
@@ -17,8 +17,8 @@
   - 부모 프로세스는 파일별 `structure` 전체 대신 요약에 필요한 값만 받음(`extract.digest`)
   - 동시 작업 수 기본값 4 → 환경 변수 `EXTRACT_WORKERS`, 없으면 2(PR #28 Airflow 동시 작업 2). `--workers`로 덮어씀
   - 실행 요약에 블록 종류별 개수, 표 분리 실패 문서 수 추가. 표 안 글자 비율은 표 분리가 성공한 문서만
-- 결과(10월 12일, 표본 40건, `--workers 2`): 텍스트화 40/40, 「제N부」 미검출 1건(20260903000270, 간이투자설명서만 담긴 PDF), 절 적중 1,195/1,230, 표 분리 실패 0건. 블록 수 emphasis 29,714·subheading 4,814·table 4,274·page_furniture 3,506·summary_label 2,064. `structure.json` 최대 0.51MB. 처리 시간 140초(arm64)
-- 검증: pytest 92개 통과(블록 형식·정렬, 하위 제목 범위·표 안 줄 제외, 요약정보 칸, 강조 판별·색 변환, 표 분리 실패 → PARTIAL·재추출, 실행 기록 즉시 기록 순서, 동시 작업 수 환경 변수), `ruff format`·`ruff check` 통과
+- 결과(10월 12일, 표본 40건, `--workers 2`): 텍스트화 40/40, 「제N부」 미검출 1건(20260903000270, 간이투자설명서만 담긴 PDF), 절 적중 1,195/1,230, 표 분리 실패 0건. 블록 수 emphasis 31,612·subheading 4,814·table 4,274·page_furniture 3,506·summary_label 2,064. `structure.json` 최대 0.55MB. 처리 시간 140초, 최대 메모리 약 107MB(arm64)
+- 검증: pytest 92개 통과(블록 형식·정렬, 하위 제목 범위·표 안 줄 제외, 요약정보 칸, 강조 판별·색 변환(검정만 null), 표 분리 실패 → PARTIAL·재추출, 실행 기록 즉시 기록 순서, 동시 작업 수 환경 변수), `ruff format`·`ruff check` 통과
 - 바꾸지 않은 것
   - `has_sentences` 판정(「다.」): 표본 40건 실측 뒤 데이터 사이언스(다빈)가 결정
   - 표 글자 범위 계산(bbox 안 첫 글자~끝 글자): 2단 배치 쪽에서 본문이 섞이는지 확인은 남음

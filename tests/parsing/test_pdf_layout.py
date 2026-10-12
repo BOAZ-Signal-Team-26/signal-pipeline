@@ -122,11 +122,13 @@ def test_cell_label_joins_lines_inside_cell_only() -> None:
     assert cell_label(text, origins, (500, 0, 600, 30)) is None
 
 
-def test_hex_color_only_chromatic() -> None:
+def test_hex_color_null_only_for_black() -> None:
     assert hex_color((1, 0, 0)) == "#FF0000"
     assert hex_color((0, 1, 1, 0)) == "#FF0000"  # CMYK
-    assert hex_color((0.231, 0.22, 0.22)) is None  # 짙은 회색 본문
-    assert hex_color((0,)) is None and hex_color("pattern") is None
+    assert hex_color((0.231, 0.22, 0.22)) == "#3B3838"  # 짙은 회색도 색으로 남김
+    assert hex_color((1,)) == "#FFFFFF"
+    assert hex_color((0,)) is None and hex_color((0, 0, 0, 1)) is None
+    assert hex_color("pattern") is None
 
 
 def test_char_style_prefers_bold_font_then_stroke() -> None:
