@@ -867,7 +867,7 @@ erDiagram
   - 본문과 표 영역 구분: ASL은 표 제외, 전문용어 밀도는 표 포함. 칼럼 없이 구조 manifest에 둠
   - 미분류 단어 기록: 2-1·2-2 행의 `score_payload`에 종류 수·목록·사전 버전. 칼럼 추가 없이 payload로 충분
   - 역할별 대표: 펀드마다 투자설명서 대표와 간이 대표를 따로 고름(10-04 PM 확정). 선택 결과를 selection manifest 파일에 역할별로 기록(enum 변경 없음)
-  - 펀드 대표 위험등급: `fund_group.representative_risk_grade`와 근거 칼럼. 클래스 등급 불일치는 match_failure의 `CLASS_GRADE_MISMATCH`
+  - 펀드 대표 위험등급: `fund_group.representative_risk_grade`와 근거 칼럼 2개(`risk_grade_source_document_id`, `risk_grade_source_kind`). 작성기준일은 근거 문서의 `document.report_base_date`. 10월 7일 10차 미팅 확정. 클래스 등급 불일치는 match_failure의 `CLASS_GRADE_MISMATCH`
   - 간이투자설명서 구분: DART에서는 투자설명서 PDF 안의 절, 금투협에서는 별도 PDF. 간이 3-1이 어느 쪽을 읽는지는 [점수 저장과 비교 모집단](scoring-and-population.md) 「미결」
 
 ### 09-30 결정 요청 (검토 번호 B1~B13)
