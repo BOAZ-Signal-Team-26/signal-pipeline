@@ -349,12 +349,14 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 
 - structure_status 규칙
   - AVAILABLE/PARTIAL: 경로·해시 필수
-  - UNAVAILABLE/NOT_REQUESTED: 두 값 NULL
-  - PARTIAL: 누락 페이지/블록을 manifest에 기록
-- PDF 구조 manifest 저장 항목: 1-based 물리 페이지, 좌표 원점/단위/회전, 블록 종류(table/text/heading 등), 글꼴/강조 정보, canonical text의 code point 범위와 block_id
+  - UNAVAILABLE: EXTRACT_OK이면 경로·해시 필수(「제N부」를 못 찾아 부·절은 없어도 표·쪽 머리글 구간은 있음, PR #51 리뷰 10월 12일). EXTRACT_OK가 아니면 NULL
+  - NOT_REQUESTED: 두 값 NULL
+  - PARTIAL: 표 분리만 실패한 경우 포함(표 블록 없음, 다음 실행에서 다시 추출). 누락 페이지/블록을 manifest에 기록
+- PDF 구조 manifest 저장 항목: 쪽 시작 위치, 부·절, 블록 종류(table / page_furniture / subheading / summary_label / emphasis), 글꼴 굵기·색, canonical text의 code point 범위. 필드 정의는 데이터 처리 요구 명세(`docs/processing-requirements.md`) 4-6
+  - 좌표와 block_id는 두지 않음. 좌표는 쓰는 지표가 없고, 근거 위치는 절 번호 + 글자 범위로 가리킴(io-schema B11 안 1)
 - 비PDF: 없는 페이지·좌표를 만들지 않음
 - 표 여부를 모르면 text로 강제 분류하지 않음
-- 구조 manifest 형식: `{contract_version,raw_object_id,parser_version,canonical_text_sha256,coordinate_system,blocks,missing_regions}`. 내용 해시 검증
+- 구조 manifest 형식: `{contract_version,raw_sha256,parser_version,canonical_text_sha256,structure_status,table_split_status,blocks,missing_regions}`(주요 필드). 원본은 `derived/{raw_sha256}/` 경로와 같은 `raw_sha256`으로 가리킴. 내용 해시 검증
 - 모든 파일 참조: 공통 RAW_ROOT 상대경로
 - 사전·감점표·프롬프트·입력·모집단·프로토콜: 경로와 sha256을 함께 기록
   - `..`, 절대경로, 해시 불일치 거절
@@ -622,7 +624,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 | 3 | 분류 | 「상품과 법인」의 ETF 상태 조합, 위험등급 [1,6], 올바른 YYYYMM, 실제 달력일 |
 | 4 | 원본 | version_seq>=1, SHA-256은 소문자 64자리 hex. 실제 저장 바이트와 해시 일치. 동일 역할의 여러 파일은 source_object_key로 구분 |
 | 5 | 수집 | source_result_code와 outcome 일치. 타임아웃은 HTTP 상태/raw FK NULL 허용. 정상 0건은 EMPTY. 한 실행의 request_key에 source/endpoint 포함 |
-| 6 | 추출 | raw.collect_status가 success인 입력만 본문 추출. EXTRACT_OK이면 canonical_text 경로/해시/길이 필수. canonical text 없이 가짜 절 생성 금지. 같은 (파일, 파서 버전)에 EXTRACT_OK 행이 있으면 재추출하지 않음(재사용은 EXTRACT_OK 행만). FAILED/PARTIAL 행은 다음 실행이 같은 키로 덮어쓸 수 있고 created_run_id를 그 실행으로 갱신. 완료 결과 불변은 EXTRACT_OK 행에만 적용 |
+| 6 | 추출 | raw.collect_status가 success인 입력만 본문 추출. EXTRACT_OK이면 canonical_text 경로/해시/길이 필수. canonical text 없이 가짜 절 생성 금지. 같은 (파일, 파서 버전)에 EXTRACT_OK 행이 있으면 재추출하지 않음(재사용은 EXTRACT_OK 행만). 표 분리만 실패한 결과(structure_status PARTIAL)는 예외로 다시 추출. FAILED/PARTIAL 행은 다음 실행이 같은 키로 덮어쓸 수 있고 created_run_id를 그 실행으로 갱신. 완료 결과 불변은 EXTRACT_OK 행에만 적용 |
 | 7 | 절 | 성공 구간은 0<=char_start<char_end<=text_length. section_text는 실제 구간과 동일. 번호는 (파일, 파서 버전) 안에서 전역 유일, 원문 부/절 번호는 별도. 형제 구간의 불필요한 중복 적재 금지. EXTRACT_OK file_extraction에 딸린 section 행은 삭제·재발급 금지(score·llm_field_extraction이 section_id를 참조) |
 | 8 | 점수 | EXTRACT_OK이며 CDI 산식 담당의 계산 가능 조건을 충족한 절만 채점. 기준일은 pipeline_run에서 조회(score에 기준일 칼럼 없음). 절은 SCORE 실행의 입력 manifest(사용한 (raw_object_id, parser_version) 목록)로 검증하며, 복합 FK는 population_snapshot·metric_definition 연결에만 남음. SCORE 입력은 upstream EXTRACT run이 만들지 않은 이전 실행의 추출 결과·절도 허용. created_run_id는 출처 기록이며 입력 판별에 쓰지 않음. score의 target_type별로 대상 칼럼(section_id, document_id, fund_key)이 정확히 하나만 채워짐(CHECK num_nonnulls = 1). DOCUMENT_PAIR는 Phase 2이며 현재 저장 불가 |
 | 9 | 정규화 | normalization_status 계약을 따름([점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」). OK이면 population FK 필수, 같은 실행·같은 metric_key. 표본 하한 미달·분류 미확정·분모 0은 UNAVAILABLE + 사유. 백분위 범위와 방향은 산식 계약에 고정 |

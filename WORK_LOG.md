@@ -1,5 +1,16 @@
 # 작업 기록
 
+## 2026-10-12 — PR #51 리뷰 반영: 실행별 추출 시도 기록 칼럼, 구조 manifest 형식, 표 분리 실패 재추출
+
+- 기준: PR #51 리뷰 댓글(10월 11일)의 PR #43 수정 요청 4건과 PR #49 `docs/processing-requirements.md` 4-6
+- 바꾼 것:
+  - [원본 보관 규칙](docs/storage-and-failure-rules.md) 「추출 실패와 절 품질」: `extraction_attempts.jsonl` 칼럼 목록을 PR #51 구현과 같게 20개로 늘리고 칼럼별 뜻 추가. DB에 그대로 넣는 대상이 아니라 `file_extraction` 행의 원천이라고 명시. 「EXTRACT_OK면 재추출하지 않음」에 표 분리 실패(`table_split_status = FAILED`, 구조가 있으면 `structure_status = PARTIAL`) 예외 추가. 같은 문서 「버전·중복·재추출」 3번에도 같은 예외
+  - [데이터 테이블·ERD 설계](docs/data-model.md): `structure_status` 규칙에서 UNAVAILABLE도 EXTRACT_OK이면 manifest 경로·해시 필수(부·절은 없어도 표·쪽 머리글 구간은 있음). PARTIAL에 표 분리만 실패한 경우 포함. manifest 저장 항목을 4-6 기준으로 고침(좌표·block_id 삭제). 구조 manifest 형식에서 `coordinate_system` 삭제, `raw_object_id` → `raw_sha256`, `structure_status`·`table_split_status` 추가. 처리 규칙 6에 재추출 예외
+  - [3단계 입출력 Schema 설계 입력](docs/io-schema.md) 구조 manifest 행: 같은 형식으로
+  - [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md) `file_extraction`: `structure_status` Note, `parser_version` Note, 표 Note에 위 두 규칙. `structure_status_enum.PARTIAL` Note에 표 분리 실패 포함
+- 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `parser_version` 예시값(`pdftotext-24.02_prep-3`). `extract_status`의 EXTRACT_PARTIAL 뜻(일부만 복구된 문서)
+- 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
 ## 2026-10-11 — 소스별 구간 검증 미결 범위 정정, 금감원 제재 정기 수집 보류 반영
 
 - 기준: 데이터 엔지니어링·인프라(주영) PR #43 리뷰(10월 11일, 룩백 재조회·소스별 구간 검증 반영분)와 10월 7일 10차 미팅 안건 3(제재공시 게시판 크롤러 보류).

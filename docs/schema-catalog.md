@@ -308,14 +308,14 @@
 | 칼럼 | 논리 타입 | NULL | 키 | 값 유형 | 설명 |
 |---|---|---|---|---|---|
 | raw_object_id | int | 불가 | PK, FK | 관리값 |  |
-| parser_version | varchar | 불가 | PK | 관리값 | v2.2. 추출 키 = 원본 파일 x 파서 버전(추출 실행 번호에서 변경). EXTRACT_OK 행이 있으면 다시 추출하지 않는다. 형식: 소문자·숫자·.-_ 만 허용(파일 경로에 쓰임). 전처리 버전을 포함한 값이다(전처리가 바뀌면 새 파서 버전). 예 pdftotext-24.02_prep-3 |
+| parser_version | varchar | 불가 | PK | 관리값 | v2.2. 추출 키 = 원본 파일 x 파서 버전(추출 실행 번호에서 변경). EXTRACT_OK 행이 있으면 다시 추출하지 않는다(structure_status PARTIAL은 예외로 다시 추출). 형식: 소문자·숫자·.-_ 만 허용(파일 경로에 쓰임). 전처리 버전을 포함한 값이다(전처리가 바뀌면 새 파서 버전). 예 pdftotext-24.02_prep-3 |
 | created_run_id | varchar | 불가 | FK | 관리값 | 이 행을 마지막으로 쓴 EXTRACT run(출처 기록용, 키 아님). EXTRACT_OK 행은 불변이며 갱신하지 않는다. FAILED/PARTIAL 행은 다음 실행이 같은 키로 덮어쓸 수 있고 이때 이 칼럼을 그 실행으로 갱신한다. SCORE 입력 판별에 쓰지 않는다(입력은 SCORE run의 input manifest가 고정) |
 | extract_status | raw_extract_status_enum | 불가 |  | 관리값 |  |
 | canonical_text_path | text | 허용 |  | 관리값 | 공통 RAW_ROOT 기준 상대경로(storage-and-failure-rules.md 「파생 텍스트·실행 스냅숏 경로」). UTF-8/LF 파일 전체 텍스트. 추출 실패 시 NULL 가능. 표/페이지 구조 보존 계약은 records/phase1-erd/design-review-history.md 「미결정 포함 재검토(09-23)」 |
 | canonical_text_sha256 | varchar(64) | 허용 |  | 관리값 |  |
 | structure_manifest_path | text | 허용 |  | 관리값 | RAW_ROOT 상대경로. 페이지/블록 종류/좌표/강조/텍스트 구간 대응 JSON |
 | structure_manifest_sha256 | varchar(64) | 허용 |  | 관리값 |  |
-| structure_status | structure_status_enum | 불가 |  | 관리값 | 텍스트 추출 성공과 독립. AVAILABLE/PARTIAL이면 manifest 경로·해시 필수, 그 외 NULL |
+| structure_status | structure_status_enum | 불가 |  | 관리값 | 텍스트 추출 성공과 독립. AVAILABLE/PARTIAL이면 manifest 경로·해시 필수. UNAVAILABLE도 EXTRACT_OK이면 manifest 있음(표·쪽 머리글 구간). 그 외 NULL. PARTIAL(표 분리만 실패 포함)은 EXTRACT_OK여도 다음 실행에서 다시 추출 |
 | text_length | int | 허용 |  | 계산값 | Unicode code point 수. 절 끝의 MAX로 전체 길이를 추정하지 않음 |
 | error_reason | text | 허용 |  | 관리값 |  |
 | extracted_at | timestamp | 불가 |  | 관리값 |  |

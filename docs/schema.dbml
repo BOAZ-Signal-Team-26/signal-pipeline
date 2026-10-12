@@ -477,14 +477,14 @@ Table collection_attempt {
 
 Table file_extraction {
   raw_object_id int [not null, ref: > raw_object.raw_object_id]
-  parser_version varchar [not null, note: 'v2.2. 추출 키 = 원본 파일 x 파서 버전(추출 실행 번호에서 변경). EXTRACT_OK 행이 있으면 다시 추출하지 않는다. 형식: 소문자·숫자·.-_ 만 허용(파일 경로에 쓰임). 전처리 버전을 포함한 값이다(전처리가 바뀌면 새 파서 버전). 예 pdftotext-24.02_prep-3']
+  parser_version varchar [not null, note: 'v2.2. 추출 키 = 원본 파일 x 파서 버전(추출 실행 번호에서 변경). EXTRACT_OK 행이 있으면 다시 추출하지 않는다(structure_status PARTIAL은 예외로 다시 추출). 형식: 소문자·숫자·.-_ 만 허용(파일 경로에 쓰임). 전처리 버전을 포함한 값이다(전처리가 바뀌면 새 파서 버전). 예 pdftotext-24.02_prep-3']
   created_run_id varchar [not null, ref: > pipeline_run.run_id, note: '이 행을 마지막으로 쓴 EXTRACT run(출처 기록용, 키 아님). EXTRACT_OK 행은 불변이며 갱신하지 않는다. FAILED/PARTIAL 행은 다음 실행이 같은 키로 덮어쓸 수 있고 이때 이 칼럼을 그 실행으로 갱신한다. SCORE 입력 판별에 쓰지 않는다(입력은 SCORE run의 input manifest가 고정)']
   extract_status raw_extract_status_enum [not null]
   canonical_text_path text [note: '공통 RAW_ROOT 기준 상대경로(storage-and-failure-rules.md 「파생 텍스트·실행 스냅숏 경로」). UTF-8/LF 파일 전체 텍스트. 추출 실패 시 NULL 가능. 표/페이지 구조 보존 계약은 records/phase1-erd/design-review-history.md 「미결정 포함 재검토(09-23)」']
   canonical_text_sha256 varchar(64)
   structure_manifest_path text [note: 'RAW_ROOT 상대경로. 페이지/블록 종류/좌표/강조/텍스트 구간 대응 JSON']
   structure_manifest_sha256 varchar(64)
-  structure_status structure_status_enum [not null, note: '텍스트 추출 성공과 독립. AVAILABLE/PARTIAL이면 manifest 경로·해시 필수, 그 외 NULL']
+  structure_status structure_status_enum [not null, note: '텍스트 추출 성공과 독립. AVAILABLE/PARTIAL이면 manifest 경로·해시 필수. UNAVAILABLE도 EXTRACT_OK이면 manifest 있음(표·쪽 머리글 구간). 그 외 NULL. PARTIAL(표 분리만 실패 포함)은 EXTRACT_OK여도 다음 실행에서 다시 추출']
   text_length int [note: 'Unicode code point 수. 절 끝의 MAX로 전체 길이를 추정하지 않음']
   error_reason text
   extracted_at timestamp [not null]
@@ -492,7 +492,7 @@ Table file_extraction {
     (raw_object_id, parser_version) [pk]
     created_run_id
   }
-  Note: '원본 파일은 불변, 추출은 파서 버전별(v2.2). 재사용은 EXTRACT_OK 행만. FAILED/PARTIAL은 재시도 대상이라 같은 키 행을 덮어쓴다. 실행별 시도 이력은 이 표가 아니라 runs/{run_id}/extraction_attempts.jsonl에 남긴다(10월 9일). SCORE run은 upstream EXTRACT run이 만들지 않은(이전 실행이 만든) 추출 결과·절도 읽을 수 있다. EXTRACT_OK이면 텍스트 경로/해시/길이 필수. 파일 전체 텍스트를 남겨 표/요약/보일러플레이트의 지표별 처리를 가능하게 한다.'
+  Note: '원본 파일은 불변, 추출은 파서 버전별(v2.2). 재사용은 EXTRACT_OK 행만(structure_status PARTIAL이면 EXTRACT_OK여도 다시 추출). FAILED/PARTIAL은 재시도 대상이라 같은 키 행을 덮어쓴다. 실행별 시도 이력은 이 표가 아니라 runs/{run_id}/extraction_attempts.jsonl에 남긴다(10월 9일). SCORE run은 upstream EXTRACT run이 만들지 않은(이전 실행이 만든) 추출 결과·절도 읽을 수 있다. EXTRACT_OK이면 텍스트 경로/해시/길이 필수. 파일 전체 텍스트를 남겨 표/요약/보일러플레이트의 지표별 처리를 가능하게 한다.'
 }
 
 Table population_snapshot {
@@ -573,7 +573,7 @@ Enum attempt_outcome_enum {
 
 Enum structure_status_enum {
   AVAILABLE
-  PARTIAL [note: '누락 페이지/블록은 manifest의 missing_regions에 기록']
+  PARTIAL [note: '누락 페이지/블록은 manifest의 missing_regions에 기록. 표 분리만 실패한 경우 포함(다시 추출 대상)']
   UNAVAILABLE
   NOT_REQUESTED [note: '구조 추출을 시도하지 않음. 기존 데이터에 페이지/좌표를 가정해 채우지 않음']
 }
