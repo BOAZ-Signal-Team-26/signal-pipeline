@@ -1,6 +1,10 @@
 from pdfplumber.utils import chars_to_textmap
 
 from signal_pipeline.parsing.pdf_layout import (
+    cell_label,
+    char_style,
+    emphasis_runs,
+    hex_color,
     is_invisible,
     is_white,
     layout_textmap,
@@ -103,3 +107,39 @@ def test_layout_textmap_orders_lines_top_down_across_upright_groups() -> None:
     assert default_lines.index("제3부") > default_lines.index(
         "본문"
     )  # 기본 동작이 틀린 것을 고정
+
+
+def test_cell_label_joins_lines_inside_cell_only() -> None:
+    # 칸 「투자 / 목적」(x 0~20), 옆 칸 「국내」(x 100~)
+    text = "투자 국내\n목적"
+    xs = [0, 10, None, 100, 110, None, 0, 10]
+    tops = [0, 0, None, 0, 0, None, 20, 20]
+    origins = [
+        None if x is None else char(x, top, ch)
+        for x, top, ch in zip(xs, tops, text, strict=True)
+    ]
+    assert cell_label(text, origins, (0, 0, 20, 30)) == (0, 8, "투자 목적")
+    assert cell_label(text, origins, (500, 0, 600, 30)) is None
+
+
+def test_hex_color_only_chromatic() -> None:
+    assert hex_color((1, 0, 0)) == "#FF0000"
+    assert hex_color((0, 1, 1, 0)) == "#FF0000"  # CMYK
+    assert hex_color((0.231, 0.22, 0.22)) is None  # 짙은 회색 본문
+    assert hex_color((0,)) is None and hex_color("pattern") is None
+
+
+def test_char_style_prefers_bold_font_then_stroke() -> None:
+    base = {"fontname": "ABC+MalgunGothic", "non_stroking_color": (0,)}
+    assert char_style(base) is None
+    assert char_style({**base, "fontname": "ABC+MalgunGothicBold"}) == ("font", None)
+    assert char_style({**base, "stroke": True}) == ("stroke", None)
+    assert char_style({**base, "non_stroking_color": (1, 0, 0)}) == (None, "#FF0000")
+
+
+def test_emphasis_runs_merge_over_spaces_and_break_at_lines() -> None:
+    bold = {"fontname": "Bold", "non_stroking_color": (0,)}
+    plain = {"fontname": "Regular", "non_stroking_color": (0,)}
+    text = "굵 게 보통\n굵"
+    origins = [bold, None, bold, None, plain, plain, None, bold]
+    assert emphasis_runs(text, origins) == [(0, 3, "font", None), (7, 8, "font", None)]

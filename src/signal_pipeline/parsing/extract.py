@@ -4,9 +4,12 @@
 출력:  {RAW_ROOT}/derived/{raw_sha256}/{parser_version}/text.txt, structure.json
        {RAW_ROOT}/runs/{run_id}/extraction_attempts.jsonl, run.json
 규칙: docs/storage-and-failure-rules.md 「파생 텍스트·실행 스냅숏 경로」「추출 실패와 절 품질」.
-이미 추출된 결과(structure.json의 text_sha256이 text.txt와 같음)는 건너뛴다.
+이미 추출된 결과(structure.json의 canonical_text_sha256이 text.txt와 같음)는 건너뛴다.
+단 표 분리가 실패한 결과(table_split_status = FAILED)는 다음 실행에서 다시 추출한다(PR #49 4-6).
+실행 기록은 파일 하나가 끝날 때마다 덧붙인다(실행 도중 멈춰도 끝난 파일의 기록은 남음).
 
-용례: RAW_ROOT=... uv run python -m signal_pipeline.parsing.extract [--limit N] [--workers 4]
+용례: RAW_ROOT=... uv run python -m signal_pipeline.parsing.extract [--limit N] [--workers 2]
+동시 작업 수 기본값은 환경 변수 EXTRACT_WORKERS, 없으면 2(PR #28 Airflow 동시 작업 2).
 """
 
 from __future__ import annotations
@@ -19,7 +22,8 @@ import re
 import statistics
 import sys
 import time
-from dataclasses import asdict, dataclass, field
+from collections import Counter
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -37,18 +41,22 @@ from signal_pipeline.parsing.dart_sections import (
 from signal_pipeline.parsing.pdf_layout import PdfLayout, PdfTextError, read_pdf
 from signal_pipeline.parsing.regions import (
     bookmark_check,
-    page_furniture_regions,
-    table_regions,
+    emphasis_blocks,
+    page_furniture_blocks,
+    subheading_blocks,
+    summary_label_blocks,
+    table_blocks,
 )
 
-# 후처리·부절 분할·구간 규칙을 바꾸면 올린다
+# 후처리·부절 분할·구간 규칙·structure.json 형식을 바꾸면 올린다
 # 2: 절을 앞 절 뒤에서만 찾음. 3: 본문 부를 반복·되돌아간 표제를 건너뛰며 고름
 # 4: pdftotext → pdfplumber(PR #49 4-3), 요약정보·other 구간, 표·머리글 구간, 모든 EXTRACT_OK에 structure.json
-PREP_VERSION = 4
-SCHEMA_VERSION = 2
+# 5: PR #49 4-6 형식(blocks 5종, 표 분리 상태, 책갈피 없으면 대조 null), PR #43 필드 이름
+PREP_VERSION = 5
+CONTRACT_VERSION = 3
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 FILE_TIMEOUT_SECONDS = 300  # 파일 1건 제한. pdfplumber는 502건 평균 수 초~수십 초
-DEFAULT_WORKERS = 4
+DEFAULT_WORKERS = 2
 # 잠정값. 실측으로 검증되지 않았다
 SHORT_TEXT_CHARS = 500
 BROKEN_RATIO = 0.3
@@ -81,6 +89,29 @@ def quality_flags(section_text: str) -> list[str]:
     return flags
 
 
+def structure_status(split: SplitResult | None, table_split_status: str) -> str:
+    """부·절 구조가 없으면 UNAVAILABLE, 있는데 표 분리만 실패하면 PARTIAL."""
+    if split is None:
+        return "UNAVAILABLE"
+    return "AVAILABLE" if table_split_status == "OK" else "PARTIAL"
+
+
+def build_blocks(layout: PdfLayout, split: SplitResult | None) -> list[dict]:
+    """structure.json `blocks`. 시작 위치 순(같으면 끝 위치, 종류 순)."""
+    text = layout.text
+    tables = table_blocks(text, layout.tables)
+    furniture = page_furniture_blocks(text)
+    skip = [(b["char_start"], b["char_end"]) for b in tables + furniture]
+    blocks = (
+        tables
+        + furniture
+        + subheading_blocks(text, split, skip)
+        + summary_label_blocks(layout.first_column_cells, split)
+        + emphasis_blocks(layout.emphasis)
+    )
+    return sorted(blocks, key=lambda b: (b["char_start"], b["char_end"], b["kind"]))
+
+
 def build_structure(
     layout: PdfLayout,
     split: SplitResult | None,
@@ -89,10 +120,10 @@ def build_structure(
     version: str,
     source_key: str,
     raw_storage_path: str,
-    text_path: str,
-    text_sha256: str,
+    canonical_text_path: str,
+    canonical_text_sha256: str,
 ) -> dict[str, object]:
-    """structure.json 내용. split이 None이면(「제N부」 없음) parts·sections는 빈 목록."""
+    """structure.json 내용(PR #49 4-6). split이 None이면(「제N부」 없음) parts·sections는 빈 목록."""
     text = layout.text
     sections = []
     for sec in split.sections if split else []:
@@ -119,39 +150,63 @@ def build_structure(
             }
         )
     return {
-        "schema_version": SCHEMA_VERSION,
+        "contract_version": CONTRACT_VERSION,
         "raw_sha256": raw_sha256,
         "parser_version": version,
         "source_key": source_key,
         "raw_storage_path": raw_storage_path,
-        "text_path": text_path,
-        "text_sha256": text_sha256,
+        "canonical_text_path": canonical_text_path,
+        "canonical_text_sha256": canonical_text_sha256,
         "text_length": len(text),
-        "structure_status": "AVAILABLE" if split else "UNAVAILABLE",
-        "headings_source": "BOOKMARK" if layout.bookmarks else "RULE",
+        "structure_status": structure_status(split, layout.table_split_status),
+        "table_split_status": layout.table_split_status,
         "pdf_producer": layout.producer,
         "page_starts": layout.page_starts,
         "parts": [asdict(p) for p in split.parts] if split else [],
         "sections": sections,
         "toc_section_count": split.toc_section_count if split else 0,
         "toc_part_count": split.toc_part_count if split else 0,
-        "page_furniture_regions": page_furniture_regions(text),
-        "table_regions": table_regions(text, layout.tables),
         "bookmark_count": len(layout.bookmarks),
         "bookmark_check": bookmark_check(layout.bookmarks, split),
-        "blocks": None,
+        "blocks": build_blocks(layout, split),
         "missing_regions": [],
+    }
+
+
+def digest(structure: dict) -> dict[str, object]:
+    """실행 요약에 필요한 값만. 부모 프로세스가 파일마다 structure 전체를 들고 있지 않게 한다."""
+    body = [s for s in structure["sections"] if s["section_kind"] == "body"]
+    found = [s for s in body if s["char_start"] is not None]
+    blocks = structure["blocks"]
+    tables = [b for b in blocks if b["kind"] == "table"]
+    return {
+        "structure_status": structure["structure_status"],
+        "table_split_status": structure["table_split_status"],
+        "text_length": structure["text_length"],
+        "pdf_producer": structure["pdf_producer"],
+        "parts": len(structure["parts"]),
+        "toc_part_count": structure["toc_part_count"],
+        "toc_section_count": structure["toc_section_count"],
+        "body_found": len(found),
+        "short_text": sum("SHORT_TEXT" in s["quality_flags"] for s in found),
+        "broken_chars": sum("BROKEN_CHARS" in s["quality_flags"] for s in found),
+        "has_summary": any(
+            s["section_kind"] == "summary" for s in structure["sections"]
+        ),
+        "block_counts": dict(Counter(b["kind"] for b in blocks)),
+        "tables": len(tables),
+        "tables_with_sentences": sum(b["has_sentences"] for b in tables),
+        "table_chars": sum(b["char_end"] - b["char_start"] for b in tables),
+        "bookmark_check": structure["bookmark_check"],
     }
 
 
 @dataclass
 class FileResult:
-    """파일 1건 처리 결과. record는 extraction_attempts.jsonl 한 줄, 나머지는 요약용."""
+    """파일 1건 처리 결과. record는 extraction_attempts.jsonl 한 줄, doc은 요약용 값(digest)."""
 
     record: dict[str, object]
-    structure: dict[str, object] | None = None
-    text_length: int | None = None
-    flags: list[str] = field(default_factory=list)
+    doc: dict[str, object] | None = None
 
 
 def _now() -> str:
@@ -172,12 +227,13 @@ def _record(
         "action": "EXTRACTED",
         "extract_status": None,
         "structure_status": "UNAVAILABLE",
+        "table_split_status": None,
         "error_reason": None,
-        "text_path": None,
-        "text_sha256": None,
+        "canonical_text_path": None,
+        "canonical_text_sha256": None,
         "text_length": None,
-        "structure_path": None,
-        "structure_sha256": None,
+        "structure_manifest_path": None,
+        "structure_manifest_sha256": None,
         "section_count": None,
         "section_found_count": None,
         "started_at": started,
@@ -186,25 +242,30 @@ def _record(
 
 
 def _existing(root: Path, text_rel: str, struct_rel: str) -> dict | None:
-    """structure.json이 있고 text_sha256이 text.txt와 같으면 그 내용. 아니면 None."""
+    """다시 쓸 수 있는 structure.json 내용. 아니면 None.
+
+    canonical_text_sha256이 text.txt와 같고 표 분리가 실패하지 않은 결과만 다시 쓴다.
+    """
     try:
         structure = json.loads((root / struct_rel).read_text(encoding="utf-8"))
         text_hash = sha256_hex((root / text_rel).read_bytes())
     except (OSError, ValueError):
         return None
-    return structure if structure.get("text_sha256") == text_hash else None
+    if structure.get("canonical_text_sha256") != text_hash:
+        return None
+    return structure if structure.get("table_split_status") != "FAILED" else None
 
 
 def _fill_ok(rec: dict, structure: dict, struct_rel: str, struct_sha: str) -> None:
     """EXTRACT_OK 기록 칸 채우기. section_count는 본문(body) 절만 센다(적중률 분모)."""
     rec["extract_status"] = "EXTRACT_OK"
     rec["structure_status"] = structure["structure_status"]
-    rec["text_path"], rec["text_sha256"] = (
-        structure["text_path"],
-        structure["text_sha256"],
-    )
+    rec["table_split_status"] = structure["table_split_status"]
+    rec["canonical_text_path"] = structure["canonical_text_path"]
+    rec["canonical_text_sha256"] = structure["canonical_text_sha256"]
     rec["text_length"] = structure["text_length"]
-    rec["structure_path"], rec["structure_sha256"] = struct_rel, struct_sha
+    rec["structure_manifest_path"] = struct_rel
+    rec["structure_manifest_sha256"] = struct_sha
     body = [s for s in structure["sections"] if s["section_kind"] == "body"]
     rec["section_count"] = len(body)
     rec["section_found_count"] = sum(s["char_start"] is not None for s in body)
@@ -228,7 +289,9 @@ def process_file(root: Path, pdf: Path, run_id: str, version: str) -> FileResult
         return FileResult(rec)
 
     existing = _existing(root, text_rel, struct_rel)
-    if existing:  # 구조 없음(UNAVAILABLE)도 EXTRACT_OK면 다시 추출하지 않는다
+    if (
+        existing
+    ):  # 구조 없음(UNAVAILABLE)도 표 분리가 실패하지 않았으면 다시 추출하지 않는다
         rec["action"] = "SKIPPED_EXISTING_OK"
         raw = (root / struct_rel).read_bytes()
         _fill_ok(rec, existing, struct_rel, sha256_hex(raw))
@@ -267,21 +330,24 @@ def process_file(root: Path, pdf: Path, run_id: str, version: str) -> FileResult
         version=version,
         source_key=rec["source_key"],
         raw_storage_path=raw_rel,
-        text_path=text_rel,
-        text_sha256=text_sha,
+        canonical_text_path=text_rel,
+        canonical_text_sha256=text_sha,
     )
     (root / base).mkdir(parents=True, exist_ok=True)
     write_atomic(root / text_rel, text_bytes)  # text.txt → structure.json 순서
     raw = json.dumps(structure, ensure_ascii=False, indent=1).encode("utf-8")
     write_atomic(root / struct_rel, raw)
     _fill_ok(rec, structure, struct_rel, sha256_hex(raw))
+    if (
+        layout.table_split_error
+    ):  # 파일은 성공. 같은 PDF가 계속 실패하면 같은 사유가 반복된다
+        rec["error_reason"] = f"표 분리 실패: {layout.table_split_error}"
     rec["finished_at"] = _now()
     return _ok(rec, structure)
 
 
 def _ok(rec: dict, structure: dict) -> FileResult:
-    flags = [f for s in structure["sections"] for f in s["quality_flags"]]
-    return FileResult(rec, structure, rec["text_length"], flags)
+    return FileResult(rec, digest(structure))
 
 
 def _percentile(values: list[float], q: float) -> float | None:
@@ -297,39 +363,35 @@ def _ratio(num: int, den: int) -> float | None:
 
 
 def _table_stats(docs: list[dict]) -> dict[str, object]:
-    """표 안 글자 비율(문서별 표 구간 길이 합 ÷ 글자 수)의 중앙값. 전체와 생성 도구별."""
+    """표 안 글자 비율(문서별 표 구간 길이 합 ÷ 글자 수)의 중앙값. 전체와 생성 도구별.
+
+    표 분리가 실패한 문서는 표 위치를 모르므로 비율에서 뺀다.
+    """
+    split = [d for d in docs if d["table_split_status"] == "OK"]
     by_family: dict[str, list[float]] = {}
-    for d in docs:
-        if not d["text_length"]:
-            continue
-        inside = sum(t["char_end"] - t["char_start"] for t in d["table_regions"])
-        family = producer_family(d.get("pdf_producer", ""))
-        by_family.setdefault(family, []).append(inside / d["text_length"])
+    for d in split:
+        if d["text_length"]:
+            family = producer_family(d["pdf_producer"])
+            by_family.setdefault(family, []).append(d["table_chars"] / d["text_length"])
     every = [v for values in by_family.values() for v in values]
     return {
-        "docs_without_table": sum(not d["table_regions"] for d in docs),
+        "split_failed_docs": len(docs) - len(split),
+        "docs_without_table": sum(not d["tables"] for d in split),
         "ratio_median": statistics.median(every) if every else None,
         "ratio_median_by_producer": {
             f: {"docs": len(v), "median": round(statistics.median(v), 3)}
             for f, v in sorted(by_family.items())
         },
-        "tables_with_sentences": sum(
-            t["has_sentences"] for d in docs for t in d["table_regions"]
-        ),
-        "tables": sum(len(d["table_regions"]) for d in docs),
+        "tables_with_sentences": sum(d["tables_with_sentences"] for d in split),
+        "tables": sum(d["tables"] for d in split),
     }
 
 
 def _bookmark_stats(docs: list[dict]) -> dict[str, object]:
-    marked = [d for d in docs if d["headings_source"] == "BOOKMARK"]
-    total = (
-        {
-            k: sum(d["bookmark_check"][k] for d in marked)
-            for k in marked[0]["bookmark_check"]
-        }
-        if marked
-        else {}
-    )
+    marked = [d["bookmark_check"] for d in docs if d["bookmark_check"] is not None]
+    total = Counter()
+    for check in marked:
+        total.update(check)
     g = total.get
     return {
         "docs": len(marked),
@@ -337,7 +399,7 @@ def _bookmark_stats(docs: list[dict]) -> dict[str, object]:
         "part_precision": _ratio(g("matched_parts", 0), g("rule_parts", 0)),
         "section_recall": _ratio(g("matched_sections", 0), g("bookmark_sections", 0)),
         "section_precision": _ratio(g("matched_sections", 0), g("rule_sections", 0)),
-        "counts": total,
+        "counts": dict(total),
     }
 
 
@@ -346,15 +408,13 @@ def summarize(
 ) -> dict[str, object]:
     recs = [r.record for r in results]
     n = len(recs)
-    status = {}
-    for r in recs:
-        status[r["extract_status"]] = status.get(r["extract_status"], 0) + 1
+    status = Counter(r["extract_status"] for r in recs)
     ok = status.get("EXTRACT_OK", 0)
-    reasons: dict[str, int] = {}
-    for r in recs:
-        if r["extract_status"] != "EXTRACT_OK":
-            key = str(r["error_reason"]).split(":")[0][:60]
-            reasons[key] = reasons.get(key, 0) + 1
+    reasons = Counter(
+        str(r["error_reason"]).split(":")[0][:60]
+        for r in recs
+        if r["extract_status"] != "EXTRACT_OK"
+    )
     file_fail = n - ok
     unavailable = [
         r["source_key"]
@@ -362,32 +422,30 @@ def summarize(
         if r["extract_status"] == "EXTRACT_OK"
         and r["structure_status"] == "UNAVAILABLE"
     ]
-    all_docs = [r.structure for r in results if r.structure]
-    docs = [d for d in all_docs if d["structure_status"] == "AVAILABLE"]
+    all_docs = [r.doc for r in results if r.doc]
+    docs = [d for d in all_docs if d["structure_status"] != "UNAVAILABLE"]
     toc_docs = [d for d in docs if d["toc_part_count"] > 0]
-    secs = [s for d in docs for s in d["sections"] if s["section_kind"] == "body"]
-    found_secs = [s for s in secs if s["char_start"] is not None]
+    found = sum(d["body_found"] for d in docs)
     rates = [
-        sum(
-            s["char_start"] is not None and s["section_kind"] == "body"
-            for s in d["sections"]
-        )
-        / d["toc_section_count"]
+        d["body_found"] / d["toc_section_count"]
         for d in docs
         if d["toc_section_count"] > 0
     ]
-    lengths = [r.text_length for r in results if r.text_length]
-    short = sum("SHORT_TEXT" in s["quality_flags"] for s in found_secs)
+    lengths = [d["text_length"] for d in all_docs if d["text_length"]]
+    short = sum(d["short_text"] for d in docs)
+    blocks = Counter()
+    for d in all_docs:
+        blocks.update(d["block_counts"])
     return {
         "N_files": n,
         "extract_ok": ok,
         "extract_ok_ratio": ok / n if n else None,
-        "status_counts": status,
+        "status_counts": dict(status),
         "skipped_existing": sum(r["action"] == "SKIPPED_EXISTING_OK" for r in recs),
         "file_fail": {
             "count": file_fail,
             "ratio": file_fail / n if n else None,
-            "by_reason": reasons,
+            "by_reason": dict(reasons),
         },
         "document_fail": {
             "part_not_detected": len(unavailable),
@@ -396,30 +454,29 @@ def summarize(
         },
         "part_hit": {
             # 목차에 부가 4개만 있는 문서가 있어 문서별로 목차 부 수를 넘지 않게 센다
-            "found": sum(min(len(d["parts"]), d["toc_part_count"]) for d in toc_docs),
+            "found": sum(min(d["parts"], d["toc_part_count"]) for d in toc_docs),
             "toc": sum(d["toc_part_count"] for d in toc_docs),
-            "all_5_docs": sum(len(d["parts"]) == 5 for d in docs),
+            "all_5_docs": sum(d["parts"] == 5 for d in docs),
             "split_attempted_docs": len(docs),
         },
         "section_hit": {
-            "found": len(found_secs),
+            "found": found,
             "toc": sum(d["toc_section_count"] for d in docs),
             "per_doc_min": min(rates) if rates else None,
             "per_doc_p10": _percentile(rates, 0.1),
             "per_doc_median": statistics.median(rates) if rates else None,
         },
-        "summary_section_docs": sum(
-            any(s["section_kind"] == "summary" for s in d["sections"]) for d in docs
+        "summary_section_docs": sum(d["has_summary"] for d in docs),
+        "furniture_docs": sum(
+            d["block_counts"].get("page_furniture", 0) > 0 for d in all_docs
         ),
-        "furniture_docs": sum(bool(d["page_furniture_regions"]) for d in all_docs),
+        "blocks": dict(sorted(blocks.items())),
         "tables": _table_stats(all_docs),
         "bookmark_vs_rule": _bookmark_stats(all_docs),
         "quality": {
             "short_text_sections": short,
-            "short_text_ratio": short / len(found_secs) if found_secs else None,
-            "broken_chars_sections": sum(
-                "BROKEN_CHARS" in s["quality_flags"] for s in found_secs
-            ),
+            "short_text_ratio": short / found if found else None,
+            "broken_chars_sections": sum(d["broken_chars"] for d in docs),
             "text_length_min": min(lengths) if lengths else None,
             "text_length_median": statistics.median(lengths) if lengths else None,
             "text_length_max": max(lengths) if lengths else None,
@@ -457,7 +514,9 @@ def format_report(s: dict[str, object]) -> str:
             f"p10 {pct(sh['per_doc_p10'])} 중앙 {pct(sh['per_doc_median'])}"
         ),
         f"요약정보 구간 문서 {s['summary_section_docs']}, 머리글 구간 문서 {s['furniture_docs']}",
+        f"블록 {s['blocks']}",
         (
+            f"표 분리 실패 문서 {tb['split_failed_docs']}, "
             f"표 {tb['tables']}개(문장 포함 {tb['tables_with_sentences']}), 표 없는 문서 {tb['docs_without_table']}, "
             f"표 안 글자 비율 중앙 {pct(tb['ratio_median'])} {tb['ratio_median_by_producer']}"
         ),
@@ -511,37 +570,50 @@ def _process_isolated(root: Path, pdf: Path, run_id: str, version: str) -> FileR
         )
 
 
+def default_workers() -> int:
+    """동시 작업 수. 실행 설정(환경 변수 EXTRACT_WORKERS)에서 받는다."""
+    return int(os.environ.get("EXTRACT_WORKERS") or DEFAULT_WORKERS)
+
+
 def run(
     root: Path,
     limit: int | None = None,
     *,
-    workers: int = DEFAULT_WORKERS,
+    workers: int | None = None,
     timeout: float = FILE_TIMEOUT_SECONDS,
 ) -> dict[str, object]:
     began = time.monotonic()
     version = parser_version()
+    workers = workers or default_workers()
     pdfs = latest_pdfs(RawStore(root))[:limit]
     log = RunLog(
         root,
         datetime.now(UTC).date().isoformat(),
         {"parser_version": version, "limit": limit, "workers": workers},
     )
-    outcomes = parallel.run_isolated(
+    results: list[FileResult | None] = [None] * len(pdfs)
+
+    def record(index: int, outcome: tuple[str, object]) -> None:
+        """파일 하나가 끝날 때마다 실행 기록에 덧붙인다(끝난 순서)."""
+        state, value = outcome
+        result = (
+            value
+            if state == "ok"
+            else _failed(root, pdfs[index], log.run_id, version, f"{state}: {value}")
+        )
+        log.append("extraction_attempts.jsonl", result.record)
+        log.outcomes[str(result.record["extract_status"])] += 1
+        results[index] = result
+
+    parallel.run_isolated(
         _process_isolated,
         [(root, pdf, log.run_id, version) for pdf in pdfs],
         workers=workers,
         timeout=timeout,
+        on_result=record,
     )
-    results = [
-        value
-        if state == "ok"
-        else _failed(root, pdf, log.run_id, version, f"{state}: {value}")
-        for pdf, (state, value) in zip(pdfs, outcomes, strict=True)
-    ]
-    for r in results:  # 실행 끝에 입력 순서대로 한 번 쓴다
-        log.append("extraction_attempts.jsonl", r.record)
-        log.outcomes[str(r.record["extract_status"])] += 1
-    summary = summarize(results, version, time.monotonic() - began)
+    done = [r for r in results if r is not None]
+    summary = summarize(done, version, time.monotonic() - began)
     log.finish("SUCCEEDED", summary)
     print(f"run_id {log.run_id}")
     print(format_report(summary))
@@ -551,7 +623,9 @@ def run(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--limit", type=int, help="앞에서 N건만 처리")
-    parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
+    parser.add_argument(
+        "--workers", type=int, help="동시 작업 수(기본: EXTRACT_WORKERS 또는 2)"
+    )
     args = parser.parse_args()
     root = os.environ.get("RAW_ROOT")
     if not root:
