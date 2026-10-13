@@ -338,7 +338,7 @@ K55 체계 운용사 코드(`asoStdCd` 4~6번째 자리) 100종 중 금투협 �
 | NO_CODE_IN_SOURCE | 소스 구조상 코드·상품명을 붙일 수 없음(분쟁조정·제재공시. 상품명이 마스킹) | 재시도 대상 아님 |
 | BELOW_THRESHOLD | 코드 있는 소스 잔여 건은 상품명 유사도 0.60 미만, 법인명은 0.95 미만 | 재시도 대상 아님(정규화 개선 시 재평가) |
 | NORMALIZE_FAILED | 원문이 파싱 단계에서 깨져 정규화 불가 | 추출 실패와 연계([원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「추출 실패와 절 품질」) |
-| CLASS_GRADE_MISMATCH | 클래스 위험등급이 펀드 대표 등급과 다름(ERD v2.2, 10월 4일 결정 대기). 불일치한 값의 출처(운용사 공시, 판매사, API)는 attempted_key_value 또는 resolution_note에 기록. 판매사 재분류 등급은 대표 등급으로 쓰지 않음([데이터 테이블·ERD 설계](data-model.md) 「상품과 법인」) | 확인 대상. 재시도 대상 아님 |
+| CLASS_GRADE_MISMATCH | 클래스 위험등급이 펀드 대표 등급과 다름(ERD v2.2, 10월 13일 PM(대현) 확정). 불일치한 값의 출처(운용사 공시, 판매사, API)는 attempted_key_value 또는 resolution_note에 기록. 판매사 재분류 등급은 대표 등급으로 쓰지 않음([데이터 테이블·ERD 설계](data-model.md) 「상품과 법인」) | 확인 대상. 재시도 대상 아님 |
 
 - PENDING_MASTER가 정상인 이유: DART가 금투협·공공데이터포털보다 6~18일 먼저 들어옴. DART 표지 10건 중 포털 미등록 3건이 이 상태
 - NO_CODE_IN_SOURCE의 실제 원인은 「코드가 없다」가 아니라 「상품이 가려져 있다」

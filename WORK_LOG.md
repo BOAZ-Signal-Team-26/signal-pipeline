@@ -1,5 +1,12 @@
 # 작업 기록
 
+## 2026-10-13 — 위험등급 2(클래스 등급 불일치 기록 위치) 기본값으로 확정
+
+- 기준: PM(대현) 10월 13일 결정. 별도 표 전환 기준이던 클래스 간 등급 차이 건수는 받지 않았고, PR #49 데이터 처리 요구 명세가 이 기본값을 전제로 병합됨
+- 바꾼 것: [데이터 테이블·ERD 설계](docs/data-model.md) 상단 상태 표·「v2.2」 결정 상태 표·「상품과 법인」·「미결」, [매칭 규칙](docs/matching-rules.md), [스키마 명세](docs/schema-catalog.md), [schema.dbml](docs/schema.dbml) `CLASS_GRADE_MISMATCH` Note의 「결정 대기」를 확정으로 바꿈. 기록 위치는 match_failure 실패 사유 `CLASS_GRADE_MISMATCH` + 상세 JSON, 별도 표 없음
+- 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `processing-requirements.md` 「v2.2 결정 대기 기본값」 문구(데이터 엔지니어링·인프라(주영) 담당 문서)
+- 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
 ## 2026-10-12 — PR #51 리뷰 반영: 실행별 추출 시도 기록 칼럼, 구조 manifest 형식, 표 분리 실패 재추출
 
 - 기준: PR #51 리뷰 댓글(10월 11일)의 PR #43 수정 요청 4건과 PR #49 `docs/processing-requirements.md` 4-6

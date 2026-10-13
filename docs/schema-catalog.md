@@ -197,7 +197,7 @@
 | normalized_value | text | 허용 |  | 계산값 | [매칭 규칙](matching-rules.md) 「상품명 정규화」 4단계를 거친 문자열. 코드 매칭이면 NULL |
 | top1_candidate_product_id | int | 허용 | FK | 판정값 | 유사도가 가장 높았던 상품. 없으면 NULL. 후보일 뿐 실제 매칭이 아니다 |
 | top1_similarity | decimal | 허용 |  | 계산값 | 그 후보의 유사도 점수. precision/scale 미정 |
-| failure_reason_code | failure_reason_enum | 불가 |  | 판정값 | v2.2 결정 대기: CLASS_GRADE_MISMATCH(클래스 위험등급 불일치) 추가. 클래스 product_id·대표 등급·클래스 등급·값 출처(운용사 공시/판매사/API)는 상세 JSON(resolution_note 안)에 기록(칼럼 추가 없음). 별도 표 분리 여부는 결정 대기 |
+| failure_reason_code | failure_reason_enum | 불가 |  | 판정값 | v2.2(10월 13일 PM(대현) 확정): CLASS_GRADE_MISMATCH(클래스 위험등급 불일치) 추가. 클래스 product_id·대표 등급·클래스 등급·값 출처(운용사 공시/판매사/API)는 상세 JSON(resolution_note 안)에 기록(칼럼 추가 없음). 별도 표로 분리하지 않음 |
 | attempted_at | timestamp | 불가 |  | 관리값 |  |
 | status | match_failure_status_enum | 불가 |  | 관리값 |  |
 | related_document_id | int | 허용 | FK | 관리값 | 있으면 연결. nullable |
@@ -452,7 +452,7 @@
 
 ### failure_reason_enum
 
-`PENDING_MASTER`, `AMBIGUOUS`, `NO_CANDIDATE`, `NO_CODE_IN_SOURCE`, `BELOW_THRESHOLD`, `NORMALIZE_FAILED`, `CLASS_GRADE_MISMATCH`(v2.2, 결정 대기)
+`PENDING_MASTER`, `AMBIGUOUS`, `NO_CANDIDATE`, `NO_CODE_IN_SOURCE`, `BELOW_THRESHOLD`, `NORMALIZE_FAILED`, `CLASS_GRADE_MISMATCH`(v2.2, 10월 13일 PM(대현) 확정)
 
 ### match_failure_status_enum
 
