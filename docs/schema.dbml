@@ -77,6 +77,8 @@ Enum failure_reason_enum {
   BELOW_THRESHOLD [note: '유사도 최소 기준값 미만(상품명 0.60, 판매사명 0.95 또는 단독후보/교차확인 미충족). 재시도 대상 아님']
   NORMALIZE_FAILED [note: '원문이 파싱 단계에서 깨져 정규화 자체 불가. storage-and-failure-rules.md 「추출 실패와 절 품질」과 연계']
   CLASS_GRADE_MISMATCH [note: 'v2.2(10월 13일 PM(대현) 확정, 기본값). 클래스 위험등급이 펀드 대표 등급과 다름. 확인 대상. 클래스 product_id·대표 등급·클래스 등급·값 출처(운용사 공시/판매사/API)는 상세 JSON(resolution_note 안)에 기록(칼럼 추가 없음). 별도 표로 분리하지 않음(data-model.md 「v2.2」)']
+  OUT_OF_SCOPE_SECTOR [note: '10월 13일 PM(대현) 확정, 제재공시 게시판 표본 20건 실측. 법인이 펀드를 판매·운용하지 않는 업권(보험대리점, 가상자산, 전자금융, 부동산신탁, 외국은행 지점, 카드). 실패율 분모에서 제외. 재시도 대상 아님']
+  NOT_IN_MASTER [note: '10월 13일 PM(대현) 확정, 제재공시 게시판 표본 20건 실측. 대상 업권이지만 금투협 판매사·운용사 대응표 양쪽에 없음을 검수로 확인함. 검수 전에는 NO_CANDIDATE. 실패율 분모에서 제외. 대응표 갱신 때 재시도']
 }
 
 Enum match_failure_status_enum {
