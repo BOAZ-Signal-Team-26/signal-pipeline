@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 # 「제N부」로 시작하고 그 줄에 표제만 있는 행. 들여쓰기는 조건에 넣지 않는다.
 # 숫자 앞뒤 공백(「제 3 부」)과 표제가 다음 줄에 있는 경우(「제1부」만 있는 줄)도 받는다.
@@ -31,6 +31,15 @@ PREFIX_LINE_MAX = 40
 # 없으면 줄에 「요약정보」만 있는 표제(예: 「요약 정보」)를 쓴다. 모두 첫 「제N부」 앞에서만 찾는다
 SUMMARY_MARK = re.compile(r"^\s*[\[<]\s*요\s*약\s*정\s*보\s*[\]>]")
 SUMMARY_BARE = re.compile(r"^\s*요\s*약\s*정\s*보\s*$")
+# 목차는 관련회사를 한 절(「기타 집합투자기구 관련회사에 관한 사항」)로 묶었는데 본문은 회사별 절
+# (「3. 집합투자재산 관리회사…」「4. 일반사무관리회사…」…)로 나눈 문서(10월 13일 prep-6 502건 중 31건).
+# 이름은 본문 제4부 「N.」 줄에서 모음. 아무 「N.」 줄이나 받으면 번호 목록 232줄을 잘못 잡는다
+COMBINED_TOC = re.compile(r"^기타집합투자(?:기구|재산)관")
+AFFILIATE = re.compile(
+    r"^(?:집합투자재산(?:관리|보관)회사|투자신탁재산관리회사|신탁회사에관한|일반사무관리회사"
+    r"|집합(?:투자)?기구평가회사|채권평가회사|ESG.{0,8}평가|기타업무의수탁회사)"
+)
+BODY_SEC = re.compile(r"^\s*(\d{1,2})\s*\.\s*(\S.*)$")
 
 FOUND = "EXTRACT_OK"
 NOT_FOUND = "SECTION_BOUNDARY_NOT_FOUND"
@@ -52,7 +61,10 @@ class Part:
 
 @dataclass(frozen=True)
 class Section:
-    """section_kind가 summary·other이면 part_seq·source_section_no는 None."""
+    """section_kind가 summary·other이면 part_seq·source_section_no·in_toc는 None.
+
+    in_toc가 False인 절은 목차에 없고 본문에서만 찾은 절(COMBINED_TOC).
+    """
 
     section_seq: int
     section_kind: str  # body / summary / other
@@ -64,6 +76,7 @@ class Section:
     char_start: int | None
     char_end: int | None
     extract_status: str
+    in_toc: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -72,6 +85,8 @@ class SplitResult:
     sections: list[Section]
     toc_section_count: int
     toc_part_count: int  # 목차 묶음에서 읽은 부 수. 목차가 없으면 0
+    # 본문 절(in_toc False)로 대신한 목차 절 (부 번호, 절 번호, 목차 제목). sections에는 넣지 않는다
+    toc_replaced: list[tuple[int, str, str]] = field(default_factory=list)
 
 
 def part_marks(lines: list[str]) -> list[Mark]:
@@ -178,6 +193,33 @@ def _prefix_title(text: str, number: int, key: str) -> bool:
     rest = text[len(num) :]
     shorter, longer = sorted((rest, key), key=len)
     return len(shorter) >= PREFIX_MIN and longer.startswith(shorter)
+
+
+def _affiliate_sections(
+    lines: list[str],
+    lined: list[tuple[int, str]],
+    spots: list[tuple[int, str, int | None]],
+) -> list[tuple[int, str, int | None]]:
+    """목차 마지막 절이 「기타 … 관련회사」 합본이면 본문의 관련회사별 「N.」 절. 아니면 빈 목록.
+
+    마지막으로 찾은 절 뒤, 정규화 제목이 PREFIX_LINE_MAX 이하이고 번호가 커지는 줄만 받는다.
+    본문에 합본 절이 있고 그 뒤에 관련회사 절이 이어지는 문서(20260916000056)도 있어
+    합본 절을 찾았는지는 따지지 않는다. 못 찾았을 때만 호출한 쪽이 목차 절을 대신한 것으로 기록한다.
+    """
+    if not spots or not COMBINED_TOC.match(normalize(spots[-1][1])):
+        return []
+    found = [(spot, number) for number, _, spot in spots if spot is not None]
+    last, prev = max(found) if found else (-1, 0)
+    added: list[tuple[int, str, int | None]] = []
+    for index, _ in lined:
+        match = BODY_SEC.match(lines[index]) if index > last else None
+        if not match or int(match.group(1)) <= prev:
+            continue
+        title = normalize(match.group(2))
+        if len(title) <= PREFIX_LINE_MAX and AFFILIATE.match(title):
+            prev = int(match.group(1))
+            added.append((prev, match.group(2).strip(), index))
+    return added
 
 
 def _next_is_part(lines: list[str], index: int) -> bool:
@@ -298,6 +340,7 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
 
     parts: list[Part] = []
     body: list[Section] = []
+    replaced: list[tuple[int, str, str]] = []
     bounds = [m[0] for m in body_run] + [len(lines)]
     for index, (start, part, title) in enumerate(body_run):
         end = bounds[index + 1]
@@ -312,10 +355,17 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
             spot = _find_start(lined, number, name, last)
             spots.append((number, name, spot))
             last = spot if spot is not None else last
+        added = _affiliate_sections(lines, lined, spots)
+        if added and spots[-1][2] is None:
+            number, name, _ = spots[-1]
+            replaced.append((part, str(number), name))
+            spots = spots[:-1]
+        in_toc = [True] * len(spots) + [False] * len(added)
+        spots = spots + added
         # 찾은 절의 끝 = 다음으로 찾은 절의 시작, 마지막이면 부의 끝
         starts = [offsets[s] for _, _, s in spots if s is not None]
         ends = iter(starts[1:] + [part_end])
-        for number, name, spot in spots:
+        for (number, name, spot), listed in zip(spots, in_toc, strict=True):
             found = spot is not None
             body.append(
                 Section(
@@ -331,6 +381,7 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
                     char_start=offsets[spot] if found else None,
                     char_end=next(ends) if found else None,
                     extract_status=FOUND if found else NOT_FOUND,
+                    in_toc=listed,
                 )
             )
     front = _front_sections(text, lines, offsets, body_run[0][0], first[0][0])
@@ -338,7 +389,11 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         replace(sec, section_seq=seq) for seq, sec in enumerate(front + body, 1)
     ]
     split = SplitResult(
-        parts, sections, sum(len(v) for v in contents.values()), toc_part_count
+        parts,
+        sections,
+        sum(len(v) for v in contents.values()),
+        toc_part_count,
+        replaced,
     )
     return split, toc_titles
 

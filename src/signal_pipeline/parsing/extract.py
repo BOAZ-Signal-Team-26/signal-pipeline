@@ -53,7 +53,8 @@ from signal_pipeline.parsing.regions import (
 # 4: pdftotext → pdfplumber(PR #49 4-3), 요약정보·other 구간, 표·머리글 구간, 모든 EXTRACT_OK에 structure.json
 # 5: PR #49 4-6 형식(blocks 5종, 표 분리 상태, 책갈피 없으면 대조 null), PR #43 필드 이름
 # 6: 목차·본문 절 제목이 앞부분만 같아도 찾음, 앞 문장에 붙은 「제N부」 표제를 찾음(PR #51 표본 검토)
-PREP_VERSION = 6
+# 7: 목차 「기타 … 관련회사」 합본 절을 본문의 관련회사별 절로 나눔(sections `in_toc`, `toc_replaced_sections`)
+PREP_VERSION = 7
 CONTRACT_VERSION = 3
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 FILE_TIMEOUT_SECONDS = 300  # 파일 1건 제한. pdfplumber는 502건 평균 수 초~수십 초
@@ -146,6 +147,7 @@ def build_structure(
                 "char_start": sec.char_start,
                 "char_end": sec.char_end,
                 "extract_status": sec.extract_status,
+                "in_toc": sec.in_toc,
                 "quality_flags": flags,
                 "canonical_section_code": None,
             }
@@ -167,6 +169,10 @@ def build_structure(
         "sections": sections,
         "toc_section_count": split.toc_section_count if split else 0,
         "toc_part_count": split.toc_part_count if split else 0,
+        "toc_replaced_sections": [
+            {"part_seq": part, "source_section_no": no, "title": title}
+            for part, no, title in (split.toc_replaced if split else [])
+        ],
         "bookmark_count": len(layout.bookmarks),
         "bookmark_check": bookmark_check(layout.bookmarks, split),
         "blocks": build_blocks(layout, split),
@@ -188,7 +194,10 @@ def digest(structure: dict) -> dict[str, object]:
         "parts": len(structure["parts"]),
         "toc_part_count": structure["toc_part_count"],
         "toc_section_count": structure["toc_section_count"],
-        "body_found": len(found),
+        # 목차 절 중 범위를 찾았거나 본문 절로 대신한 수. toc_section_count를 넘지 않는다
+        "body_found": sum(s["in_toc"] for s in found)
+        + len(structure["toc_replaced_sections"]),
+        "body_only": sum(not s["in_toc"] for s in found),
         "short_text": sum("SHORT_TEXT" in s["quality_flags"] for s in found),
         "broken_chars": sum("BROKEN_CHARS" in s["quality_flags"] for s in found),
         "has_summary": any(
@@ -463,6 +472,7 @@ def summarize(
         "section_hit": {
             "found": found,
             "toc": sum(d["toc_section_count"] for d in docs),
+            "body_only": sum(d["body_only"] for d in docs),
             "per_doc_min": min(rates) if rates else None,
             "per_doc_p10": _percentile(rates, 0.1),
             "per_doc_median": statistics.median(rates) if rates else None,
@@ -511,7 +521,7 @@ def format_report(s: dict[str, object]) -> str:
         f"제N부 미검출 {df['part_not_detected']} ({pct(df['ratio_of_extract_ok'])}) {df['source_keys']}",
         f"부 적중 {ph['found']}/{ph['toc']}, 5부 모두 {ph['all_5_docs']}/{ph['split_attempted_docs']}",
         (
-            f"절 적중 {sh['found']}/{sh['toc']}, 문서별 최소 {pct(sh['per_doc_min'])} "
+            f"절 적중 {sh['found']}/{sh['toc']}(목차에 없는 본문 절 {sh['body_only']}), 문서별 최소 {pct(sh['per_doc_min'])} "
             f"p10 {pct(sh['per_doc_p10'])} 중앙 {pct(sh['per_doc_median'])}"
         ),
         f"요약정보 구간 문서 {s['summary_section_docs']}, 머리글 구간 문서 {s['furniture_docs']}",

@@ -288,3 +288,42 @@ def test_part_heading_glued_to_previous_sentence() -> None:
     assert fourth.char_end == fifth.char_start
     assert any(s.part_seq == 5 and s.char_start for s in result.sections)
     assert not invariant_violations(result, len(text))
+
+
+def test_combined_affiliate_toc_split_in_body() -> None:
+    # 목차는 「기타 … 관련회사」 한 절, 본문은 관련회사별 절(10월 13일 prep-6 502건 중 31건)
+    toc = toc_block() + [
+        "제4부 집합투자기구 관련회사에 관한 사항",
+        "1. 집합투자업자에 관한 사항",
+        "2. 기타 집합투자기구 관련회사에 관한 사항",
+    ]
+    head = [*body_block(), "제4부 집합투자기구 관련회사에 관한 사항"]
+    head += ["1. 집합투자업자에 관한 사항", "본문 내용 " * 5]
+    split_body = head + [
+        "2. 집합투자재산 관리회사에 관한 사항(신탁업자)",
+        "1. 회사의 개요",
+        "3. 일반사무관리회사에 관한 사항",
+        "4. 채권평가회사에 관한 사항",
+    ]
+    text = make(toc, split_body)
+    result = split_sections(text)
+    check(result, text)
+    part4 = [s for s in bodies(result) if s.part_seq == 4]
+    assert [(s.source_section_no, s.in_toc) for s in part4] == [
+        ("1", True),
+        ("2", False),
+        ("3", False),
+        ("4", False),
+    ]
+    assert part4[1].title == "2. 집합투자재산 관리회사에 관한 사항(신탁업자)"
+    assert part4[-1].char_end == result.parts[-1].char_end
+    assert result.toc_replaced == [(4, "2", "기타 집합투자기구 관련회사에 관한 사항")]
+    # 본문도 합본이면 그 절을 찾고, 안의 번호 목록(번호가 다시 1부터)은 절로 받지 않는다
+    combined = head + [
+        "2. 기타 집합투자기구 관련회사에 관한 사항",
+        "1. 일반사무관리회사에 관한 사항",
+        "2. 채권평가회사에 관한 사항",
+    ]
+    result = split_sections(make(toc, combined))
+    part4 = [s for s in bodies(result) if s.part_seq == 4]
+    assert [s.in_toc for s in part4] == [True, True] and result.toc_replaced == []
