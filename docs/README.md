@@ -12,7 +12,8 @@
 | 4 | [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) | 받은 원본을 어떻게 보관하고 실패를 어떻게 기록하는지 |
 | 5 | [상품·법인 매칭 규칙](matching-rules.md) | 문서를 상품·법인에 어떻게 붙이는지 |
 | 6 | [점수 저장과 비교 모집단](scoring-and-population.md) | 점수를 어떤 단위로 저장하고 무엇과 비교하는지 |
-| 7 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md), [3단계 입출력 Schema 설계 입력](io-schema.md) | 다음 단계가 이어받는 것 |
+| 7 | [데이터 처리 요구 명세](processing-requirements.md) | 데이터 사이언스에 넘기는 파일의 칼럼, 절 경계, 결측 표기, 소스별 워터마크 검증 |
+| 8 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md), [3단계 입출력 Schema 설계 입력](io-schema.md) | 다음 단계가 이어받는 것 |
 | 참조 | [스키마 명세](schema-catalog.md), [DBML](schema.dbml) | 칼럼 단위 확인 |
 | 근거 | [records/](records/) | 결정의 실측 근거와 검토 이력 |
 

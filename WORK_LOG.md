@@ -11,6 +11,19 @@
 - 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `parser_version` 예시값(`pdftotext-24.02_prep-3`). `extract_status`의 EXTRACT_PARTIAL 뜻(일부만 복구된 문서)
 - 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
 
+## 2026-10-12 — 데이터 처리 요구 명세: 8절 PR #43 답글 반영, `summary_labels` 칼럼 추가
+
+- 기준: PR #43 PM(대현) 답글(10월 11일)
+- [데이터 처리 요구 명세](docs/processing-requirements.md) 8절
+  - 금감원 제재: API 정기 수집도 보류에 포함. 축 4 검증용 사례 표본 확보는 보류와 별개
+  - 룩백 구간 신규 발견 수를 세는 범위 정의. 지연 일수 분포를 함께 기록
+  - 다루지 않는 소스: PR #43 미결 문구와 맞춤. 금투협 판매관계는 `source` 값 이름도 함께 정함. finlife는 현재 수집 대상 아님
+- 「상태」 표 기준 판: 8절을 PR #43 10월 11일 갱신분과 대조
+- 2절·4-6·5절: `summary_labels` 칼럼 추가(`SIMPLE` 행, 10월 12일 다빈 요청). 표 분리 실패면 NULL, 사유 `SUMMARY_TABLE_LABELS_FAILED`
+- 「상태」 표·10절: 다빈 승인(10월 12일) 기록
+- 바꾸지 않은 것: 금감원 `inputDate` 재검증 미결(PR #43 문서. PM(대현)이 고치기로 함)
+- 바꾸지 않은 것: 축 1·2 계산 범위, 후보 탈락·펀드 제외 구조, 본문 없는 PDF 판정(PR #49 답글로 제안, 동의 뒤 반영)
+
 ## 2026-10-11 — 소스별 구간 검증 미결 범위 정정, 금감원 제재 정기 수집 보류 반영
 
 - 기준: 데이터 엔지니어링·인프라(주영) PR #43 리뷰(10월 11일, 룩백 재조회·소스별 구간 검증 반영분)와 10월 7일 10차 미팅 안건 3(제재공시 게시판 크롤러 보류).
@@ -22,6 +35,25 @@
   - [데이터 테이블·ERD 설계](docs/data-model.md) 미결 행과 [schema.dbml](docs/schema.dbml) `source_watermark` Note에서 「소스별 검증은 PR #49 8절」을 5종으로 좁힘.
 - 바꾸지 않은 것: 표·관계·enum 수(표 17, 관계 42, enum 26), 칼럼 수. 리뷰 범위 밖 권고 4건(`inputDate` 재검증 미결 시점, 판매관계 `source` 값 이름, 신규 발견 수를 세는 범위, 축 4 표본 확보와 보류의 구분)은 PR 답글로 제안만 함. PR #49 8절의 금감원 제재 「상태」 칸(「10월 7일 미팅에 제안(결정 전)」)은 다른 브랜치라 그대로 둠. 「정찰 뒤 크롤러 결정」이 남은 다른 문서(pipeline-flow.md, data-sources.md, data-model.md, scoring-and-population.md)는 10월 14일 검토 결과가 나온 뒤 함께 고침.
 - 검증: `@dbml/core` 파서 표 17·관계 42·enum 26 통과. `git diff --check` 통과.
+
+## 2026-10-11 — 데이터 처리 요구 명세: PR #49 리뷰 반영과 `structure.json` 필드 정의
+
+- 기준: PR #49 리뷰(PM(대현) 10월 7일·8일, 데이터 사이언스(다빈) 10월 10일), PR #51의 PM(대현) 요청(10월 10일), 10차 미팅(10월 7일)
+- [데이터 처리 요구 명세](docs/processing-requirements.md)
+  - 2절: 입력 파일 불변·재실행은 새 `score_run_id` 문장 추가. `documents.parquet`·`excluded.parquet` 위치를 `runs/{score_run_id}/`로 확정, `exports/` 사본 없음
+  - 칼럼: `text_excl_tables`·`headings_source` 삭제. `source_section_no`를 문자열로 변경. 파서 버전 예시를 `pdfplumber-0.11_prep-4`로 변경
+  - 4-2: 분할은 규칙, 책갈피는 검증에만 씀(10월 10일 PM 결정)
+  - 4-3: ASL은 받는 쪽이 `text`에서 구간을 빼서 계산. 구간 합치기 규칙 추가. 칸 안에 문장이 있는 표는 ASL에 넣고 표를 모두 뺀 ASL은 비교용(10월 10일 다빈 결정). 텍스트·표 모두 pdfplumber
+  - 4-6 신설: `structure.json` 필드(최상위, `blocks` 5종, 책갈피 대조, 표 분리 실패 시 다시 추출, 넣지 않는 것과 이유)
+  - 5절: 표 분리 실패 표기를 `table_regions = NULL`로. 6절: 사유 코드 9개 확정
+  - 8절: PR #43 반영 위치, PR #47 미병합, 금감원 게시판 크롤러 보류(10월 7일), 다루지 않는 소스 표시
+  - 상태 표·10절: PM 승인, 다빈 의견 반영 기록
+  - 미결: 결정된 4행 삭제(`documents.parquet` 위치, 사유 코드, 표 안 문장, PDF 라이브러리). `has_sentences` 판정 기준 1행 추가
+- 바꾸지 않은 것
+  - `structure.json` 필드 이름: PR #51 리뷰에서 확정
+  - `has_sentences` 판정 기준: 「다.」 유지, PR #51 표본 실측 뒤 결정
+  - `scoring-and-population.md`의 ASL 정의(「표 제외」): PM 담당 문서라 PR #49 답글로 알림
+  - 8절 소스별 검증 방법
 
 ## 2026-10-09 — 실행별 추출 시도 기록 위치 확정, 워터마크 갱신 순서 정정, LLM 입력 해시 추가
 
@@ -76,6 +108,23 @@
 - 데이터 엔지니어링·인프라(주영) 리뷰 2번 반영: `covered_from`을 누적 구간의 시작일(첫 실행 시작일, 바꾸지 않음, 룩백 하한)로 확정.
 - CodeRabbit 지적 반영: v1 → v2 이관을 (section, 지표) 단위로 바꾸고 score_type → metric_key·assessor_key 대응표를 먼저 만들도록 명시([데이터 테이블·ERD 설계](docs/data-model.md) 「v1 → v2 이관 절차」).
 - 바꾸지 않은 것: 표 17·관계 42·enum 26, 칼럼 구성. 리뷰 1번(실행별 추출 시도 기록)·3번(LLM 추출 입력 특정)은 이번에 정하지 않음(10월 14일·15일 전 결정).
+
+## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
+
+- 범위: OPEN DART 목록(`list.json`, `pblntf_ty=G`)에서 report_nm으로 투자설명서(정정본 포함)를 골라 표지 XML(`document.xml`)·뷰어 트리(`main.do`)·뷰어 표지(`viewer.do`)·본문 PDF(`download.do`)를 받는다. 증권신고서·일괄신고서는 건수만 세고 받지 않는다(목록 응답 원본에는 남음)
+- 공통 모듈(`src/signal_pipeline/common/`)
+  - `http.py`: httpx 클라이언트. 간격 1초·동시 1개, 타임아웃·5xx는 최초 1회 + 재시도 최대 5회(1·2·4·8·16초), 401·403·429는 재시도 없음, 결과를 `attempt_outcome_enum` 6종으로 분류, 기록에서 인증 인자 제외
+  - `storage.py`: 10월 4일 확정 경로(PR #43) `raw/{source}/{원천 키}/{file_role}__v{n}.{ext}` + `.meta.json`. 원천 키 인코딩(`/`·`~`·`%`·제어 문자만, 200바이트 초과 시 `-h` + SHA-256 앞 12자), 같은 바이트면 새 판을 만들지 않음, `.meta.json`을 먼저 쓰고 원본을 나중에 씀
+  - `runlog.py`: `runs/{run_id}/run.json`(`pipeline_run` 칼럼), `attempts.jsonl`(`collection_attempt`, 시도 1번 = 1줄), `raw_objects.jsonl`(종료 시 `input_manifest`). DB 가동 전이라 `document_id`는 접수번호, `raw_object_id`는 `storage_path`로 대신함
+  - `state.py`: 접수일 하루 단위 워터마크. 그날을 빠짐없이 받았을 때만 전진, 다음 실행은 워터마크 − 룩백 3일(잠정)부터. 룩백은 첫 실행 시작일보다 앞으로 가지 않음
+- 결정: 저장 위치는 환경변수 `RAW_ROOT`(`.env.example`에 항목 추가), run_id는 `extract-{UTC 시각}-{임의 4자}`, User-Agent는 프로젝트명 + 저장소 주소, `document.xml` 014(파일 없음)는 `PERMANENT_FAILED`로 기록하고 그날 완료를 막지 않음
+- 제안(확인 필요): DART 목록 응답 경로 `raw/dart/_list/{접수일}/page-NNNN__v{n}.json`. PR #43에 DART 목록 예시가 없어 스냅숏형 소스(`data_go_fund`) 모양을 따름
+- 10월 4일 실호출 확인: 증권신고서·일괄신고서는 본문 PDF가 없고 본문이 절마다 HTML 노드로 나뉨, `document.xml`은 014. 시험 실행에서 신고서 요청이 전체의 약 절반이라 수집 대상에서 제외(10월 5일)
+- 수집 결과(10월 5일, `--from 2026-09-01 --max-pdf 500`): 본문 PDF 500건(810MB, 평균 1.62MB, 모두 `%PDF-` 확인), 접수일 9월 1일~29일 완료·워터마크 9월 29일, 요청 2,552번, 61분. 결과 분류 SUCCESS 2,384·PERMANENT_FAILED 146·EMPTY 10. 투자설명서 503건 중 `document.xml` 014가 146건(29%). 표지·본문 노드 없음 3건. 다운로드 타임아웃 12번은 재시도로 모두 성공
+- 경로 변경(10월 5일): 수집분 1,884개를 옛 경로(수집일·해시 폴더)에서 새 경로로 옮김(바이트 그대로, SHA-256 대조 일치). 실행 기록의 `storage_path`를 고치고 대응표 `runs/_path_migration_20261005.tsv`를 남김
+- 검증: pytest 40개 통과(재시도·분류·인증값 제외, 경로·원천 키 인코딩·판 번호, 실행 기록·워터마크·룩백, report_nm 분류·트리 파싱·노드 찾기·PDF 링크), `ruff format`·`ruff check` 통과. 경로 변경 뒤 같은 명령을 다시 실행해 신규 0건·건너뜀 50건·요청 4번 확인(9월 26일~29일)
+- PR #47 리뷰 반영(10월 7일): 목록 조회 실패를 실행 요약 `list_failures`에 기록하고 하나라도 있으면 실행을 `FAILED`·종료 코드 1로 끝냄. 인증 키(`crtfc_key` 등)를 담은 요청만 리다이렉트를 따르지 않음(3xx는 `PERMANENT_FAILED`). 테스트 2개 추가해 pytest 42개 통과, 실제 목록 API 1회 호출로 정상 응답 확인. 문서 단위 재시도 실패로 미완료가 된 날은 아직 실행 상태에 반영하지 않음
+- 수행하지 않은 것: 문서 반영(`data-sources.md`에 신고서 구조·OPEN DART status 코드표, ERD `file_role_enum`에 `viewer_tree` 추가)은 PM 검토 뒤로 미룸. S3 저장(`RAW_ROOT`가 로컬 폴더), DB 기록(`collection_attempt`·`source_watermark`), 공공데이터포털·KRX 수집(2차), 절 단위 분할, CI에 pytest 추가
 
 ## 2026-10-06 — KRX 대응표 정본만 유지
 
