@@ -30,6 +30,38 @@
   - `summary_label`은 명세대로 요약정보 안 모든 표의 첫 열 칸이라 위험등급 표의 「1」·「매우 높은 위험」 같은 칸도 들어감. 거를지는 데이터 사이언스(다빈) 확인 뒤
   - PR #43 문서 수정(실행별 추출 시도 기록 칼럼 목록, `structure_status` Note의 UNAVAILABLE manifest, PARTIAL 재추출 예외, `coordinate_system` 삭제)은 PR #43에서 함
 
+## 2026-10-12 — 데이터 처리 요구 명세: 8절 PR #43 답글 반영, `summary_labels` 칼럼 추가
+
+- 기준: PR #43 PM(대현) 답글(10월 11일)
+- [데이터 처리 요구 명세](docs/processing-requirements.md) 8절
+  - 금감원 제재: API 정기 수집도 보류에 포함. 축 4 검증용 사례 표본 확보는 보류와 별개
+  - 룩백 구간 신규 발견 수를 세는 범위 정의. 지연 일수 분포를 함께 기록
+  - 다루지 않는 소스: PR #43 미결 문구와 맞춤. 금투협 판매관계는 `source` 값 이름도 함께 정함. finlife는 현재 수집 대상 아님
+- 「상태」 표 기준 판: 8절을 PR #43 10월 11일 갱신분과 대조
+- 2절·4-6·5절: `summary_labels` 칼럼 추가(`SIMPLE` 행, 10월 12일 다빈 요청). 표 분리 실패면 NULL, 사유 `SUMMARY_TABLE_LABELS_FAILED`
+- 「상태」 표·10절: 다빈 승인(10월 12일) 기록
+- 바꾸지 않은 것: 금감원 `inputDate` 재검증 미결(PR #43 문서. PM(대현)이 고치기로 함)
+- 바꾸지 않은 것: 축 1·2 계산 범위, 후보 탈락·펀드 제외 구조, 본문 없는 PDF 판정(PR #49 답글로 제안, 동의 뒤 반영)
+
+## 2026-10-11 — 데이터 처리 요구 명세: PR #49 리뷰 반영과 `structure.json` 필드 정의
+
+- 기준: PR #49 리뷰(PM(대현) 10월 7일·8일, 데이터 사이언스(다빈) 10월 10일), PR #51의 PM(대현) 요청(10월 10일), 10차 미팅(10월 7일)
+- [데이터 처리 요구 명세](docs/processing-requirements.md)
+  - 2절: 입력 파일 불변·재실행은 새 `score_run_id` 문장 추가. `documents.parquet`·`excluded.parquet` 위치를 `runs/{score_run_id}/`로 확정, `exports/` 사본 없음
+  - 칼럼: `text_excl_tables`·`headings_source` 삭제. `source_section_no`를 문자열로 변경. 파서 버전 예시를 `pdfplumber-0.11_prep-4`로 변경
+  - 4-2: 분할은 규칙, 책갈피는 검증에만 씀(10월 10일 PM 결정)
+  - 4-3: ASL은 받는 쪽이 `text`에서 구간을 빼서 계산. 구간 합치기 규칙 추가. 칸 안에 문장이 있는 표는 ASL에 넣고 표를 모두 뺀 ASL은 비교용(10월 10일 다빈 결정). 텍스트·표 모두 pdfplumber
+  - 4-6 신설: `structure.json` 필드(최상위, `blocks` 5종, 책갈피 대조, 표 분리 실패 시 다시 추출, 넣지 않는 것과 이유)
+  - 5절: 표 분리 실패 표기를 `table_regions = NULL`로. 6절: 사유 코드 9개 확정
+  - 8절: PR #43 반영 위치, PR #47 미병합, 금감원 게시판 크롤러 보류(10월 7일), 다루지 않는 소스 표시
+  - 상태 표·10절: PM 승인, 다빈 의견 반영 기록
+  - 미결: 결정된 4행 삭제(`documents.parquet` 위치, 사유 코드, 표 안 문장, PDF 라이브러리). `has_sentences` 판정 기준 1행 추가
+- 바꾸지 않은 것
+  - `structure.json` 필드 이름: PR #51 리뷰에서 확정
+  - `has_sentences` 판정 기준: 「다.」 유지, PR #51 표본 실측 뒤 결정
+  - `scoring-and-population.md`의 ASL 정의(「표 제외」): PM 담당 문서라 PR #49 답글로 알림
+  - 8절 소스별 검증 방법
+
 ## 2026-10-10 — DART 투자설명서 텍스트 추출·절 분할과 실패율 산출 (#50)
 
 - 범위: 크롤러가 받은 본문 PDF(`raw/dart/{접수번호}/body_pdf__v{n}.pdf`, 접수번호별 최신 판)를 텍스트로 바꾸고 부·절로 나눠, 파일·문서·절 단위 실패율을 실행마다 남긴다
