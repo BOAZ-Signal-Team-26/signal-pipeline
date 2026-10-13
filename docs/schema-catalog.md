@@ -1,6 +1,6 @@
 # 스키마 명세 — 2026-10-04 v2.2
 
-- 범위: [DBML](schema.dbml)을 파싱해 정리한 17개 테이블(관계 42개, enum 26개)의 전체 칼럼·키·관계·상태값
+- 범위: [DBML](schema.dbml)을 파싱해 정리한 17개 테이블(관계 42개, enum 27개)의 전체 칼럼·키·관계·상태값
 - 상태: v2.2(이슈 #42) = 연기한 표 4개 제거, analysis_target을 score에 병합(결정 대기 A), 추출 키를 원본 파일 × 파서 버전으로 변경, 표 2개 추가(llm_field_extraction, source_watermark), 채울 수 없는 칼럼 제거, 코드 체계별 두 칼럼(결정 대기 E). 변경표와 반대 결정 시 범위는 [데이터 테이블·ERD 설계](data-model.md) 「v2.2」. 연기한 표의 정의 요지는 같은 문서 「예약 계약(승인 뒤 추가)」. 이전 판 v2.1 = [ERD 설계 변천과 검토 기록](records/phase1-erd/design-review-history.md) 「v2 6관점 검토」의 즉시 반영 조치(실행 분리·공식 run 마커·모집단 유일키·enum 통일·지표 방향·공개 ID 규칙) 반영
 - 논리 검토안. 물리 DB 구축이나 팀 승인 아님
 - NULL 허용은 구조적 허용. 조건부 필수 규칙은 [데이터 테이블·ERD 설계](data-model.md) 「절과 점수 대상」·「적재 검증 규칙」, 점수·결측 상태 조합은 [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
@@ -25,8 +25,8 @@
 |---|---|---|---|---|---|
 | product_id | int | 불가 | PK | 관리값 | 내부 발급 서러게이트 키. 구체 자료형(int/bigint 등)·생성 방식은 2단계 데이터 파이프라인 Flow 설계 사안 |
 | short_code | varchar(5) | 허용 |  | 원본값 | 단축코드 5자리 영숫자([A-Z0-9]{5}). DART 표지 펀드코드 = 공공데이터포털 srtnCd(두 소스 코드 조인, [조인 키 확인 기록](records/phase1-erd/join-key-checks.md) 「조인 키 확인 현황」). 펀드·ETF 1차 조인 키. 전역 유일 아님(전체 165,118종 중 4,899종=3.0% 중복) — 2015년 이후 설정분·상장지수 1,435건 범위에서는 안전. 겹치면 (asoStdCd 앞 6자리, short_code) 조합으로 확장([조인 키 확인 기록](records/phase1-erd/join-key-checks.md) 「srtnCd 비유일」) |
-| kofia_fund_code | varchar(12) | 허용 |  | 원본값 | K55 체계 코드 12자리 = K55+운용사3+단축5+검증1. 결정 대기 E(기본값: 체계별 두 칼럼, 10월 4일). 채우는 소스 두 곳: 금투협 수시공시 코드와 공공데이터포털 asoStdCd 중 K55로 시작하는 값(ETF 대조 표본 1,373건 중 1,195건). 접두 3자로 분기([매칭 규칙](matching-rules.md) 「코드 체계 분기」). 반대 결정(한 칸 병합 등) 시 이 칼럼과 standard_code 두 칼럼만 바뀜 |
-| standard_code | varchar(12) | 허용 |  | 원본값 | KR5/KRM 체계 협회표준코드 12자리. 공공데이터포털 asoStdCd 중 KR5·KRM으로 시작하는 값(같은 표본 178건)과 금투협 standardCd의 KR5·KRM 값. kofia_fund_code와 체계가 다름. 결정 대기 E |
+| std_code_scheme | std_code_scheme_enum | 허용 |  | 판정값 | 표준코드 체계 구분(K55/KR5/KRM/OTHER). 10월 14일 11차 미팅 결정 E로 체계별 두 칼럼(kofia_fund_code·standard_code)을 구분 칼럼 + 값 칼럼으로 바꿈. std_code 접두 3자에서 채움. std_code가 NULL이면 NULL([매칭 규칙](matching-rules.md) 「코드 체계 분기」) |
+| std_code | varchar(12) | 허용 |  | 원본값 | 표준코드 12자리 원문. 공공데이터포털 asoStdCd와 금투협 수시공시 standardCd·tmpV1. 조인은 (std_code_scheme, std_code) 쌍으로만 하며 체계가 다른 값끼리 비교하지 않음. 같은 fund_key 안에서도 클래스마다 체계가 다를 수 있음 |
 | isu_cd | varchar | 허용 |  | 원본값 | 거래소 종목코드. ETF에만 값 존재(그 외 NULL). short_code와 잇는 코드성 수단이 없어 이름으로만 연결되고 완전일치 0.0%/포함매칭 80.4%([금투협 중복 행과 ETF 이름 규칙 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 2: ETF 이름 규칙」. ISU_CD와 srtnCd를 잇는 대응 소스 없음). 길이·형식은 문서에 근거 없어 미정 |
 | product_name | text | 불가 |  | 원본값 | 포털 fndNm 원문. DART 표지 명칭은 매칭 근거에 별도 보존 |
 | product_name_normalized | text | 허용 |  | 계산값 | [매칭 규칙](matching-rules.md) 「상품명 정규화」 4단계(NFKC→공백 제거→(주)/주식회사 제거→유형괄호·호수·클래스 분리) 결과 |
@@ -429,6 +429,12 @@
 ### etf_confidence_enum
 
 `KRX_CONFIRMED`, `NAME_ONLY`, `NOT_ETF`, `PENDING`
+
+### std_code_scheme_enum (v2.2, 10월 14일 결정 E)
+
+`K55`, `KR5`, `KRM`, `OTHER`
+
+- `OTHER`는 세 체계 밖 접두(포털 기준 5종, 약 1,200행). 값은 `std_code`에 보존하고 조인에는 쓰지 않음
 
 ### distributor_type_enum
 

@@ -116,6 +116,7 @@ var chCd = oGrdMain.getCellData(rowIdx,'standardCd'); //자펀드코드
 | `tmpV1` | 826 | 631 | 9 | 33 |
 
 - 결정: `standardCd`·`tmpV1`을 상품 `standard_code` 한 칸에 그대로 넣지 않음. 적재 시 접두 3자로 분기해 `K55…`는 `kofia_fund_code`로, `KR5…`·`KRM…`은 `standard_code`로
+  - 10월 14일 결정 E로 저장 방식이 바뀜: 값은 `std_code` 한 칸에 두고 체계는 `std_code_scheme`에 둠. 「체계가 다른 값끼리 비교하지 않음」은 그대로([매칭 규칙](../../matching-rules.md) 「코드 체계 분기」)
 - 근거: 한 묶음 안에서도 두 체계가 섞이는 사례 24건(키움투자자산운용 2026-08-13 집합투자규약 변경 등). 소스나 공시 유형으로 미리 가를 수 없고 값 자체를 봐야 함
 - `ZZZZZZ…` 해소: 모펀드 행 표시자. 화면 JS가 `result == "O" && (prCd.indexOf('ZZZZZZ') != -1 || prCd == chCd)`를 「수시 - 모펀드만 구분표시」 조건으로 사용. 수시공시 모펀드 행은 `tmpV1`이 자기 `standardCd`와 같거나 `ZZZZZZ…` 표시값을 가짐. 자연키에 그대로 써도 문제없음
 

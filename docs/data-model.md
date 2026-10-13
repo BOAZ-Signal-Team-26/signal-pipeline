@@ -7,12 +7,12 @@
 | 항목 | 값 |
 |---|---|
 | 판 | v2.2 검토안 (2026-10-04, 이슈 #42). 이전 판 v2.1(2026-09-23) |
-| 규모 | 17개 표 · 42개 관계 · enum 26개 (v2.1: 20개 표 · 47개 관계 · enum 30개). 변경 내용: 아래 「v2.2」 |
+| 규모 | 17개 표 · 42개 관계 · enum 27개 (v2.1: 20개 표 · 47개 관계 · enum 30개). 변경 내용: 아래 「v2.2」 |
 | 기준 | [DBML](schema.dbml)이 칼럼·복합키의 정본. 칼럼 전체는 [스키마 명세](schema-catalog.md) |
 | 반영한 팀 결정 | 09-20 7차 미팅 3건: run_id 통일, fund_key 고정, 비교 모집단 별도 표 |
 | 승인 | 수정 1~9와 B11 안 1은 10월 3일 팀 채널에서 이의 없이 확정, 수정 10은 9차 미팅(9월 30일) 확정. 결정 대기 표시 항목과 CDI 산식 담당 승인은 미완료 |
 | 범위 밖 | DB 제품, 물리 DDL, 인덱스 튜닝, decimal 정밀도 → 2단계 데이터 파이프라인 Flow 설계 |
-| 결정 대기 | 결정 대기 A·E, C(10월 8일 PM 확정, 데이터 사이언스(다빈) 이의 확인 대기), 10월 4일 판단 항목 중 간이 대표 역할, 그대로 미결인 B·D·F·G·H·I·B5·B12·B13 (아래 「v2.2」·「미결」) |
+| 결정 대기 | 결정 대기 A, C(10월 8일 PM 확정, 데이터 사이언스(다빈) 이의 확인 대기), 10월 4일 판단 항목 중 간이 대표 역할, 그대로 미결인 B·D·F·G·H·I·B5·B12·B13 (아래 「v2.2」·「미결」). E는 10월 14일 확정 |
 
 ## 결정 요약
 
@@ -41,7 +41,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 |---|---|---|
 | 표 | 20개 | 17개 (4개 연기, analysis_target 병합, 2개 추가) |
 | 관계(FK, 복합 FK는 1개로 셈) | 47개 | 42개 |
-| enum | 30개 | 26개 (5개 제거, risk_grade_source_enum 1개 추가) |
+| enum | 30개 | 27개 (5개 제거, risk_grade_source_enum·std_code_scheme_enum 2개 추가) |
 
 ### 결정 상태
 
@@ -50,7 +50,8 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 | 확정(10월 3일 팀 채널, 이의 없음) | 수정 1~9, B11 안 1 |
 | 확정(9차 미팅 9월 30일) | 수정 10 두 파트 출력 저장 |
 | 확정(10월 4일 PM 승인) | 수정 11 S3 트리와 llm_field_extraction.response_sha256 추가, 수정 12 distributor.kofia_disclosure_company_code 추가(운용사 연결 순서) |
-| 기본값으로 반영, 결정 대기 | A 병합, E 체계별 두 칼럼 |
+| 기본값으로 반영, 결정 대기 | A 병합 |
+| 확정(10월 14일 11차 미팅) | E 표준코드 저장 방식: 구분 칼럼(`std_code_scheme`) + 값 칼럼(`std_code`). 기본값이던 체계별 두 칼럼(kofia_fund_code·standard_code)은 쓰지 않음. 근거: 금투협 표본 고유 코드 1,200건 모두 상품 1건에 코드 1개, ETF 대조 표본 938종목도 두 체계에 붙은 건 0. 같은 fund_key 안에서 클래스마다 체계가 다른 묶음은 29개(88개 중)라 「같은 펀드는 같은 체계」를 가정한 조인은 쓰지 않음([매칭 규칙](matching-rules.md) 「코드 체계 분기」) |
 | 확정(10월 8일 PM 결정), 데이터 사이언스(다빈) 이의 확인 대기 | C 펀드 관측치 표 없음(manifest 파일). 대시보드는 층내 백분위만 표시(score 칼럼), 층 배정은 실행 폴더 파일. 대시보드를 DB에 직접 연결하거나 잔차·층 배정의 SQL 분석이 필요해지면 표 추가 |
 | 확정(10월 7일 10차 미팅) | 10월 4일 판단 항목 중 펀드 대표 위험등급 칼럼(위험등급 1), 문서 작성기준일(위험등급 3) |
 | 확정(10월 13일 PM(대현) 확정) | 클래스 등급 불일치 기록(위험등급 2): 기본값(match_failure 실패 사유 `CLASS_GRADE_MISMATCH` + 상세 JSON, 칼럼·표 추가 없음). 별도 표 전환 기준이던 클래스 간 등급 차이 건수는 받지 않았고, PR #49 데이터 처리 요구 명세가 이 기본값을 전제로 병합됨 |
@@ -63,7 +64,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 |---|---|---|
 | 1 채점·평가 표 4개 연기 | score_dependency, evaluation_run, evaluation_response, analysis_target_member를 DBML에서 뺌. 쓰는 곳이 없어진 enum 5개도 뺌. 표 정의는 「예약 계약(승인 뒤 추가)」에 요지만 남김. 실제 가중치는 score_payload 또는 definition_manifest | schema.dbml, 이 문서 |
 | 2 추출 키 변경 | file_extraction PK = (raw_object_id, parser_version). 재사용은 EXTRACT_OK 행만, FAILED/PARTIAL은 다음 실행이 덮어씀. 수정 2로 절 쪽 run 일치 복합 FK는 없어지고 절 검증은 SCORE 입력 manifest로 함, section은 같은 키로 file_extraction 참조. run_id를 끌고 다니던 복합 FK(analysis_target·member의 extraction_run_id 등)와 pipeline_run (run_id, upstream_run_id) 유일키 제거. B9(derived 경로의 서러게이트 ID) 해소 | schema.dbml, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「파일 경로」 |
-| 3 코드 체계 불일치 | 포털 asoStdCd를 접두 3자로 분기해 K55는 kofia_fund_code, KR5/KRM은 standard_code. 결정 대기 E | schema.dbml, [매칭 규칙](matching-rules.md) 「코드 체계 분기」 |
+| 3 코드 체계 불일치 | 포털 asoStdCd와 금투협 standardCd를 std_code에 원문대로 넣고, 접두 3자로 std_code_scheme(K55/KR5/KRM/OTHER)을 채움. 10월 14일 결정 E | schema.dbml, [매칭 규칙](matching-rules.md) 「코드 체계 분기」 |
 | 4 절 식별 칼럼 | section.canonical_section_code 추가. 값 규칙은 결정 대기 F | schema.dbml, [DART 절 분할](records/phase1-erd/dart-section-split.md) |
 | 5 빠진 표 2개 | llm_field_extraction(문서 × 필드 × 시도, 모델 이름·프롬프트 해시·토큰 수·근거 위치·응답 해시), source_watermark(소스 × 조회 범위, 구간 완전성 검증 뒤에만 전진) | schema.dbml |
 | 6 채울 수 없는 칼럼 제거 | product의 sale_start_date, sale_end_date, is_public_offering, fin_prdt_cd와 document.pblntf_detail_ty 제거. 판매 중 여부의 판단 근거는 「미결」 | schema.dbml, [점수 저장과 비교 모집단](scoring-and-population.md) 「판매 중 확인」 |
@@ -91,7 +92,7 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 |---|---|---|
 | A 병합 | analysis_target을 만들지 않고 score가 target_type, section_id, document_id, fund_key, target_key를 직접 가짐. B10(score.target_type과 지표 일치)은 복합 FK로 채택 | analysis_target 표 1개 복원. score의 대상 칼럼 4개 제거하고 target_id FK로 바꿈. score 유일키를 (run_id, target_id, metric_key, assessor_key)로 되돌림. population_snapshot은 영향 없음(score가 (population_snapshot_id, run_id, metric_key)로 참조하는 방식 그대로). analysis_target_member 연기 상태는 별개 |
 | C 펀드 관측치 | 표 없음. 실행마다 manifest 파일 | 펀드 관측치 표 1개 추가 |
-| E 코드 체계 | K55 체계 칼럼(kofia_fund_code)과 KR5/KRM 체계 칼럼(standard_code) | product 칼럼 2개와 매칭 규칙의 분기 절만 바뀜 |
+| E 코드 체계 | 10월 14일 확정: 구분 칼럼(std_code_scheme) + 값 칼럼(std_code) | 확정됨. 되돌리면 product 칼럼 2개와 enum 1개, 매칭 규칙의 분기 절만 바뀜 |
 | 펀드 대표 위험등급 | fund_group에 representative_risk_grade, risk_grade_source_document_id, risk_grade_source_kind와 risk_grade_source_enum(작성기준일은 근거 문서의 report_base_date) | 칼럼 3개와 enum 1개 제거, 관계 1개 감소(42 → 41). 층 배정은 product.risk_grade |
 | 클래스 등급 불일치 | match_failure 실패 사유(failure_reason_enum)에 CLASS_GRADE_MISMATCH 추가. 클래스 product_id·대표 등급·클래스 등급·값 출처는 상세 JSON(resolution_note 안)에 기록, 칼럼 추가 없음 | enum 값 1개 제거. 매칭 실패와 목적이 다르므로 별도 표로 분리할지도 함께 결정(분리하면 표 1개 추가, 클래스 product_id FK 포함) |
 | 문서 작성기준일 | document.report_base_date. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일) | 칼럼 제거 후 manifest로 이동, 또는 작성기준 판 표 추가 |
@@ -187,10 +188,11 @@ v2.1(2026-09-23)에서 9월 30일 재검토 확정안을 반영한 판. 확정 �
 - `short_code`는 UNIQUE 아님
   - 코드가 같은 후보가 여러 개면 전체 코드·운용사·클래스 대조
   - 해소되지 않으면 `AMBIGUOUS`
-  - `standard_code`의 전역 유일성도 이번 표본만으로 강제하지 않음
-- 코드 길이: `short_code` 문자열 5자리, `kofia_fund_code`·`standard_code` 각각 문자열 12자리
-  - K55와 KR5/KRM을 섞지 않음. 체계별 두 칼럼(결정 대기 E, 기본값): `kofia_fund_code` = K55 체계, `standard_code` = KR5/KRM 체계
-  - 공공데이터포털 `asoStdCd`에 두 체계가 섞여 있음(ETF 대조 표본 1,373건 중 K55 1,195건, KR5 178건). 접두 3자로 분기해 한쪽 칼럼에 넣음([매칭 규칙](matching-rules.md) 「코드 체계 분기」)
+  - `std_code`의 전역 유일성도 이번 표본만으로 강제하지 않음
+- 코드 길이: `short_code` 문자열 5자리, `std_code` 문자열 12자리
+  - 표준코드는 값 칼럼 `std_code` 하나에 원문대로 두고, 체계는 `std_code_scheme`(K55/KR5/KRM/OTHER)에 둠(10월 14일 결정 E). 조인은 (체계, 값) 쌍으로만 하며 체계가 다른 값끼리 비교하지 않음
+  - 공공데이터포털 `asoStdCd`에 두 체계가 섞여 있음(ETF 대조 표본 1,373건 중 K55 1,195건, KR5 178건). 접두 3자에서 체계를 채움([매칭 규칙](matching-rules.md) 「코드 체계 분기」)
+  - 같은 `fund_key` 안에서도 클래스마다 체계가 다를 수 있음(금투협 표본에서 클래스 2개 이상 묶음 88개 중 29개). 묶음은 `fund_key`로 묶고, 코드로 펀드 묶음을 유추하지 않음
   - 단축코드는 DART 표지 또는 포털 `srtnCd` 원문 사용
 - 포털 필드 매핑: `product_name` = `fndNm`, `inception_date` = `setpDt`, `source_baseline_date` = `basDt`
   - `setpDt`는 설정일. 판매개시일 아님
@@ -571,7 +573,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 | DART 본문 | PDF 안에 요약 및 제1~5부 | 바이트 → canonical text → 실제 구간 | raw_object → file_extraction → section |
 | 포털 response.body.items.item | 객체 또는 배열 | 항상 레코드 배열로 정규화 | API 원본 + product |
 | 포털 srtnCd | 5자리 영숫자 | varchar(5), 비유일 | product.short_code |
-| 포털 asoStdCd | 12자리. K55 체계와 KR5/KRM 체계가 섞여 있음 | varchar(12). 접두 3자로 분기해 K55는 kofia_fund_code, KR5/KRM은 standard_code(결정 대기 E) | product.kofia_fund_code / product.standard_code |
+| 포털 asoStdCd | 12자리. K55 체계와 KR5/KRM 체계가 섞여 있음 | varchar(12) 원문 그대로. 접두 3자에서 std_code_scheme을 채움(10월 14일 결정 E) | product.std_code + product.std_code_scheme |
 | 포털 fndNm | 정식 이름 | 원문 text와 매칭용 이름 분리 | product |
 | 포털 setpDt | YYYYMMDD, 11111111 더미 | 엄격한 달력 검증, 실패 시 NULL+사유 | inception_date |
 | 포털 basDt | YYYYMMDD | date. 수집 시각/설정일과 분리 | source_baseline_date |
@@ -920,7 +922,6 @@ erDiagram
 | 문서쌍(DOCUMENT_PAIR) 지표의 입력 저장 방식. analysis_target_member 연기로 score에 두 입력 문서를 가리킬 칼럼이 없음. 12월 범위에 문서쌍 지표 없음 | 팀 | Phase 2 착수 전 |
 | selection manifest를 pipeline_run의 칼럼 2개로 두는 위치. 대상 선택 근거와 역할별 대표 문서의 기록 자리 | 대현 | 2단계 설계 |
 | 룩백 일수 확정(DART 3일·금투협 7일 잠정값). 룩백 재조회 방식과 5종(DART·공공데이터포털·KRX·금투협 공시·금감원 제재)의 워터마크 검증 방법은 PR #49 8절로 정함. 나머지 소스는 같은 문서 「미결」([원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」, 10월 9일) | 데이터 엔지니어링·인프라(주영) | 룩백 구간 신규 발견 수가 2주 이상 쌓인 뒤 |
-| K55·KR5·KRM 외 접두 asoStdCd의 보존 위치(match_failure로 보낼지) | [담당 미정] | 상품 적재 구현 전 |
 | llm_field_extraction에서 문서에 값이 없다는 「없음」 결과를 result_status 어느 값으로 둘지(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음이라 맞는 값 없음) | 대현 | 2026-10-14 (3단계 입출력 Schema) |
 | 수집 주기·신선도 목표, KRX 일별 스냅숏 적재 주기 | 데이터 처리 요구 명세에서 정함 | [확인 필요: 일자] |
 

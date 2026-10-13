@@ -212,7 +212,7 @@ LLM 호출 저장:
 
 - 시도 한 번당 `request.json`과 `response.json` 두 파일. `raw_response_path`는 `response.json`을 가리키고, 응답 바이트의 해시는 `llm_field_extraction.response_sha256`에 기록(이번 ERD v2.2 PR에서 칼럼 추가)
 - 입력 특정(10월 9일 PM(대현) 확정, 데이터 엔지니어링·인프라(주영) PR #43 리뷰 3번): `llm_field_extraction.input_sha256` = LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 추출은 문서 단위라 `raw_object_id`는 NULL 허용 그대로 둠. (raw_object_id, parser_version) 필수 안은 채택하지 않음(파일 여러 개를 한 행에 담을 수 없고, 보낸 텍스트가 절 일부·전처리 결과일 수 있음)
-- 해시 규칙: UTF-8, 줄바꿈 LF, 앞뒤 공백 제거하지 않음, 절을 이어 붙일 때 구분자는 빈 줄 하나(`\n\n`). 규칙을 바꾸면 전처리 버전처럼 프롬프트 설정 파일에 버전을 올림
+- 해시 규칙: UTF-8, 줄바꿈 LF, 앞뒤 공백 제거하지 않음, 유니코드 정규화(NFC·NFKC)는 하지 않음, 절을 이어 붙일 때 구분자는 빈 줄 하나(`\n\n`)이고 잇는 순서는 `request.json`의 `inputs` 순서(10월 13일 데이터 엔지니어링·인프라(주영) 요청으로 두 항목 추가). 규칙을 바꾸면 전처리 버전처럼 프롬프트 설정 파일에 버전을 올림
 - `request.json`이 입력의 정본: 보낸 문서 텍스트, `input_sha256`, `inputs` 목록(`raw_object_id`, `raw_sha256`, `parser_version`, `section_ids` 또는 문자 범위). DB 칼럼은 조회용 해시
 - 재호출 생략: (`document_id`, `field_name`, `input_sha256`, `prompt_sha256`, `model_name`, `model_params`)가 모두 같고 이전 시도가 `result_status = OK`일 때만 다시 호출하지 않고 그 결과를 재사용. FAILED는 다시 호출. `model_params`는 키 정렬·UTF-8·구분자 고정 한 줄 JSON으로 정규화해 비교. 파서 버전이 올라도 보낸 텍스트가 같으면 해시가 같아 재호출하지 않음
 - 적재 검증: `request.json`의 문서 텍스트로 다시 계산한 sha256이 `input_sha256`과 같음. `inputs`의 원본 파일은 같은 document_id 소속
@@ -257,11 +257,11 @@ LLM 호출 저장:
 
 ### 적재 순서
 
-1. `collection_attempt` 기록
+1. `collection_attempt` 시작 행 기록(결과 칼럼은 비움)
 2. 응답 완전성 검증
 3. sha256 비교. 같으면 S3 쓰기를 생략하고 기존 `raw_object`를 재사용
 4. S3 쓰기. `.meta.json`을 먼저, 원본을 나중에 쓰며 새 키에만 씀
-5. `raw_object` INSERT와 attempt 갱신을 한 트랜잭션으로 처리
+5. `raw_object` INSERT와 1에서 만든 attempt 행의 결과 갱신을 한 트랜잭션으로 처리. 「시작 행 기록 → 결과 갱신」 순서는 10월 13일 데이터 엔지니어링·인프라(주영) 동의, DB 적재 구현(10월 15일~28일) 때 크롤러 기록도 이 순서로 맞춤
 6. 구간 검증을 통과했을 때만 `source_watermark` 전진(5와 별도 트랜잭션)
 7. 추출: `derived/` `text.txt` → `structure.json` → DB 행
 8. LLM 호출: `runs/…/llm`
@@ -271,6 +271,7 @@ LLM 호출 저장:
 
 - 4와 5 사이에 중단되면 S3에 `raw_object` 행이 없는 객체가 남음. 삭제하지 않고 재시도에서 같은 키·같은 바이트이면 채택
 - `.meta.json`을 먼저 쓰므로 원본이 있는 객체는 항상 meta.json이 있음
+- 스냅숏형 API 객체(`page-NNNN__v{n}.json`, `_complete__v{n}.json`)에도 같은 규칙으로 `.meta.json`을 둠(10월 13일 데이터 엔지니어링·인프라(주영) 답, 10월 14일 확정). 모든 원본에 「메타 먼저, 원본 나중」이 적용되며, PR #47 크롤러는 DART 목록 페이지에 이미 두고 있음
 
 ## 수집 실패
 
@@ -430,7 +431,6 @@ LLM 호출 저장:
 | 국가법령 구간 완전성 검증 방법 | 데이터 엔지니어링·인프라(주영) | 원천 계약과 연결 방식([소스 확인](data-sources.md) 「미결」) 확인 뒤 |
 | 평가 표·자료의 접근 분리 중 DB 쪽: 같은 DB 유지 vs eval 스키마(검토 번호 B4). 저장소 쪽은 같은 버킷의 `eval/` 접두어 + 전용 IAM으로 정함. 축 4 사건 단위 검증 자료(제재 사례 매핑표, 대조군 문서 목록, 두 명 독립 판정 결과)도 접근 제한 대상에 넣을지 함께 정함. 이 자료는 규칙을 만들 때 보지 않아야 하므로(09-29 팀 논의 결론, 9차 미팅(09-30) 확정. 제재문 역할은 확인대기) 분리 쪽이 자연스러움 | 팀 | 09-30 |
 | 대시보드 전용 내보내기 `dashboard_documents.parquet`에 담을 칼럼. 드릴다운·근거 절 화면에 필요한 것만(절 범위, 근거 위치, 펀드·문서 식별자 등) 담을지, 문서 전문까지 담을지. 전문은 행마다 수십만 자라 펀드 수천 개면 GB 규모 | 데이터 사이언스(다빈)·PM(대현) | 대시보드 구현 전 |
-| 스냅숏형 API 객체(`page-NNNN__v{n}.json`, `_complete__v{n}.json`)에도 `.meta.json`을 둘지. 재수집 파일명은 10월 4일 확정(같은 기준일 바이트가 바뀌면 `r2/`, `r3/` 폴더) | 데이터 엔지니어링·인프라(주영) | 수집기 구현 전 |
 
 ## 참고
 

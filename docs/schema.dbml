@@ -27,6 +27,13 @@ Enum etf_confidence_enum {
   PENDING [note: '대조 실패 또는 보류. 초기 감사 재검토 148건 중 공식 자료 검토 153건을 확인했고 새 대응표에서 12건은 보류. 구조 검사만 통과한 932건은 NAME_ONLY, 이전 사람 확인 70건은 별도 유지. 현재 상태는 krx_link_review_v2.csv의 review_status로 판단. CDI 정규화 모집단 제외(matching-rules.md 「KRX 매칭 실패 처리」)']
 }
 
+Enum std_code_scheme_enum {
+  K55 [note: '금투협 펀드코드 체계. K55+운용사3+단축5+검증1']
+  KR5 [note: '협회표준코드 체계(투자신탁)']
+  KRM [note: '협회표준코드 체계(투자회사). 금투협 표본 1,499행 중 9행']
+  OTHER [note: 'K55·KR5·KRM 밖 접두(포털 기준 5종, 약 1,200행). 값은 std_code에 그대로 보존하고 조인에는 쓰지 않음. 10월 14일 결정 E로 옛 미결(접두 5종 보존 위치) 해소']
+}
+
 Enum distributor_type_enum {
   "운용사"
   "판매사"
@@ -139,8 +146,8 @@ Enum parse_status_enum {
 Table product {
   product_id int [pk, note: '내부 발급 서러게이트 키. 구체 자료형(int/bigint 등)·생성 방식은 2단계 데이터 파이프라인 Flow 설계 사안']
   short_code varchar(5) [note: '단축코드 5자리 영숫자([A-Z0-9]{5}). DART 표지 펀드코드 = 공공데이터포털 srtnCd(두 소스 코드 조인, records/phase1-erd/join-key-checks.md 「조인 키 확인 현황」). 펀드·ETF 1차 조인 키. 전역 유일 아님(전체 165,118종 중 4,899종=3.0% 중복) — 2015년 이후 설정분·상장지수 1,435건 범위에서는 안전. 겹치면 (asoStdCd 앞 6자리, short_code) 조합으로 확장(records/phase1-erd/join-key-checks.md 「srtnCd 비유일」)']
-  kofia_fund_code varchar(12) [note: 'K55 체계 코드 12자리 = K55+운용사3+단축5+검증1. 결정 대기 E(기본값: 체계별 두 칼럼, 10월 4일). 채우는 소스 두 곳: 금투협 수시공시 코드와 공공데이터포털 asoStdCd 중 K55로 시작하는 값(ETF 대조 표본 1,373건 중 1,195건). 접두 3자로 분기(matching-rules.md 「코드 체계 분기」). 반대 결정(한 칸 병합 등) 시 이 칼럼과 standard_code 두 칼럼만 바뀜']
-  standard_code varchar(12) [note: 'KR5/KRM 체계 협회표준코드 12자리. 공공데이터포털 asoStdCd 중 KR5·KRM으로 시작하는 값(같은 표본 178건)과 금투협 standardCd의 KR5·KRM 값. kofia_fund_code와 체계가 다름. 결정 대기 E']
+  std_code_scheme std_code_scheme_enum [note: '표준코드 체계 구분. 10월 14일 11차 미팅 결정 E: 체계별 두 칼럼(kofia_fund_code·standard_code) 대신 구분 칼럼 + 값 칼럼. std_code의 접두 3자에서 채움(K55/KR5/KRM, 그 외 OTHER). std_code가 NULL이면 NULL. 근거: 금투협 표본 고유 코드 1,200건 모두 상품 1건에 코드 1개, ETF 대조 표본 938종목도 두 체계에 붙은 건 0(matching-rules.md 「코드 체계 분기」)']
+  std_code varchar(12) [note: '표준코드 12자리 원문. 소스: 공공데이터포털 asoStdCd(ETF 대조 표본 1,373건 중 K55 1,195·KR5 178), 금투협 수시공시 standardCd·tmpV1(표본 1,499행 중 K55 887·KR5 603·KRM 9). 조인은 (std_code_scheme, std_code) 쌍으로만 하며 체계가 다른 값끼리 비교하지 않음. 같은 fund_key 안에서도 클래스마다 체계가 다를 수 있음(금투협 표본에서 클래스 2개 이상 묶음 88개 중 29개)']
   isu_cd varchar [note: '거래소 종목코드. ETF에만 값 존재(그 외 NULL). short_code와 잇는 코드성 수단이 없어 이름으로만 연결되고 완전일치 0.0%/포함매칭 80.4%(records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 2: ETF 이름 규칙」. ISU_CD와 srtnCd를 잇는 대응 소스 없음). 길이·형식은 문서에 근거 없어 미정']
   product_name text [not null, note: '포털 fndNm 원문. DART 표지 명칭은 매칭 근거에 별도 보존']
   product_name_normalized text [note: 'matching-rules.md 「상품명 정규화」 4단계(NFKC→공백 제거→(주)/주식회사 제거→유형괄호·호수·클래스 분리) 결과']

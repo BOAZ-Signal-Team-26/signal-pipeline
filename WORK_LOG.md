@@ -1,5 +1,15 @@
 # 작업 기록
 
+## 2026-10-14 — 결정 대기 E 확정(구분 칼럼 + 값 칼럼), `.meta.json` 확정, 해시 규칙·기록 순서 보강
+
+- 기준: 11차 미팅(10월 14일) 안건 4. 데이터 엔지니어링·인프라(주영) 10월 13일 PR #43 답변과 PM(대현) 10월 14일 크로스체크
+- E: `product.kofia_fund_code`·`standard_code` 두 칼럼을 `std_code_scheme`(enum K55/KR5/KRM/OTHER) + `std_code`(varchar 12)로 교체. enum 26 → 27개. 조인은 (체계, 값) 쌍으로만([매칭 규칙](docs/matching-rules.md) 「코드 체계 분기」)
+- 크로스체크(금투협 수시공시 표본 1,499행, 고유 코드 1,200건): 상품 1건이 두 체계 코드를 가지는 경우 0건. ETF 대조 표본 938종목도 0건. 같은 `fund_key` 안에서 클래스마다 체계가 다른 묶음 29개(클래스 2개 이상 88개 중) → 「같은 펀드는 같은 체계」 가정 금지 규칙 추가
+- 미결 2건 삭제: K55·KR5·KRM 밖 접두 보존 위치(OTHER로 흡수, [데이터 테이블·ERD 설계](docs/data-model.md)·[매칭 규칙](docs/matching-rules.md)), 스냅숏형 소스 `.meta.json`(둔다, [원본 보관 규칙](docs/storage-and-failure-rules.md))
+- `input_sha256` 해시 규칙에 「유니코드 정규화 안 함」, 「절 잇는 순서는 `request.json`의 `inputs` 순서」 추가. 적재 순서 1·5를 「시작 행 기록 → 결과 갱신」으로 명시
+- 기록 문서(records)는 본문을 두지 않고 J7·금투협 검증 결정 줄에 바뀐 저장 방식 주석만 추가
+- 검증: `@dbml/cli` dbml2sql 파싱, `git diff --check`
+
 ## 2026-10-13 — 금감원 제재 `inputDate` 판정 확정, 제재공시 법인 매칭 실패 사유 2개 추가
 
 - 기준: 제재공시 목록 수집·매핑 검토 실측(PM(대현), 10월 13일). OPEN API 13회 호출, 제재공시 게시판 표본 63건, 법인 매칭 표본 20건
