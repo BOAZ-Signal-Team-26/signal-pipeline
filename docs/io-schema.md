@@ -112,7 +112,7 @@
 
 - 예시의 `disclosure_item_07`은 이름 형식 예시. 실제 item_key 목록은 금소법 19조 항목 확정 뒤 정함
 - `drafting_standard_check`는 10-02 변수표의 작성기준 항목 점검(3-1a, 3-1b-① 위치 준수와 3-1b-② 순서 메모, 간이 3-1a·3-1b)을 담는 자리. `order_differs_items`는 점수가 아닌 메모. 필드 이름은 제안이며 확정 형식이 아님
-- 예시의 `evidence`·`penalty_phrases`·`fix_locations` 위치 형식(section_id, char_start, char_end)은 결정 요청 B11 결정 뒤 정리([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」). 확정 형식이 아님
+- 예시의 `evidence`·`penalty_phrases`·`fix_locations` 위치 형식(section_id, char_start, char_end)은 결정 요청 B11 안 1로 확정(10월 3일, [데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」). 필드 이름(`evidence`·`penalty_phrases`·`fix_locations`)은 제안이며 확정 형식이 아님
 - 상태 정의: [점수 저장과 비교 모집단](scoring-and-population.md) 「결과 상태와 결측」
 - 식별자
   - 공개 가능: document_id, product_id, fund_key, distributor_id, section_id(v2.2: 키가 원본 파일 × 파서 버전이라 run 불필요)
