@@ -44,7 +44,7 @@
 ### 소스별 조인 키 대조표 (09-20 시점)
 
 - 출처: 09-20 시점 논리 스키마(표 9개 기준)의 「소스별 조인 키 대조표」. git 이력에서 복원
-- 표 이름(상품·판매사·문서·문서_상품 등)은 표 9개 시점 이름. 현행 20개 표 이름은 [데이터 테이블·ERD 설계](../../data-model.md)
+- 표 이름(상품·판매사·문서·문서_상품 등)은 표 9개 시점 이름. 현행 17개 표 이름은 [데이터 테이블·ERD 설계](../../data-model.md)
 - 「식별」 칸의 J 번호는 옛 문서·DBML 주석이 쓰는 번호. 대조용으로만 둠
 - 판정 네 가지: 코드 / 문자열 / 값적재 / 없음
 - 「현재」 칸: 이후 실측·판정으로 바뀐 행은 「대체됨 → 현행 위치」
@@ -53,11 +53,11 @@
 |---|---|---|---|---|---|---|---|
 | J1 | OPEN DART 표지 노드 | 펀드코드 5자리 | 상품.short_code | 코드 | 확인됨 (DART 표지 10건) | 펀드·ETF 1차 키. 10건 중 10건 존재, ETF 3건 포함 | 유지. [상품·법인 매칭 규칙](../../matching-rules.md) 「코드 매칭」 |
 | J2 | 공공데이터포털 펀드상품기본정보 | srtnCd | 상품.short_code | 코드 | 확인됨 (09-19) | DART 표지 펀드코드 10건 중 7건이 `srtnCd`에 그대로 있음. 형식은 전건 `[A-Z0-9]{5}`(165,118종 전부). 단서: 전역 유일이 아님(4,899종 겹침, 3.0%) | 판정 유지. 「short_code 단독 조인 유지」는 대체됨 → 조인에 쓰되 UNIQUE 아님, 다중 후보 AMBIGUOUS([상품·법인 매칭 규칙](../../matching-rules.md) 「코드 매칭」) |
-| J3 | 공공데이터포털 펀드상품기본정보 | asoStdCd, fndNm, setpDt, fndTp | 상품.standard_code, product_name, sale_start_date, product_category 후보 | 값적재 | 확인됨 (finlife·코드 체계 조사) | 조인 키가 아니라 값 적재. 운용사·위험등급·기준가는 없음 | 「setpDt → sale_start_date」는 대체됨 → `inception_date`(설정일). 판매개시일 원천 아님([데이터 테이블·ERD 설계](../../data-model.md) 「상품과 법인」) |
+| J3 | 공공데이터포털 펀드상품기본정보 | asoStdCd, fndNm, setpDt, fndTp | 상품.standard_code(v2.2: 접두 3자로 kofia_fund_code와 분기), product_name, sale_start_date(대응 칼럼 v2.2에서 제거됨), product_category 후보 | 값적재 | 확인됨 (finlife·코드 체계 조사) | 조인 키가 아니라 값 적재. 운용사·위험등급·기준가는 없음 | 「setpDt → sale_start_date」는 대체됨 → `inception_date`(설정일). 판매개시일 원천 아님([데이터 테이블·ERD 설계](../../data-model.md) 「상품과 법인」) |
 | J4 | OPEN DART | rcept_no, dcmNo | 문서.rcept_no(=source_doc_key), 문서.dcm_no | 코드 | 확인됨 (DART 표지 10건) | 접수번호는 자연키 그대로 | 유지. [데이터 테이블·ERD 설계](../../data-model.md) 「문서와 소스별 키」 |
 | J5 | OPEN DART | corp_code | 판매사.corp_code (제출 법인 = 운용사) | 코드 | 확인됨 (DART 표지 10건) | corp_code ↔ kofia_mgmt_code 대응은 별건(미확인) | 대응 검수 미결([상품·법인 매칭 규칙](../../matching-rules.md) 「미결」) |
 | J6 | OPEN DART 표지 노드 | 투자위험등급, 집합투자기구 명칭, 작성기준일 | 상품.risk_grade, product_name, 문서 메타 | 값적재 | 확인됨 (DART 표지 10건) | 등급은 `(\d)등급` 정규식. 판매회사 명단은 표지에 없음 | 「위험등급 원천 = DART 표지」는 대체됨 → DART 표지 + 금투협 첨부, 충돌 시 임의 선택 금지 |
-| J7 | 금투협 수시공시 | tmpV1(12자리), standardCd | 상품.kofia_fund_code 와 상품.standard_code (값별 분기) | 코드 | 확인됨 (09-19) | 한 칸에 두 체계가 섞임. 표본 1,499행에서 `standardCd`는 K55 887 / KR5 603 / KRM 9. 적재 시 접두 3자로 분기해 `K55…`는 kofia_fund_code, `KR5…`·`KRM…`은 standard_code로. `tmpV1`의 의미는 공시 유형에 따라 다름 | 유지. [금투협 중복 행·ETF 이름 규칙 검증](kofia-rows-and-etf-rule.md) 「tmpV1 의미와 코드 체계 혼재」 |
+| J7 | 금투협 수시공시 | tmpV1(12자리), standardCd | 상품.std_code + std_code_scheme(10월 14일 결정 E. 기록 당시 이름은 kofia_fund_code·standard_code 두 칼럼) | 코드 | 확인됨 (09-19) | 한 칸에 두 체계가 섞임. 표본 1,499행에서 `standardCd`는 K55 887 / KR5 603 / KRM 9. 적재 시 접두 3자로 분기해 `K55…`는 kofia_fund_code, `KR5…`·`KRM…`은 standard_code로. `tmpV1`의 의미는 공시 유형에 따라 다름 | 유지. [금투협 중복 행·ETF 이름 규칙 검증](kofia-rows-and-etf-rule.md) 「tmpV1 의미와 코드 체계 혼재」 |
 | J8 | 금투협 전자공시 「판매사별 펀드보수비용」 | `tmpV17`(표준코드) + 판매사코드 | 상품_판매사 | 코드 | 확인됨 (09-19) | 소스 확정. `DISSalesCompFeeCmsSO.select`가 판매사별 펀드 목록, `DISMngCompInqSO.select`가 판매회사 마스터 200건. 법인명 문자열 매칭 불필요. 「상장지수」 0건이라 ETF는 이 소스로 판매사를 붙일 수 없음 | 「ETF는 붙일 수 없음」은 대체됨 → 은행 채널에서만 0건, 증권사 6건(09-22). 「판매회사 명단 소스」 |
 | J9 | 금융상품통합비교공시(finlife) | fin_prdt_cd | (없음) | 없음 | 확인됨 (finlife 조사) | 오픈 API 8종에 펀드·ETF·ELS 없음. 조인 키로 성립하지 않음. 소스 존치 여부는 09-16 안건 | 존치 미결([데이터 소스 수집 명세](../../data-sources.md) 「미결」) |
 | J10 | KRX ETF API / 공공데이터포털 시세 | ISU_CD | 상품.isu_cd | 문자열 | 확인됨 (09-19) | `isu_cd`는 상품 표의 칸이지만 채우는 수단은 코드가 아니라 이름. 잇는 코드 소스가 없어 ETF 종목명으로 붙임. 완전일치 0.0% / 포함매칭 80.4%. 잔여 229건 판정 불가 | 유지. 229건은 PENDING, 처리 방침 미결([상품·법인 매칭 규칙](../../matching-rules.md) 「ETF 판정」) |

@@ -1,5 +1,42 @@
 # 작업 기록
 
+## 2026-10-14 — 결정 대기 E 확정(구분 칼럼 + 값 칼럼), `.meta.json` 확정, 해시 규칙·기록 순서 보강
+
+- 기준: 11차 미팅(10월 14일) 안건 4. 데이터 엔지니어링·인프라(주영) 10월 13일 PR #43 답변과 PM(대현) 10월 14일 크로스체크
+- E: `product.kofia_fund_code`·`standard_code` 두 칼럼을 `std_code_scheme`(enum K55/KR5/KRM/OTHER) + `std_code`(varchar 12)로 교체. enum 26 → 27개. 조인은 (체계, 값) 쌍으로만([매칭 규칙](docs/matching-rules.md) 「코드 체계 분기」)
+- 크로스체크(금투협 수시공시 표본 1,499행, 고유 코드 1,200건): 상품 1건이 두 체계 코드를 가지는 경우 0건. ETF 대조 표본 938종목도 0건. 같은 `fund_key` 안에서 클래스마다 체계가 다른 묶음 29개(클래스 2개 이상 88개 중) → 「같은 펀드는 같은 체계」 가정 금지 규칙 추가
+- 미결 2건 삭제: K55·KR5·KRM 밖 접두 보존 위치(OTHER로 흡수, [데이터 테이블·ERD 설계](docs/data-model.md)·[매칭 규칙](docs/matching-rules.md)), 스냅숏형 소스 `.meta.json`(둔다, [원본 보관 규칙](docs/storage-and-failure-rules.md))
+- `input_sha256` 해시 규칙에 「유니코드 정규화 안 함」, 「절 잇는 순서는 `request.json`의 `inputs` 순서」 추가. 적재 순서 1·5를 「시작 행 기록 → 결과 갱신」으로 명시
+- 기록 문서(records)는 본문을 두지 않고 J7·금투협 검증 결정 줄에 바뀐 저장 방식 주석만 추가
+- 검증: `@dbml/cli` dbml2sql 파싱, `git diff --check`
+
+## 2026-10-13 — 금감원 제재 `inputDate` 판정 확정, 제재공시 법인 매칭 실패 사유 2개 추가
+
+- 기준: 제재공시 목록 수집·매핑 검토 실측(PM(대현), 10월 13일). OPEN API 13회 호출, 제재공시 게시판 표본 63건, 법인 매칭 표본 20건
+- `inputDate` 판정: 10월 1일~13일 조회 12건 중 10건이 사건일 9월·입력일 10월이라 확정. [원본 보관 규칙](docs/storage-and-failure-rules.md)·[소스 확인](docs/data-sources.md) 미결 행을 지우고 본문에 근거를 적음. API로 받을 수 있는 자료가 2026-09-03 입력분 이후뿐이라는 실측도 [소스 확인](docs/data-sources.md)에 적음
+- 실패 사유 2개 추가([schema.dbml](docs/schema.dbml) `failure_reason_enum`, [매칭 규칙](docs/matching-rules.md), [스키마 명세](docs/schema-catalog.md)): `OUT_OF_SCOPE_SECTOR`(펀드를 판매·운용하지 않는 업권), `NOT_IN_MASTER`(대상 업권이지만 금투협 대응표에 없음을 검수로 확인). 둘 다 실패율 분모에서 제외. 표·칼럼 추가 없음
+- 표본 20건 결과: 법인 매핑 14건(판매사 6, 운용사 7, 둘 다 1), 대상 외 2건, 대응표에 없음 3건, 표기 차이 1건(대응표 이름 「하나은행(구.KEB하나은행)」). 상품을 특정할 수 있는 첨부 0/8
+- 바꾸지 않은 것: 표·관계·enum 종류 수(enum 값만 2개 추가), 칼럼. 괄호 안 옛 상호를 별칭으로 쓰는 정규화 단계 추가는 제안만 함(데이터 엔지니어링·인프라(주영) 확인 뒤)
+- 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
+## 2026-10-13 — 위험등급 2(클래스 등급 불일치 기록 위치) 기본값으로 확정
+
+- 기준: PM(대현) 10월 13일 결정. 별도 표 전환 기준이던 클래스 간 등급 차이 건수는 받지 않았고, PR #49 데이터 처리 요구 명세가 이 기본값을 전제로 병합됨
+- 바꾼 것: [데이터 테이블·ERD 설계](docs/data-model.md) 상단 상태 표·「v2.2」 결정 상태 표·「상품과 법인」·「미결」, [매칭 규칙](docs/matching-rules.md), [스키마 명세](docs/schema-catalog.md), [schema.dbml](docs/schema.dbml) `CLASS_GRADE_MISMATCH` Note의 「결정 대기」를 확정으로 바꿈. 기록 위치는 match_failure 실패 사유 `CLASS_GRADE_MISMATCH` + 상세 JSON, 별도 표 없음
+- 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `processing-requirements.md` 「v2.2 결정 대기 기본값」 문구(데이터 엔지니어링·인프라(주영) 담당 문서)
+- 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
+## 2026-10-12 — PR #51 리뷰 반영: 실행별 추출 시도 기록 칼럼, 구조 manifest 형식, 표 분리 실패 재추출
+
+- 기준: PR #51 리뷰 댓글(10월 11일)의 PR #43 수정 요청 4건과 PR #49 `docs/processing-requirements.md` 4-6
+- 바꾼 것:
+  - [원본 보관 규칙](docs/storage-and-failure-rules.md) 「추출 실패와 절 품질」: `extraction_attempts.jsonl` 칼럼 목록을 PR #51 구현과 같게 20개로 늘리고 칼럼별 뜻 추가. DB에 그대로 넣는 대상이 아니라 `file_extraction` 행의 원천이라고 명시. 「EXTRACT_OK면 재추출하지 않음」에 표 분리 실패(`table_split_status = FAILED`, 구조가 있으면 `structure_status = PARTIAL`) 예외 추가. 같은 문서 「버전·중복·재추출」 3번에도 같은 예외
+  - [데이터 테이블·ERD 설계](docs/data-model.md): `structure_status` 규칙에서 UNAVAILABLE도 EXTRACT_OK이면 manifest 경로·해시 필수(부·절은 없어도 표·쪽 머리글 구간은 있음). PARTIAL에 표 분리만 실패한 경우 포함. manifest 저장 항목을 4-6 기준으로 고침(좌표·block_id 삭제). 구조 manifest 형식에서 `coordinate_system` 삭제, `raw_object_id` → `raw_sha256`, `structure_status`·`table_split_status` 추가. 처리 규칙 6에 재추출 예외
+  - [3단계 입출력 Schema 설계 입력](docs/io-schema.md) 구조 manifest 행: 같은 형식으로
+  - [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md) `file_extraction`: `structure_status` Note, `parser_version` Note, 표 Note에 위 두 규칙. `structure_status_enum.PARTIAL` Note에 표 분리 실패 포함
+- 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `parser_version` 예시값(`pdftotext-24.02_prep-3`). `extract_status`의 EXTRACT_PARTIAL 뜻(일부만 복구된 문서)
+- 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
 ## 2026-10-12 — 데이터 처리 요구 명세: 8절 PR #43 답글 반영, `summary_labels` 칼럼 추가
 
 - 기준: PR #43 PM(대현) 답글(10월 11일)
@@ -12,6 +49,18 @@
 - 「상태」 표·10절: 다빈 승인(10월 12일) 기록
 - 바꾸지 않은 것: 금감원 `inputDate` 재검증 미결(PR #43 문서. PM(대현)이 고치기로 함)
 - 바꾸지 않은 것: 축 1·2 계산 범위, 후보 탈락·펀드 제외 구조, 본문 없는 PDF 판정(PR #49 답글로 제안, 동의 뒤 반영)
+
+## 2026-10-11 — 소스별 구간 검증 미결 범위 정정, 금감원 제재 정기 수집 보류 반영
+
+- 기준: 데이터 엔지니어링·인프라(주영) PR #43 리뷰(10월 11일, 룩백 재조회·소스별 구간 검증 반영분)와 10월 7일 10차 미팅 안건 3(제재공시 게시판 크롤러 보류).
+- 바꾼 것:
+  - [원본 보관 규칙](docs/storage-and-failure-rules.md) 「재시도와 워터마크」: PR #49 8절이 다루는 것은 5종(DART·공공데이터포털·KRX·금투협 공시·금감원 제재)뿐이라고 범위를 밝힘. 미결 행 문구를 5종으로 좁히고, 금투협 판매관계·분쟁조정, 국가법령 검증 방법 미결 2행 추가(담당 주영).
+  - 같은 절 금감원 제재 행: 게시판 크롤러 보류(10차 미팅)와 API 정기 수집도 같은 검토(PM(대현), 10월 14일) 결과까지 보류함을 나눠 적음. 룩백 미정.
+  - finlife 행: 「미정」을 「해당 없음(현재 수집 대상 아님)」으로. 소스 존치가 [소스 확인](docs/data-sources.md) 미결이라 「CDI 범위 제외」로 확정하지 않음.
+  - KRX 행에 휴장일 확인 수단(거래소 영업일 정보), 룩백 항목에 covered_from 하한 근거(10월 5일 크롤러 실측)를 PR #49 8절과 같게 넣음.
+  - [데이터 테이블·ERD 설계](docs/data-model.md) 미결 행과 [schema.dbml](docs/schema.dbml) `source_watermark` Note에서 「소스별 검증은 PR #49 8절」을 5종으로 좁힘.
+- 바꾸지 않은 것: 표·관계·enum 수(표 17, 관계 42, enum 26), 칼럼 수. 리뷰 범위 밖 권고 4건(`inputDate` 재검증 미결 시점, 판매관계 `source` 값 이름, 신규 발견 수를 세는 범위, 축 4 표본 확보와 보류의 구분)은 PR 답글로 제안만 함. PR #49 8절의 금감원 제재 「상태」 칸(「10월 7일 미팅에 제안(결정 전)」)은 다른 브랜치라 그대로 둠. 「정찰 뒤 크롤러 결정」이 남은 다른 문서(pipeline-flow.md, data-sources.md, data-model.md, scoring-and-population.md)는 10월 14일 검토 결과가 나온 뒤 함께 고침.
+- 검증: `@dbml/core` 파서 표 17·관계 42·enum 26 통과. `git diff --check` 통과.
 
 ## 2026-10-11 — 데이터 처리 요구 명세: PR #49 리뷰 반영과 `structure.json` 필드 정의
 
@@ -32,12 +81,59 @@
   - `scoring-and-population.md`의 ASL 정의(「표 제외」): PM 담당 문서라 PR #49 답글로 알림
   - 8절 소스별 검증 방법
 
+## 2026-10-09 — 실행별 추출 시도 기록 위치 확정, 워터마크 갱신 순서 정정, LLM 입력 해시 추가
+
+- 기준: 데이터 엔지니어링·인프라(주영) PR #43 리뷰 1번(10월 6일)과 PM(대현) 10월 9일 결정. 10월 14일 가동 점검의 「파싱 실패율 수치 산출」(이슈 #50)이 실행별 실패 기록을 근거로 씀.
+- 바꾼 것:
+  - [원본 보관과 수집·파싱 실패 처리 규칙](docs/storage-and-failure-rules.md): EXTRACT 실행이 `runs/{run_id}/extraction_attempts.jsonl`에 추출 시도 1건당 1줄을 씀. 칼럼, 건너뛴 파일(`SKIPPED_EXISTING_OK`)도 기록, 실패율은 이 파일에서 센다는 규칙을 「추출 실패와 절 품질」에 추가. 「파일 경로」 목록, 「버전·중복·재추출」 3번, 「실행 폴더 불변」 목록에 같은 파일을 넣음.
+  - [데이터 테이블·ERD 설계](docs/data-model.md): 미결 「실행별 추출 시도·상태 이력」 행을 지움. `file_extraction` 상태 칼럼 설명을 「파일 × 파서 버전의 현재 상태」로 고치고 시도 이력 위치를 적음.
+  - [schema.dbml](docs/schema.dbml): `file_extraction` Note에 시도 이력 위치 한 문장 추가.
+- 데이터 엔지니어링·인프라(주영) 리뷰 2번 후반 반영(10월 7일 반영에서 누락): [schema.dbml](docs/schema.dbml) `source_watermark` Note의 갱신 순서를 「적재 순서」에 맞춤. 이전 Note는 「원본 저장 → 수집 시도 기록」 순서였고 워터마크 전진이 별도 트랜잭션이라는 점이 없었음. 규칙(시도 기록 먼저, 결과는 나중에 갱신)을 유지함(PM(대현) 10월 9일 결정). 이유: 요청·저장 도중 프로세스가 끝나도(EC2 예산 자동 중지, 메모리 부족 등) 「시작했으나 결과 없음」 행이 남아 재시도 대상과 실패율 분모로 잡힘.
+- 데이터 엔지니어링·인프라(주영) 리뷰 4번 반영: 주영이 데이터 처리 요구 명세([PR #49](https://github.com/BOAZ-Signal-Team-26/signal-pipeline/pull/49) 8절)에 적은 룩백 재조회 방식과 소스별 구간 완전성 검증을 [원본 보관 규칙](docs/storage-and-failure-rules.md) 「재시도와 워터마크」에 옮김(룩백 규칙 1항목, 소스 표에 「구간 완전성 검증」 열). 미결은 룩백 일수 확정, KRX 휴장일 0행 확인 방법, DART 건수 대조 구현으로 좁힘. data-model.md 미결 행과 schema.dbml `source_watermark` Note의 「미결」 표현도 맞춤.
+- 데이터 엔지니어링·인프라(주영) 리뷰 3번 반영(PM(대현) 10월 9일 결정): `llm_field_extraction.input_sha256`(NOT NULL) 추가, 재호출 생략 조회 인덱스 (document_id, field_name, input_sha256, prompt_sha256) 추가. 입력 정본은 `request.json`의 문서 텍스트와 `inputs` 목록. (raw_object_id, parser_version) 필수 안은 채택하지 않음(문서 단위 추출이라 파일 여러 개를 한 행에 담을 수 없고, 보낸 텍스트가 절 일부·전처리 결과일 수 있음). 해시 규칙(UTF-8/LF, 절 구분 빈 줄), 재호출 생략 조건, 적재 검증을 [원본 보관 규칙](docs/storage-and-failure-rules.md) 「LLM 호출 저장」에 확정하고 미결 「재호출 생략 규칙」 행을 두 문서에서 지움. [스키마 명세](docs/schema-catalog.md), [데이터 테이블·ERD 설계](docs/data-model.md) 표 설명과 적재 검증 15, [3단계 입출력 Schema 설계 입력](docs/io-schema.md) 맞춤.
+- 결정 상태 정정: [데이터 테이블·ERD 설계](docs/data-model.md) 「v2.2」 결정 상태 표에 C(펀드 관측치 표 없음)의 10월 8일 PM(대현) 확정을 반영(데이터 사이언스(다빈) 이의 확인 대기). 상단 상태 표의 「10월 4일 판단 항목 3건」을 실제 나열 수와 같은 4건으로 고침.
+- 위험등급 1·3 확정 반영: 10월 7일 10차 미팅에서 결정 완료된 펀드 대표 위험등급 칼럼(`fund_group.representative_risk_grade`와 근거 칼럼 2개, `risk_grade_source_enum`)과 문서 작성기준일(`document.report_base_date`)을 [데이터 테이블·ERD 설계](docs/data-model.md) 결정 상태 표·표 목록·미결, [schema.dbml](docs/schema.dbml) note, [스키마 명세](docs/schema-catalog.md)에서 「결정 대기」에서 「확정」으로 옮김. 10월 4일 판단 항목 중 결정 대기는 클래스 등급 불일치 기록(위험등급 2)과 간이 대표 역할 2건. PR #41과 표현을 맞춤.
+- 대시보드 연결과 맞춤(signal-infra PR #28 검토): `documents.parquet`를 `runs/`로 옮기면서 `exports/`만 읽는 대시보드가 문서 정보를 읽을 수 없게 됨. 채점 실행 마지막 단계에서 `exports/runs/{score_run_id}/dashboard_documents.parquet`(대시보드 전용 내보내기)를 쓰도록 「파일 경로」·`exports/` 설명에 추가하고, 담을 칼럼은 미결로 둠. `extraction_attempts.jsonl`은 실행이 끝날 때 한 번 올리도록 명시(`runs/` 조건부 쓰기와 충돌 방지).
+- 구현과의 차이(기록만): PR #47 크롤러는 원본 파일을 저장한 뒤 `attempts.jsonl`에 결과까지 한 줄로 씀(시작 행 없음). 실패 요청은 기록되고 워터마크 전진 조건은 규칙과 같아 데이터 누락은 없음. 도중 종료된 시도만 기록되지 않음. DB 적재 구현(쉬는 기간, 10월 15일~28일) 때 「적재 순서」대로 시작 행 INSERT 뒤 결과 UPDATE로 맞춤.
+- 바꾸지 않은 것: 표·관계·enum 수(표 17, 관계 42, enum 26). 칼럼은 235 → 236(`input_sha256`). `file_extraction`의 FAILED·PARTIAL 덮어쓰기 규칙. 「적재 순서」 본문. 리뷰 3번(LLM 추출 입력 특정, `input_sha256`)은 LLM 추출 시작일이 쉬는 기간(10월 15일~28일) 뒤로 바뀌어 그때까지 미결로 둠.
+- 검증: `@dbml/core` 파서 표 17·관계 42·enum 26 통과. 스키마 명세 칼럼 236개가 DBML과 같음. `git diff --check` 통과.
+
 ## 2026-10-09 — 펀드 대표 위험등급 칼럼 표기를 ERD v2.2에 맞춤
 
 - [스키마 명세](docs/schema-catalog.md) `product.risk_grade` 설명과 [데이터 테이블·ERD 설계](docs/data-model.md) 「v2.2」 판단 항목의 「대표 등급 칼럼은 현재 스키마에 없음, 결정 대기」를 ERD v2.2(PR #43)의 `fund_group.representative_risk_grade`와 근거 칼럼 2개로 고침. 10월 7일 10차 미팅에서 확정됨.
 - 같은 문서 「미결」 표에서 펀드 대표 위험등급 칼럼과 작성기준일 칼럼을 빼고 확정 사실을 적음(CodeRabbit 지적, 10월 7일 10차 미팅에서 위험등급 1·3 결정 완료).
 - 바꾸지 않은 것: 클래스 등급 불일치 기록 위치(v2.2 결정 대기), 대표 등급 출처·기준 시점 규칙, DBML(칼럼 추가는 PR #43).
 
+## 2026-10-08 — 분석·리서치 10월 7일 조사 반영, PM 결정 기록, 칼럼 값 유형 표시
+
+- 기준: 분석·리서치(민석) 10월 7일 조사(Notion 「금소법 19조 점검표」, 「설명서와 DART 투자설명서 대응관계」, 「고지 충실도의 기준과 검증 자료」, 「위험등급 산정 규칙」, 티켓 「설명의무 누락 검출 점검표 v0 확정」의 결과물)와 PM(대현) 10월 8일 지시.
+- 10월 7일 조사 반영 4건(현재 설계와 어긋나지 않고 팀 결정이 따로 필요 없는 내용):
+  - 고지 충실도 판정 기준: 9월 29일 결론(법 조문 = 기준, 제재문 = 검증 자료)이 맞다는 근거를 [점수 저장과 비교 모집단](docs/scoring-and-population.md) 「검증」에 보강. 판정 기준은 금소법 19조·시행령·감독규정, 해석 보조는 금융위 설명의무 가이드라인, 제재문·분쟁조정 결정문은 검증 자료로만 씀. 제재문 역할의 「확인대기」 표시를 지움.
+  - 측정 범위의 한계: 금소법 설명서와 투자설명서는 같은 문서가 아니며 공모펀드는 설명서의 상품정보 부분을 투자설명서로 대신 판정함. 대신 판정할 수 있는 범위와 없는 범위를 같은 문서 「고지 항목 판정」에 신설한 절에 적고, [설계 문서 안내](docs/README.md) 「한 줄 정의」에서 링크. 프로젝트 정의는 바꾸지 않음.
+  - 금소법 19조 대응표 10개 묶음의 처리 결과(판정 대상·이관·범위 밖·해당없음·적용 대상 필터)와 청약철회(대리판정 불가), 19조 ③항(점검표 전체의 법적 근거)을 같은 문서에 신설한 절에 적음.
+  - 위험등급: [데이터 테이블·ERD 설계](docs/data-model.md) 위험등급 설명에 현재 방침(운용사 공시 등급 사용, 다시 매기지 않음, 판매사 등급 미사용, 산정 주체 칼럼 없음)이 10월 7일 조사와 같다는 근거 한 줄 추가.
+- PM 결정 기록 3건(10월 7일 제안 검토 후 기존 설계 유지, 10월 8일 PM(대현) 결정):
+  - 고지 항목 판정값 4종(MET / UNMET / NOT_APPLICABLE / UNDETERMINED) 유지, 「불확실」 값 추가 안 함. 임계값 근처 판정은 판정 불가로 두고 사람이 검토. 위치: 점수 저장과 비교 모집단 「결정 요약」.
+  - CDI 축 1~3 원값은 문서 단위 직접 계산(10월 2일 변수표) 유지. 절 단위 원지표 저장 뒤 집계 방식 채택 안 함. 위치: 같은 표.
+  - 근거 위치 형식 절 + 문자 범위(10월 3일 확정) 유지, 문장 테이블 신설 안 함. 위치: 데이터 테이블·ERD 설계 「결정 요약」.
+  - 임베딩 유사도 판정 방식은 별도 티켓 「고지 점검 임베딩 유사도 판정 방식 검증 계획 수립」(기한 10월 14일)에서 다룬다는 한 줄을 점수 저장과 비교 모집단 「결정 요약」 아래에 둠.
+- 위험등급 산정 요소값 자리: llm_field_extraction은 필드마다 한 행(field_name 값)이라 DBML을 바꾸지 않고 예약 필드 이름 2개(`risk_grade_basis` 산정 기준, `risk_grade_measure` 측정값)를 문서에만 정의. 예약, 추출 미실시. 10월 21일 100건 비용 실측 뒤 추출 여부 결정(PM(대현) 10월 8일). 위치: 데이터 테이블·ERD 설계 「product / fund_group」 risk_grade, [3단계 입출력 Schema 설계 입력](docs/io-schema.md) 「LLM 추출 결과 JSON 요구」. 9월 14일 「요소별 값 저장 채택 안 함」 판정([초기 소스 확인](docs/records/phase1-erd/initial-source-checks.md) 「네 충돌의 판정」 2번) 옆에 10월 8일 변경(자리만 둠)을 적음.
+- 칼럼 값 유형 표시: [스키마 명세](docs/schema-catalog.md)의 표 17개, 칼럼 235개에 「값 유형」 열 추가(원본값 / 판정값 / 계산값 / 외부값 / 관리값). 문서 상단 「값 유형 범례」에 다섯 값의 정의. DB 칼럼은 추가하지 않음.
+- 검증: schema.dbml 변경 없음(파서 재실행 불필요). 스키마 명세의 표·칼럼 이름이 DBML과 같음(표 17, 칼럼 235). `git diff --check` 통과.
+- 바꾸지 않은 것과 이유:
+  - 결정 대기 F(정규 절 분류 값 규칙 안 「제1·2·3·5부는 부·절 번호, 제4부는 소분류명」): 반영하지 않음. PM 결정 전이라 data-model.md·schema.dbml·스키마 명세·DART 절 분할·설계 문서 안내의 해당 문구를 이전 상태(「값 규칙은 결정 대기 F」)로 유지.
+  - 분쟁조정 필터 날짜를 게시일에서 가입일로 바꾸는 안: 현재 설계(게시일)를 바꾸는 제안이고 담을 칼럼이 없음. PM 결정 필요.
+  - 점검표 세부 판정 항목(판정 대상 항목 수, 등급 산정 근거 항목의 판정 목록, 제2부 10절 라목 위치, 11절 판정 범위): 원천끼리 맞지 않거나 저장소에 근거가 없어 티켓에서 확인 중.
+  - 표·관계·enum 수, 칼럼 구성, DBML.
+- 수행하지 않은 것: 푸시, Notion 동기화, 위험등급 요소값 추출.
+
+## 2026-10-07 — ERD v2.2 PR 리뷰 반영: 채점 입력 위치와 워터마크 시작일
+
+- 데이터 처리 요구 명세(PR #49) 결정 반영: `documents.parquet`·`excluded.parquet`를 `exports/runs/`에서 실행 폴더 `runs/{score_run_id}/`로 옮김. `exports/`에는 채점 결과만 둠. 채점 입력 파일은 실행 시작 때 한 번 쓰고 바꾸지 않으며, 실패한 채점 실행은 새 score_run_id로 다시 돌림([원본 보관 규칙](docs/storage-and-failure-rules.md) 「실행 폴더 불변」「적재 순서」).
+- run_id 설명에서 같은 실행 안의 요청 재시도(유지)와 채점 재실행(새 run_id)을 구분.
+- 데이터 엔지니어링·인프라(주영) 리뷰 2번 반영: `covered_from`을 누적 구간의 시작일(첫 실행 시작일, 바꾸지 않음, 룩백 하한)로 확정.
+- CodeRabbit 지적 반영: v1 → v2 이관을 (section, 지표) 단위로 바꾸고 score_type → metric_key·assessor_key 대응표를 먼저 만들도록 명시([데이터 테이블·ERD 설계](docs/data-model.md) 「v1 → v2 이관 절차」).
+- 바꾸지 않은 것: 표 17·관계 42·enum 26, 칼럼 구성. 리뷰 1번(실행별 추출 시도 기록)·3번(LLM 추출 입력 특정)은 이번에 정하지 않음(10월 14일·15일 전 결정).
 
 ## 2026-10-07 — DART 투자설명서 크롤러 1차 (#45)
 
@@ -55,6 +151,53 @@
 - 검증: pytest 40개 통과(재시도·분류·인증값 제외, 경로·원천 키 인코딩·판 번호, 실행 기록·워터마크·룩백, report_nm 분류·트리 파싱·노드 찾기·PDF 링크), `ruff format`·`ruff check` 통과. 경로 변경 뒤 같은 명령을 다시 실행해 신규 0건·건너뜀 50건·요청 4번 확인(9월 26일~29일)
 - PR #47 리뷰 반영(10월 7일): 목록 조회 실패를 실행 요약 `list_failures`에 기록하고 하나라도 있으면 실행을 `FAILED`·종료 코드 1로 끝냄. 인증 키(`crtfc_key` 등)를 담은 요청만 리다이렉트를 따르지 않음(3xx는 `PERMANENT_FAILED`). 테스트 2개 추가해 pytest 42개 통과, 실제 목록 API 1회 호출로 정상 응답 확인. 문서 단위 재시도 실패로 미완료가 된 날은 아직 실행 상태에 반영하지 않음
 - 수행하지 않은 것: 문서 반영(`data-sources.md`에 신고서 구조·OPEN DART status 코드표, ERD `file_role_enum`에 `viewer_tree` 추가)은 PM 검토 뒤로 미룸. S3 저장(`RAW_ROOT`가 로컬 폴더), DB 기록(`collection_attempt`·`source_watermark`), 공공데이터포털·KRX 수집(2차), 절 단위 분할, CI에 pytest 추가
+
+## 2026-10-06 — KRX 대응표 정본만 유지
+
+- KRX ETF 1,167건 대응표의 중간 산출물 9개(초기 감사표·요약, 중복·기타 후보표, 229건 재대조 CSV, 40건 표본 목록, 생성 스크립트 3개)를 저장소에서 제거. 정본 `research/samples/krx_link_review_v2.csv`와 근거표 `krx_issuer_review.csv`, 재대조 스크립트 `rematch_krx_unmatched.py`만 유지. 229건 재대조의 행별 메모는 정본의 `review_note` 열에 합침. 제거 파일은 git 이력에 보존.
+
+## 2026-10-04 — 리뷰 지적 반영과 S3 세부 규칙 확정
+
+- 위험등급 규칙 PR의 CodeRabbit 지적 2건 반영: 법적 근거와 10월 4일 PM 결정 분리, 클래스 등급과 펀드 대표 등급 구분 명시.
+- ERD v2.2 PR의 지적 11건 중 10건 반영, 1건은 미결로 이관: 대표 등급 근거 문서가 같은 펀드의 대표 문서인지 적재 검증에 추가, 이관 3단계에서 제거된 키 사용 중단, B11 근거 형식 정리, 텍스트·절 재사용 경로에서도 LLM 추출 단계 연결, 타입 표기 4곳, 본문 추출 실패의 파트 B 전파, 스냅숏 페이지 파일 버전 경로, 원천 키 폴더 = 문서 키, 스크립트 인코딩·접미사 처리. 실행별 추출 시도 이력 보존 방법은 [데이터 테이블·ERD 설계](docs/data-model.md) 「미결」에 추가(주영, 10월 7일).
+- S3 세부 4건 중 3건 확정: 스냅숏 수명 주기는 생성 30일 뒤 날짜 기준, 퍼센트 인코딩은 `/`·`~`·`%`·제어 문자만(한글 그대로)·200바이트 초과는 `-h` + SHA-256 앞 12자, 같은 기준일 재수집은 `r2/` 폴더. `.meta.json` 유무는 미결 유지.
+
+## 2026-10-04 — KRX 데이터 보관 정책 3건 초안 (PM, 마감 10월 7일)
+
+- 소스 이름 `krx_etf_daily`, 일별 파일 프로젝트 종료까지 보관(삭제 없음, 10년 소급 조회 가능)을 [원본 보관 규칙](docs/storage-and-failure-rules.md) 「KRX 데이터 보관」에 정리.
+- KRX 매칭 실패 229건을 공공데이터포털 전체 목록과 재대조. 규칙 4개(괄호 표기 제거, 브랜드 개명 4건, 환헤지 표기, `TR`→`Total Return`)로 149건 자동 연결, 70건은 PM(대현) 확인 후 연결, 10건은 보류. 보류였던 38건을 같은 발행사의 포털 상품과 다시 대조해 28건을 확정함(포털이 이름을 다르게 쓴 경우: 단어 순서, 생략, 영어 표기). 확정 근거는 같은 발행사 내 후보 1개, 설정일과 KRX 종목 코드 순서의 일치, 일부는 웹 확인이며 행마다 `krx_unmatched_rematch.csv`의 `메모`에 구분해 적음. 처음에는 이름이 그대로 들어 있는지만 보고 「포털에 없다」고 판단했으나 틀렸음([매칭 규칙](docs/matching-rules.md) 「KRX 매칭 실패 처리」). 처음에는 `TR`을 떼고 대조해 9건을 `TR`이 아닌 ETF에 잘못 연결했고, 같은 날 발견해 고침. 환헤지 표기 점검을 후보가 1개일 때도 적용하지 않아 `PLUS 미국S&P500(H)`(환헤지)를 환노출형 펀드에 잘못 연결한 것도 같은 날 외부 검토에서 발견해 보류로 바꿈. 결과 `research/samples/krx_unmatched_rematch.csv`(사람이 확정한 판단도 이 파일 하나에 남기고, 입력용 CSV 2개는 이 파일에 합쳐 없앰), 스크립트 `research/scripts/rematch_krx_unmatched.py`. 상품 코드(ISIN)로 검증할 수 있는지 확인했으나 포털 필드에 KRX 코드가 없어 불가, 브랜드와 운용사 코드 교차 확인(187/191 일치(이후 재검토로 연결이 늘어 건수는 바뀜), 어긋난 4건은 미래에셋 옛 코드 225)으로 대신함.
+- [2단계 입력](docs/pipeline-flow.md) 미결 2행 갱신(229건은 팀 확인 대기, 적재 주기는 주영 유지).
+
+## 2026-10-04 — 운용사 연결 순서 결정 (ERD v2.2 수정 12)
+
+- 결정(PM(대현) 승인): 운용사 연결은 금투협 공시 목록의 운용사 코드를 1단계, 표준코드 자리 + 대응표를 2단계로 함. 펀드·ETF 공통. KR5 체계 미결 해소.
+- 근거: KR5 체계 표준코드의 운용사 자리는 펀드명과 일치 약 57%(K55 약 91%). 공시 목록 조회로 KR5 ETF 운용사가 현재 운용사로 나옴(대응표에 없는 225 포함).
+- [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md)·[데이터 테이블·ERD 설계](docs/data-model.md): distributor.kofia_disclosure_company_code 추가. 표 17·관계 42·enum 26 그대로.
+- [매칭 규칙](docs/matching-rules.md) 「운용사 연결 순서」 신설, 미결 KR5 행 삭제. [운용사 코드 대조 기록](docs/records/phase1-erd/manager-code-check.md)에 근거 추가.
+
+## 2026-10-04 — 대응표에 없는 운용사 코드 7종 정리
+
+- 공공데이터포털 펀드상품기본정보 전체(183,724행)를 받아 K55 체계 운용사 코드 100종을 금투협 운용사 대응표와 대조. 대응표에 없는 코드 7종(113행)을 확인.
+- [매칭 규칙](docs/matching-rules.md) 「대응표에 없는 운용사 코드」 절 신설: 237은 한화자산운용(213) 별칭 코드로 연결(금투협 공시 목록 조회로 확인, 운용사 코드 A01021), 보험사 4종·증권사 1종·사모 1종은 Phase 1 대상 아님. 대응표에 없는 코드는 `match_failure`에 `NO_CANDIDATE`로 기록.
+- [데이터 테이블·ERD 설계](docs/data-model.md), [데이터 소스 수집 명세](docs/data-sources.md), [schema.dbml](docs/schema.dbml)의 「확인 대기」 문구를 위 절 참조로 변경. KR5 체계 상품(ETF 포함)의 운용사 연결 방법을 미결에 추가.
+
+## 2026-10-04 — S3 트리 확정 반영
+
+- 기준: PM(대현) 승인 S3 트리 확정안. 같은 내용을 signal-infra 저장소 `docs/storage-design.md` 3.2절에도 반영.
+- [원본 보관과 수집·파싱 실패 처리 규칙](docs/storage-and-failure-rules.md): raw 경로를 `raw/{source}/{원천 키}/{file_role}__v{n}.{ext}`로 변경(수집일·해시 폴더 폐지, 스냅숏형 API만 기준일 폴더), 소스별 실제 모양 예시, 「바꾼 이유」, API 스냅숏 저장 단위(`page-NNNN.json` + `_complete.json`), raw 압축 안 함, 고아 객체 정책, `derived/` 파일 2개와 파서 버전 형식, `runs/…/llm`, `assets/`, `eval/`, `exports/`, `backups/` 경로, 「적재 순서」 절 신설.
+- [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md): document.source 소스 7개, raw_object.storage_path 경로 형식, llm_field_extraction.response_sha256 칼럼 추가와 raw_response_path 설명. 표·관계·enum 수는 그대로(17·42·26).
+- [데이터 테이블·ERD 설계](docs/data-model.md) 「v2.2」: 수정 11 추가, 표 목록 문구. [데이터 소스 수집 명세](docs/data-sources.md): 저장 소스 이름 표(`data_go_fund`, `krx_etf_daily`).
+- 새로 남긴 미결: 스냅숏 객체의 meta.json 유무와 재수집 파일명, 퍼센트 인코딩 범위·해시 접미사 형식, LLM 재호출 생략 규칙(기존 유지), 평가 자료 DB 쪽 접근 분리.
+- 수행하지 않은 것: 커밋·푸시, Notion 동기화.
+
+## 2026-10-04 — ERD v2.2 반영 (이슈 #42)
+
+- 기준: 9월 30일 재검토 확정안. 수정 1~9와 B11 안 1은 10월 3일 팀 채널에서 이의 없이 확정, 수정 10은 9차 미팅(9월 30일) 확정. 결정 대기 A(병합)·C(펀드 관측치 표 없음)·E(코드 체계별 두 칼럼)와 10월 4일 판단 항목 3건(펀드 대표 위험등급 칼럼, 클래스 등급 불일치 기록, 문서 작성기준일)은 기본값으로 반영하고 「결정 대기」로 표시했다.
+- [schema.dbml](docs/schema.dbml): 표 20 → 17, 관계 47 → 42, enum 30 → 26. 채점·평가 표 4개 연기, analysis_target을 score에 병합, file_extraction·section 키를 원본 파일 × 파서 버전으로 변경, llm_field_extraction·source_watermark 추가, 채울 수 없는 칼럼 5개 제거, 정규 절 분류·작성기준일·펀드 대표 위험등급 칼럼 추가.
+- 문서: [데이터 테이블·ERD 설계](docs/data-model.md)에 「v2.2」 절(변경표, 결정 대기와 반대 결정 시 범위)과 「예약 계약(승인 뒤 추가)」 신설, 표 목록·ERD(관계선 42개)·미결·결정 표 갱신. [스키마 명세](docs/schema-catalog.md)는 DBML과 칼럼 단위로 맞춤. [원본 보관과 수집·파싱 실패 처리 규칙](docs/storage-and-failure-rules.md)(derived 경로, 재추출 규칙, 워터마크), [매칭 규칙](docs/matching-rules.md)(코드 체계 분기), [DART 절 분할](docs/records/phase1-erd/dart-section-split.md)(제4부 절 구성 실측), [데이터 소스 수집 명세](docs/data-sources.md), [2단계 입력](docs/pipeline-flow.md), [점수 저장과 비교 모집단](docs/scoring-and-population.md), [3단계 입력](docs/io-schema.md), [ERD 설계 변천과 검토 기록](docs/records/phase1-erd/design-review-history.md), 두 README 맞춤.
+- 검증: `@dbml/core` 파싱, 모든 FK 부모 칼럼의 PK/UNIQUE 확인, PostgreSQL 내보내기 성공, 스키마 명세와 DBML 칼럼 대조, Mermaid 관계선 수와 DBML 관계 수 일치.
+- 새로 남긴 미결: 판매 중 여부의 판단 근거, 정규 절 분류 값 규칙(F), LLM 6필드 추출 표의 문서/파일 단위, 문서쌍 지표의 입력 저장 방식, selection manifest 위치, 워터마크 검증 방법.
+- 수행하지 않은 것: 커밋·푸시, Notion 동기화.
 
 ## 2026-10-04 — 펀드 위험등급 처리 규칙 반영
 
