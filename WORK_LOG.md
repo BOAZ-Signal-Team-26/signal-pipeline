@@ -10,6 +10,19 @@
 - 기록 문서(records)는 본문을 두지 않고 J7·금투협 검증 결정 줄에 바뀐 저장 방식 주석만 추가
 - 검증: `@dbml/cli` dbml2sql 파싱, `git diff --check`
 
+## 2026-10-13 — 제4부 관련회사 절: 목차 합본·본문 분리 문서 대응, 파서 버전 prep-7 (#50)
+
+- 기준: PR #51 데이터 사이언스(다빈) 표본 검토(10월 12일) 지적 2번(표본 31번, 목차는 「기타 집합투자기구 관련회사」 한 절인데 본문은 회사별 절)
+- 실측(prep-6 502건): 목차 합본·본문 분리 31건. 31건 모두 관련회사 본문이 앞 절로 들어감(문서당 2,458~4,530자, 합계 85,102자). 제4부 밖으로는 번지지 않음
+- 바꾼 것([dart_sections.py](src/signal_pipeline/parsing/dart_sections.py), [extract.py](src/signal_pipeline/parsing/extract.py))
+  - 목차 제4부 마지막 절이 「기타 … 관련회사」이면, 마지막으로 찾은 절 뒤에서 관련회사 이름(집합투자재산 관리·보관회사, 일반사무관리회사, 집합투자기구 평가회사, 채권평가회사, ESG 평가 등)으로 시작하는 「N.」 줄을 절로 받음. 제목 40자 이하, 번호가 커질 때만. 아무 「N.」 줄이나 받으면 번호 목록 232줄(33건)을 잘못 잡아 쓰지 않음
+  - `structure.json`: 절에 `in_toc`(목차 절 true, 본문에서만 찾은 절 false, 요약정보·other null), 최상위에 `toc_replaced_sections`(본문 절로 대신한 목차 절. 경계 실패로 세지 않음)
+  - 요약 `body_found`는 찾았거나 대신한 목차 절 수(`toc_section_count`를 넘지 않음), 목차에 없는 본문 절 수는 `body_only`
+- 결과(`--workers 4`, 502/502 EXTRACT_OK): 31건 모두 관련회사 절을 찾음(본문 절 126개, 대신한 목차 절 30개). 절 적중 15,567 → 15,597/16,080(96.8% → 97.0%). 나머지 470건은 prep-6과 절·블록·텍스트가 같음
+- 독립 검증(관련회사 이름 목록을 쓰지 않음): 31건 중 10건을 PDF 글자 크기·굵기·위치로 읽은 절 표제와 대조해 불일치 0건. 목차·본문 모두 합본인 문서 10건은 PDF에서도 합본(관련회사가 「가.」「나.」 하위 항목). 31건 제4부 경계는 이어지고 겹침 없음
+- 남은 것: 목차·본문 모두 분리인데 목차에 없는 「7. ESG 평가회사」 절이 있는 3건, 목차는 분리·본문은 합본인 4건, 목차에 제4부 절이 없는 15건, 목차·본문 제목이 다른 절(예: 「수탁회사」 / 「신탁업자」)은 그대로. `docs/processing-requirements.md` 4-6에 새 필드 2개 반영은 데이터 엔지니어링·인프라(주영) 후속 PR에 요청
+- 검증: pytest 96개 통과(목차 합본·본문 분리 받음, 목차·본문 합본의 번호 목록은 받지 않음 테스트 추가), `ruff format`·`ruff check` 통과
+
 ## 2026-10-13 — 금감원 제재 `inputDate` 판정 확정, 제재공시 법인 매칭 실패 사유 2개 추가
 
 - 기준: 제재공시 목록 수집·매핑 검토 실측(PM(대현), 10월 13일). OPEN API 13회 호출, 제재공시 게시판 표본 63건, 법인 매칭 표본 20건
@@ -26,6 +39,36 @@
 - 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `processing-requirements.md` 「v2.2 결정 대기 기본값」 문구(데이터 엔지니어링·인프라(주영) 담당 문서)
 - 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
 
+## 2026-10-12 — PR #51 리뷰 반영: `structure.json` 4-6 형식, 표 분리 실패 분리, 실행 기록 즉시 기록 (#50)
+
+- 기준: PR #51 리뷰 댓글(10월 11일, 검토 요청 5건 답변과 PR #49 4-6 반영 요청), PR #49 `docs/processing-requirements.md` 4-6
+- 파서 버전 `pdfplumber-0.11_prep-5`. `structure.json` 형식이 바뀌어 새 경로로 다시 추출함
+- 필드 이름을 PR #43 설계에 맞춤(10월 12일 PM 결정, `file_extraction` 칼럼 이름과 같게): `schema_version` → `contract_version`(값 3), `text_sha256` → `canonical_text_sha256`, `text_path` → `canonical_text_path`. 실행 기록은 `structure_path`·`structure_sha256` → `structure_manifest_path`·`structure_manifest_sha256`. 원본은 `raw_sha256` 유지
+- `structure.json`
+  - 최상위 `table_regions`·`page_furniture_regions` → `blocks` 원소(`kind`, `char_start`, `char_end`, 시작 위치 순)
+  - 새 블록 3종: `subheading`(「가.」 level 1, 「(1)」 level 2. 범위를 찾은 본문 절 안에서만, 표·머리글 안 줄은 제외), `summary_label`(요약정보 구간 안 표의 첫 열 칸), `emphasis`(굵게 보이는지, `font`/`stroke`, 색 `#RRGGBB`, 검정이면 null)
+  - 외곽선 덧그리기는 PDF 글자 그리기 방식(Tr 1·2·5·6)으로 판별. pdfminer가 글자에 이 값을 남기지 않아 `pdf_layout._track_render_mode`에서 글자를 만들 때 붙임
+  - 색은 4-6대로 검정만 null. MS Word 문서는 본문이 짙은 회색(#3B3838)이라 본문 줄도 `emphasis` 블록으로 남음
+  - `table_split_status`(OK/FAILED) 추가. `find_tables` 오류는 파일 실패가 아니라 표 분리 실패로 기록: 표·첫 열 칸 없음, 텍스트·절은 그대로, 구조가 있으면 `structure_status = PARTIAL`, 실행 기록 `error_reason`에 「표 분리 실패: 쪽·오류」. 표 분리가 실패한 결과는 다음 실행에서 건너뛰지 않고 다시 추출
+  - `headings_source` 삭제. 책갈피가 없으면 `bookmark_check = null`. 대조할 때 숫자가 아닌 절 번호는 건너뜀
+- 실행
+  - `extraction_attempts.jsonl`을 파일 하나가 끝날 때마다 덧붙임(끝난 순서). 부모 프로세스가 도중에 멈춰도 끝난 파일 기록은 남음
+  - 부모 프로세스는 파일별 `structure` 전체 대신 요약에 필요한 값만 받음(`extract.digest`)
+  - 동시 작업 수 기본값 4 → 환경 변수 `EXTRACT_WORKERS`, 없으면 2(PR #28 Airflow 동시 작업 2). `--workers`로 덮어씀
+  - 실행 요약에 블록 종류별 개수, 표 분리 실패 문서 수 추가. 표 안 글자 비율은 표 분리가 성공한 문서만
+- 결과(10월 12일, 표본 40건, `--workers 2`): 텍스트화 40/40, 「제N부」 미검출 1건(20260903000270, 간이투자설명서만 담긴 PDF), 절 적중 1,195/1,230, 표 분리 실패 0건. 블록 수 emphasis 31,612·subheading 4,814·table 4,274·page_furniture 3,506·summary_label 2,064. `structure.json` 최대 0.55MB. 처리 시간 140초, 최대 메모리 약 107MB(arm64)
+- 검증: pytest 95개 통과(제목 앞부분 일치, 번호 목록 줄 제외, 앞 문장에 붙은 부 표제, 블록 형식·정렬, 하위 제목 범위·표 안 줄 제외, 요약정보 칸, 강조 판별·색 변환(검정만 null), 표 분리 실패 → PARTIAL·재추출, 실행 기록 즉시 기록 순서, 동시 작업 수 환경 변수), `ruff format`·`ruff check` 통과
+- 절 분할 보완(파서 버전 `prep-6`, PR #51 데이터 사이언스(다빈) 표본 검토 10월 12일)
+  - 목차 제목과 본문 제목 중 짧은 쪽이 긴 쪽의 앞부분이면 같은 절로 봄(목차 「운용전문인력에 관한 사항」 / 본문 「5. 운용전문인력」). 절 번호가 같고, 겹치는 앞부분 4자 이상, 본문 줄 40자 이하일 때만(본문 번호 목록 줄 제외)
+  - 앞 문장 끝에 붙은 부 표제(「…업무 등제 5부. 기타 …」)를 찾음. pdfplumber가 세로 간격이 좁은 두 줄을 한 줄로 합쳐 생김. 목차에 있는데 본문에서 못 찾은 부만, 앞뒤로 찾은 부 사이에서만, 표제 뒤 글이 목차의 부 제목과 맞을 때만(교차참조 「제5부의 내용 중 …」 제외)
+  - 결과(10월 12일, 502건, `--workers 4`, 703초): 절 적중 15,567/16,080(96.8%, `prep-4` 대비 100개 늘고 잃은 절 0개), 부 적중 2,417/2,418, 5개 부를 모두 찾은 문서 498/500(20260918000258 해결)
+  - 남은 것: 5부 중 4부만 찾은 2건(20260910000245, 20260916000160)은 본문에 표제 줄이 없음. 제목이 앞부분만 같은 경우가 아닌 미검출(중간 단어가 다름, 본문 오탈자, 제목이 아예 다름)은 그대로. 제4부 합본·분리(목차 1절, 본문 여러 절)는 본문 번호 목록을 절로 잘못 잡을 위험이 있어 보류
+- 바꾸지 않은 것
+  - `has_sentences` 판정(「다.」): 표본 40건 실측 뒤 데이터 사이언스(다빈)가 결정
+  - 표 글자 범위 계산(bbox 안 첫 글자~끝 글자): 2단 배치 쪽에서 본문이 섞이는지 확인은 남음
+  - `summary_label`은 명세대로 요약정보 안 모든 표의 첫 열 칸이라 위험등급 표의 「1」·「매우 높은 위험」 같은 칸도 들어감. 거를지는 데이터 사이언스(다빈) 확인 뒤
+  - PR #43 문서 수정(실행별 추출 시도 기록 칼럼 목록, `structure_status` Note의 UNAVAILABLE manifest, PARTIAL 재추출 예외, `coordinate_system` 삭제)은 PR #43에서 함
+
 ## 2026-10-12 — PR #51 리뷰 반영: 실행별 추출 시도 기록 칼럼, 구조 manifest 형식, 표 분리 실패 재추출
 
 - 기준: PR #51 리뷰 댓글(10월 11일)의 PR #43 수정 요청 4건과 PR #49 `docs/processing-requirements.md` 4-6
@@ -36,6 +79,7 @@
   - [schema.dbml](docs/schema.dbml)·[스키마 명세](docs/schema-catalog.md) `file_extraction`: `structure_status` Note, `parser_version` Note, 표 Note에 위 두 규칙. `structure_status_enum.PARTIAL` Note에 표 분리 실패 포함
 - 바꾸지 않은 것: 표·관계·enum 수, 칼럼. `parser_version` 예시값(`pdftotext-24.02_prep-3`). `extract_status`의 EXTRACT_PARTIAL 뜻(일부만 복구된 문서)
 - 검증: `@dbml/cli` dbml2sql 파싱 통과. `git diff --check` 통과
+
 
 ## 2026-10-12 — 데이터 처리 요구 명세: 8절 PR #43 답글 반영, `summary_labels` 칼럼 추가
 
@@ -81,6 +125,66 @@
   - `scoring-and-population.md`의 ASL 정의(「표 제외」): PM 담당 문서라 PR #49 답글로 알림
   - 8절 소스별 검증 방법
 
+## 2026-10-10 — DART 투자설명서 텍스트 추출·절 분할과 실패율 산출 (#50)
+
+- 범위: 크롤러가 받은 본문 PDF(`raw/dart/{접수번호}/body_pdf__v{n}.pdf`, 접수번호별 최신 판)를 텍스트로 바꾸고 부·절로 나눠, 파일·문서·절 단위 실패율을 실행마다 남긴다
+- 코드(`src/signal_pipeline/parsing/`)
+  - `dart_sections.py`: 순수 함수. `research/scripts/dart_sections.py` 알고리즘을 옮기고 결과를 줄 번호 대신 글자 위치(반열린 구간)로 냄. 「제N부」를 못 찾으면 `SectionSplitError`
+  - `extract.py`: `pdftotext -layout -enc UTF-8`, 파서 버전 `pdftotext-{주.부}_prep-{n}`. PR #43 경로 `derived/{raw_sha256}/{parser_version}/text.txt`·`structure.json`(text.txt를 먼저 씀). `structure.json`의 `text_sha256`이 text.txt와 같으면 건너뜀. `runs/{run_id}/extraction_attempts.jsonl`은 실행 끝에 한 번 씀, `run.json`에 실패율 요약
+  - #47 공통 모듈의 `_write_atomic`·`_append`를 공개 이름 `write_atomic`·`append`로 바꿈(크롤러 호출부 함께 수정)
+- 실데이터에서 고친 분할 규칙(옮긴 알고리즘 기준)
+  - 띄어 쓴 표제(「제 3 부」), 표제만 있는 줄, 목차 줄 끝 점선·쪽 번호를 인식(20건 중 5건 「제N부」 미검출 → 0건)
+  - 절을 앞 절보다 뒤에서만 찾음. 뒤 절 제목이 앞쪽 본문에 먼저 맞아 구간이 거꾸로 잡힌 12건 해결(`prep-2`)
+  - 목차 뒤에서는 앞에서 고른 부보다 번호가 큰 표제만 고름. 쪽 머리글 「제 1 부」·「제 2 부 [별첨1]」 반복으로 본문 부를 놓친 문서 해결(`prep-3`)
+- 결과(10월 10일, 9월 1일~29일 공시 본문 PDF 502건, `pdftotext-24.09_prep-3`)
+  - 텍스트화 502/502(100%), 파일 실패 0건
+  - 「제N부」 미검출 2건(20260903000270, 20260911000012): 둘 다 간이투자설명서만 담긴 PDF라 부·절 구조 없음으로 기록
+  - 부 적중 2,418/2,418, 5개 부를 모두 찾은 문서 500/500
+  - 절 적중 15,475/16,080(96.2%). 문서별 최저 77.4%, 하위 10% 88.6%, 중앙값 97.1%
+  - 500자 미만 절 32.1%, 깨진 문자 비율 0.3 이상 절 0건(두 기준 모두 미검증 잠정값). 처리 시간 약 2분(arm64)
+  - 접수번호 2건(20260918000190, 20260918000389)은 PDF 바이트가 같아 파생 텍스트 하나를 함께 씀
+- 형식 메모: `extraction_attempts.jsonl` 칼럼은 PR #43 목록에 `raw_storage_path`·`source_key`·`structure_status`·`text_*`·`structure_*`·`section_count`·`section_found_count`를 더함. DB 전이라 `raw_object_id`는 null
+- 검증: pytest 59개 통과(분할 규칙·글자 위치 불변식·회귀 3건, 건너뛰기·실패 기록, pdftotext 시간 제한·파일 단위 오류 격리), `ruff format`·`ruff check` 통과
+- PR #51 CodeRabbit 리뷰 반영(10월 10일): 목차 뒤 본문 「제N부」 표제가 1~2개면 목차 표제를 부로 쓰지 않고 구조 없음으로 기록(502건 중 해당 0건이라 결과 변화 없음), pdftotext 300초 시간 제한, 파일 1건의 예상 밖 오류는 `EXTRACT_FAILED`로 기록하고 실행 계속
+- 수행하지 않은 것(1차): 표 영역·`blocks`(PR #49), 간이투자설명서 구간 분리, `canonical_section_code` 값, DB 적재, S3 업로드, OCR, 데이터 사이언스(다빈) 표본 검토 → 표 영역은 아래 2차에서 함
+
+### 2차 변경 (PM 결정 10월 10일, 파서 버전 `pdfplumber-0.11_prep-4`)
+
+- 결정 2건
+  - PDF 추출 라이브러리를 pdfplumber(MIT)로 통일. PR #49 4-3의 「남는 제약」(표를 찾은 도구와 텍스트를 만든 도구가 같아야 함) 때문에 텍스트 추출도 pdftotext에서 pdfplumber로 바꿈
+  - `source_section_no`는 문자열 유지(PR #43 ERD 기준). 코드 변경 없음
+- 텍스트 추출(`pdf_layout.py` 신설, `extract.py`)
+  - 쪽마다 보이지 않는 요소(흰색으로 채우고 외곽선 없는 사각형, 흰색 선; 패턴 등 숫자가 아닌 색은 보이는 것)를 뺀 쪽에서 layout 텍스트와 표(`find_tables` 기본 설정)를 같이 얻음. 쪽 사이는 `\f`, UTF-8·LF
+  - 출력 글자마다 원래 PDF 글자(pdfplumber text map)를 알 수 있어 표 bbox를 글자 범위로 바꿈(글자 중심이 bbox 안인 첫 글자~끝 글자)
+  - 줄 끝 공백과 쪽 앞뒤 빈 줄은 뗌. NUL(일부 PDF가 공백 대신 냄)과 `\r`은 공백으로 바꿈
+  - pdfplumber 기본 layout은 글자 묶음(똑바른 글자·회전 글자) 순서대로 줄을 쌓아, 쪽 머리글을 나중에 그린 PDF에서 「제3부 …」 표제가 쪽 끝으로 밀림(41건). 글자를 위 → 아래로 다시 정렬해 만듦(`layout_textmap`)
+- `structure.json`(스키마 2, PR #49 2절·4-2·4-3)
+  - 절 원소: `section_title` → `title`(본문 줄 제목 그대로, 못 찾은 절은 목차 제목), `title_char_start`·`title_char_end`(제목 줄 범위) 추가, `char_start`는 제목 줄 시작 포함. `section_kind` = `body` / `summary` / `other`, 요약정보·other는 `part_seq`·`source_section_no`가 null, `section_seq`는 글자 위치 순 전역 순번
+  - 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(없으면 「요약정보」만 있는 줄). 다음 줄이 「제N부」면 목차 항목이라 건너뜀. 끝: 목차가 뒤에 없으면 첫 본문 부 직전, 요약정보 뒤에 정식 투자설명서의 표지·목차가 오는 문서(109건)는 그 목차가 있는 쪽의 시작까지. 그 사이와 맨 앞은 `other`. 「제N부」를 못 찾은 문서는 요약정보 끝을 정할 수 없어 구간을 만들지 않음
+  - `page_furniture_regions`: 쪽마다 첫·끝 줄 중 숫자를 #로 바꿨을 때 쪽의 30% 이상(최소 3쪽)에서 반복되는 줄, 쪽 번호만 있는 끝 줄. 텍스트에서 지우지 않음
+  - `table_regions`: `{char_start, char_end, has_sentences}`. `has_sentences`는 표 안에 「다.」로 끝나는 문장이 있음
+  - `headings_source`: PDF 책갈피가 있으면 `BOOKMARK`, 없으면 `RULE`. 분할은 두 경우 모두 지금 규칙(RULE) 그대로. 책갈피가 있는 문서는 규칙으로 찾은 부·절을 책갈피와 대조한 개수를 `bookmark_check`에 남기고 요약에 재현율·정밀도를 냄
+  - `structure_status`(AVAILABLE / UNAVAILABLE)를 `structure.json`에도 기록. 「제N부」를 못 찾은 문서(UNAVAILABLE)도 `structure.json`을 씀(표·머리글 구간은 있고 `parts`·`sections`는 빈 목록)
+- 실행(`extract.py`, `parallel.py` 신설)
+  - 건너뛰기: `structure.json`의 `text_sha256`이 `text.txt`와 같은 EXTRACT_OK 문서 전부(UNAVAILABLE 포함)
+  - 파일 단위 병렬(기본 4개, `--workers`). 파일마다 별도 프로세스(spawn)를 띄우고 300초가 지나면 프로세스를 종료해 `EXTRACT_FAILED`(`timeout`)로 기록. 기록 순서는 입력 순서. 프로세스가 결과 없이 끝난 경우도 같은 방식으로 기록(`died`)
+  - 결과는 파이프 대신 임시 파일(pickle, `.tmp`에 쓴 뒤 교체)로 받고, 부모는 `multiprocessing.connection.wait`로 프로세스 종료 신호를 기다림. 파이프 수신 대기로 300초 제한이 무시되던 문제(PR #51 CodeRabbit 지적)와, 결과가 크면 자식이 파이프에 막히던 문제를 함께 해결(10월 10일)
+- 분할 규칙 보완(layout 텍스트에서 나타난 형태, 각각 시험 추가)
+  - 표제 줄 길이는 연속 공백을 하나로 보고 잼(글자 간격 공백으로 60자를 넘어 놓친 문서)
+  - 목차 옆 세로 글자(「CONTENTS」)가 줄 앞에 붙은 형태를 인식(7건)
+- 결과(10월 10일, 같은 502건, `pdfplumber-0.11_prep-4`; 괄호는 `pdftotext-24.09_prep-3`)
+  - 텍스트화 502/502(502/502), 파일 실패 0건. 「제N부」 미검출 2건(2건, 같은 문서 둘)
+  - 부 적중 2,416/2,418(2,418/2,418), 5개 부를 모두 찾은 문서 497/500(500/500). 절 적중 15,467/16,080(15,475/16,080, 96.2%). 문서별 최저 64.5%(77.4%), 하위 10% 88.6%(88.6%), 중앙값 97.1%(97.1%)
+  - 요약정보 구간이 있는 문서 469건(줄 시작 표시가 있는 문서 중 목차 항목뿐인 24건은 요약정보 없음으로 봄). 머리글 구간이 있는 문서 499건
+  - 표 51,328개, 표가 하나도 없는 문서 0건, 문장이 든 표 15,754개. 표 안 글자 비율 중앙값 55.0%(PR #49 10월 7일 확인은 생성 도구별 40~53%; 이번 값은 표 구간에 칸 사이 공백이 포함돼 5~10%p 높음)
+  - 책갈피 문서 149건: 부 재현율 100%·정밀도 96.0%, 절 재현율 95.9%·정밀도 90.3%
+  - 처리 시간 655초(4개 병렬, arm64). 같은 명령 두 번째 실행은 502건 모두 `SKIPPED_EXISTING_OK`(20초)
+  - 5개 부 중 4개만 찾은 문서 3건(prep-3은 5개): 본문 부 표제가 한 줄로 잡히지 않음. 확인한 1건은 표제가 앞 문장 끝에 붙음(pdfplumber가 세로 간격이 가까운 줄을 한 줄로 합침). 규칙을 맞추지 않고 그대로 둠
+  - 깨진 PDF 확인(임시 폴더): 0바이트·시그니처 없음은 `EXTRACT_UNSUPPORTED_FORMAT`, 잘린 PDF·본문 없는 PDF는 `EXTRACT_FAILED`(pdfplumber 오류 사유), 시간 제한 3초로 줄이면 117쪽 PDF가 `timeout`으로 끝남
+- 검증: pytest 83개 통과(기존 59개 유지·수정 + 요약정보·other, 제목 줄 범위, 머리글, 표 bbox → 글자 범위, 색 판정, 쪽 안 줄 정렬, UNAVAILABLE 건너뛰기, 시간 초과·프로세스 종료·큰 결과(500만 자)와 결과 없는 종료, 책갈피 대조), `ruff format`·`ruff check` 통과
+- 바꾸지 않은 것: 분할 알고리즘(RULE), 책갈피 우선 분할(대조 결과를 PM이 본 뒤 정함), `source_section_no` 문자열, `canonical_section_code`(null), `blocks`(null), 하위 제목(「가.」「(1)」) 구간
+- 수행하지 않은 것(2차): 문장이 든 표를 ASL에서 뺄지 정하는 일(데이터 사이언스(다빈)), DB 적재, S3 업로드, OCR, 간이투자설명서만 담긴 PDF 2건의 구조화
+
 ## 2026-10-09 — 실행별 추출 시도 기록 위치 확정, 워터마크 갱신 순서 정정, LLM 입력 해시 추가
 
 - 기준: 데이터 엔지니어링·인프라(주영) PR #43 리뷰 1번(10월 6일)과 PM(대현) 10월 9일 결정. 10월 14일 가동 점검의 「파싱 실패율 수치 산출」(이슈 #50)이 실행별 실패 기록을 근거로 씀.
@@ -97,6 +201,7 @@
 - 구현과의 차이(기록만): PR #47 크롤러는 원본 파일을 저장한 뒤 `attempts.jsonl`에 결과까지 한 줄로 씀(시작 행 없음). 실패 요청은 기록되고 워터마크 전진 조건은 규칙과 같아 데이터 누락은 없음. 도중 종료된 시도만 기록되지 않음. DB 적재 구현(쉬는 기간, 10월 15일~28일) 때 「적재 순서」대로 시작 행 INSERT 뒤 결과 UPDATE로 맞춤.
 - 바꾸지 않은 것: 표·관계·enum 수(표 17, 관계 42, enum 26). 칼럼은 235 → 236(`input_sha256`). `file_extraction`의 FAILED·PARTIAL 덮어쓰기 규칙. 「적재 순서」 본문. 리뷰 3번(LLM 추출 입력 특정, `input_sha256`)은 LLM 추출 시작일이 쉬는 기간(10월 15일~28일) 뒤로 바뀌어 그때까지 미결로 둠.
 - 검증: `@dbml/core` 파서 표 17·관계 42·enum 26 통과. 스키마 명세 칼럼 236개가 DBML과 같음. `git diff --check` 통과.
+
 
 ## 2026-10-09 — 펀드 대표 위험등급 칼럼 표기를 ERD v2.2에 맞춤
 

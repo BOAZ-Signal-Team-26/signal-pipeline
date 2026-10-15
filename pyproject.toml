@@ -5,6 +5,7 @@ description = "BOAZ Signal 투자설명서 수집·파싱·채점·추출 파이
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
+    "pdfplumber>=0.11.10",
 ]
 
 [dependency-groups]
