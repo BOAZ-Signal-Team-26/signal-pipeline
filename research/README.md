@@ -21,6 +21,7 @@
 | [`kofia_attachments.py`](scripts/kofia_attachments.py) | 수시공시 첨부 조회·다운로드. 한 묶음의 행들이 같은 파일을 가리키는지 비교 | 없음. `curl` 필요 | 같은 문서 「첨부 해시 비교」 |
 | [`fetch_kofia_sales.py`](scripts/fetch_kofia_sales.py) | 판매회사 마스터와 판매사별 펀드 목록. 판매관계 브릿지 입력 | 없음. `curl` 필요 | [조인 키 확인 기록](../docs/records/phase1-erd/join-key-checks.md) 「판매회사 명단 소스」 |
 | [`verify_etf_rule.py`](scripts/verify_etf_rule.py) | ETF 「상장지수」 이름 규칙의 누락·오탐률 대조 | `DATA_GO_KR_API_KEY`, `KRX_API_KEY`(서비스 승인 포함) | [금투협 중복 행·ETF 이름 규칙 검증](../docs/records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 2: ETF 이름 규칙」 |
+| [`rematch_krx_unmatched.py`](scripts/rematch_krx_unmatched.py) | 9월 KRX 매칭 실패 229건을 포털 전체 캐시로 재대조. 사람 확정 유지, 기존 연결과 충돌하면 보류. 결과와 메모는 `krx_link_review_v2.csv`의 `review_note`에 합침 | 포털 전체 JSON 캐시 | [상품·법인 매칭 규칙](../docs/matching-rules.md) 「KRX 매칭 실패 처리」 |
 | [`fetch_fss_sanctions.py`](scripts/fetch_fss_sanctions.py) | 금감원 검사결과제재·경영유의사항 공시 조회 | `FSS_API_KEY`(개인 키 일일 30회 한도) | [조인 키 확인 기록](../docs/records/phase1-erd/join-key-checks.md) 「제재공시」 |
 | [`fetch_fss_dispute.py`](scripts/fetch_fss_dispute.py) | 금감원 분쟁조정결정례 게시판 목록·첨부 수집 | 없음 | 같은 문서 「분쟁조정 마스킹」 |
 | [`hwp_text.py`](scripts/hwp_text.py) | HWP 5.0 본문 추출(외부 의존성 없음). HWP 3.0은 읽지 못함 | 없음 | 같은 문서 「분쟁조정 마스킹」 |
@@ -38,6 +39,8 @@
 | [`kofia_pdf_hash_check.csv`](samples/kofia_pdf_hash_check.csv) | 4 | 2026-09-19 | 금투협 공고 묶음 4개(운용사 4곳, 14~15행)의 첨부 sha256 비교 | 같은 문서 「첨부 해시 비교」 |
 | [`kofia_sales_companies.csv`](samples/kofia_sales_companies.csv) | 200 | 2026-09-22 저장소 추가 | 금투협 판매회사 마스터(`saleCompCd` 6자리, 한글 법인명) | [조인 키 확인 기록](../docs/records/phase1-erd/join-key-checks.md) 「판매회사 명단 소스」 |
 | [`etf_rule_check.csv`](samples/etf_rule_check.csv) | 1,602 | 2026-09-19 (기준일 차 4건 09-20) | 공공데이터포털 183,649건 × KRX 1,167건 대조. 일치 938 / 매칭 실패 229 / 오탐 후보 435 | [금투협 중복 행·ETF 이름 규칙 검증](../docs/records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 2: ETF 이름 규칙」 |
+| [`krx_issuer_review.csv`](samples/krx_issuer_review.csv) | 153 | 2026-10-04 | 행별 공식 자료 URL·확인일·포털 대응 판정. ACE 코드 직접 대응 25(초기 8 + 229건 재대조 코드 대조 17, 10월 6일 승격), 나머지는 운용사/거래소 코드·상품명 대조 | 같은 문서 |
+| [`krx_link_review_v2.csv`](samples/krx_link_review_v2.csv) | 1,167 | 2026-10-04 | 현재 대응표. 공식자료 검토 153·이전 사람 확인 70·구조 검사만 통과 932·보류 12. `resolved_asoStdCd`만 확인된 연결 | 같은 문서·[입력 해시와 집계](samples/krx_link_review_v2.summary.json) |
 | [`dart_sections_sample.csv`](samples/dart_sections_sample.csv) | 294 | 2026-09-20 | DART 투자설명서 9건의 부·절 분해. 절 적중 292/294 | [DART 본문 PDF 부·절 분할 실현성 검증](../docs/records/phase1-erd/dart-section-split.md) 「표본」 |
 | [`fss_dispute_sample.csv`](samples/fss_dispute_sample.csv) | 15 | 2026-09-20 | 분쟁조정결정례 글 8개의 첨부 15건 메타와 추출 결과 | [조인 키 확인 기록](../docs/records/phase1-erd/join-key-checks.md) 「분쟁조정 마스킹」 |
 | [`fss_sanctions_sample.csv`](samples/fss_sanctions_sample.csv) | 8 | 2026-09-22 | 금감원 제재공시 2026-09 한 달분 전량(원천 13필드) | [소스별 데이터 현황표](../docs/records/phase1-erd/source-profile.md) 「재현과 표본 파일」 |

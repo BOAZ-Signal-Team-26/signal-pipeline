@@ -40,6 +40,6 @@ cp .env.example .env         # API 키는 .env에만 적음
 
 ## 설계 문서
 
-- 읽는 순서, 설계 단계(1단계 9월 16일 / 2단계 9월 30일 / 3단계 10월 14일)와 상태, 현재 검토안(ERD v2.1, 20개 표·47개 관계), 표기 규칙: [docs/README.md](docs/README.md)
+- 읽는 순서, 설계 단계(1단계 9월 16일 / 2단계 9월 30일 / 3단계 10월 14일)와 상태, 현재 검토안(ERD v2.2, 17개 표·42개 관계), 표기 규칙: [docs/README.md](docs/README.md)
 - 검증 스크립트·표본 CSV 안내: [research/README.md](research/README.md)
 - 프로세스·WBS·스프린트 계획: [Project-Management](https://github.com/BOAZ-Signal-Team-26/Project-Management). 이 저장소는 「무엇을 어떻게 만들 것인가」만 다룹니다.

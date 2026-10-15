@@ -1,0 +1,154 @@
+ISU_CD,asoStdCd,포털펀드명,evidence_type,source_url,reviewed_at,note
+0026S0,K55102EI0342,하나 1Q 미국S&P500증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=12,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0066W0,K55210EK7169,신한SOL국제금특별자산상장지수투자신탁[금-재간접형],ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0085N0,K55101EL9174,한국투자 ACE 미국10년국채액티브증권상장지수투자신탁[채권](H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EL9174,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+0085P0,K55101EL9166,한국투자 ACE 미국10년국채액티브증권상장지수투자신탁(채권),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EL9166,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0139P0,K55101EQ7660,한국투자ACE고배당주증권상장지수투자신탁(주식),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101EQ7660,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+069500,KR5105352888,삼성KODEX200증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20170104/2ETF01_20161229.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+091160,KR5105578185,삼성KODEX반도체증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20120808/SHEET51483Kodex%EB%B0%98%EB%8F%84%EC%B2%B4.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+102780,KR5105834570,삼성KODEX삼성그룹주증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20120718/SHEET51459Kodex%EC%82%BC%EC%84%B1%EA%B7%B8%EB%A3%B9%EC%A3%BC.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+133690,KR5225652084,미래에셋TIGER미국나스닥100증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126005665.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+138230,KR5206994091,키움 KIWOOM 미국달러선물특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=138230,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139660,KR5206A16343,키움 KIWOOM 미국달러선물인버스특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=139660,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+148020,KR5223A66905,KB RISE 200 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4435,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+152100,KR5213A73001,한화 PLUS 200증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_200_20260529.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+192090,KR5301AL9756,미래에셋TIGER차이나CSI300증권상장지수자투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092529009329.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+195920,KR5301AR6046,미래에셋TIGER일본증권상장지수투자신탁(주식-파생형)(합성 H),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092529002223.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+204480,KR5301AU9086,미래에셋TIGER차이나CSI300레버리지증권상장지수투자신탁(주식혼합-파생재간접형)(합성),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250404024858009570.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+211900,KR5105AX7259,삼성 KODEX 코리아배당성장증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20251020144727705.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+219480,K55105B29847,삼성KODEX S&P500선물증권상장지수투자신탁[주식-파생형](H),ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20171211/2ETF50_20171130.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+229200,K55105B74603,삼성KODEX코스닥150증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260406/2ETF54_20260331.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+232080,K55301B84235,미래에셋TIGER코스닥150증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250611092530009636.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+234310,K55223B91129,KB RISE V&S 셀렉트밸류 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4444?searchFlag=viewtab1,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+252410,K55223BG9649,KB RISE 200선물인버스 증권 상장지수 투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4448,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253240,K55206BG4559,키움 KIWOOM 200선물인버스증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=253240,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+269540,K55213BO8445,한화 PLUS S&P500증권상장지수투자신탁(주식)(H),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EB%AF%B8%EA%B5%ADS%26P500%28H%29_20260529.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+270810,K55223BQ7476,KB RISE 코스닥 150 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4459,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+292190,K55105C52102,삼성KODEX KRX300증권상장지수투자신탁[주식형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20251013/2ETFA4_20250930.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+293180,K55232C57764,NH-Amundi HANARO 200 증권 상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/etf-data-board,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+301400,K55213C86268,한화 PLUS 코스닥150증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006318,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+305720,K55105CD4207,삼성KODEX 2차전지산업증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20230622/2ETFB1_20230531.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+316670,K55206CJ2971,키움 KIWOOM 코스닥150증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=316670,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+329200,K55301CS7395,미래에셋 TIGER 리츠부동산인프라혼합자산상장지수투자신탁(재간접형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022707005958.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+360200,K55101D78195,한국투자 ACE 미국S&P500증권상장지수투자신탁(주식),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101D78195,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+360750,K55301D79199,미래에셋 TIGER 미국S&P500증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095324004654.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+379780,K55223DG4176,KB RISE 미국S&P500 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/44B3,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+379800,K55105DF7322,삼성 KODEX 미국S&P500 증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260305/2ETFE4_20260228.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+379810,K55105DF7272,삼성 KODEX 미국나스닥100 증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260206/2ETFE3_20260131.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+396500,K55301DL2400,미래에셋TIGER반도체TOP10증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022714004396.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+429760,K55213DS7136,한화 PLUS 미국S&P500 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006346,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+432840,K55232DU0555,NH-Amundi HANARO 미국 S&P500 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/6841F2BA9FF04317,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+433330,K55210DU6020,신한SOL미국S&P500증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.soletf.com/ko/strategy/pension?tabIndex=2,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+449450,K55213DZ4142,한화 PLUS K방산증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006192,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+449770,K55206DZ1360,키움 KIWOOM 미국S&P500증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=449770,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+449780,K55206DZ1378,키움 KIWOOM 미국S&P500증권상장지수투자신탁[주식](H),ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=449780,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+453810,K55105E00263,삼성 KODEX 인도Nifty50증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=kodex+%EC%9D%B8%EB%8F%84nifty50,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+453820,K55105E00685,삼성 KODEX 인도Nifty50레버리지증권상장지수투자신탁[주식-파생형](합성),ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=kodex+%EC%9D%B8%EB%8F%84nifty50,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+453850,K55101E03860,한국투자 ACE 미국30년국채액티브증권상장지수투자신탁[채권](H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E03860,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+458730,K55301E27634,미래에셋 TIGER 미국배당다우존스증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095349009577.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+461900,K55213E31534,한화 PLUS 미국테크TOP10증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/customer/notice/detail?n=28085,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+461910,K55213E31542,한화 PLUS 미국테크TOP10레버리지증권상장지수투자신탁(주식혼합-파생형)(합성),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/customer/notice/detail?n=28085,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+465330,K55223E57140,KB RISE 2차전지TOP10iSelect 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://riseetf.co.kr/upload/cdn/2026/06/10/20260610213e708ce01d4e4.pdf,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+465580,K55101E52479,한국투자 ACE 미국빅테크TOP7 Plus증권상장지수투자신탁(주식),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52479,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+465620,K55101E52495,한국투자 ACE 미국빅테크TOP7 Plus인버스증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52495,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+466920,K55210E57725,신한SOL조선TOP3플러스증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211028?tabIndex=1,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+476760,K55101E91865,한국투자 ACE 미국30년국채액티브증권상장지수투자신탁[채권],ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E91865,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+481190,K55210EB0009,신한SOL미국테크TOP10증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211059,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+490090,K55301ED3241,미래에셋TIGER미국AI빅테크10증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250523022929007996.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+495050,K55223EF9191,KB RISE 코리아밸류업 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/upload/cdn/2026/04/09/202604091474bd36f2a041c.pdf,2026-10-04,운용사 종목코드·상품명 확인 및 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+499150,K55210EF7513,신한SOL미국S&P500엔화노출증권상장지수투자신탁[주식-파생형](H),ISSUER_NAME_MATCH,https://www.soletf.com/ko/strategy/pension?tabIndex=2,2026-10-04,운용사 종목코드·상품명 확인. 별칭은 정식 펀드명으로 대조; 현재 상장상태 확인과 별개
+0182R0,K55102EU0908,하나 1Q K반도체TOP2+증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=4,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0052S0,K55102EK9976,하나 1Q 미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합),ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=13,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0069M0,K55102EL5296,하나 1Q 미국나스닥100증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaam.com/qetf/etf/detail?id=15,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+105190,KR5101877748,한국투자 ACE 200 증권 상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/KR5101877748,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0199C0,K55101EV6285,한국투자 ACE 고배당주Plus커버드콜액티브 증권 상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101EV6285,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+438080,K55101DU8887,한국투자ACE미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합),ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101DU8887,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+367380,K55101DB1182,한국투자 ACE 미국나스닥100증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101DB1182,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0046Y0,K55101EK7278,한국투자 ACE 미국배당퀄리티증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.aceetf.co.kr/fund/K55101EK7278,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+407310,K55232DO9372,NH-Amundi HANARO 200 TOP10 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.hanaroetf.com/en/fund/C7AEF2317DE84872,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+304780,K55232CC8882,NH-Amundi HANARO 200선물레버리지 증권 상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.hanaroetf.com/en/fund/D5AF92D8402E46E2,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0219Z0,K55232EX2250,NH-Amundi HANARO 미국S&P500액티브 증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/3DF9E0B3B0C74485,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+304770,K55232CC8874,NH-Amundi HANARO 코스닥150 증권 상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/24BBC4A741A44C99,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+306530,K55232CD6984,NH-Amundi HANARO 코스닥150선물레버리지 증권 상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.hanaroetf.com/fund/4B6539105147466E,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+069660,KR5206352894,키움 KIWOOM 200 상장지수증권투자신탁[주식],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=069660,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253230,K55206BG4575,키움 KIWOOM 200선물인버스2X증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=253230,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+225800,K55206B56275,키움 KIWOOM 미국달러선물레버리지특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=225800,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+230480,K55206B83279,키움 KIWOOM 미국달러선물 인버스2X 특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=230480,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0198A0,K55206EV2718,키움 KIWOOM 코스닥150커버드콜액티브증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.kiwoometf.com/service/etf/KO02010200M?gcode=0198A0,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0219E0,K55105EX2080,삼성 KODEX 200커버드콜액티브증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=%EC%9B%94%EB%B0%B0%EB%8B%B9,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+462330,K55105E32308,삼성KODEX2차전지산업레버리지증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250905/2ETFK2_20250829.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+306950,K55105CE6045,삼성KODEX KRX300레버리지증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250805/2ETFB2_20250731.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+156080,KR5105AA2075,삼성KODEX MSCI KOREA 증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20121112/SHEET2412ETF36_KodexMSCIKorea_20121031.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0089D0,K55105EM2703,삼성 KODEX 금융고배당TOP10증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260511/2ETFS1_20260430.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+153130,KR5105A84337,삼성KODEX단기채권증권상장지수투자신탁[채권],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20200410/2ETF35_20200331.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+485540,K55105EB3902,삼성KODEX 미국AI테크TOP10증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20250912183647389.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0068M0,K55105EL1938,삼성 KODEX 미국S&P500버퍼6월액티브증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/2026011317101936.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+494300,K55105EE2919,삼성 KODEX 미국나스닥100데일리커버드콜OTM증권상장지수투자신탁[주식-파생형],KRX_LISTING_MATCH,https://kind.krx.co.kr/disclosure/etfisudetail.do?method=searchEtfIsuSummary&strIsurCd=49430,2026-10-04,KRX KIND의 종목코드·공식 상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261240,K55105BJ8583,삼성KODEX미국달러선물특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20180110/2ETF73_20171231.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261270,K55105BJ8609,삼성KODEX미국달러선물인버스특별자산상장지수투자신탁[미국달러-파생형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20221011/2ETF75_20220930.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+489250,K55105EC8025,삼성 KODEX 미국배당다우존스증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20250805/2ETFN9_20250731.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0190G0,K55105EU6183,삼성 KODEX 반도체타겟위클리커버드콜증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.samsungfund.com/upload/kodex/newsroom/20260504180717732.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0080G0,K55105EL4742,삼성 KODEX 방산TOP10증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20260206/2ETFR8_20260131.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+213610,KR5105AY4057,삼성KODEX삼성그룹밸류증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20170206/2ETF47_20170131.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+099140,KR5105745933,삼성KODEX 차이나H증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.samsungfund.com/etf/search.do?searchText=099140,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+237370,K55105B99147,삼성 KODEX 코리아배당성장채권혼합증권상장지수투자신탁[채권혼합],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20161206/2ETF58_20161130.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+360150,K55105D60640,삼성KODEX 코스닥150롱코스피200숏 선물증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://m.samsungfund.com/sheet/20251013/2ETFD4_20250930.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+226490,K55105B62905,삼성KODEX 코스피증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://m.samsungfund.com/eng/etf/product/view.do?id=2ETF52,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0210E0,K55213EW5851,한화 PLUS 200커버드콜액티브증권상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/insight/report/detail?n=2145,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0104G0,K55213EO3567,한화 PLUS K방산레버리지증권상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/product/detail?n=006393,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+161510,KR5213AC3237,한화 PLUS 고배당주증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EA%B3%A0%EB%B0%B0%EB%8B%B9%EC%A3%BC_20260430.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0057H0,K55213EK8776,한화 PLUS 미국S&P500미국채혼합50액티브증권상장지수투자신탁(채권혼합-재간접형),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EB%AF%B8%EA%B5%ADS%26P500%EB%AF%B8%EA%B5%AD%EC%B1%84%ED%98%BC%ED%95%A950%EC%95%A1%ED%8B%B0%EB%B8%8C_20260529.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+227830,K55213B72955,한화 PLUS 코스피증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.plusetf.co.kr/upload/fund/PLUS_%EC%BD%94%EC%8A%A4%ED%94%BC_20260529.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+252420,K55223BH1595,KB RISE 200선물인버스2X 증권 상장지수 투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4449,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+183700,KR5223AL4166,KB RISE 200채권혼합50증권상장지수투자신탁(채권혼합),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/cust/notice/162,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+241390,K55223BB7382,KB RISE V&S 셀렉트밸류 채권혼합 증권 상장지수 투자신탁(채권혼합),ISSUER_NAME_MATCH,https://riseetf.co.kr/prod/finderDetail/4445,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+114100,KR5223149026,KB RISE 국고채3년 증권 상장지수 투자신탁(채권),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/4427?searchFlag=viewtab3,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+295000,K55223C82712,KB RISE 국채선물10년 증권 상장지수 투자신탁(채권-파생형),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4482,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0138T0,K55223EP9769,KB RISE 미국S&P500데일리고정커버드콜 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/44J9,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+469060,K55223E65903,KB RISE 미국반도체NYSE 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/prod/finderDetail/44F3?searchFlag=viewtab3,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0094M0,K55223EM9762,KB RISE 코리아밸류업위클리고정커버드콜 증권 상장지수 투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/en,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+275750,K55223BT0197,KB RISE 코스닥150선물인버스증권 상장지수 투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://eng.riseetf.co.kr/prod/finderDetail/4463,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+253280,K55223BH3559,KB RISE 헬스케어 증권 상장지수 투자신탁(주식),ISSUER_NAME_MATCH,https://www.riseetf.co.kr/upload/cdn/2026/05/12/20260512828d6d1c5c09427.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0022T0,K55210EH0144,신한SOL국제금커버드콜액티브특별자산상장지수투자신탁[금-파생재간접형],ISSUER_NAME_MATCH,https://www.soletf.com/ko/main?selectedLanguage=ko,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+446720,K55210DY2868,신한SOL미국배당다우존스증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0080Y0,K55210EL7416,신한SOL조선TOP3플러스레버리지증권상장지수투자신탁[주식-파생형],ISSUER_NAME_MATCH,https://www.soletf.com/ko/fund/etf/211094,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+450910,K55210DZ4459,신한SOL코스닥150증권상장지수투자신탁[주식],ISSUER_NAME_MATCH,https://www.soletf.com/en/fund,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139260,KR5225A18067,미래에셋TIGER200IT증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126005319.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139250,KR5225A18042,미래에셋TIGER200에너지화학증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250804095126009393.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+227540,K55301B69897,미래에셋TIGER200헬스케어증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20241226044241006284.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+289480,K55301C25806,미래에셋TIGER200커버드콜증권상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250408022909008067.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+364980,K55301DA5554,미래에셋 TIGER 2차전지 TOP10 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095324007939.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+364960,K55301DA5547,미래에셋 TIGER BBIG 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250219110509004043.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+292160,K55301C47735,미래에셋TIGERKRX300증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250513024148002098.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+139280,KR5225A18109,미래에셋TIGER경기방어증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20240904081229008217.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0086B0,K55301EL4868,미래에셋TIGER리츠부동산인프라TOP10액티브부동산상장지수투자신탁(재간접형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250804095126003841.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+493810,K55301ED3282,미래에셋TIGER미국AI빅테크10타겟데일리커버드콜증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250523023032004650.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+435420,K55301DU4926,미래에셋TIGER미국나스닥100채권혼합50증권상장지수투자신탁(채권혼합),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250404040812000469.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0008S0,K55301EG7256,미래에셋 TIGER 미국배당다우존스타겟데일리커버드콜증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250311110032009934.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+381170,K55301DG0369,미래에셋 TIGER 미국테크TOP10 INDXX증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20240509105027005590.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0177R0,K55301ES2840,미래에셋TIGER반도체TOP10커버드콜액티브증권상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://securities.miraeasset.com/public/hks4412/040/0519ACTIVE.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+091220,KR5225578248,미래에셋 TIGER 은행 증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20220610040851005258.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+123310,KR5225220130,미래에셋 TIGER 인버스 증권 상장지수투자신탁(주식-파생형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250311110104007498.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+292560,K55301C59425,미래에셋TIGER일본엔선물특별자산상장지수투자신탁(엔-파생형),ISSUER_NAME_MATCH,https://investments.miraeasset.com/tigeretf/upload/etf/20250611092633008393.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+302190,K55301CA9094,미래에셋TIGER중장기국채증권상장지수투자신탁(채권-파생형),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20230713095258002042.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+371160,K55301DC8499,미래에셋 TIGER 차이나항셍테크증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250708095910006559.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+0052D0,K55301EK1139,미래에셋TIGER코리아배당다우존스증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250708095820002111.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+261060,K55301BJ7017,미래에셋TIGER코스닥150IT증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20241108075444003344.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+210780,KR5301AX7376,미래에셋TIGER코스피고배당증권상장지수투자신탁(주식),ISSUER_NAME_MATCH,https://www.tigeretf.com/upload/etf/20250513023943002021.pdf,2026-10-04,운용사 공식 자료의 종목코드·상품명과 유일 포털 후보 대조. 명칭 대응은 공통 코드 조인이 아님
+332500,K55101CT6711,한국투자 ACE 200 Total Return증권상장지수투자신탁(주식),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101CT6711,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+291130,K55101C31949,한국투자 ACE MSCI멕시코증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101C31949,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+256440,K55101BI4108,한국투자 ACE MSCI인도네시아증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BI4108,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+261920,K55101BJ5096,한국투자 ACE MSCI필리핀증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BJ5096,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+225130,K55101B44423,한국투자 ACE 골드선물레버리지특별자산상장지수투자신탁(금-파생형)(합성 H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101B44423,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+265690,K55101BM2890,한국투자 ACE 러시아MSCI증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BM2890,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+452250,K55101DZ9039,한국투자ACE미국30년국채선물레버리지 증권상장지수투자신탁(채권-파생형)(합성H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101DZ9039,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+476750,K55101E91790,한국투자 ACE 미국30년국채엔화노출액티브증권상장지수투자신탁[채권](H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E91790,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+480030,K55101E97755,한국투자 ACE 미국500데일리타겟커버드콜 증권 상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E97755,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+280320,K55101BW5925,한국투자 ACE 미국IT인터넷증권상장지수투자신탁(주식-파생형)(합성 H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BW5925,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+480040,K55101E96450,한국투자 ACE 미국반도체 데일리타겟커버드콜 증권 상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E96450,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+181480,KR5101AJ9786,한국투자 ACE 미국부동산리츠 부동산상장지수투자신탁(파생형)(합성 H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/KR5101AJ9786,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+480020,K55101E97763,한국투자 ACE 미국빅테크7+ 데일리타겟커버드콜 증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E97763,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+465610,K55101E52487,한국투자 ACE 미국빅테크TOP7 Plus레버리지증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E52487,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+455660,K55101E13018,한국투자 ACE 미국하이일드액티브증권상장지수투자신탁[채권-재간접형](H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101E13018,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+245710,K55101BE0852,한국투자 ACE 베트남VN30증권상장지수투자신탁(주식-파생형)(합성),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BE0852,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
+238720,K55101BA8230,한국투자 ACE 일본Nikkei225증권상장지수투자신탁(주식-파생형)(H),ISSUER_PORTAL_CODE,https://www.aceetf.co.kr/fund/K55101BA8230,2026-10-04,"ACE 공식 상품 페이지 제목의 KRX 종목코드와 포털 표준코드가 직접 대응(10월 4일 229건 재대조에서 확인, 10월 6일 승격)"
