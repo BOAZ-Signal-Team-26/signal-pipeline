@@ -362,7 +362,7 @@ Table match_failure {
   resolution_note text
   source varchar [not null, note: '실패가 발생한 소스']
   attempted_key_value text [not null, note: '매칭을 시도한 키값. 코드 매칭 실패 시 코드, 문자열 매칭 실패 시 원문 상품명']
-  normalized_value text [note: 'matching-rules.md 「상품명 정규화」 4단계를 거친 문자열. 코드 매칭이면 NULL']
+  normalized_value text [note: '정규화를 거친 문자열. target_type이 product이면 matching-rules.md 「상품명 정규화」 4단계, distributor이면 「법인명 정규화」 5단계. 코드 매칭이면 NULL']
   top1_candidate_product_id int [ref: > product.product_id, note: '유사도가 가장 높았던 상품. 없으면 NULL. 후보일 뿐 실제 매칭이 아니다']
   top1_similarity decimal [note: '그 후보의 유사도 점수. precision/scale 미정']
   failure_reason_code failure_reason_enum [not null]

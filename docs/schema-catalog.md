@@ -194,7 +194,7 @@
 | resolution_note | text | 허용 |  | 판정값 |  |
 | source | varchar | 불가 |  | 관리값 | 실패가 발생한 소스 |
 | attempted_key_value | text | 불가 |  | 원본값 | 매칭을 시도한 키값. 코드 매칭 실패 시 코드, 문자열 매칭 실패 시 원문 상품명 |
-| normalized_value | text | 허용 |  | 계산값 | [매칭 규칙](matching-rules.md) 「상품명 정규화」 4단계를 거친 문자열. 코드 매칭이면 NULL |
+| normalized_value | text | 허용 |  | 계산값 | 정규화를 거친 문자열. `target_type`이 `product`이면 [매칭 규칙](matching-rules.md) 「상품명 정규화」 4단계, `distributor`이면 「법인명 정규화」 5단계. 코드 매칭이면 NULL |
 | top1_candidate_product_id | int | 허용 | FK | 판정값 | 유사도가 가장 높았던 상품. 없으면 NULL. 후보일 뿐 실제 매칭이 아니다 |
 | top1_similarity | decimal | 허용 |  | 계산값 | 그 후보의 유사도 점수. precision/scale 미정 |
 | failure_reason_code | failure_reason_enum | 불가 |  | 판정값 | v2.2(10월 13일 PM(대현) 확정): CLASS_GRADE_MISMATCH(클래스 위험등급 불일치) 추가. 클래스 product_id·대표 등급·클래스 등급·값 출처(운용사 공시/판매사/API)는 상세 JSON(resolution_note 안)에 기록(칼럼 추가 없음). 별도 표로 분리하지 않음 |
