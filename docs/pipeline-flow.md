@@ -46,7 +46,7 @@ flowchart TB
     R2 --> E0{"같은 파일 × 같은 파서 버전<br/>EXTRACT_OK 결과가 이미 있음?"}
     E0 -->|예, 건너뜀(EXTRACT_OK만)| E3
     E0 -.->|예: 텍스트·절은 재사용, LLM 6필드 결과는 따로 판단| L1
-    E0 -->|아니오 또는 FAILED/PARTIAL 재시도| E1["file_extraction<br/>pdftotext → canonical text<br/>EXTRACT_OK / PARTIAL / FAILED"]
+    E0 -->|아니오 또는 FAILED/PARTIAL 재시도| E1["file_extraction<br/>pdfplumber → canonical text<br/>EXTRACT_OK / PARTIAL / FAILED"]
     E1 --> E2["section<br/>부·절 분할 + 정규 절 분류 칼럼<br/>derived/ 경로에 절 텍스트"]
     E2 --> E3["문서 파싱 상태 집계<br/>PARSE_OK / PARTIAL / FAILED"]
     E2 -.-> L1["llm_field_extraction<br/>LLM 6필드 추출 결과(10월 15일 시작)"]
@@ -241,7 +241,7 @@ flowchart TB
 
 | 요구 | 이유 |
 |---|---|
-| poppler(`pdftotext`) | DART 본문 PDF 부·절 분할. 저장소의 기존 스크립트는 외부 의존성이 없었으나 PDF 텍스트 추출 직접 구현은 범위 밖 → 예외로 수용, 배포 환경 요구 사항 |
+| pdfplumber(Python 패키지) | DART 본문 PDF 텍스트 추출과 부·절 분할(PR #51). signal-pipeline 패키지 의존성으로 설치되며 poppler(`pdftotext`) 같은 시스템 패키지는 필요 없음 |
 | curl | 금투협 전자공시 호출. Python `urllib`로는 응답이 중간에 잘림(1,499행 중 43행만 도착). 응답이 `</root>`로 끝나는지 확인 필수([금투협 중복 행 검증](records/phase1-erd/kofia-rows-and-etf-rule.md) 「검증 1: 금투협 중복 행」) |
 | 금감원 법인 키 요청 IP 등록 | 법인 키에만 요청 IP 등록이 붙음. 수집 서버 IP 확정 전 신청하면 재신청 필요 |
 

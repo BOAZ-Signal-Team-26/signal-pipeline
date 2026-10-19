@@ -220,6 +220,7 @@ LLM 호출 저장:
 실행 폴더 불변:
 
 - `runs/{run_id}/`(inputs.json, extraction_attempts.jsonl, selection.json, documents.parquet, excluded.parquet, populations, llm)는 완료 후 불변. 조건부 쓰기, 삭제 거부, 실행을 SUCCEEDED로 바꾸기 전 sha256 재대조로 지킴
+- 실행 중 기록 파일의 쓰기 순서(10월 11일 데이터 엔지니어링·인프라(주영) 제안, PM(대현) 동의): `run.json`(실행 시작 때 쓰고 끝날 때 상태를 고침), `attempts.jsonl`·`extraction_attempts.jsonl`(실행 중 계속 덧붙임)은 실행 중에는 로컬 디스크(EC2에서는 EBS 볼륨)의 실행 폴더에 쓰고, 실행이 끝날 때 `runs/{run_id}/`에 한 번 올림. `runs/`는 조건부 쓰기(새 키만)만 받으므로 S3에 바로 쓰면 수정·덧붙임이 거부됨. EBS 볼륨이라 EC2가 멈춰도 로컬 파일은 남음
 - 채점 입력 파일(inputs.json, selection.json, documents.parquet, excluded.parquet)은 실행 시작 때 한 번 쓰고 이후 바꾸지 않음. 두 parquet의 sha256은 inputs.json에 기록. 실패한 채점 실행을 다시 돌릴 때는 새 score_run_id를 발급
 
 `assets/`(불변, 이름·버전·해시 12자로 경로가 정해짐):
