@@ -189,7 +189,7 @@ create table if not exists section (
   constraint section_document_id_fkey foreign key (document_id) references document (document_id),
   constraint section_raw_object_id_parser_version_fkey foreign key (raw_object_id, parser_version) references file_extraction (raw_object_id, parser_version),
   constraint section_raw_object_id_document_id_fkey foreign key (raw_object_id, document_id) references raw_object (raw_object_id, document_id),
-  constraint section_char_range_check check ((char_start is null and char_end is null) or (char_start >= 0 and char_start < char_end)),
+  constraint section_char_range_check check ((char_start is null and char_end is null) or (char_start is not null and char_end is not null and char_start >= 0 and char_start < char_end)),
   constraint section_boundary_not_found_has_no_range_check check (extract_status <> 'SECTION_BOUNDARY_NOT_FOUND' or (char_start is null and char_end is null)),
   constraint section_parser_version_format_check check (parser_version ~ '^[a-z0-9._-]+$')
 );
@@ -271,7 +271,7 @@ create table if not exists llm_field_extraction (
   constraint llm_field_extraction_evidence_section_id_fkey foreign key (evidence_section_id) references section (section_id),
   constraint llm_field_extraction_attempt_no_positive_check check (attempt_no >= 1),
   constraint llm_field_extraction_ok_needs_value_check check (result_status <> 'OK' or value_json is not null),
-  constraint llm_field_extraction_evidence_range_check check ((evidence_char_start is null and evidence_char_end is null) or (evidence_section_id is not null and evidence_char_start >= 0 and evidence_char_start < evidence_char_end))
+  constraint llm_field_extraction_evidence_range_check check ((evidence_char_start is null and evidence_char_end is null) or (evidence_section_id is not null and evidence_char_start is not null and evidence_char_end is not null and evidence_char_start >= 0 and evidence_char_start < evidence_char_end))
 );
 
 create index if not exists llm_field_extraction_document_id_idx on llm_field_extraction (document_id, field_name, input_sha256, prompt_sha256);
