@@ -1,5 +1,21 @@
 # 작업 기록
 
+## 2026-10-21 — 로컬 PostgreSQL에 수집·절 분할 결과 4개 표 적재 (#62)
+
+- 기준: 11차 미팅(10월 14일) 안건 7. 11월 12일 원점수 산출의 기준 실행 환경을 로컬 PostgreSQL로 둠. 적재 입력은 파서 버전 prep-7로 고정(prep-8은 Week 7 재적재)
+- 바꾼 것: [local_load.py](src/signal_pipeline/loading/local_load.py) 신설. `document`·`raw_object`·`file_extraction`·`section`과 외래 키로 꼭 필요한 `pipeline_run` 1행을 적재
+  - 다시 적재: 트랜잭션 하나에서 `TRUNCATE ... RESTART IDENTITY CASCADE` 뒤 자연키 순으로 넣음. 시각은 입력 파일 값만 써서 두 번 실행해도 ID·내용이 같음. CASCADE로 같이 비워질 하위 표(`score` 등)에 행이 있으면 `--force` 없이는 멈춤
+  - 추출 기록: prep-7 전체 실행 중 마지막 것(`runs/extract-20261013T112709Z-dad0`). `text.txt`·`structure.json` 해시를 추출 기록과, `structure.json`의 원본 해시·파서 버전을 `raw_object`와 대조해 다르면 멈춤
+  - `document`는 필수 칼럼만 채움(`received_date`는 접수번호 앞 8자리). `document_type`은 본문 PDF 파일 이름에 「간이」가 있으면 간이투자설명서(2건). 표지 HTML 파싱이 필요한 칼럼은 Week 7
+  - `raw_object.source_object_key`는 `{접수번호}/{file_role}`. 뷰어 목차(`viewer_tree`)는 `file_role` enum에 없어 적재하지 않음
+  - PDF 바이트가 같은 두 문서(20260918000190, 20260918000389)는 문서마다 `raw_object`·`section`을 따로 둠([원본 보관 규칙](docs/storage-and-failure-rules.md): 같은 바이트가 여러 문서에 나오면 각 문서의 연결을 남김)
+- 결과(10월 21일, 로컬 `signal-pg-local`): `document` 504, `raw_object` 1,354(본문 PDF 502, 표지 HTML 503, 표지 XML 349), `file_extraction` 502, `section` 17,251(`structure.json` 501개 합계 17,217 + 중복 문서 34). 경계 실패 480개는 글자 위치·본문 NULL. 실행 약 6초
+- 검증
+  - 두 번 실행: 5개 표의 행 수와 전체 내용 md5가 같음
+  - 원본 대조(전수): 문서별 절 수 차이 0건, 찾은 절 16,771개의 `section_text`가 `text.txt` 잘라 낸 값과 모두 같음, 표본 10개 절의 위치·제목 일치, 외래 키 고아·자연키 중복 0건, `raw_object.sha256`과 `.meta.json` 불일치 0건
+  - pytest 100개 통과, `ruff format`·`ruff check` 통과
+- 남은 것: 가동 점검 대조표에 적재 검증 결과 기록, 점검 체크리스트 7개(여유 시)
+
 ## 2026-10-14 — 결정 대기 E 확정(구분 칼럼 + 값 칼럼), `.meta.json` 확정, 해시 규칙·기록 순서 보강
 
 - 기준: 11차 미팅(10월 14일) 안건 4. 데이터 엔지니어링·인프라(주영) 10월 13일 PR #43 답변과 PM(대현) 10월 14일 크로스체크
