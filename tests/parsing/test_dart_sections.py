@@ -5,6 +5,7 @@ from signal_pipeline.parsing.dart_sections import (
     SectionSplitError,
     invariant_violations,
     split_sections,
+    undouble,
 )
 
 
@@ -327,3 +328,62 @@ def test_combined_affiliate_toc_split_in_body() -> None:
     result = split_sections(make(toc, combined))
     part4 = [s for s in bodies(result) if s.part_seq == 4]
     assert [s.in_toc for s in part4] == [True, True] and result.toc_replaced == []
+
+
+def test_cross_reference_sentence_is_not_part_heading() -> None:
+    # 제1부 본문의 「제2부 중 … 참고하시기 바랍니다」를 표제로 잡으면 제1부 2절이 제2부로 들어간다
+    # (10월 20일 prep-7 실패 483개 중 100개)
+    body = ["   제1부 모집 또는 매출에 관한 사항", "1. 투자대상", "본문"]
+    body += ["제2부 중 투자전략을 참고하시기 바랍니다.", "2. 투자전략", "본문"]
+    body += body_block()[5:]
+    text = make(toc_block(), body)
+    result = split_sections(text)
+    check(result, text)
+    second = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert second.char_start is not None
+    assert text[result.parts[1].char_start :].lstrip().startswith("제2부 발행인")
+
+
+def test_part_heading_with_slightly_different_title_is_kept() -> None:
+    # 목차 「모집 또는 매출」, 본문 「모집 및 매출」: 앞 4글자는 달라도 비슷하면 표제
+    body = body_block()
+    body[0] = "   제1부 모집 및 매출에 관한 사항"
+    text = make(toc_block(), body)
+    assert [p.part_seq for p in split_sections(text).parts] == [1, 2, 3]
+
+
+@pytest.mark.parametrize(
+    "line", ["2. 연도별 설정 및 판매 현황", "2 연도별 설정 및 판매 현황"]
+)
+def test_body_title_differs_in_middle_is_found_by_similarity(line: str) -> None:
+    # 목차 「연도별 설정 및 환매 현황」, 본문은 가운데 단어가 다르고 점이 빠지기도 한다
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 연도별 설정 및 환매 현황"]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문", line, "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    text = make(toc, body)
+    result = split_sections(text)
+    check(result, text)
+    sec = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert sec.title == line
+
+
+def test_dissimilar_title_with_same_number_is_not_taken() -> None:
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 연도별 설정 및 환매 현황"]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "2. 보수 및 수수료", "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    sec = next(
+        s for s in split_sections(make(toc, body)).sections
+        if (s.part_seq, s.source_section_no) == (1, "2")
+    )  # fmt: skip
+    assert sec.char_start is None
+
+
+def test_undouble() -> None:
+    assert undouble("제제 33 부부 투투자자위위험험") == "제 3 부 투자위험"
+    assert undouble("제3부 투자위험") == "제3부 투자위험"

@@ -54,7 +54,8 @@ from signal_pipeline.parsing.regions import (
 # 5: PR #49 4-6 형식(blocks 5종, 표 분리 상태, 책갈피 없으면 대조 null), PR #43 필드 이름
 # 6: 목차·본문 절 제목이 앞부분만 같아도 찾음, 앞 문장에 붙은 「제N부」 표제를 찾음(PR #51 표본 검토)
 # 7: 목차 「기타 … 관련회사」 합본 절을 본문의 관련회사별 절로 나눔(sections `in_toc`, `toc_replaced_sections`)
-PREP_VERSION = 7
+# 8: 다른 부를 언급하는 문장을 부 표제로 잡지 않음, 같은 번호의 비슷한 제목 줄을 절 시작으로 받음(#60)
+PREP_VERSION = 8
 CONTRACT_VERSION = 3
 OCR_MIN_CHARS = 100  # 공백 제외 글자 수가 이보다 적으면 OCR 후보
 FILE_TIMEOUT_SECONDS = 300  # 파일 1건 제한. pdfplumber는 502건 평균 수 초~수십 초
