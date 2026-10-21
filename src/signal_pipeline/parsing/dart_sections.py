@@ -11,7 +11,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
+from difflib import SequenceMatcher
 
 # 「제N부」로 시작하고 그 줄에 표제만 있는 행. 들여쓰기는 조건에 넣지 않는다.
 # 숫자 앞뒤 공백(「제 3 부」)과 표제가 다음 줄에 있는 경우(「제1부」만 있는 줄)도 받는다.
@@ -40,6 +42,11 @@ AFFILIATE = re.compile(
     r"|집합(?:투자)?기구평가회사|채권평가회사|ESG.{0,8}평가|기타업무의수탁회사)"
 )
 BODY_SEC = re.compile(r"^\s*(\d{1,2})\s*\.\s*(\S.*)$")
+# 번호 뒤 점이 빠진 절 표제(「2 연도별 설정 및 판매 현황」, 10월 21일 502건 중 2개). 유사도 규칙에서만 쓴다
+BODY_SEC_LOOSE = re.compile(r"^\s*(\d{1,2})\s*\.?\s*(\D.*)$")
+# 목차와 본문 제목이 일부만 같을 때(「집합투자기구의 투자위험」/「투자위험」 등) 같은 절·부로 보는 유사도 하한.
+# 10월 20일 prep-7 실패 483개 시험에서 0.6일 때 표본 129개 오검출 0개, 0.7이면 62개를 덜 찾는다
+SIMILAR_MIN = 0.6
 
 FOUND = "EXTRACT_OK"
 NOT_FOUND = "SECTION_BOUNDARY_NOT_FOUND"
@@ -93,12 +100,20 @@ def part_marks(lines: list[str]) -> list[Mark]:
     """「제N부」 표제 행 목록."""
     marks: list[Mark] = []
     for index, line in enumerate(lines):
-        stripped = SIDE_TAB.sub("", LEADER.sub("", line.strip()))
+        stripped = undouble(SIDE_TAB.sub("", LEADER.sub("", line.strip())))
         match = PART.match(stripped)
         # layout 텍스트는 글자 간격을 공백으로 늘려 표제 줄이 길어지므로 연속 공백은 하나로 보고 잰다
         if match and len(re.sub(r"\s+", " ", stripped)) < MAX_HEAD:
             marks.append((index, int(match.group(1)), stripped))
     return marks
+
+
+def undouble(text: str) -> str:
+    """굵게 겹쳐 찍혀 글자가 두 번씩 나온 표제(「제제 33 부부 …」)를 한 번씩으로 되돌린다."""
+    words = text.split()
+    if len(words) < 2 or not all(len(w) % 2 == 0 and w[::2] == w[1::2] for w in words):
+        return text
+    return " ".join(w[::2] for w in words)
 
 
 def part_runs(marks: list[Mark]) -> list[list[Mark]]:
@@ -160,7 +175,12 @@ def normalize(text: str) -> str:
 
 
 def _find_start(
-    body: list[tuple[int, str]], number: int, name: str, after: int
+    body: list[tuple[int, str]],
+    lines: list[str],
+    number: int,
+    name: str,
+    after: int,
+    later: Sequence[tuple[int, str]] | None = (),  # None이면 유사도 규칙을 쓰지 않음
 ) -> int | None:
     """본문 줄(줄 번호, 정규화 텍스트) 중 `after` 뒤의 절 시작 줄 번호. 못 찾으면 None.
 
@@ -182,7 +202,40 @@ def _find_start(
         )
     if spot is None:
         spot = next((i for i, text in body if _prefix_title(text, number, key)), None)
+    if spot is None and later is not None:
+        # 뒤 절이 앞의 세 규칙으로 잡히는 줄보다 앞에서만 찾는다. 뒤 절 안의 번호 목록 줄을 잡으면
+        # 이 절 경계가 틀리고 뒤 절은 「앞 절보다 뒤」 조건 때문에 못 찾는다(PR #61 리뷰)
+        found = (_find_start(body, lines, n, nm, after, None) for n, nm in later)
+        limit = min((f for f in found if f is not None), default=None)
+        if limit is not None:
+            body = [(i, text) for i, text in body if i < limit]
+        spot = _similar_title(body, lines, number, key)
     return spot
+
+
+def _similar_title(
+    body: list[tuple[int, str]], lines: list[str], number: int, key: str
+) -> int | None:
+    """같은 번호 「N.」 줄 중 제목이 목차 제목과 가장 비슷한 줄(SIMILAR_MIN 이상).
+
+    본문 제목이 목차와 가운데·끝만 다른 절(10월 20일 prep-7 실패 483개 중 327개)을 받는다.
+    번호 목록 줄을 잡지 않도록 PREFIX_LINE_MAX 이하 줄만 본다. 합본 관련회사 절은
+    _affiliate_sections가 회사별 절로 대신하므로 목차·본문 어느 쪽이 합본이어도 받지 않는다.
+    """
+    if COMBINED_TOC.match(key):
+        return None
+    best: tuple[float, int] | None = None
+    for i, _ in body:
+        match = BODY_SEC_LOOSE.match(lines[i])
+        if not match or int(match.group(1)) != number:
+            continue
+        rest = normalize(match.group(2))
+        if len(rest) > PREFIX_LINE_MAX or COMBINED_TOC.match(rest):
+            continue
+        score = SequenceMatcher(None, rest[: len(key) + 3], key).ratio()
+        if score >= SIMILAR_MIN and (best is None or score > best[0]):
+            best = (score, i)
+    return best[1] if best else None
 
 
 def _prefix_title(text: str, number: int, key: str) -> bool:
@@ -321,12 +374,12 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         raise SectionSplitError("「제N부」 표제를 찾지 못했다")
     # 첫 묶음 = 목차. 그 뒤에서 부를 셋 이상 고르면 본문, 아니면 목차 없는 문서
     first = runs[0]
+    toc_titles = {part: _part_title(lines, index) for index, part, _ in first}
+    marks = [m for m in marks if m[0] <= first[-1][0] or _is_heading(m, toc_titles)]
     body_run = ascending([m for m in marks if m[0] > first[-1][0]])
-    toc_titles: dict[int, str] = {}
     if len(body_run) >= 3:
         contents = toc(lines, first, body_run[0][0])
         toc_part_count = len(first)
-        toc_titles = {part: _part_title(lines, index) for index, part, _ in first}
     elif body_run:
         # 목차 뒤 본문 표제가 1~2개면 목차를 부로 쓸 수도, 본문만으로 나눌 수도 없다
         # (10월 10일 502건 실측 0건)
@@ -335,6 +388,7 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         )
     else:
         contents: dict[int, list[tuple[int, str]]] = {}
+        toc_titles = {}
         body_run = ascending([m for m in marks if m[0] >= first[0][0]])
         toc_part_count = 0
 
@@ -351,8 +405,9 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         lined = [(i, normalize(lines[i])) for i in range(start + 1, end)]
         spots: list[tuple[int, str, int | None]] = []
         last = start
-        for number, name in contents.get(part, []):
-            spot = _find_start(lined, number, name, last)
+        listed = contents.get(part, [])
+        for k, (number, name) in enumerate(listed):
+            spot = _find_start(lined, lines, number, name, last, listed[k + 1 :])
             spots.append((number, name, spot))
             last = spot if spot is not None else last
         added = _affiliate_sections(lines, lined, spots)
@@ -398,9 +453,26 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
     return split, toc_titles
 
 
+def _is_heading(mark: Mark, toc_titles: dict[int, str]) -> bool:
+    """본문 「제N부」 줄이 부 표제인지. 뒤에 글이 있으면 목차 부 제목 앞 4글자가 들어 있거나 비슷해야 한다.
+
+    제1부 본문의 다른 부 언급 문장(「제2부 중 "투자대상"과 … 참고하시기 바랍니다.」)을 표제로 잡으면
+    제1부 뒷부분이 제2부로 들어간다(10월 20일 prep-7 실패 483개 중 100개).
+    목차와 본문 부 제목이 한두 글자 다른 문서(「모집 및 매출」/「모집 또는 매출」)는 유사도로 받는다.
+    """
+    _, part, text = mark
+    match = PART.match(text)
+    rest = normalize(match.group(2) or "") if match else ""
+    title = normalize(toc_titles.get(part, ""))
+    # 목차 부 제목이 4글자보다 짧으면(「발행인」) 제목 전체가 들어 있어야 한다
+    if not rest or not title or title[:PREFIX_MIN] in rest:
+        return True
+    return SequenceMatcher(None, rest[: len(title) + 3], title).ratio() >= SIMILAR_MIN
+
+
 def _part_title(lines: list[str], index: int) -> str:
     """목차 「제N부」 줄의 제목. 줄에 표제만 있으면 다음 비어 있지 않은 줄."""
-    stripped = SIDE_TAB.sub("", LEADER.sub("", lines[index].strip()))
+    stripped = undouble(SIDE_TAB.sub("", LEADER.sub("", lines[index].strip())))
     match = PART.match(stripped)
     if match and match.group(2):
         return match.group(2)
