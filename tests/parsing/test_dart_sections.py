@@ -387,3 +387,54 @@ def test_dissimilar_title_with_same_number_is_not_taken() -> None:
 def test_undouble() -> None:
     assert undouble("제제 33 부부 투투자자위위험험") == "제 3 부 투자위험"
     assert undouble("제3부 투자위험") == "제3부 투자위험"
+
+
+def test_similar_title_inside_next_section_is_not_taken() -> None:
+    # 2절이 본문에 없고 3절 안 번호 목록에 비슷한 줄이 있으면 2절로 잡지 않는다. 3절은 찾는다(PR #61 리뷰)
+    toc = [
+        "제1부 모집",
+        "   1. 투자대상",
+        "   2. 연도별 설정 및 환매 현황",
+        "   3. 보수",
+    ]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = [
+        "   제1부 모집",
+        "1. 투자대상",
+        "본문",
+        "3. 보수",
+        "2. 연도별 설정 및 판매 현황",
+    ]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    secs = {
+        s.source_section_no: s for s in bodies(split_sections(make(toc, body)))
+        if s.part_seq == 1
+    }  # fmt: skip
+    assert secs["2"].char_start is None
+    assert secs["3"].title == "3. 보수"
+
+
+def test_short_toc_part_title_still_filters_cross_reference() -> None:
+    # 목차 부 제목이 4글자 미만(「발행인」)이어도 다른 부 언급 문장은 표제가 아니다(PR #61 리뷰)
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 투자전략", "제2부 발행인"]
+    toc += ["   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = [
+        "   제1부 모집",
+        "1. 투자대상",
+        "제2부 중 투자전략을 참고하시기 바랍니다.",
+        "2. 투자전략",
+    ]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    result = split_sections(make(toc, body))
+    sec = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert sec.char_start is not None
+
+
+def test_doubled_toc_part_heading_gives_title() -> None:
+    # 목차 부 표제가 글자 두 번씩(「제제 11 부부 모모집집」)이어도 부 제목을 읽는다(PR #61 리뷰)
+    toc = toc_block()
+    toc[0] = "제제 11 부부 모모집집 또또는는 매매출출에에 관관한한 사사항항"
+    text = make(toc, body_block())
+    assert [p.part_seq for p in split_sections(text).parts] == [1, 2, 3]

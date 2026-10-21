@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from difflib import SequenceMatcher
 
@@ -174,7 +175,12 @@ def normalize(text: str) -> str:
 
 
 def _find_start(
-    body: list[tuple[int, str]], lines: list[str], number: int, name: str, after: int
+    body: list[tuple[int, str]],
+    lines: list[str],
+    number: int,
+    name: str,
+    after: int,
+    later: Sequence[tuple[int, str]] | None = (),  # None이면 유사도 규칙을 쓰지 않음
 ) -> int | None:
     """본문 줄(줄 번호, 정규화 텍스트) 중 `after` 뒤의 절 시작 줄 번호. 못 찾으면 None.
 
@@ -196,7 +202,13 @@ def _find_start(
         )
     if spot is None:
         spot = next((i for i, text in body if _prefix_title(text, number, key)), None)
-    if spot is None:
+    if spot is None and later is not None:
+        # 뒤 절이 앞의 세 규칙으로 잡히는 줄보다 앞에서만 찾는다. 뒤 절 안의 번호 목록 줄을 잡으면
+        # 이 절 경계가 틀리고 뒤 절은 「앞 절보다 뒤」 조건 때문에 못 찾는다(PR #61 리뷰)
+        found = (_find_start(body, lines, n, nm, after, None) for n, nm in later)
+        limit = min((f for f in found if f is not None), default=None)
+        if limit is not None:
+            body = [(i, text) for i, text in body if i < limit]
         spot = _similar_title(body, lines, number, key)
     return spot
 
@@ -393,8 +405,9 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         lined = [(i, normalize(lines[i])) for i in range(start + 1, end)]
         spots: list[tuple[int, str, int | None]] = []
         last = start
-        for number, name in contents.get(part, []):
-            spot = _find_start(lined, lines, number, name, last)
+        listed = contents.get(part, [])
+        for k, (number, name) in enumerate(listed):
+            spot = _find_start(lined, lines, number, name, last, listed[k + 1 :])
             spots.append((number, name, spot))
             last = spot if spot is not None else last
         added = _affiliate_sections(lines, lined, spots)
@@ -451,14 +464,15 @@ def _is_heading(mark: Mark, toc_titles: dict[int, str]) -> bool:
     match = PART.match(text)
     rest = normalize(match.group(2) or "") if match else ""
     title = normalize(toc_titles.get(part, ""))
-    if not rest or len(title) < PREFIX_MIN or title[:PREFIX_MIN] in rest:
+    # 목차 부 제목이 4글자보다 짧으면(「발행인」) 제목 전체가 들어 있어야 한다
+    if not rest or not title or title[:PREFIX_MIN] in rest:
         return True
     return SequenceMatcher(None, rest[: len(title) + 3], title).ratio() >= SIMILAR_MIN
 
 
 def _part_title(lines: list[str], index: int) -> str:
     """목차 「제N부」 줄의 제목. 줄에 표제만 있으면 다음 비어 있지 않은 줄."""
-    stripped = SIDE_TAB.sub("", LEADER.sub("", lines[index].strip()))
+    stripped = undouble(SIDE_TAB.sub("", LEADER.sub("", lines[index].strip())))
     match = PART.match(stripped)
     if match and match.group(2):
         return match.group(2)
