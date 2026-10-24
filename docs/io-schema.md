@@ -10,7 +10,7 @@
 | 기한 | 2026-10-14 |
 | 선행 산출물 | CDI 4축 변수표(09-23), 데이터 처리 요구 명세(09-30) |
 | 1단계와의 경계 | 09-16 데이터베이스 Schema는 두 계약을 담을 자리만 두고 모양을 미리 확정하지 않음. v2에서 먼저 들어간 모양은 「스키마에 먼저 들어간 모양」 |
-| LLM 추출 JSON 공통 계약 | 10월 24일 초안(아래 「LLM 추출 결과 JSON 공통 계약」). 필드별 정의는 6필드 확정(10월 28일) 뒤 Week 7 |
+| LLM 추출 JSON 공통 계약 | 10월 24일 초안(아래 「LLM 추출 결과 JSON 공통 계약」). 필드별 정의는 6필드 확정(10월 28일) 뒤 Week 7(10월 29일~11월 11일) |
 
 ## 확정할 데이터 계약 2종
 
@@ -47,7 +47,7 @@
 ### 적용 범위
 
 - 공통 계약이 정하는 것: 필드 1건의 JSON envelope, 상태값과 `result_status` 대응, 결측 표기, 값 표기 규칙(원문·단위·목록), 근거 위치 형식, 입력 참조 형식
-- 필드별 정의가 정하는 것(6필드 확정 10월 28일 뒤, Week 7): 필드 이름, `value`의 타입과 구조, 출처 절, 표지(HTML) 출처 필드의 근거 표기
+- 필드별 정의가 정하는 것(6필드 확정 10월 28일 뒤, Week 7: 10월 29일~11월 11일): 필드 이름, `value`의 타입과 구조, 출처 절, 표지(HTML) 출처 필드의 근거 표기
 - 계약 밖: 문서 작성기준일은 규칙 기반 추출([데이터 처리 요구 명세](processing-requirements.md) 4-4). 부·절 제목 위치는 `structure.json`이 정본. 둘 다 LLM 입력을 고를 때 참조만 함
 
 | 파일·칼럼 | 내용 | 규칙 |
@@ -65,10 +65,10 @@
 | `field_name` | string | 필수 | `llm_field_extraction.field_name`과 같은 값 |
 | `status` | string | 필수 | 아래 「상태값」 5개 중 하나 |
 | `value` | 필드별 | `status = FOUND`일 때 필수, 그 외 null | 구조는 필드별 정의 |
-| `raw_text` | string | `FOUND`일 때 필수 | 값의 원문. 정규화하지 않음 |
-| `reason_code` | string | `FOUND`가 아닐 때 필수 | 아래 「결측 표기」 |
+| `raw_text` | string \| null | `FOUND`일 때 문자열 필수, 그 외 null | 값의 원문. 정규화하지 않음 |
+| `reason_code` | string \| null | `FOUND`일 때 null, 그 외 문자열 필수 | 아래 「결측 표기」 |
 | `evidence` | 배열 | `FOUND`일 때 1개 이상, 그 외 빈 배열 | 아래 「근거 위치」 |
-| `notes` | string | 선택 | 모델이 남긴 설명. 판정에 쓰지 않음 |
+| `notes` | string \| null | 선택. 없으면 null | 모델이 남긴 설명. 판정에 쓰지 않음 |
 
 ### 상태값
 
@@ -81,7 +81,7 @@
 | FAILED | FAILED | null | CALL_FAILED, PARSE_FAILED, SCHEMA_INVALID, EVIDENCE_NOT_LOCATED | 호출·파싱·계약 검증·근거 위치 변환 실패. 재호출 대상 |
 
 - `result_status = PENDING`은 계획 행. `value_json`은 NULL
-- 「문서에 값이 없음」은 `OK` + `NOT_FOUND`로 둠(10월 24일 제안). 채점의 파트 A 「없음 = OK·raw_score 0」([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」)과 같은 방식이고, DDL의 「OK이면 `value_json` 필수」 제약을 만족함. enum 변경 없음. [데이터 테이블·ERD 설계](data-model.md) 「미결」의 「없음」 결과 행은 이 결정으로 닫음
+- 「문서에 값이 없음」은 `OK` + `NOT_FOUND`로 둠(10월 24일 제안). 채점의 파트 A 「없음 = OK·raw_score 0」([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」)과 같은 방식이고, DDL의 「OK이면 `value_json` 필수」 제약을 만족함. enum 변경 없음. PM(대현) 확인 뒤 [데이터 테이블·ERD 설계](data-model.md) 「미결」의 「없음」 결과 행을 닫음(아래 「미결」)
 - 적재 검증: `status`와 `result_status`의 대응이 위 표와 같음. `FOUND`면 `value`·`evidence` 있음, 아니면 `value` null·`evidence` 빈 배열. `reason_code`는 표의 목록 안
 
 ### 결측 표기
@@ -98,7 +98,7 @@
 | EVIDENCE_NOT_LOCATED | FAILED | `quote`를 절 텍스트에서 찾지 못함 | 함 |
 
 - 「추출 실패」(FAILED·UNDETERMINED)를 「문서에 없음」(NOT_FOUND)으로 계산하지 않음. 채점은 NOT_FOUND만 「고지 없음」으로 봄
-- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로. NOT_FOUND·UNDETERMINED·NOT_APPLICABLE은 같은 입력·프롬프트·모델이면 재사용
+- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status = OK`일 때만 재사용. NOT_FOUND는 OK라 재사용되고, UNDETERMINED·NOT_APPLICABLE은 규칙에 없어 재호출됨(재사용 여부는 「미결」)
 
 ### 값 표기 공통 규칙
 
@@ -113,7 +113,7 @@
 
 - `evidence[{"section_id", "char_start", "char_end", "quote"}]`. 여러 구간 허용, 첫 항목이 대표 구간이고 칼럼 3개에 복사
 - 범위는 그 절의 파서 버전이 만든 canonical text 기준 Unicode code point 반열린 구간, 절 범위 안([데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」 15)
-- 모델은 `quote`(원문 인용)와 절을 돌려주고, 변환기가 절 텍스트에서 위치를 찾아 `char_start`·`char_end`를 채움. `quote` = canonical text의 그 구간. 못 찾으면 FAILED(EVIDENCE_NOT_LOCATED)
+- 모델은 `quote`(원문 인용)와 절을 돌려주고, 변환기가 절 텍스트에서 위치를 찾아 `char_start`·`char_end`를 채움. `quote` = canonical text의 그 구간. 못 찾으면 FAILED(EVIDENCE_NOT_LOCATED). 같은 절에 여러 번 나오면 첫 구간을 쓰고 `notes`에 「다중 일치 n회」를 남김. 위치가 중요한 필드는 필드별 정의에서 인용 길이를 정함
 - 표지(HTML) 출처 필드의 근거 형식은 필드별 정의에서 정함(「미결」)
 
 ### 입력 참조 (`request.json`)
@@ -127,7 +127,7 @@
 | `input_sha256` | `input_text`의 UTF-8/LF 바이트 sha256. 정규화 없음 |
 
 - 해시 규칙과 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」
-- 작성기준일 같은 문서 칼럼 값은 프롬프트 템플릿 변수로 넣을 수 있고 `input_text`에 넣지 않음(템플릿 제외 규칙)
+- 프롬프트 템플릿에 문서별 값을 변수로 넣지 않음. `prompt_sha256`은 템플릿 파일 해시라 변수 값이 바뀌어도 재호출 생략 키가 같아짐. 작성기준일 같은 문서 칼럼 값이 필요하면 `input_text`에 넣어 `input_sha256`에 포함시킴
 
 ### 예시
 
@@ -237,6 +237,7 @@
 | 표지(HTML) 출처 필드의 근거 형식 | 필드별 정의 | 6필드 확정(10월 28일) 뒤 |
 | 6필드 이름·`value` 구조·출처 절 | 분석·리서치(민석)·데이터 사이언스(다빈) → 데이터 엔지니어링·인프라(주영) | 10월 28일 |
 | 프롬프트 설정 파일 위치·버전 규칙 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
+| UNDETERMINED·NOT_APPLICABLE 결과의 재사용 여부(지금은 원본 보관 규칙대로 재호출) | PM(대현) | 추출 모듈 구현 전 |
 
 ## CDI 출력 요구
 
