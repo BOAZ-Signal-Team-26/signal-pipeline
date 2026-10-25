@@ -438,3 +438,14 @@ def test_doubled_toc_part_heading_gives_title() -> None:
     toc[0] = "제제 11 부부 모모집집 또또는는 매매출출에에 관관한한 사사항항"
     text = make(toc, body_block())
     assert [p.part_seq for p in split_sections(text).parts] == [1, 2, 3]
+
+
+def test_toc_part_heading_alone_followed_by_section_has_no_title() -> None:
+    # 목차 「제1부」 단독 줄 다음이 절 항목(「1. 투자대상」)이면 그 줄은 부 제목이 아니다.
+    # 부 제목으로 쓰면 본문 「제1부 모집 …」이 걸러져 SectionSplitError가 난다(PR #61 리뷰)
+    toc = toc_block()
+    toc[0] = "제1부"
+    text = make(toc, body_block())
+    result = split_sections(text)
+    check(result, text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3]

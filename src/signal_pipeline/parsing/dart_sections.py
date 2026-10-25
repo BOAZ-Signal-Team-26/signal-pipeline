@@ -471,13 +471,18 @@ def _is_heading(mark: Mark, toc_titles: dict[int, str]) -> bool:
 
 
 def _part_title(lines: list[str], index: int) -> str:
-    """목차 「제N부」 줄의 제목. 줄에 표제만 있으면 다음 비어 있지 않은 줄."""
+    """목차 「제N부」 줄의 제목. 줄에 표제만 있으면 다음 비어 있지 않은 줄.
+
+    다음 줄이 절 항목(「1. 투자대상」)이면 제목이 없는 것으로 보고 빈 문자열을 돌려준다.
+    _is_heading은 목차 제목이 비어 있으면 본문 「제N부」 줄을 모두 받는다.
+    """
     stripped = undouble(SIDE_TAB.sub("", LEADER.sub("", lines[index].strip())))
     match = PART.match(stripped)
     if match and match.group(2):
         return match.group(2)
     following = (line.strip() for line in lines[index + 1 :] if line.strip())
-    return LEADER.sub("", next(following, ""))
+    title = LEADER.sub("", next(following, ""))
+    return "" if BODY_SEC.match(title) else title
 
 
 def _front_sections(
