@@ -2,9 +2,13 @@ import hashlib
 import json
 from pathlib import Path
 
-from signal_pipeline.loading.local_load import build_rows
+import pytest
 
-PARSER = "pdfplumber-0.11_prep-7"
+from signal_pipeline.loading.local_load import build_rows
+from signal_pipeline.parsing.extract import parser_version
+
+PARSER = parser_version()
+REPORT = "[기재정정]투자설명서(집합투자증권)(가나다증권투자신탁)"
 RCEPT = "20260901000001"
 PDF = b"%PDF-1 tiny"
 TEXT = "가나다라마바사"
@@ -30,7 +34,11 @@ def _fixture(root: Path) -> None:
     _write(folder / "body_pdf__v1.pdf.meta.json", json.dumps(meta).encode())
     viewer = {**meta, "file_role": "viewer_tree"}  # 적재 대상 아님
     _write(folder / "viewer_tree__v1.html.meta.json", json.dumps(viewer).encode())
-    (root / "raw/dart/_list").mkdir()
+    listing = {"status": "000", "list": [{"rcept_no": RCEPT, "report_nm": REPORT}]}
+    _write(
+        root / "raw/dart/_list/2026-09-01/page-0001__v1.json",
+        json.dumps(listing).encode(),
+    )
 
     base = root / "derived" / _sha(PDF) / PARSER
     text_b = TEXT.encode()
@@ -76,7 +84,12 @@ def test_build_rows_from_tiny_fixture(tmp_path: Path) -> None:
     _fixture(tmp_path)
     rows = build_rows(tmp_path)
     assert [d["source_doc_key"] for d in rows.documents] == [RCEPT]
-    assert rows.documents[0]["received_date"].isoformat() == "2026-09-01"
+    doc = rows.documents[0]
+    assert doc["received_date"].isoformat() == "2026-09-01"
+    # 문서 종류·정정 여부는 목록 report_nm에서(본문 파일명이 아님)
+    assert doc["report_name"] == REPORT and doc["is_correction"] is True
+    assert doc["document_type"] == "투자설명서"
+    assert doc["source_record_payload"] == {"rcept_no": RCEPT, "report_nm": REPORT}
     assert [r["file_role"] for r in rows.raw_objects] == [
         "body_pdf"
     ]  # viewer_tree 제외
@@ -101,3 +114,11 @@ def test_failed_extraction_has_no_sections(tmp_path: Path) -> None:
     rows = build_rows(tmp_path)
     assert rows.extractions[0]["extract_status"] == "FAILED"
     assert rows.sections == []
+
+
+def test_document_missing_from_list_is_error(tmp_path: Path) -> None:
+    _fixture(tmp_path)
+    page = tmp_path / "raw/dart/_list/2026-09-01/page-0001__v1.json"
+    page.write_text(json.dumps({"status": "000", "list": []}))
+    with pytest.raises(ValueError, match="목록"):
+        build_rows(tmp_path)

@@ -2,8 +2,12 @@
 
 사용: DATABASE_URL=postgresql://... uv run python -m signal_pipeline.loading.local_load DATA_DIR [--checksum]
 
-- 파서 버전은 기본 pdfplumber-0.11_prep-7. 추출 기록은 그 버전의 마지막 전체 실행(runs/extract-*/)의
-  extraction_attempts.jsonl 한 개에서만 읽는다(--run-id로 지정 가능).
+- 파서 버전은 기본으로 추출기와 같은 값(extract.parser_version()). 추출 기록은 그 버전의 마지막 전체 실행
+  (runs/extract-*/)의 extraction_attempts.jsonl 한 개에서만 읽는다(--run-id로 지정 가능).
+- 표는 raw·staging·mart 스키마에 있다(docs/data-model.md 「물리 결정」 6). 접속할 때 검색 경로를 지정하므로
+  SQL은 스키마 없는 표 이름을 쓴다.
+- 문서 종류·정정 여부·보고서명은 목록 응답(raw/dart/_list/)의 report_nm에서 수집기와 같은 규칙(classify_report)으로 정한다.
+  본문 PDF 파일명(「간이」 포함 여부)은 문서 종류에 쓰지 않는다. document는 접수 단위이기 때문이다.
 - 다시 적재 방식: 4개 표와 pipeline_run을 `TRUNCATE ... RESTART IDENTITY`로 비운 뒤 정렬 순서대로 넣는다.
   자연키가 같고 입력이 같으면 ID 발급 순서도 같아 두 번 실행해도 결과가 같다. PostgreSQL은 참조하는 표를
   모두 나열하거나 CASCADE를 요구하므로 CASCADE를 쓴다. CASCADE로 같이 비워질 하위 표(score 등)에 행이 있으면
@@ -29,10 +33,12 @@ from urllib.parse import unquote
 import psycopg
 from psycopg.types.json import Jsonb
 
+from signal_pipeline.collectors.dart import LIST_FOLDER, Kind, classify_report
 from signal_pipeline.common.storage import encode_source_key, sha256_hex
+from signal_pipeline.parsing.extract import parser_version
 
-DEFAULT_PARSER = "pdfplumber-0.11_prep-7"
 SOURCE = "dart"
+SEARCH_PATH = "raw,staging,mart"
 RCEPT_RE = re.compile(r"^\d{14}$")
 # viewer_tree는 raw_object.file_role CHECK에 없어 적재하지 않는다
 ROLE_FORMAT = {
@@ -40,7 +46,14 @@ ROLE_FORMAT = {
     "cover_html": ("html", "text/html"),
     "cover_xml": ("zip", "application/zip"),
 }
-TABLES = ("section", "file_extraction", "raw_object", "document", "pipeline_run")
+# TRUNCATE 대상. 스키마를 붙여 써서 검색 경로와 무관하게 같은 표를 가리킨다
+TABLES = (
+    "staging.section",
+    "staging.file_extraction",
+    "raw.raw_object",
+    "raw.document",
+    "raw.pipeline_run",
+)
 CHECKSUM_ORDER = {
     "pipeline_run": "run_id",
     "document": "document_id",
@@ -85,13 +98,33 @@ def pick_run(data: Path, parser: str, run_id: str | None) -> str:
     return found[-1]
 
 
-def _document_type(body_file_name: str | None) -> str:
-    """파일명에 '간이'가 있으면 간이투자설명서, 아니면 투자설명서."""
-    return (
-        "간이투자설명서"
-        if body_file_name and "간이" in body_file_name
-        else "투자설명서"
-    )
+def list_records(data: Path) -> dict[str, dict[str, Any]]:
+    """목록 응답 전체 → 접수번호별 목록 레코드. 같은 접수번호가 여러 번 나오면 파일 이름 순 마지막 값."""
+    records: dict[str, dict[str, Any]] = {}
+    for page in sorted((data / "raw" / SOURCE / LIST_FOLDER).glob("*/page-*__v*.json")):
+        for item in _json(page).get("list", []):
+            records[item["rcept_no"]] = item
+    return records
+
+
+def _document_row(rcept_no: str, record: dict[str, Any] | None) -> dict[str, Any]:
+    if record is None:
+        raise ValueError(f"목록 응답에 접수번호가 없다: {rcept_no}")
+    kind, correction = classify_report(record["report_nm"])
+    if kind is not Kind.PROSPECTUS:
+        raise ValueError(f"투자설명서가 아닌 접수다: {rcept_no} {record['report_nm']}")
+    return {
+        "source_doc_key": rcept_no,
+        "source_key_payload": {"rcept_no": rcept_no},
+        "source_record_payload": record,
+        "rcept_no": rcept_no,
+        "document_type": kind.value,
+        "report_name": record["report_nm"],
+        "is_correction": correction,
+        "received_date": date(
+            int(rcept_no[:4]), int(rcept_no[4:6]), int(rcept_no[6:8])
+        ),
+    }
 
 
 def _raw_row(data: Path, meta_path: Path) -> dict[str, Any]:
@@ -177,10 +210,12 @@ def _extraction_row(
 
 
 def build_rows(
-    data: Path, parser: str = DEFAULT_PARSER, run_id: str | None = None
+    data: Path, parser: str | None = None, run_id: str | None = None
 ) -> Rows:
     """디스크 입력만 읽어 적재할 행을 만든다(DB 없음). 모든 목록은 자연키 순으로 정렬된다."""
+    parser = parser or parser_version()
     run_id = pick_run(data, parser, run_id)
+    listed = list_records(data)
     run_dir = data / "runs" / run_id
     run = _json(run_dir / "run.json")
     attempts = {
@@ -215,17 +250,7 @@ def build_rows(
             if _json(p)["file_role"] in ROLE_FORMAT
         ]
         body = next((r for r in raws if r["file_role"] == "body_pdf"), None)
-        rows.documents.append(
-            {
-                "source_doc_key": rcept_no,
-                "source_key_payload": {"rcept_no": rcept_no},
-                "rcept_no": rcept_no,
-                "document_type": _document_type(body["file_name"] if body else None),
-                "received_date": date(
-                    int(rcept_no[:4]), int(rcept_no[4:6]), int(rcept_no[6:8])
-                ),
-            }
-        )
+        rows.documents.append(_document_row(rcept_no, listed.get(rcept_no)))
         rows.raw_objects.extend(raws)
         if body is None:
             rows.skipped.append(
@@ -273,8 +298,10 @@ def _structure_sections(
 
 
 INSERT_DOCUMENT = """
-insert into document (source, source_doc_key, source_key_payload, rcept_no, document_type, received_date)
-values (%(source)s, %(source_doc_key)s, %(payload)s, %(rcept_no)s, %(document_type)s, %(received_date)s)
+insert into document (source, source_doc_key, source_key_payload, source_record_payload, rcept_no,
+  document_type, report_name, is_correction, received_date)
+values (%(source)s, %(source_doc_key)s, %(payload)s, %(record)s, %(rcept_no)s, %(document_type)s,
+  %(report_name)s, %(is_correction)s, %(received_date)s)
 returning document_id"""
 INSERT_RAW = """
 insert into raw_object (document_id, source, source_object_key, version_seq, body_format, original_file_name,
@@ -312,22 +339,26 @@ def _returning(cur: psycopg.Cursor, sql: str, params: dict[str, Any]) -> int:
     return row[0]
 
 
-# CASCADE로 같이 비워질 표: TABLES를 직접·간접으로 참조하는 표
+# CASCADE로 같이 비워질 표: TABLES를 직접·간접으로 참조하는 표. 표 이름 문자열은 검색 경로에 따라
+# 스키마가 붙거나 빠지므로 oid로 따라가고, 출력만 「스키마.표」로 만든다
 CASCADE_TABLES = """
-with recursive refs(tbl) as (
-  select unnest(%(tables)s::text[])
+with recursive refs(oid) as (
+  select unnest(%(tables)s::regclass[])::oid
   union
-  select c.conrelid::regclass::text from pg_constraint c join refs on c.confrelid::regclass::text = refs.tbl
+  select c.conrelid from pg_constraint c join refs on c.confrelid = refs.oid
   where c.contype = 'f'
 )
-select tbl from refs where tbl <> all(%(tables)s::text[]) order by tbl"""
+select format('%%I.%%I', n.nspname, t.relname)
+from refs join pg_class t on t.oid = refs.oid join pg_namespace n on n.oid = t.relnamespace
+where refs.oid <> all(%(tables)s::regclass[]::oid[])
+order by 1"""
 
 
 def nonempty_cascade_tables(cur: psycopg.Cursor) -> list[str]:
-    """TRUNCATE CASCADE로 지워질 하위 표 중 행이 있는 표."""
+    """TRUNCATE CASCADE로 지워질 하위 표 중 행이 있는 표(「스키마.표」)."""
     cur.execute(CASCADE_TABLES, {"tables": list(TABLES)})
     tables = [t for (t,) in cur.fetchall()]
-    # 표 이름은 pg_constraint에서 읽은 값이라 문자열로 이어도 안전하다
+    # 표 이름은 카탈로그에서 format('%I.%I')로 만든 값이라 문자열로 이어도 안전하다
     return [
         t
         for t in tables
@@ -357,7 +388,12 @@ def load(
             doc_ids[d["rcept_no"]] = _returning(
                 cur,
                 INSERT_DOCUMENT,
-                {**d, "source": SOURCE, "payload": Jsonb(d["source_key_payload"])},
+                {
+                    **d,
+                    "source": SOURCE,
+                    "payload": Jsonb(d["source_key_payload"]),
+                    "record": Jsonb(d["source_record_payload"]),
+                },
             )
         raw_ids: dict[tuple[str, str], int] = {}
         for r in rows.raw_objects:
@@ -413,7 +449,9 @@ def table_checksums(conn: psycopg.Connection) -> dict[str, tuple[int, str]]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("data_dir", type=Path)
-    ap.add_argument("--parser-version", default=DEFAULT_PARSER)
+    ap.add_argument(
+        "--parser-version", help="기본: 추출기와 같은 값(extract.parser_version())"
+    )
     ap.add_argument(
         "--run-id",
         help="추출 기록을 읽을 실행(기본: 해당 파서 버전의 마지막 전체 실행)",
@@ -432,12 +470,14 @@ def main() -> int:
         print("DATABASE_URL 환경 변수가 필요하다", file=sys.stderr)
         return 2
     started = time.monotonic()
-    rows = build_rows(args.data_dir, args.parser_version, args.run_id)
+    parser = args.parser_version or parser_version()
+    rows = build_rows(args.data_dir, parser, args.run_id)
     print(
         f"입력 실행 {rows.pipeline_run['run_id']}, 읽기 {time.monotonic() - started:.1f}s"
     )
-    with psycopg.connect(url) as conn:  # 정상 종료면 커밋, 예외면 롤백
-        load(conn, rows, args.parser_version, args.force)
+    # 정상 종료면 커밋, 예외면 롤백
+    with psycopg.connect(url, options=f"-c search_path={SEARCH_PATH}") as conn:
+        load(conn, rows, parser, args.force)
         if args.checksum:
             for table, (count, md5) in table_checksums(conn).items():
                 print(f"{table}\t{count}\t{md5}")
