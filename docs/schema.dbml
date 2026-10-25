@@ -236,7 +236,7 @@ Table document {
   report_base_date date [note: 'v2.2(10월 7일 10차 미팅 확정). 문서 작성기준일. 작성기준 항목 점검이 이 시점의 작성기준 판과 비교한다. 비교한 작성기준 판과 표 영역 구분은 칼럼 없이 파일(구조 manifest, 작성기준 판 버전 파일). 반대 결정 시 칼럼 제거 후 manifest로 이동']
   // v2.2: pblntf_detail_ty 제거. 목록 API 응답에 없고 요청 필터도 효과가 없어 채울 수 없다. 문서 종류는 report_name으로 판별.
   // 파일 형식은 raw_object.body_format에 둔다. 문서 하나에 HTML/PDF/HWP가 공존한다.
-  distributor_id int [ref: > distributor.distributor_id, note: '상품 연결이 없는 문서(분쟁조정·제재공시 등)를 판매사 축에 붙이기 위한 칼럼. nullable. 분쟁조정은 판매사명도 마스킹이라 이 값조차 못 채운다 — "문서 표에만 존재하는 미연결 레코드"가 정상 상태다(records/phase1-erd/join-key-checks.md 「분쟁조정 마스킹」)']
+  distributor_id int [ref: > distributor.distributor_id, note: '상품 연결이 없는 문서(분쟁조정·제재공시 등)를 판매사 축에 붙이기 위한 칼럼. nullable. 분쟁조정은 판매사명도 마스킹이라 이 값조차 못 채운다 — "문서 표에만 존재하는 미연결 레코드"가 정상 상태다(records/phase1-erd/join-key-checks.md 「분쟁조정 마스킹」). 물리 DDL은 raw→staging 참조라 외래 키를 만들지 않고 적재 뒤 db/checks/document_distributor.sql로 검증(data-model.md 「물리 결정」 6)']
   is_correction boolean [note: 'DART 구조로 판정. 미판정/금투협 연결 규칙 미확정은 NULL, false로 만들지 않음']
   lineage_id int [ref: > document.document_id, note: '같은 사건 최초 문서. 확인된 원본만 self; 원본 미도착/계보 미확정은 NULL']
   version_no int [note: '파생 칼럼(09-14 티켓 메모 반영, 신설). lineage 안에서 received_date 순번']
@@ -578,6 +578,7 @@ Enum attempt_outcome_enum {
   PERMANENT_FAILED
   CONFIG_ERROR
   RATE_LIMITED
+  STARTED [note: '요청 직전에 넣는 시작 행. 결과가 나오면 위 값으로 갱신. 남아 있으면 끝나지 않은 시도']
 }
 
 Enum structure_status_enum {

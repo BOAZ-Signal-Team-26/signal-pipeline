@@ -2,6 +2,8 @@
 
 사용: DATABASE_URL=postgresql://user:pw@host:port/db uv run python db/apply.py
 각 파일은 다시 실행해도 변화가 없도록 작성하므로(IF NOT EXISTS) 적용 이력 표를 두지 않는다.
+IF NOT EXISTS는 이미 있는 표의 정의를 바꾸지 않는다. 적용한 파일을 고치면 DB를 새로 만들어 다시 적용하고,
+RDS에 적용한 뒤의 변경은 새 번호 파일로 추가한다.
 """
 
 import os

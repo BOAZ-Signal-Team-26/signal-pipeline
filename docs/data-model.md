@@ -617,7 +617,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 
 ## 물리 결정
 
-ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약 5건이다(10월 20일 확정). DDL은 `db/migrations/001_erd_v2_2.sql`, 적용은 `DATABASE_URL=... uv run python db/apply.py`. DBML이 칼럼·관계의 정본이며 DDL은 DBML에서 만든 물리 형태다.
+ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약·배치 6건이다(1~5는 10월 20일 확정, 6은 10월 25일 PM 결정). DDL은 `db/migrations/001_erd_v2_2.sql`, 적용은 `DATABASE_URL=... uv run python db/apply.py`. DBML이 칼럼·관계의 정본이며 DDL은 DBML에서 만든 물리 형태다.
 
 | # | 결정 | 적용 범위 |
 |---|---|---|
@@ -626,6 +626,7 @@ ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약 5건이다
 | 3 | enum은 PostgreSQL enum 타입이 아니라 `text` + CHECK | DBML enum 27개 중 칼럼에 쓰인 26개, 칼럼 30개에 `<표>_<칼럼>_check` 제약. 값 추가·삭제가 `ALTER TYPE` 없이 제약 교체로 끝남. 칼럼에 쓰이지 않는 parse_status_enum은 document별 집계 뷰의 값이라 제약이 없음 |
 | 4 | JSON 내용 칼럼은 `jsonb` | 13개 칼럼: document.source_key_payload·source_record_payload, section.quality_flags, score.score_payload, raw_object.request_params, collection_attempt.request_params, fund_group.grouping_evidence, pipeline_run.config_manifest, population_snapshot.stratification_definition·exclusion_counts, metric_definition.definition_manifest, llm_field_extraction.value_json·model_params. jsonb는 키 순서·공백을 정규화하므로 DB 값에서 원문 바이트를 복원할 수 없음. sha256 칼럼은 DB 값이 아니라 파일 바이트의 해시 |
 | 5 | 표 안의 CHECK는 한 행만 보고 판정되는 규칙에 한정. 여러 행에 걸친 검증은 적재 스크립트 | 아래 목록 |
+| 6 | 표를 스키마 3개에 나눠 둔다: `raw` 5, `staging` 9, `mart` 3. DDL은 표 이름에 스키마를 붙여 쓰고, 실행 코드는 연결 옵션으로 검색 경로(search_path)를 `raw,staging,mart`로 둔다 | 배치는 signal-infra `docs/storage-design.md` 3.6(10월 18일 승인) 그대로. 근거: 같은 DDL을 RDS에 적용하고 대시보드 계정에 스키마 단위 권한을 준다. `document.distributor_id → distributor`는 raw에서 staging을 가리키므로 외래 키를 만들지 않는다(raw 스키마만 덤프·복원할 수 있어야 함). 대신 적재 뒤 `db/checks/document_distributor.sql`이 0행인지 확인한다 |
 
 결정 5에 따라 표에 둔 단일 행 규칙(enum 값 집합 외 33개):
 
@@ -644,14 +645,17 @@ DBML과 물리 형태의 차이:
 
 - 길이를 지정하지 않은 `varchar`는 `text`, 길이가 있는 `varchar(n)`은 그대로. `decimal`은 precision·scale 없는 `numeric`(정밀도는 「미결」). 그 외 `int`는 `integer`
 - NOT NULL은 DBML의 `[not null]`과 PK 칼럼만 옮김(127개 칼럼, DBML과 같은 수). 나머지는 NULL 허용
+- 외래 키는 DBML 관계 42개 중 41개. `document.distributor_id` 1개는 「물리 결정」 6에 따라 만들지 않음
+- `attempt_outcome_enum`에 `STARTED` 추가. 「적재 순서」 1(시작 행 기록 → 결과 갱신)을 `outcome` NOT NULL을 유지한 채 지키기 위한 값
 - score의 `(population_snapshot_id, run_id, metric_key)` 복합 FK는 population_snapshot_id가 NULL이면 검사하지 않음(PostgreSQL 기본 MATCH SIMPLE)이며, 이는 정규화 미요청 행에 필요한 동작
 - 인덱스는 DBML에 적은 일반 인덱스 9개와 조회·조인용 5개(raw_object.document_id, section.document_id, product.short_code, product.fund_key, document_product.product_id)만 만들어 모두 14개. 그 밖의 인덱스 튜닝은 하지 않음
 
 운영 규칙:
 
 - 적재 코드는 identity 칼럼에 ID를 직접 넣지 않는다(`generated always`라 넣으면 오류). 발급된 ID는 `INSERT ... RETURNING`으로 받는다. 전체를 다시 적재할 때는 `TRUNCATE ... RESTART IDENTITY`로 비운다
-- `db/apply.py`는 적용 이력 표가 없고 `IF NOT EXISTS`에 의존한다. 이미 있는 표의 칼럼 자료형·제약을 바꾸는 이후 마이그레이션은 다시 실행해도 안전하게 쓰거나, 그때 적용 이력 표를 추가한다
-- 권한(grant)과 소유자 설정은 RDS 구축 때 정한다(7주차)
+- `db/apply.py`는 적용 이력 표가 없고 `IF NOT EXISTS`에 의존한다. `IF NOT EXISTS`는 이미 있는 표의 정의를 바꾸지 않으므로, RDS 적용 전에 001을 고치면 로컬 DB를 새로 만들어 다시 적용한다. RDS 적용 뒤의 변경은 새 번호 파일로 추가하고, 다시 실행해도 안전하게 쓰거나 그때 적용 이력 표를 추가한다
+- 기존 `public` 표가 있는 로컬 DB는 001을 다시 적용해도 정리되지 않는다. `docker rm -f signal-pg-local` 뒤 새로 만들어 적용한다
+- 권한(grant)·기본 권한(default privileges)과 소유자 설정은 RDS 구축 때 별도 마이그레이션으로 정한다(7주차). 001은 계정을 만들지 않는다
 
 ## 적재 검증 규칙
 

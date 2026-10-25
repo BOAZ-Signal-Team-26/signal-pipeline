@@ -1,5 +1,16 @@
 # 작업 기록
 
+## 2026-10-25 — 로컬 DDL을 스키마 3개로 배치, `document.distributor_id` 외래 키 제외, 시도 결과에 `STARTED` 추가 (#58)
+
+- 기준: PR #59 데이터 엔지니어링·인프라(주영) 리뷰(10월 22일), signal-infra `docs/storage-design.md` 3.6(10월 18일 승인), [원본 보관 규칙](docs/storage-and-failure-rules.md) 「적재 순서」 1·5
+- 바꾼 것
+  - `db/migrations/001_erd_v2_2.sql`: 스키마 `raw`·`staging`·`mart`를 만들고 표 17개·외래 키 참조·인덱스에 스키마를 붙임(5 / 9 / 3). 검색 경로(search_path)에 의존하지 않음
+  - `document.distributor_id → distributor` 외래 키 제외(raw에서 staging을 가리킴). 대신 `db/checks/document_distributor.sql`(0행이어야 함). DBML 관계는 논리 관계라 그대로 두고 메모만 추가
+  - `collection_attempt.outcome` CHECK와 DBML `attempt_outcome_enum`에 `STARTED` 추가. NOT NULL은 유지
+  - [데이터 테이블·ERD 설계](docs/data-model.md) 「물리 결정」 6 추가, 「DBML과 물리 형태의 차이」·「운영 규칙」 갱신. `db/apply.py` 설명에 「적용한 파일을 고치면 DB를 새로 만듦」 추가
+- 바꾸지 않은 것: 계정·권한(grant)·기본 권한은 RDS 구축 때 별도 마이그레이션. DBML 표에 스키마 이름을 붙이지 않음
+- 검증: 빈 DB에 3회 적용 오류 0건, 2·3회째 스키마 덤프 같음. 스키마별 표 5 / 9 / 3, `public` 0, 외래 키 41, CHECK 63, 일반 인덱스 14, NOT NULL 칼럼 127. `@dbml/core` 파싱 표 17·관계 42·enum 27. pytest 98개 통과(스키마별 표 수 대조 추가), ruff 통과
+
 ## 2026-10-14 — 결정 대기 E 확정(구분 칼럼 + 값 칼럼), `.meta.json` 확정, 해시 규칙·기록 순서 보강
 
 - 기준: 11차 미팅(10월 14일) 안건 4. 데이터 엔지니어링·인프라(주영) 10월 13일 PR #43 답변과 PM(대현) 10월 14일 크로스체크
