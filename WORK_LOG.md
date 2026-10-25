@@ -28,7 +28,7 @@
   - CASCADE 보호: 롤백할 트랜잭션에서 `raw.source_watermark`에 1행을 넣으면 검색 경로가 `raw,staging,mart`일 때와 `public`일 때 모두 `raw.source_watermark`를 찾아 멈춤
   - 원본 대조(전수): 문서별 절 수 차이 0건, 찾은 절 16,771개의 `section_text`가 `text.txt` 잘라 낸 값과 모두 같음, 표본 10개 절의 위치·제목 일치, 외래 키 고아·자연키 중복 0건, `raw_object.sha256`과 `.meta.json` 불일치 0건
   - pytest 101개 통과(목록 기반 문서 종류, 목록에 없는 접수 테스트 추가), `ruff format`·`ruff check` 통과
-- 남은 것: 가동 점검 대조표에 적재 검증 결과 기록, 점검 체크리스트 7개(여유 시)
+- 적재 결과 점검 [load_checks.py](src/signal_pipeline/loading/load_checks.py)(읽기 전용, 10월 25일): 11차 미팅 로컬 점검 체크리스트(행 수·외래 키 고아·경계 실패 범위 NULL·파서 버전·원본과 `derived/` 해시 전수)와 [데이터 테이블·ERD 설계](docs/data-model.md) 「적재 검증 규칙」 중 적재한 표에 해당하는 1·4·6·7·12·16·17, `document` 목록 기반 칼럼 결측. 기대 행 수는 디스크 입력에서 다시 셈. 하나라도 실패하면 종료 코드 1. 10월 25일 21개 항목 모두 통과, 가동 점검 대조표에 기록. DDL 오류 0과 2회 실행 비교는 `db/apply.py`·`local_load --checksum`으로 따로 확인
 
 ## 2026-10-14 — 결정 대기 E 확정(구분 칼럼 + 값 칼럼), `.meta.json` 확정, 해시 규칙·기록 순서 보강
 
