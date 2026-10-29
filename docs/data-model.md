@@ -922,7 +922,6 @@ erDiagram
 | 문서쌍(DOCUMENT_PAIR) 지표의 입력 저장 방식. analysis_target_member 연기로 score에 두 입력 문서를 가리킬 칼럼이 없음. 12월 범위에 문서쌍 지표 없음 | 팀 | Phase 2 착수 전 |
 | selection manifest를 pipeline_run의 칼럼 2개로 두는 위치. 대상 선택 근거와 역할별 대표 문서의 기록 자리 | 대현 | 2단계 설계 |
 | 룩백 일수 확정(DART 3일·금투협 7일 잠정값). 룩백 재조회 방식과 5종(DART·공공데이터포털·KRX·금투협 공시·금감원 제재)의 워터마크 검증 방법은 PR #49 8절로 정함. 나머지 소스는 같은 문서 「미결」([원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 「재시도와 워터마크」, 10월 9일) | 데이터 엔지니어링·인프라(주영) | 룩백 구간 신규 발견 수가 2주 이상 쌓인 뒤 |
-| llm_field_extraction에서 문서에 값이 없다는 「없음」 결과를 result_status 어느 값으로 둘지(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음이라 맞는 값 없음) | 대현 | 2026-10-14 (3단계 입출력 Schema) |
 | 수집 주기·신선도 목표, KRX 일별 스냅숏 적재 주기 | 데이터 처리 요구 명세에서 정함 | [확인 필요: 일자] |
 
 ## 참고
