@@ -498,7 +498,7 @@
 
 ### attempt_outcome_enum (v2.1)
 
-`SUCCESS`, `EMPTY`, `RETRYABLE_FAILED`, `PERMANENT_FAILED`, `CONFIG_ERROR`, `RATE_LIMITED`
+`SUCCESS`, `EMPTY`, `RETRYABLE_FAILED`, `PERMANENT_FAILED`, `CONFIG_ERROR`, `RATE_LIMITED`, `STARTED`(시작 행. 결과가 나오면 갱신)
 
 ### structure_status_enum (v2.1)
 
