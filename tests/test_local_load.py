@@ -106,13 +106,13 @@ def test_failed_extraction_has_no_sections(tmp_path: Path) -> None:
     log = next(tmp_path.glob("runs/*/extraction_attempts.jsonl"))
     attempt = json.loads(log.read_text())
     attempt.update(
-        extract_status="FAILED", structure_status="UNAVAILABLE", error_reason="TIMEOUT",
+        extract_status="EXTRACT_FAILED", structure_status="UNAVAILABLE", error_reason="TIMEOUT",
         canonical_text_path=None, canonical_text_sha256=None, text_length=None,
         structure_manifest_path=None, structure_manifest_sha256=None,
     )  # fmt: skip
     log.write_text(json.dumps(attempt) + "\n")
     rows = build_rows(tmp_path)
-    assert rows.extractions[0]["extract_status"] == "FAILED"
+    assert rows.extractions[0]["extract_status"] == "EXTRACT_FAILED"
     assert rows.sections == []
 
 
