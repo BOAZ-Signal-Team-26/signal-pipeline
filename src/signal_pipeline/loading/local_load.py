@@ -80,7 +80,7 @@ def _json(path: Path) -> Any:
 
 
 def pick_run(data: Path, parser: str, run_id: str | None) -> str:
-    """해당 파서 버전의 전체 실행(limit 없음) 중 마지막. 이름이 시각 순이라 정렬로 고른다."""
+    """해당 파서 버전의 끝난 전체 실행(limit 없음, SUCCEEDED) 중 마지막. 중단된 실행은 RUNNING으로 남는다. 이름이 시각 순이라 정렬로 고른다."""
     if run_id:
         return run_id
     found = []
@@ -90,6 +90,7 @@ def pick_run(data: Path, parser: str, run_id: str | None) -> str:
         if (
             config.get("parser_version") == parser
             and config.get("limit") is None
+            and run.get("status") == "SUCCEEDED"
             and (run_json.parent / "extraction_attempts.jsonl").exists()
         ):
             found.append(run["run_id"])

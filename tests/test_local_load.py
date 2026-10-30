@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from signal_pipeline.loading.local_load import build_rows
+from signal_pipeline.loading.local_load import build_rows, pick_run
 from signal_pipeline.parsing.extract import parser_version
 
 PARSER = parser_version()
@@ -122,3 +122,15 @@ def test_document_missing_from_list_is_error(tmp_path: Path) -> None:
     page.write_text(json.dumps({"status": "000", "list": []}))
     with pytest.raises(ValueError, match="목록"):
         build_rows(tmp_path)
+
+
+def test_pick_run_skips_interrupted_run(tmp_path: Path) -> None:
+    _fixture(tmp_path)
+    done = next(tmp_path.glob("runs/extract-*"))
+    stopped = tmp_path / "runs" / "extract-20261014T000000Z-bbbb"
+    stopped.mkdir()
+    run = json.loads((done / "run.json").read_text())
+    run.update(run_id=stopped.name, status="RUNNING", completed_at=None)
+    (stopped / "run.json").write_text(json.dumps(run))
+    (stopped / "extraction_attempts.jsonl").write_text("")
+    assert pick_run(tmp_path, PARSER, None) == done.name
