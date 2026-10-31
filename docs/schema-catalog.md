@@ -384,7 +384,7 @@
 | input_sha256 | varchar(64) | 불가 |  | 관리값 | 10월 9일 추가. LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 해시 규칙과 입력 출처 목록(request.json의 inputs)은 storage-and-failure-rules.md 「LLM 호출 저장」. 재호출 생략 키의 일부 |
 | input_tokens | int | 허용 |  | 관리값 |  |
 | output_tokens | int | 허용 |  | 관리값 |  |
-| result_status | result_status_enum | 불가 |  | 판정값 | OK이면 value_json 필수. 호출·파싱 실패는 FAILED. 문서에서 값을 찾지 못한 「없음」 결과는 기존 enum 값(UNDETERMINED는 판정 불가, NOT_APPLICABLE은 해당 없음)에 맞는 것이 없어 정의 보류(data-model.md 「미결」) |
+| result_status | result_status_enum | 불가 |  | 판정값 | OK이면 value_json 필수. 호출·파싱 실패는 FAILED. 문서에서 값을 찾지 못한 「없음」 결과는 OK + value_json.status = NOT_FOUND(io-schema.md 「LLM 추출 결과 JSON 공통 계약」) |
 | value_json | text | 허용 |  | 판정값 | 추출한 값 JSON. 값·단위·적용 클래스는 3단계 입출력 Schema 설계(io-schema.md)에서 정의 |
 | evidence_section_id | int | 허용 | FK | 판정값 | 근거 위치. 결정 B11 안 1과 같은 형식 (section, char_start, char_end). 근거가 없는 필드는 NULL |
 | evidence_char_start | int | 허용 |  | 판정값 | section과 같은 기준(canonical text의 Unicode code point 반열린 구간), 해당 절 범위 안 |
@@ -466,7 +466,7 @@
 
 ### file_role_enum
 
-`cover_html`, `cover_xml`, `body_pdf`, `api_response`, `attachment`, `prospectus`, `prospectus_simple`, `change_summary`
+`cover_html`, `cover_xml`, `body_pdf`, `viewer_tree`, `api_response`, `attachment`, `prospectus`, `prospectus_simple`, `change_summary`
 
 ### collect_status_enum
 

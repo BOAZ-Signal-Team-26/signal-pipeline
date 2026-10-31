@@ -1,5 +1,34 @@
 # 작업 기록
 
+## 2026-10-31 — 마이그레이션 이력 표 미결에 `apply.py` 재적용 한계 기재
+
+- 기준: PR #71 데이터 엔지니어링·인프라(주영) 리뷰(10월 31일) 참고 항목
+- 바꾼 것: `docs/architecture.md` 8절 「RDS 적용 뒤 마이그레이션 이력 표」 줄에, 이미 만든 DB에 `db/apply.py`를 다시 돌려도 CHECK가 바뀌지 않아 `viewer_tree` 적재가 CHECK 위반으로 실패하는 예를 적음
+- 바꾸지 않은 것: `db/apply.py`. 로컬은 DB를 새로 만들어 적용하면 되고 실패가 적재 때 바로 드러나므로, 이력 표는 RDS 적용 전에 정함
+
+## 2026-10-31 — `raw_object.file_role`에 `viewer_tree` 추가, 뷰어 목차 적재 (#68)
+
+- 기준: PR #63 데이터 엔지니어링·인프라(주영) 리뷰(10월 24일) 4번, [원본 보관 규칙](docs/storage-and-failure-rules.md) 「`raw_object` 행이 없는 객체는 고아」
+- 수집 유지 확인: DART 수집기가 뷰어 목차로 본문 PDF·표지 HTML 위치를 찾고 문서마다 다시 받음(`collectors/dart.py` `REQUIRED_ROLES`). 그만 쓸 파일이 아니므로 행을 둠
+- 바꾼 것
+  - `docs/schema.dbml` `file_role_enum`에 `viewer_tree`(본문 비대상) 추가. `docs/schema-catalog.md`, `docs/storage-and-failure-rules.md`의 역할 목록과 본문 비대상 목록에 반영
+  - `db/migrations/001_erd_v2_2.sql` `raw_object_file_role_check`에 추가. RDS 적용 전이라 001을 고침. 이미 001을 적용한 로컬 DB는 `IF NOT EXISTS`라 CHECK가 바뀌지 않으므로 DB를 새로 만들어 적용
+  - `local_load.py` `ROLE_FORMAT`에 `viewer_tree`(html) 추가
+- 바꾸지 않은 것: 수집기, enum 수(27, 값만 추가)
+- 검증: 새 DB(`signal_v68`)에 적용 뒤 prep-7 적재 `raw_object` 1,858(본문 PDF 502, 표지 HTML 503, 표지 XML 349, 뷰어 목차 504 = `raw/dart/*/viewer_tree__v*.html` 504개). 두 번 적재해 5개 표 행 수·md5 같음. 적재 점검 전 항목 통과. `@dbml/core` 표 17·관계 42·enum 27. pytest 102개, ruff, `git diff --check` 통과
+
+## 2026-10-31 — 적재 점검 3개 보강, 다시 적재 때 다른 출처 행 보호 (#69)
+
+- 기준: PR #63 리뷰(10월 29일 데이터 엔지니어링·인프라(주영)의 실데이터 점검 코멘트), [데이터 테이블·ERD 설계](docs/data-model.md) 「적재 검증 규칙」 7
+- 바꾼 것
+  - `load_checks.py`: R7 항목 2개 추가. `EXTRACT_OK` 절인데 범위·본문이 NULL인 절(한쪽만 NULL은 DDL `section_char_range_check`가 막고, 셋 다 NULL은 DDL을 통과함), (파일, 파서 버전) 안에서 앞 절 끝보다 먼저 시작하는 절(형제 구간 겹침)
+  - `section_text`와 `text.txt` 구간 대조를 표본 200개에서 전수로 바꿈. 경로 순으로 읽어 `text.txt`는 파일마다 한 번만 읽음
+  - `local_load.py`: 비울 표에 DART 밖 출처 `document`·`raw_object`나 EXTRACT가 아닌 `pipeline_run`이 있으면 `--force` 없이는 멈춤. 지금까지는 하위 표(`score` 등)만 확인했음
+  - `local_load.py`: 검사 전에 비울 표와 하위 표를 TRUNCATE와 같은 잠금(ACCESS EXCLUSIVE)으로 잠금. 검사와 TRUNCATE 사이에 다른 트랜잭션이 보호 행을 넣지 못함(CodeRabbit 리뷰)
+  - `tests/test_load_db.py` 신설: `TEST_DATABASE_URL`이 가리키는 빈 DB에 DDL을 적용하고 `load()`로 넣은 뒤 위반 데이터를 넣어 FAIL·멈춤을 확인. 변수가 없으면 건너뜀(CI는 건너뜀)
+- 바꾸지 않은 것: DDL. CI에 PostgreSQL 띄우기
+- 검증: 로컬 prep-7 적재(10월 25일 적재본)에서 점검 전 항목 통과, 절 본문 전수 16,771개 불일치 0, 형제 구간 겹침 0. `structure.json` 501개를 직접 세어도 겹침 0. pytest 109개 통과(DB 테스트 7개 포함, 로컬 PostgreSQL 16 빈 DB), DB 없이 102개 통과·7개 건너뜀, ruff 통과. 잠금은 커밋된 DB(`signal_v68`)에서 검사 직후 다른 연결의 조회가 잠금 대기 시간 초과로 막히는 것을 확인(수정 전에는 통과)
+
 ## 2026-10-25 — 로컬 DDL을 스키마 3개로 배치, `document.distributor_id` 외래 키 제외, 시도 결과에 `STARTED` 추가 (#58)
 
 - 기준: PR #59 데이터 엔지니어링·인프라(주영) 리뷰(10월 22일), signal-infra `docs/storage-design.md` 3.6(10월 18일 승인), [원본 보관 규칙](docs/storage-and-failure-rules.md) 「적재 순서」 1·5
@@ -10,6 +39,20 @@
   - [데이터 테이블·ERD 설계](docs/data-model.md) 「물리 결정」 6 추가, 「DBML과 물리 형태의 차이」·「운영 규칙」 갱신. `db/apply.py` 설명에 「적용한 파일을 고치면 DB를 새로 만듦」 추가
 - 바꾸지 않은 것: 계정·권한(grant)·기본 권한은 RDS 구축 때 별도 마이그레이션. DBML 표에 스키마 이름을 붙이지 않음
 - 검증: 빈 DB에 3회 적용 오류 0건, 2·3회째 스키마 덤프 같음. 스키마별 표 5 / 9 / 3, `public` 0, 외래 키 41, CHECK 63, 일반 인덱스 14, NOT NULL 칼럼 127. `@dbml/core` 파싱 표 17·관계 42·enum 27. pytest 98개 통과(스키마별 표 수 대조 추가), ruff 통과
+
+## 2026-10-22 — 파이프라인 아키텍처 초안 작성
+
+- 기준: 11차 미팅(10월 14일) Week 6 할 일 「아키텍처 초안 공유」, 저장 계층 설계(signal-infra PR #28, 10월 19일 병합), 원본 보관 규칙·ERD v2.2(`dev`), PR #47·#51·#63 코드
+- [파이프라인 아키텍처 초안](docs/architecture.md) 신설
+  - 1절 한 장 그림: 저장 계층 설계 5절 그림에 EC2 안 작업 4개·로컬 디스크·표 이름을 겹침. 그림은 draw.io로 그린 `docs/images/architecture.drawio.svg`
+  - 2절 실행 단위: DAG 2개(`signal_extract`·`signal_score`), DAG run 1회 = `run_id` 1개, `uv run` BashOperator, 실행 기록은 끝에 1회 업로드(실패 실행도 업로드하는 예외는 제안)
+  - 3절 단계별 입출력 표(EXTRACT 5작업·SCORE 5작업), 로컬 → S3 경로 대응
+  - 4절 실행 환경: Airflow·signal-pipeline 가상환경 분리(10월 18일 충돌 확인), 작업이 받는 설정, 로컬 디스크
+  - 5절 인프라 결정 6건 의견(권고안 그대로, 법인 키 신청 시점만 다름), Airflow 2.11.2 유지와 3.x 미시험 이유
+  - 6절 코드와 설계 차이 8건, 7절 Week 7 확인 항목, 8절 미결 7건
+- [README](docs/README.md): 읽는 순서 9번과 2단계 상태 갱신
+- 바꾸지 않은 것: 저장 계층 설계(signal-infra), `pipeline-flow.md`(9월 30일 초안 유지. 11월 4일 Flow 설계에서 통합), 코드
+- 수행하지 않은 것: Airflow 3.x 메모리 실측, Airflow 2.11.2 Python 지원 범위 확인(Week 7)
 
 ## 2026-10-21 — 로컬 PostgreSQL에 수집·절 분할 결과 4개 표 적재 (#62)
 

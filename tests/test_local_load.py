@@ -12,6 +12,7 @@ REPORT = "[기재정정]투자설명서(집합투자증권)(가나다증권투�
 RCEPT = "20260901000001"
 PDF = b"%PDF-1 tiny"
 TEXT = "가나다라마바사"
+TREE = "<ul><li>[본문]</li></ul>".encode()
 
 
 def _sha(b: bytes) -> str:
@@ -32,8 +33,20 @@ def _fixture(root: Path) -> None:
     }  # fmt: skip
     _write(folder / "body_pdf__v1.pdf", PDF)
     _write(folder / "body_pdf__v1.pdf.meta.json", json.dumps(meta).encode())
-    viewer = {**meta, "file_role": "viewer_tree"}  # 적재 대상 아님
+    viewer = {
+        **meta,
+        "file_role": "viewer_tree",
+        "sha256": _sha(TREE),
+        "size": len(TREE),
+        "file_name": None,
+    }
+    _write(folder / "viewer_tree__v1.html", TREE)
     _write(folder / "viewer_tree__v1.html.meta.json", json.dumps(viewer).encode())
+    other = {
+        **viewer,
+        "file_role": "unknown_role",
+    }  # ROLE_FORMAT 밖 역할은 적재하지 않음
+    _write(folder / "unknown_role__v1.html.meta.json", json.dumps(other).encode())
     listing = {"status": "000", "list": [{"rcept_no": RCEPT, "report_nm": REPORT}]}
     _write(
         root / "raw/dart/_list/2026-09-01/page-0001__v1.json",
@@ -90,9 +103,9 @@ def test_build_rows_from_tiny_fixture(tmp_path: Path) -> None:
     assert doc["report_name"] == REPORT and doc["is_correction"] is True
     assert doc["document_type"] == "투자설명서"
     assert doc["source_record_payload"] == {"rcept_no": RCEPT, "report_nm": REPORT}
-    assert [r["file_role"] for r in rows.raw_objects] == [
-        "body_pdf"
-    ]  # viewer_tree 제외
+    assert [r["file_role"] for r in rows.raw_objects] == ["body_pdf", "viewer_tree"]
+    tree = rows.raw_objects[1]
+    assert tree["body_format"] == "html" and tree["original_file_name"] is None
     assert rows.raw_objects[0]["file_name"] == "a b.pdf"
     assert rows.extractions[0]["extract_status"] == "EXTRACT_OK"
     found, missing = rows.sections

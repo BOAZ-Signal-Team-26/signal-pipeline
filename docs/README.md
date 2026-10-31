@@ -14,6 +14,7 @@
 | 6 | [점수 저장과 비교 모집단](scoring-and-population.md) | 점수를 어떤 단위로 저장하고 무엇과 비교하는지 |
 | 7 | [데이터 처리 요구 명세](processing-requirements.md) | 데이터 사이언스에 넘기는 파일의 칼럼, 절 경계, 결측 표기, 소스별 워터마크 검증 |
 | 8 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md), [3단계 입출력 Schema 설계 입력](io-schema.md) | 다음 단계가 이어받는 것 |
+| 9 | [파이프라인 아키텍처 초안](architecture.md) | 처리 흐름이 저장 계층 위에서 어떻게 실행되는지: DAG 2개, 단계별 입출력, 실행 환경, 인프라 결정 의견 |
 | 참조 | [스키마 명세](schema-catalog.md), [DBML](schema.dbml) | 칼럼 단위 확인 |
 | 근거 | [records/](records/) | 결정의 실측 근거와 검토 이력 |
 
@@ -85,7 +86,7 @@
 | 단계 | 기한 | 상태 | 현행 설계 문서의 해당 절 | 근거 기록 폴더 |
 |---|---|---|---|---|
 | 1단계 데이터 테이블·ERD 설계 | 9월 16일 | 확정 전 (v2.2 검토안, 결정 대기 항목·CDI 산식 담당 승인 미완료) | [데이터 테이블·ERD 설계](data-model.md) 전체, [원본 보관과 수집·파싱 실패 처리 규칙](storage-and-failure-rules.md) 전체, [상품·법인 매칭 규칙](matching-rules.md) 전체, [점수 저장과 비교 모집단](scoring-and-population.md) 전체, [데이터 소스 수집 명세](data-sources.md) 전체 | [records/phase1-erd/](records/phase1-erd/) |
-| 2단계 데이터 파이프라인 Flow 설계 | 9월 30일 | 시작 전 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md) | 기록이 생기면 records/phase2-pipeline/ |
+| 2단계 데이터 파이프라인 Flow 설계 | 9월 30일 → 11월 4일(11차 미팅) | 아키텍처 초안 작성(10월 22일) | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md), [파이프라인 아키텍처 초안](architecture.md) | 기록이 생기면 records/phase2-pipeline/ |
 | 3단계 입출력 Schema 설계 | 10월 14일 | 착수 전 | [3단계 입출력 Schema 설계 입력](io-schema.md) | 기록이 생기면 records/phase3-io-schema/ |
 
 | 단계 | 확정하는 것 |
