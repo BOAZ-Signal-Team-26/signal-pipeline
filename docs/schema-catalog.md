@@ -466,7 +466,7 @@
 
 ### file_role_enum
 
-`cover_html`, `cover_xml`, `body_pdf`, `api_response`, `attachment`, `prospectus`, `prospectus_simple`, `change_summary`
+`cover_html`, `cover_xml`, `body_pdf`, `viewer_tree`, `api_response`, `attachment`, `prospectus`, `prospectus_simple`, `change_summary`
 
 ### collect_status_enum
 

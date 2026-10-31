@@ -100,6 +100,7 @@ Enum file_role_enum {
   cover_html [note: 'DART 공개 뷰어 표지 HTML. document.xml API ZIP과 구분']
   cover_xml [note: '실제 XML 표지로 확인된 경우만 사용. document.xml API 응답은 ZIP이며 내부 구성 미확인']
   body_pdf [note: 'DART download.do 본문 PDF']
+  viewer_tree [note: 'DART 공개 뷰어 목차 HTML. 본문 PDF·표지 HTML의 위치(노드)를 찾는 데 쓰고 매 수집 때 다시 받는다. 본문 비대상(추출하지 않음)']
   api_response
   attachment
   prospectus [note: '금투협 첨부. 투자설명서 (records/phase1-erd/kofia-rows-and-etf-rule.md 「검증 1: 금투협 중복 행」 반영)']
