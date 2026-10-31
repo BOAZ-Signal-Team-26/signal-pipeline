@@ -1,5 +1,17 @@
 # 작업 기록
 
+## 2026-10-31 — 적재 점검 3개 보강, 다시 적재 때 다른 출처 행 보호 (#69)
+
+- 기준: PR #63 리뷰(10월 29일 데이터 엔지니어링·인프라(주영)의 실데이터 점검 코멘트), [데이터 테이블·ERD 설계](docs/data-model.md) 「적재 검증 규칙」 7
+- 바꾼 것
+  - `load_checks.py`: R7 항목 2개 추가. `EXTRACT_OK` 절인데 범위·본문이 NULL인 절(한쪽만 NULL은 DDL `section_char_range_check`가 막고, 셋 다 NULL은 DDL을 통과함), (파일, 파서 버전) 안에서 앞 절 끝보다 먼저 시작하는 절(형제 구간 겹침)
+  - `section_text`와 `text.txt` 구간 대조를 표본 200개에서 전수로 바꿈. 경로 순으로 읽어 `text.txt`는 파일마다 한 번만 읽음
+  - `local_load.py`: 비울 표에 DART 밖 출처 `document`·`raw_object`나 EXTRACT가 아닌 `pipeline_run`이 있으면 `--force` 없이는 멈춤. 지금까지는 하위 표(`score` 등)만 확인했음
+  - `local_load.py`: 검사 전에 비울 표와 하위 표를 TRUNCATE와 같은 잠금(ACCESS EXCLUSIVE)으로 잠금. 검사와 TRUNCATE 사이에 다른 트랜잭션이 보호 행을 넣지 못함(CodeRabbit 리뷰)
+  - `tests/test_load_db.py` 신설: `TEST_DATABASE_URL`이 가리키는 빈 DB에 DDL을 적용하고 `load()`로 넣은 뒤 위반 데이터를 넣어 FAIL·멈춤을 확인. 변수가 없으면 건너뜀(CI는 건너뜀)
+- 바꾸지 않은 것: DDL. CI에 PostgreSQL 띄우기
+- 검증: 로컬 prep-7 적재(10월 25일 적재본)에서 점검 전 항목 통과, 절 본문 전수 16,771개 불일치 0, 형제 구간 겹침 0. `structure.json` 501개를 직접 세어도 겹침 0. pytest 109개 통과(DB 테스트 7개 포함, 로컬 PostgreSQL 16 빈 DB), DB 없이 102개 통과·7개 건너뜀, ruff 통과. 잠금은 커밋된 DB(`signal_v68`)에서 검사 직후 다른 연결의 조회가 잠금 대기 시간 초과로 막히는 것을 확인(수정 전에는 통과)
+
 ## 2026-10-25 — 로컬 DDL을 스키마 3개로 배치, `document.distributor_id` 외래 키 제외, 시도 결과에 `STARTED` 추가 (#58)
 
 - 기준: PR #59 데이터 엔지니어링·인프라(주영) 리뷰(10월 22일), signal-infra `docs/storage-design.md` 3.6(10월 18일 승인), [원본 보관 규칙](docs/storage-and-failure-rules.md) 「적재 순서」 1·5
