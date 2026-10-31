@@ -93,6 +93,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
   - 절 범위가 있음(`SECTION_BOUNDARY_NOT_FOUND`가 아님)
   - 절 전체가 이번 입력(`request.json`의 `inputs`)에 들어감. 절 일부·문자 범위만 보냈으면 만족하지 않음. 필드별 정의가 절 일부를 출처로 정했으면 그 범위 전체가 들어가야 함
 - 하나라도 만족하지 않으면 모델이 NOT_FOUND를 돌려줘도 UNDETERMINED(`SOURCE_SECTION_MISSING`)로 바꿈. FOUND·AMBIGUOUS·NOT_APPLICABLE은 바꾸지 않음(근거가 확인된 값은 출처 절 일부가 빠져도 유효)
+- FOUND를 유지할 때 조건을 만족하지 않은 출처 절은 `notes`에 「출처 절 누락: section_id …」로 남김(나중에 추적용)
 - `checked_section_ids`는 확인한 출처 절 전체. 위 조건을 통과해야 NOT_FOUND이므로 완전성은 따로 기록하지 않음
 - 「추출 실패」(FAILED·UNDETERMINED)를 「문서에 없음」(NOT_FOUND)으로 세지 않음. 채점은 NOT_FOUND만 「고지 없음」으로 봄
 
@@ -126,6 +127,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 - 범위는 그 절의 파서 버전이 만든 canonical text 기준 Unicode code point 반열린 구간, 절 범위 안([데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」 15)
 - 모델은 `quote`(원문 인용)만 돌려주고 절 식별자는 돌려주지 않음. 입력 텍스트에 `section_id`를 넣으면 파서 버전이 바뀔 때 `input_sha256`이 달라져 재호출 생략이 깨짐
 - 변환기가 `inputs` 순서대로 각 절 텍스트에서 `quote`를 찾아 `section_id`·`char_start`·`char_end`를 채움. 이번 입력의 절만 찾으므로 입력 밖 절을 가리킬 수 없음
+- 저장 위치: `char_start`·`char_end` = 그 절의 `section.char_start` + 절 텍스트 안 위치. 절 안 위치를 그대로 저장하지 않음
 - 찾는 방법: 절 텍스트와 `quote` 모두 연속 공백(공백·줄바꿈·탭)을 공백 하나로 줄여 찾고, 찾은 위치를 원래 텍스트 위치로 되돌림. `quote`는 찾은 원래 구간 텍스트로 다시 씀(`quote` = canonical text의 그 구간). 그 밖의 정규화(NFC 등)는 하지 않음
 - 여러 곳에서 일치하면 같은 절이든 다른 절이든 `inputs` 순서로 첫 구간을 쓰고 `notes`에 「다중 일치 n회」를 남김. 위치가 중요한 필드는 필드별 정의에서 인용 길이를 정함. 절 경계를 넘는 `quote`는 못 찾음으로 처리
 - 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`). 변환기 문제일 수 있으므로 재호출 전에 저장된 `response.json`으로 변환기를 다시 돌리고, 그래도 못 찾을 때만 재호출
