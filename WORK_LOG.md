@@ -1,5 +1,11 @@
 # 작업 기록
 
+## 2026-10-31 — 마이그레이션 이력 표 미결에 `apply.py` 재적용 한계 기재
+
+- 기준: PR #71 데이터 엔지니어링·인프라(주영) 리뷰(10월 31일) 참고 항목
+- 바꾼 것: `docs/architecture.md` 8절 「RDS 적용 뒤 마이그레이션 이력 표」 줄에, 이미 만든 DB에 `db/apply.py`를 다시 돌려도 CHECK가 바뀌지 않아 `viewer_tree` 적재가 CHECK 위반으로 실패하는 예를 적음
+- 바꾸지 않은 것: `db/apply.py`. 로컬은 DB를 새로 만들어 적용하면 되고 실패가 적재 때 바로 드러나므로, 이력 표는 RDS 적용 전에 정함
+
 ## 2026-10-31 — `raw_object.file_role`에 `viewer_tree` 추가, 뷰어 목차 적재 (#68)
 
 - 기준: PR #63 데이터 엔지니어링·인프라(주영) 리뷰(10월 24일) 4번, [원본 보관 규칙](docs/storage-and-failure-rules.md) 「`raw_object` 행이 없는 객체는 고아」
