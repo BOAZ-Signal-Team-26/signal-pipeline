@@ -11,6 +11,20 @@
 - 바꾸지 않은 것: 계정·권한(grant)·기본 권한은 RDS 구축 때 별도 마이그레이션. DBML 표에 스키마 이름을 붙이지 않음
 - 검증: 빈 DB에 3회 적용 오류 0건, 2·3회째 스키마 덤프 같음. 스키마별 표 5 / 9 / 3, `public` 0, 외래 키 41, CHECK 63, 일반 인덱스 14, NOT NULL 칼럼 127. `@dbml/core` 파싱 표 17·관계 42·enum 27. pytest 98개 통과(스키마별 표 수 대조 추가), ruff 통과
 
+## 2026-10-22 — 파이프라인 아키텍처 초안 작성
+
+- 기준: 11차 미팅(10월 14일) Week 6 할 일 「아키텍처 초안 공유」, 저장 계층 설계(signal-infra PR #28, 10월 19일 병합), 원본 보관 규칙·ERD v2.2(`dev`), PR #47·#51·#63 코드
+- [파이프라인 아키텍처 초안](docs/architecture.md) 신설
+  - 1절 한 장 그림: 저장 계층 설계 5절 그림에 EC2 안 작업 4개·로컬 디스크·표 이름을 겹침. 그림은 draw.io로 그린 `docs/images/architecture.drawio.svg`
+  - 2절 실행 단위: DAG 2개(`signal_extract`·`signal_score`), DAG run 1회 = `run_id` 1개, `uv run` BashOperator, 실행 기록은 끝에 1회 업로드(실패 실행도 업로드하는 예외는 제안)
+  - 3절 단계별 입출력 표(EXTRACT 5작업·SCORE 5작업), 로컬 → S3 경로 대응
+  - 4절 실행 환경: Airflow·signal-pipeline 가상환경 분리(10월 18일 충돌 확인), 작업이 받는 설정, 로컬 디스크
+  - 5절 인프라 결정 6건 의견(권고안 그대로, 법인 키 신청 시점만 다름), Airflow 2.11.2 유지와 3.x 미시험 이유
+  - 6절 코드와 설계 차이 8건, 7절 Week 7 확인 항목, 8절 미결 7건
+- [README](docs/README.md): 읽는 순서 9번과 2단계 상태 갱신
+- 바꾸지 않은 것: 저장 계층 설계(signal-infra), `pipeline-flow.md`(9월 30일 초안 유지. 11월 4일 Flow 설계에서 통합), 코드
+- 수행하지 않은 것: Airflow 3.x 메모리 실측, Airflow 2.11.2 Python 지원 범위 확인(Week 7)
+
 ## 2026-10-21 — 로컬 PostgreSQL에 수집·절 분할 결과 4개 표 적재 (#62)
 
 - 기준: 11차 미팅(10월 14일) 안건 7. 11월 12일 원점수 산출의 기준 실행 환경을 로컬 PostgreSQL로 둠. 적재 입력의 파서 버전은 추출기와 같은 값(`extract.parser_version()`, 이 브랜치에서는 prep-7)
