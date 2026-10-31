@@ -10,8 +10,8 @@
   본문 PDF 파일명(「간이」 포함 여부)은 문서 종류에 쓰지 않는다. document는 접수 단위이기 때문이다.
 - 다시 적재 방식: 4개 표와 pipeline_run을 `TRUNCATE ... RESTART IDENTITY`로 비운 뒤 정렬 순서대로 넣는다.
   자연키가 같고 입력이 같으면 ID 발급 순서도 같아 두 번 실행해도 결과가 같다. PostgreSQL은 참조하는 표를
-  모두 나열하거나 CASCADE를 요구하므로 CASCADE를 쓴다. CASCADE로 같이 비워질 하위 표(score 등)에 행이 있으면
-  `--force` 없이는 멈춘다.
+  모두 나열하거나 CASCADE를 요구하므로 CASCADE를 쓴다. CASCADE로 같이 비워질 하위 표(score 등)에 행이 있거나,
+  비울 표에 이 스크립트가 넣지 않는 행(DART 밖 출처 문서·원본, EXTRACT가 아닌 실행)이 있으면 `--force` 없이는 멈춘다.
 - 실행 전체가 트랜잭션 하나다. 중간에 실패하면 이전 상태 그대로다.
 - file_extraction.created_run_id가 pipeline_run을 참조(NOT NULL)하므로 그 실행 1행만 pipeline_run에 넣는다.
 """
@@ -367,14 +367,32 @@ def nonempty_cascade_tables(cur: psycopg.Cursor) -> list[str]:
     ]
 
 
+# 비울 표 안에서 이 스크립트가 넣지 않는 행. 같은 DB에 다른 출처 수집이나 SCORE 실행이 있으면 같이 지워진다
+FOREIGN_ROWS = {
+    "raw.document(DART 밖 출처)": "select count(*) from raw.document where source <> %(source)s",
+    "raw.raw_object(DART 밖 출처)": "select count(*) from raw.raw_object where source <> %(source)s",
+    "raw.pipeline_run(EXTRACT 아님)": "select count(*) from raw.pipeline_run where run_kind <> 'EXTRACT'",
+}
+
+
+def foreign_rows(cur: psycopg.Cursor) -> list[str]:
+    """비울 표에 있는 DART 추출 밖의 행(「표(종류) N행」)."""
+    out = []
+    for name, sql in FOREIGN_ROWS.items():
+        n = cur.execute(sql, {"source": SOURCE}).fetchone()[0]
+        if n:
+            out.append(f"{name} {n}행")
+    return out
+
+
 def load(
     conn: psycopg.Connection, rows: Rows, parser: str, force: bool = False
 ) -> None:
     """트랜잭션 안에서 비우고 다시 넣는다. 커밋·롤백은 호출한 쪽이 한다."""
     with conn.cursor() as cur:
-        if not force and (busy := nonempty_cascade_tables(cur)):
+        if not force and (busy := nonempty_cascade_tables(cur) + foreign_rows(cur)):
             raise RuntimeError(
-                f"같이 비워질 하위 표에 행이 있다: {', '.join(busy)}. 지워도 되면 --force"
+                f"다시 적재하면 같이 지워질 행이 있다: {', '.join(busy)}. 지워도 되면 --force"
             )
         cur.execute(f"truncate {', '.join(TABLES)} restart identity cascade")
         cur.execute(
@@ -460,7 +478,7 @@ def main() -> int:
     ap.add_argument(
         "--force",
         action="store_true",
-        help="CASCADE로 같이 비워질 하위 표(score 등)에 행이 있어도 비우고 적재",
+        help="같이 지워질 행(하위 표 score 등, DART 밖 출처 문서·원본, EXTRACT가 아닌 실행)이 있어도 비우고 적재",
     )
     ap.add_argument(
         "--checksum", action="store_true", help="적재 뒤 표별 행 수·내용 md5 출력"

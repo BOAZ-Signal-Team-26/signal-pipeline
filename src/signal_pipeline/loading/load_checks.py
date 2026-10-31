@@ -5,7 +5,7 @@
 
 - 하나라도 실패하면 종료 코드 1. 결과는 「번호 / 내용 / 값 / PASS·FAIL」 탭 구분 한 줄씩
 - 기대 행 수는 디스크 입력(접수번호 폴더 수, 추출 기록 줄 수, structure.json 절 수)에서 다시 센다
-- 원본 바이트와 derived/ 파일 해시는 전수, section_text와 text.txt 구간 대조는 표본(고정 시드)
+- 원본 바이트·derived/ 파일 해시와 section_text·text.txt 구간 대조 모두 전수. text.txt는 파일마다 한 번만 읽는다
 - 규칙 2·3·5·8~11·13~15·18은 대상 표가 비어 있어 여기서 보지 않는다
 """
 
@@ -15,7 +15,6 @@ import argparse
 import hashlib
 import json
 import os
-import random
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,7 +25,6 @@ from signal_pipeline.loading.local_load import RCEPT_RE, SEARCH_PATH, SOURCE
 from signal_pipeline.parsing.extract import parser_version
 
 CHECKS_DIR = Path(__file__).resolve().parents[3] / "db" / "checks"
-SAMPLE = 200
 Result = tuple[str, str, Any, bool]
 
 
@@ -212,6 +210,24 @@ RULES = [
     ),
     (
         "R7",
+        "EXTRACT_OK 절의 범위·본문 결측",
+        (
+            "select count(*) from section where extract_status = 'EXTRACT_OK'"
+            " and (char_start is null or char_end is null or section_text is null)"
+        ),
+    ),
+    (
+        "R7",
+        "형제 구간 겹침((파일, 파서 버전) 안 구간이 앞 절 끝보다 먼저 시작)",
+        (
+            "select count(*) from (select char_start, max(char_end) over (partition by raw_object_id,"
+            " parser_version order by char_start, section_seq rows between unbounded preceding"
+            " and 1 preceding) as prev_end from section where char_start is not null) t"
+            " where char_start < prev_end"
+        ),
+    ),
+    (
+        "R7",
         "(파일, 파서 버전) 안 절 번호 중복",
         (
             "select count(*) from (select 1 from section"
@@ -257,27 +273,21 @@ def rules(cur: psycopg.Cursor, data: Path) -> list[Result]:
     out: list[Result] = [
         (key, desc, n, n == 0) for key, desc, sql in RULES for n in [_one(cur, sql)]
     ]
-    ids = [
-        i
-        for (i,) in cur.execute(
-            "select section_id from section where char_start is not null order by 1"
-        )
-    ]
-    bad = 0
-    for sid in random.Random(25).sample(ids, min(SAMPLE, len(ids))):
-        row = cur.execute(
-            "select f.canonical_text_path, s.char_start, s.char_end, s.section_text from section s"
-            " join file_extraction f using (raw_object_id, parser_version) where section_id = %s",
-            (sid,),
-        ).fetchone()
-        if row is None:
-            raise RuntimeError(f"절이 없다: {sid}")
-        path, start, end, text = row
-        bad += (data / path).read_text(encoding="utf-8")[start:end] != text
+    rows = cur.execute(
+        "select f.canonical_text_path, s.char_start, s.char_end, s.section_text from section s"
+        " join file_extraction f using (raw_object_id, parser_version)"
+        " where s.char_start is not null order by f.canonical_text_path"
+    ).fetchall()
+    # 경로 순 정렬이라 text.txt를 파일마다 한 번만 읽는다
+    bad, path, full = 0, None, ""
+    for p, start, end, text in rows:
+        if p != path:
+            path, full = p, (data / p).read_text(encoding="utf-8")
+        bad += full[start:end] != text
     out.append(
         (
             "R7",
-            f"section_text = text.txt 구간(표본 {SAMPLE})",
+            f"section_text = text.txt 구간(전수 {len(rows)})",
             f"불일치 {bad}",
             bad == 0,
         )
