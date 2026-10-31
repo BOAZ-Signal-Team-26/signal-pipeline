@@ -11,7 +11,7 @@
 | 기준 | [DBML](schema.dbml)이 칼럼·복합키의 정본. 칼럼 전체는 [스키마 명세](schema-catalog.md) |
 | 반영한 팀 결정 | 09-20 7차 미팅 3건: run_id 통일, fund_key 고정, 비교 모집단 별도 표 |
 | 승인 | 수정 1~9와 B11 안 1은 10월 3일 팀 채널에서 이의 없이 확정, 수정 10은 9차 미팅(9월 30일) 확정. 결정 대기 표시 항목과 CDI 산식 담당 승인은 미완료 |
-| 범위 밖 | DB 제품, 물리 DDL, 인덱스 튜닝, decimal 정밀도 → 2단계 데이터 파이프라인 Flow 설계 |
+| 범위 밖 | 운영 DB 제품·버전, 인덱스 튜닝, decimal 정밀도 → 2단계 데이터 파이프라인 Flow 설계. 로컬 PostgreSQL 16의 물리 결정은 「물리 결정」 |
 | 결정 대기 | 결정 대기 A, C(10월 8일 PM 확정, 데이터 사이언스(다빈) 이의 확인 대기), 10월 4일 판단 항목 중 간이 대표 역할, 그대로 미결인 B·D·F·G·H·I·B5·B12·B13 (아래 「v2.2」·「미결」). E는 10월 14일 확정 |
 
 ## 결정 요약
@@ -615,10 +615,52 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 | 자유 텍스트/목록/중첩 수수료 구조 | 임의 단일 문자열·실수로 평탄화하지 않음. 값·단위·적용 클래스·근거 section/offset은 3단계 입출력 Schema 설계에서 정의 |
 | 소스 text의 'n' | 전부 개행으로 치환하지 않음. 표본 특이 escape 복원 규칙은 버전 관리, 정상 영어 단어 훼손 금지 |
 
+## 물리 결정
+
+ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약·배치 6건이다(1~5는 10월 20일 확정, 6은 10월 25일 PM 결정). DDL은 `db/migrations/001_erd_v2_2.sql`, 적용은 `DATABASE_URL=... uv run python db/apply.py`. DBML이 칼럼·관계의 정본이며 DDL은 DBML에서 만든 물리 형태다.
+
+| # | 결정 | 적용 범위 |
+|---|---|---|
+| 1 | 숫자 PK는 `bigint generated always as identity`. 문자열 PK는 `text` | 숫자 PK 10개 표(product, distributor, document, raw_object, section, score, match_failure, collection_attempt, population_snapshot, llm_field_extraction). 문자열 PK: pipeline_run.run_id, fund_group.fund_key, metric_definition.metric_key. 복합 PK 표(product_distributor, document_product, file_extraction, source_watermark)는 구성 칼럼의 자료형을 따름. 이름이 `_id`로 끝나는 FK 칼럼은 `bigint`, 문자열 FK는 `text`. identity가 항상 값을 발급하므로(always) 적재 코드가 ID를 직접 넣지 않음 |
+| 2 | 시각 칼럼은 모두 `timestamptz`, 값은 UTC로 저장 | DBML `timestamp` 14개 칼럼 전부. 시간대가 없는 원천(inputDate 등)은 적재 전에 실행 설정의 source_timezone으로 해석해 변환하고 원문은 payload에 보존 |
+| 3 | enum은 PostgreSQL enum 타입이 아니라 `text` + CHECK | DBML enum 27개 중 칼럼에 쓰인 26개, 칼럼 30개에 `<표>_<칼럼>_check` 제약. 값 추가·삭제가 `ALTER TYPE` 없이 제약 교체로 끝남. 칼럼에 쓰이지 않는 parse_status_enum은 document별 집계 뷰의 값이라 제약이 없음 |
+| 4 | JSON 내용 칼럼은 `jsonb` | 13개 칼럼: document.source_key_payload·source_record_payload, section.quality_flags, score.score_payload, raw_object.request_params, collection_attempt.request_params, fund_group.grouping_evidence, pipeline_run.config_manifest, population_snapshot.stratification_definition·exclusion_counts, metric_definition.definition_manifest, llm_field_extraction.value_json·model_params. jsonb는 키 순서·공백을 정규화하므로 DB 값에서 원문 바이트를 복원할 수 없음. sha256 칼럼은 DB 값이 아니라 파일 바이트의 해시 |
+| 5 | 표 안의 CHECK는 한 행만 보고 판정되는 규칙에 한정. 여러 행에 걸친 검증은 적재 스크립트 | 아래 목록 |
+| 6 | 표를 스키마 3개에 나눠 둔다: `raw` 5, `staging` 9, `mart` 3. DDL은 표 이름에 스키마를 붙여 쓰고, 실행 코드는 연결 옵션으로 검색 경로(search_path)를 `raw,staging,mart`로 둔다 | 배치는 signal-infra `docs/storage-design.md` 3.6(10월 18일 승인) 그대로. 근거: 같은 DDL을 RDS에 적용하고 대시보드 계정에 스키마 단위 권한을 준다. `document.distributor_id → distributor`는 raw에서 staging을 가리키므로 외래 키를 만들지 않는다(raw 스키마만 덤프·복원할 수 있어야 함). 대신 적재 뒤 `db/checks/document_distributor.sql`이 0행인지 확인한다 |
+
+결정 5에 따라 표에 둔 단일 행 규칙(enum 값 집합 외 33개):
+
+- product: short_code 5자리 영숫자, risk_grade 1~6, is_etf와 etf_confidence 일치(KRX_CONFIRMED=true, NOT_ETF=false, 그 외 NULL), std_code가 NULL이면 std_code_scheme도 NULL, valid_from이 valid_to보다 늦지 않음
+- product_distributor: snapshot_month 6자리 숫자. document: rcept_no 14자리 숫자. raw_object: version_seq 1 이상. collection_attempt·llm_field_extraction: attempt_no 1 이상
+- section: parser_version 형식은 file_extraction과 같음. char_start·char_end는 함께 NULL이거나 0 <= start < end, SECTION_BOUNDARY_NOT_FOUND이면 둘 다 NULL
+- score: 대상 칼럼 3개 중 정확히 하나만 채움(num_nonnulls = 1)이고 target_type과 일치(DOCUMENT_PAIR 저장 불가), raw_score는 result_status OK일 때만 값, OK 이외에는 reason_code 필수, normalization_status별 normalized_score·population_snapshot_id·normalization_reason 조합
+- fund_group: representative_risk_grade 1~6, 등급이 있으면 근거 문서와 구분 필수
+- pipeline_run: SCORE는 upstream_run_id 필수·EXTRACT는 NULL, is_official=true는 SUCCEEDED인 SCORE만, selection_manifest 경로와 sha256은 함께 있거나 함께 없음, EXTRACT는 selection_manifest 없음
+- file_extraction: extract_status에 SECTION_BOUNDARY_NOT_FOUND 불가(절 전용 값), parser_version은 소문자·숫자·`.`·`-`·`_`만(파일 경로에 쓰임). EXTRACT_OK이면 텍스트 경로·해시·길이 필수, 구조 manifest 필수 조건과 경로·해시 쌍, text_length 0 이상
+- population_snapshot: 개수 칼럼 3개 0 이상. llm_field_extraction: result_status OK이면 value_json 필수, 근거 범위는 함께 NULL이거나 근거 절이 있고 0 <= start < end
+
+표에 두지 않는 규칙(적재 스크립트 몫): 「적재 검증 규칙」의 여러 행·여러 표 조건. 예: is_official=true인 SCORE run은 최대 1개, 문서·필드당 is_selected=true는 최대 1개, SCORE의 baseline_date가 upstream EXTRACT run과 같음, 절 범위가 text_length 이하, 근거 절이 같은 문서 소속.
+
+DBML과 물리 형태의 차이:
+
+- 길이를 지정하지 않은 `varchar`는 `text`, 길이가 있는 `varchar(n)`은 그대로. `decimal`은 precision·scale 없는 `numeric`(정밀도는 「미결」). 그 외 `int`는 `integer`
+- NOT NULL은 DBML의 `[not null]`과 PK 칼럼만 옮김(127개 칼럼, DBML과 같은 수). 나머지는 NULL 허용
+- 외래 키는 DBML 관계 42개 중 41개. `document.distributor_id` 1개는 「물리 결정」 6에 따라 만들지 않음
+- `attempt_outcome_enum`에 `STARTED` 추가. 「적재 순서」 1(시작 행 기록 → 결과 갱신)을 `outcome` NOT NULL을 유지한 채 지키기 위한 값
+- score의 `(population_snapshot_id, run_id, metric_key)` 복합 FK는 population_snapshot_id가 NULL이면 검사하지 않음(PostgreSQL 기본 MATCH SIMPLE)이며, 이는 정규화 미요청 행에 필요한 동작
+- 인덱스는 DBML에 적은 일반 인덱스 9개와 조회·조인용 5개(raw_object.document_id, section.document_id, product.short_code, product.fund_key, document_product.product_id)만 만들어 모두 14개. 그 밖의 인덱스 튜닝은 하지 않음
+
+운영 규칙:
+
+- 적재 코드는 identity 칼럼에 ID를 직접 넣지 않는다(`generated always`라 넣으면 오류). 발급된 ID는 `INSERT ... RETURNING`으로 받는다. 전체를 다시 적재할 때는 `TRUNCATE ... RESTART IDENTITY`로 비운다
+- `db/apply.py`는 적용 이력 표가 없고 `IF NOT EXISTS`에 의존한다. `IF NOT EXISTS`는 이미 있는 표의 정의를 바꾸지 않으므로, RDS 적용 전에 001을 고치면 로컬 DB를 새로 만들어 다시 적용한다. RDS 적용 뒤의 변경은 새 번호 파일로 추가하고, 다시 실행해도 안전하게 쓰거나 그때 적용 이력 표를 추가한다
+- 기존 `public` 표가 있는 로컬 DB는 001을 다시 적용해도 정리되지 않는다. `docker rm -f signal-pg-local` 뒤 새로 만들어 적용한다
+- 권한(grant)·기본 권한(default privileges)과 소유자 설정은 RDS 구축 때 별도 마이그레이션으로 정한다(7주차). 001은 계정을 만들지 않는다
+
 ## 적재 검증 규칙
 
 - DBML의 PK/FK/UNIQUE 외에 적재 검증에 구현할 조건
-- DB 제품 선택 전이므로 특정 DB의 CHECK/트리거 문법은 미확정
+- 표 안 CHECK는 단일 행 규칙만 PostgreSQL 제약으로 두었고(「물리 결정」 5번), 이 절의 여러 행 조건은 적재 스크립트가 검증
 
 | # | 영역 | 규칙 |
 |---|---|---|
@@ -908,7 +950,7 @@ erDiagram
 | SCD2 구현 시 버전 PK와 논리 product_id 분리 방식. 현재 PK로 여러 버전 적재 불가 | 대현 / 2단계 데이터 파이프라인 Flow 설계 | 2026-09-30 |
 | 금투협 문서의 정정 계보 규칙(「투자설명서 변경」 공고 591건을 이전 공고와 잇는 방법). 결정 전까지 칸만 두고 로직 없음 | 대현·주영 | 금투협 수집 착수 전 (Week 5, [확인 필요: 일자]) |
 | ELS 식별 키(후보: 회차 번호 / KR6… 표준코드 / 일괄신고추가서류 단위)와 발행사 모델. ELS는 Phase 1 범위 밖(9차 미팅) | 팀 | Phase 2 착수 전 [확인 필요: 일자] |
-| 물리 DB 제품·PK 발급·CHECK·timestamp/decimal 정밀도 | 팀 / 2단계 | 2026-10-07 (저장 계층 결정) |
+| 운영 DB 제품·버전, decimal 정밀도(PK 발급·CHECK·timestamp는 「물리 결정」으로 확정) | 팀 / 2단계 | 2026-10-07 (저장 계층 결정) |
 | 매칭 성공(run 무관)과 매칭 실패(run별)의 run 비대칭 해소 여부 | 팀 | 2026-09-30 |
 | 제재 문서 키: emOpenNo 8/8 공백이 구조적 결측인지, 후보 4필드의 전수 안정성, emOpenNo 두 소스 유일 여부 | 대현 / 다음 조회 가능일 실호출 | 제재 수집 착수 전 (Week 5, [확인 필요: 일자]) |
 | finlife 소스 자체의 존치(칼럼은 v2.2에서 제거). 09-16 안건 결과 기록 없음 | 팀 / 09-16 회의록 확인 | 2026-09-30 |

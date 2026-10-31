@@ -76,7 +76,7 @@
 | 1 | 수집(소스마다 작업 1개) | `source_watermark`, 외부 API | `raw/{source}/…` 원본 + `.meta.json`(조건부 쓰기), 목록 응답 `raw/dart/_list/…` | `raw.collection_attempt`(시작 행 `STARTED` → 결과 갱신), `raw.raw_object`, `raw.source_watermark` 전진 | 재시도 가능 실패면 그날 미완료, 워터마크 정지, 실행 FAILED(종료 코드 1). 영구 실패·014는 완료를 막지 않음 | DART만. 로컬 폴더·`state/dart.json`·`attempts.jsonl` |
 | 2 | 추출·절 분할 | `raw/` 본문 PDF(접수번호별 최신 판) | `derived/{raw_sha256}/{parser_version}/text.txt`·`structure.json` | `staging.file_extraction`, `staging.section` | 파일 단위 격리. EXTRACT_OK 재사용. FAILED·PARTIAL은 다음 실행이 같은 키 행을 덮어씀. 표 분리만 실패한 결과는 예외로 재추출(원본 보관 규칙 「버전·중복·재추출」 3). 300초 초과는 EXTRACT_FAILED | 로컬 폴더. DB 행은 PR #63 적재가 만듦 |
 | 3 | 등록·매칭 | 목록 응답, `raw_object` | 없음 | `raw.document`, `staging.product`, `staging.document_product`, `staging.fund_group`, `staging.match_failure` | 매칭 실패는 `match_failure`에 기록, 실행은 계속. 끝에 `db/checks/document_distributor.sql` 실행, 1행 이상이면 실행 FAILED | PR #63이 `document`·`raw_object`·`file_extraction`·`section`만 적재. 매칭은 미구현 |
-| 4 | 실행 마감 | 로컬 기록 파일 | `runs/{run_id}/extraction_attempts.jsonl`·`attempts.jsonl`·`run.json` 1회 업로드 | `raw.pipeline_run` 상태 SUCCEEDED/FAILED | 상위 작업이 실패해도 실행(`trigger_rule=all_done`). 업로드 뒤 상위 실패가 있으면 종료 코드 1(2-4) | 없음 |
+| 4 | 실행 마감 | 로컬 기록 파일 | `runs/{run_id}/extraction_attempts.jsonl`·`attempts.jsonl`·`run.json` 1회 업로드 | `raw.pipeline_run` 상태 SUCCEEDED/FAILED. SUCCEEDED로 바꾸기 전 업로드한 실행 폴더 파일 sha256 재대조(원본 보관 규칙 「실행 폴더 불변」) | 상위 작업이 실패해도 실행(`trigger_rule=all_done`). 업로드 뒤 상위 실패가 있으면 종료 코드 1(2-4) | 없음 |
 
 - 작업 2와 3의 순서: 지금 PR #63은 추출 결과 파일을 읽어 4개 표를 한 번에 적재하므로 「추출 → 적재」가 맞음. 매칭이 구현되면 등록(`document`·`product`)은 추출보다 먼저 올 수 있음. 이 초안은 지금 코드 순서를 따름
 - 작업 1의 소스별 병렬은 동시 작업 2 안에서 Airflow가 배분. 추출 작업(파일 병렬 2)은 공유 pool 2슬롯을 차지해 다른 작업과 겹치지 않음(2-3)
@@ -184,6 +184,7 @@ PR #47(수집)·#51(추출)·#59(로컬 DDL, 리뷰 중)·#63(적재, 리뷰 중
 | 수집 기록 순서 | 원본 저장 뒤 결과 1줄 | 시작 행(`STARTED`) → 결과 갱신 | DB 적재 구현 | 데이터 엔지니어링·인프라(주영), PR #47 리뷰 합의 |
 | 원본·파생 저장 | 로컬 폴더 | S3 조건부 쓰기 | Week 7, 공통 모듈과 추출기(3-3) | 데이터 엔지니어링·인프라(주영) |
 | 적재 방식 | 일회성 `TRUNCATE` 재적재(PR #63) | upsert(2-2) | Week 7 DAG 작성 | 미정 |
+| EXTRACT 실행의 `runs/{run_id}/inputs.json` | 쓰지 않음(`extract.py`) | 원본 보관 규칙상 EXTRACT·SCORE 실행 모두 입력 manifest를 씀 | Week 7 DAG 작성 | 데이터 엔지니어링·인프라(주영) |
 | 뷰어 목차(`viewer_tree`) | 파일로 저장하지만 적재 안 함(`file_role` enum에 없음) | enum에 추가하고 적재. 계속 수집할 파일인지 확인 | 이슈 #68 | PM(대현) |
 | 같은 PDF 두 문서 | 문서마다 `raw_object`·`section` 따로(34행 중복) | 원본 보관 규칙대로 유지 | 변경 없음 | |
 | 등록·매칭 | 미구현 | EXTRACT DAG 작업 3 | 담당 미정 | 10월 31일 미팅에서 확정 예정 |
@@ -209,7 +210,7 @@ PR #47(수집)·#51(추출)·#59(로컬 DDL, 리뷰 중)·#63(적재, 리뷰 중
 | LLM 추출 작업을 EXTRACT DAG와 SCORE DAG 중 어디에 둘지(`llm/`이 어느 `run_id` 아래 생기는지) | PM(대현), 담당자 | 10월 31일 미팅 담당 확정 때 |
 | 등록·매칭 작업의 구현 담당과 추출과의 순서 | PM(대현) | 10월 31일 미팅 |
 | 추출기 S3 전환 방식(3-3: `latest_pdfs` 목록 조회, `process_file`·`_existing` 읽기·쓰기) | 데이터 엔지니어링·인프라(주영) | Week 7 S3 전환 |
-| Airflow 2.11.2와 signal-pipeline(3.12 이상)이 함께 쓸 Python 판 | 데이터 엔지니어링·인프라(주영) | Week 7 arm64 실행 확인 때 |
+| Airflow 2.11.2와 signal-pipeline이 함께 쓸 Python 3.12의 arm64 실제 실행 확인(판은 4-1에서 3.12로 정함) | 데이터 엔지니어링·인프라(주영) | Week 7 arm64 실행 확인 때 |
 | 대시보드 연결(결정 항목 5) | PM(대현), 데이터 사이언스(다빈) | Week 7 |
 | 같은 `run_id` 재시도: `attempt_no` 증가, 「Clear task」 대신 새 DAG run으로만 재실행할지, 소스 하나가 실패할 때 다른 소스를 계속 처리할지 | 데이터 엔지니어링·인프라(주영), PM(대현) | Week 7 DAG 작성 전 |
 | LLM: 채점 `inputs.json`에 쓴 LLM 결과 id 고정, 재시도·비용 상한 | 추출 모듈 담당, PM(대현) | 추출 모듈 구현 전 |
