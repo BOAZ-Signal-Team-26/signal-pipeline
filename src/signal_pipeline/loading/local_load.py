@@ -356,10 +356,15 @@ order by 1"""
 
 
 def nonempty_cascade_tables(cur: psycopg.Cursor) -> list[str]:
-    """TRUNCATE CASCADE로 지워질 하위 표 중 행이 있는 표(「스키마.표」)."""
+    """TRUNCATE CASCADE로 지워질 하위 표 중 행이 있는 표(「스키마.표」).
+
+    비울 표와 하위 표를 TRUNCATE와 같은 잠금으로 먼저 잠근다. 잠금은 트랜잭션 끝까지 유지되므로
+    이 검사와 TRUNCATE 사이에 다른 트랜잭션이 행을 넣지 못한다.
+    """
     cur.execute(CASCADE_TABLES, {"tables": list(TABLES)})
     tables = [t for (t,) in cur.fetchall()]
     # 표 이름은 카탈로그에서 format('%I.%I')로 만든 값이라 문자열로 이어도 안전하다
+    cur.execute(f"lock table {', '.join((*TABLES, *tables))} in access exclusive mode")
     return [
         t
         for t in tables
