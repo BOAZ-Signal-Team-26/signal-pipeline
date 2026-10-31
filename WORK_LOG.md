@@ -11,6 +11,25 @@
 - 바꾸지 않은 것: 계정·권한(grant)·기본 권한은 RDS 구축 때 별도 마이그레이션. DBML 표에 스키마 이름을 붙이지 않음
 - 검증: 빈 DB에 3회 적용 오류 0건, 2·3회째 스키마 덤프 같음. 스키마별 표 5 / 9 / 3, `public` 0, 외래 키 41, CHECK 63, 일반 인덱스 14, NOT NULL 칼럼 127. `@dbml/core` 파싱 표 17·관계 42·enum 27. pytest 98개 통과(스키마별 표 수 대조 추가), ruff 통과
 
+## 2026-10-21 — 로컬 PostgreSQL에 수집·절 분할 결과 4개 표 적재 (#62)
+
+- 기준: 11차 미팅(10월 14일) 안건 7. 11월 12일 원점수 산출의 기준 실행 환경을 로컬 PostgreSQL로 둠. 적재 입력의 파서 버전은 추출기와 같은 값(`extract.parser_version()`, 이 브랜치에서는 prep-7)
+- 바꾼 것: [local_load.py](src/signal_pipeline/loading/local_load.py) 신설. `document`·`raw_object`·`file_extraction`·`section`과 외래 키로 꼭 필요한 `pipeline_run` 1행을 적재
+  - 다시 적재: 트랜잭션 하나에서 `TRUNCATE ... RESTART IDENTITY CASCADE` 뒤 자연키 순으로 넣음. 시각은 입력 파일 값만 써서 두 번 실행해도 ID·내용이 같음. CASCADE로 같이 비워질 하위 표(`score` 등)에 행이 있으면 `--force` 없이는 멈춤. 하위 표는 표 이름 문자열이 아니라 oid로 따라감(검색 경로가 달라도 빠지지 않음)
+  - 스키마: 접속 옵션으로 검색 경로를 `raw,staging,mart`로 둠. `TRUNCATE` 대상은 스키마를 붙여 씀
+  - 이 스크립트는 로컬 기준선용 일회성 적재. DAG 적재는 `file_extraction` 재사용·덮어쓰기 규칙 때문에 upsert로 Week 7에 따로 만듦
+  - 추출 기록: prep-7 전체 실행 중 마지막 것(`runs/extract-20261013T112709Z-dad0`). `text.txt`·`structure.json` 해시를 추출 기록과, `structure.json`의 원본 해시·파서 버전을 `raw_object`와 대조해 다르면 멈춤
+  - `document`: `received_date`는 접수번호 앞 8자리. `report_name`·`is_correction`·`document_type`은 목록 응답(`raw/dart/_list/`)의 `report_nm`에서 수집기와 같은 규칙(`classify_report`)으로 정함. 목록 레코드 원문은 `source_record_payload`. 목록에 없거나 투자설명서가 아닌 접수면 멈춤. 본문 PDF 파일명의 「간이」는 문서 종류에 쓰지 않음(PR #63 리뷰: 해당 2건은 정정 투자설명서 접수에 첨부 본문만 간이투자설명서 파일). 표지 HTML 파싱이 필요한 칼럼은 Week 7
+  - `raw_object.source_object_key`는 `{접수번호}/{file_role}`. 뷰어 목차(`viewer_tree`)는 `file_role` enum에 없어 적재하지 않음(enum 추가는 후속 이슈)
+  - PDF 바이트가 같은 두 문서(20260918000190, 20260918000389)는 문서마다 `raw_object`·`section`을 따로 둠([원본 보관 규칙](docs/storage-and-failure-rules.md): 같은 바이트가 여러 문서에 나오면 각 문서의 연결을 남김)
+- 결과(10월 25일, 로컬 `signal-pg-local`, 스키마 3개 DDL): `document` 504(정정 469, 정정 아님 35, 모두 투자설명서), `raw_object` 1,354(본문 PDF 502, 표지 HTML 503, 표지 XML 349), `file_extraction` 502, `section` 17,251(`structure.json` 501개 합계 17,217 + 중복 문서 34). 경계 실패 480개는 글자 위치·본문 NULL. 실행 약 9초. `db/checks/document_distributor.sql` 0행
+- 검증
+  - 두 번 실행: 5개 표의 행 수와 전체 내용 md5가 같음
+  - CASCADE 보호: 롤백할 트랜잭션에서 `raw.source_watermark`에 1행을 넣으면 검색 경로가 `raw,staging,mart`일 때와 `public`일 때 모두 `raw.source_watermark`를 찾아 멈춤
+  - 원본 대조(전수): 문서별 절 수 차이 0건, 찾은 절 16,771개의 `section_text`가 `text.txt` 잘라 낸 값과 모두 같음, 표본 10개 절의 위치·제목 일치, 외래 키 고아·자연키 중복 0건, `raw_object.sha256`과 `.meta.json` 불일치 0건
+  - pytest 101개 통과(목록 기반 문서 종류, 목록에 없는 접수 테스트 추가), `ruff format`·`ruff check` 통과
+- 적재 결과 점검 [load_checks.py](src/signal_pipeline/loading/load_checks.py)(읽기 전용, 10월 25일): 11차 미팅 로컬 점검 체크리스트(행 수·외래 키 고아·경계 실패 범위 NULL·파서 버전·원본과 `derived/` 해시 전수)와 [데이터 테이블·ERD 설계](docs/data-model.md) 「적재 검증 규칙」 중 적재한 표에 해당하는 1·4·6·7·12·16·17, `document` 목록 기반 칼럼 결측. 기대 행 수는 디스크 입력에서 다시 셈. 하나라도 실패하면 종료 코드 1. 10월 25일 21개 항목 모두 통과, 가동 점검 대조표에 기록. DDL 오류 0과 2회 실행 비교는 `db/apply.py`·`local_load --checksum`으로 따로 확인
+
 ## 2026-10-21 — 절 경계 보완 규칙 2개, 파서 버전 prep-8 (#60)
 
 - 기준: prep-7 502건의 절 경계 실패(`SECTION_BOUNDARY_NOT_FOUND`) 483개 원인 분석과 보완 규칙 시험(PM(대현), 10월 20일, 테스트&리서치 문서 「절 경계 실패 483개 절 원인 분석과 보완 규칙 시험」)
