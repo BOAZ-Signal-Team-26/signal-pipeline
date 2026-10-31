@@ -5,6 +5,7 @@ from signal_pipeline.parsing.dart_sections import (
     SectionSplitError,
     invariant_violations,
     split_sections,
+    undouble,
 )
 
 
@@ -327,3 +328,137 @@ def test_combined_affiliate_toc_split_in_body() -> None:
     result = split_sections(make(toc, combined))
     part4 = [s for s in bodies(result) if s.part_seq == 4]
     assert [s.in_toc for s in part4] == [True, True] and result.toc_replaced == []
+
+
+def test_cross_reference_sentence_is_not_part_heading() -> None:
+    # 제1부 본문의 「제2부 중 … 참고하시기 바랍니다」를 표제로 잡으면 제1부 2절이 제2부로 들어간다
+    # (10월 20일 prep-7 실패 483개 중 100개)
+    body = ["   제1부 모집 또는 매출에 관한 사항", "1. 투자대상", "본문"]
+    body += ["제2부 중 투자전략을 참고하시기 바랍니다.", "2. 투자전략", "본문"]
+    body += body_block()[5:]
+    text = make(toc_block(), body)
+    result = split_sections(text)
+    check(result, text)
+    second = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert second.char_start is not None
+    assert text[result.parts[1].char_start :].lstrip().startswith("제2부 발행인")
+
+
+def test_part_heading_with_slightly_different_title_is_kept() -> None:
+    # 목차 「모집 또는 매출」, 본문 「모집 및 매출」: 앞 4글자는 달라도 비슷하면 표제
+    body = body_block()
+    body[0] = "   제1부 모집 및 매출에 관한 사항"
+    text = make(toc_block(), body)
+    assert [p.part_seq for p in split_sections(text).parts] == [1, 2, 3]
+
+
+@pytest.mark.parametrize(
+    "line", ["2. 연도별 설정 및 판매 현황", "2 연도별 설정 및 판매 현황"]
+)
+def test_body_title_differs_in_middle_is_found_by_similarity(line: str) -> None:
+    # 목차 「연도별 설정 및 환매 현황」, 본문은 가운데 단어가 다르고 점이 빠지기도 한다
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 연도별 설정 및 환매 현황"]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문", line, "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    text = make(toc, body)
+    result = split_sections(text)
+    check(result, text)
+    sec = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert sec.title == line
+
+
+def test_dissimilar_title_with_same_number_is_not_taken() -> None:
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 연도별 설정 및 환매 현황"]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "2. 보수 및 수수료", "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    sec = next(
+        s for s in split_sections(make(toc, body)).sections
+        if (s.part_seq, s.source_section_no) == (1, "2")
+    )  # fmt: skip
+    assert sec.char_start is None
+
+
+def test_undouble() -> None:
+    assert undouble("제제 33 부부 투투자자위위험험") == "제 3 부 투자위험"
+    assert undouble("제3부 투자위험") == "제3부 투자위험"
+
+
+def test_similar_title_inside_next_section_is_not_taken() -> None:
+    # 2절이 본문에 없고 3절 안 번호 목록에 비슷한 줄이 있으면 2절로 잡지 않는다. 3절은 찾는다(PR #61 리뷰)
+    toc = [
+        "제1부 모집",
+        "   1. 투자대상",
+        "   2. 연도별 설정 및 환매 현황",
+        "   3. 보수",
+    ]
+    toc += ["제2부 발행인", "   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = [
+        "   제1부 모집",
+        "1. 투자대상",
+        "본문",
+        "3. 보수",
+        "2. 연도별 설정 및 판매 현황",
+    ]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    secs = {
+        s.source_section_no: s for s in bodies(split_sections(make(toc, body)))
+        if s.part_seq == 1
+    }  # fmt: skip
+    assert secs["2"].char_start is None
+    assert secs["3"].title == "3. 보수"
+
+
+def test_short_toc_part_title_still_filters_cross_reference() -> None:
+    # 목차 부 제목이 4글자 미만(「발행인」)이어도 다른 부 언급 문장은 표제가 아니다(PR #61 리뷰)
+    toc = ["제1부 모집", "   1. 투자대상", "   2. 투자전략", "제2부 발행인"]
+    toc += ["   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = [
+        "   제1부 모집",
+        "1. 투자대상",
+        "제2부 중 투자전략을 참고하시기 바랍니다.",
+        "2. 투자전략",
+    ]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    result = split_sections(make(toc, body))
+    sec = next(
+        s for s in bodies(result) if (s.part_seq, s.source_section_no) == (1, "2")
+    )
+    assert sec.char_start is not None
+
+
+def test_body_part_heading_shorter_than_toc_title_is_kept() -> None:
+    # 목차 「제2부 발행인에 관한 사항」, 본문 「제2부 발행인」: 앞 4글자도 유사도도 안 맞지만 앞부분이므로 표제.
+    # 빠지면 본문 부 표제가 둘만 남아 SectionSplitError가 난다(PR #61 리뷰)
+    toc = ["제1부 모집", "   1. 투자대상", "제2부 발행인에 관한 사항"]
+    toc += ["   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    text = make(toc, body)
+    result = split_sections(text)
+    check(result, text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3]
+
+
+def test_doubled_toc_part_heading_gives_title() -> None:
+    # 목차 부 표제가 글자 두 번씩(「제제 11 부부 모모집집」)이어도 부 제목을 읽는다(PR #61 리뷰)
+    toc = toc_block()
+    toc[0] = "제제 11 부부 모모집집 또또는는 매매출출에에 관관한한 사사항항"
+    text = make(toc, body_block())
+    assert [p.part_seq for p in split_sections(text).parts] == [1, 2, 3]
+
+
+def test_toc_part_heading_alone_followed_by_section_has_no_title() -> None:
+    # 목차 「제1부」 단독 줄 다음이 절 항목(「1. 투자대상」)이면 그 줄은 부 제목이 아니다.
+    # 부 제목으로 쓰면 본문 「제1부 모집 …」이 걸러져 SectionSplitError가 난다(PR #61 리뷰)
+    toc = toc_block()
+    toc[0] = "제1부"
+    text = make(toc, body_block())
+    result = split_sections(text)
+    check(result, text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3]
