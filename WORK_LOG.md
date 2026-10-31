@@ -1,5 +1,16 @@
 # 작업 기록
 
+## 2026-10-31 — `raw_object.file_role`에 `viewer_tree` 추가, 뷰어 목차 적재 (#68)
+
+- 기준: PR #63 데이터 엔지니어링·인프라(주영) 리뷰(10월 24일) 4번, [원본 보관 규칙](docs/storage-and-failure-rules.md) 「`raw_object` 행이 없는 객체는 고아」
+- 수집 유지 확인: DART 수집기가 뷰어 목차로 본문 PDF·표지 HTML 위치를 찾고 문서마다 다시 받음(`collectors/dart.py` `REQUIRED_ROLES`). 그만 쓸 파일이 아니므로 행을 둠
+- 바꾼 것
+  - `docs/schema.dbml` `file_role_enum`에 `viewer_tree`(본문 비대상) 추가. `docs/schema-catalog.md`, `docs/storage-and-failure-rules.md`의 역할 목록과 본문 비대상 목록에 반영
+  - `db/migrations/001_erd_v2_2.sql` `raw_object_file_role_check`에 추가. RDS 적용 전이라 001을 고침. 이미 001을 적용한 로컬 DB는 `IF NOT EXISTS`라 CHECK가 바뀌지 않으므로 DB를 새로 만들어 적용
+  - `local_load.py` `ROLE_FORMAT`에 `viewer_tree`(html) 추가
+- 바꾸지 않은 것: 수집기, enum 수(27, 값만 추가)
+- 검증: 새 DB(`signal_v68`)에 적용 뒤 prep-7 적재 `raw_object` 1,858(본문 PDF 502, 표지 HTML 503, 표지 XML 349, 뷰어 목차 504 = `raw/dart/*/viewer_tree__v*.html` 504개). 두 번 적재해 5개 표 행 수·md5 같음. 적재 점검 전 항목 통과. `@dbml/core` 표 17·관계 42·enum 27. pytest 102개, ruff, `git diff --check` 통과
+
 ## 2026-10-25 — 로컬 DDL을 스키마 3개로 배치, `document.distributor_id` 외래 키 제외, 시도 결과에 `STARTED` 추가 (#58)
 
 - 기준: PR #59 데이터 엔지니어링·인프라(주영) 리뷰(10월 22일), signal-infra `docs/storage-design.md` 3.6(10월 18일 승인), [원본 보관 규칙](docs/storage-and-failure-rules.md) 「적재 순서」 1·5

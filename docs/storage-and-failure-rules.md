@@ -65,7 +65,7 @@ raw/krx_etf_daily/{기준일}/api_response__v1.json   # 같은 기준일 바이�
 | source | 서비스/엔드포인트 이름공간. 7개: `dart`, `kofia_disclosure`, `fss_sanction`, `fss_improvement`, `fss_dispute`, `data_go_fund`(공공데이터포털 펀드상품기본정보), `krx_etf_daily`(KRX ETF 일별 매매정보). 제재와 경영유의 API는 구분 |
 | 원천 키 | 문서 하나를 가리키는 키(문서 키). DB `raw_object.source_object_key`에서 파일 역할·첨부 번호를 뺀 부분이며, 같은 문서의 역할별 파일(`body_pdf`·`cover_html`·`prospectus`·`attachment-01` 등)은 이 폴더 하나에 둠. 필드가 여러 개면 `~`로 연결. 퍼센트 인코딩은 `/`, `~`, `%`, 제어 문자만 하고 한글은 그대로 둠. 인코딩 후 200바이트를 넘으면 앞부분을 남기고 `-h` + 전체 키 SHA-256 앞 12자를 붙임. 원본 필드 값은 meta.json에 JSON으로 보존 |
 | 기준일 폴더 | 스냅숏형 API(`data_go_fund`, `krx_etf_daily`)만 사용. 값은 원천 기준일 YYYY-MM-DD이며 수집일이 아님 |
-| file_role | cover_html / cover_xml / body_pdf / api_response / attachment / prospectus / prospectus_simple / change_summary |
+| file_role | cover_html / cover_xml / body_pdf / viewer_tree / api_response / attachment / prospectus / prospectus_simple / change_summary |
 | `attachment-01` 식 접미 | 같은 file_role 첨부가 여럿일 때 파일명에 붙임. 파일명 규칙이며 file_role 값이 아님 |
 | n | 동일 source/원천 키의 바이트 버전(`version_seq`). 1부터 시작 |
 | ext | 실제 콘텐츠 형식에 따라 결정. 오류 HTML을 pdf로 저장하지 않음 |
@@ -413,7 +413,7 @@ LLM 호출 저장:
 
 - 빈 집합을 「모두 성공」으로 계산하지 않음
 - 부분 복구만 있는 경우가 PARTIAL과 FAILED에 동시에 해당하지 않음
-- cover_html·cover_xml 등 본문 비대상 파일은 본문 상태 집계에서 제외. 위험등급·코드 추출 품질은 별도 추적
+- cover_html·cover_xml·viewer_tree 등 본문 비대상 파일은 본문 상태 집계에서 제외. 위험등급·코드 추출 품질은 별도 추적
 - 파일 단위 집계와 절 단위 품질은 별개. 문서 PARSE_OK만 보고 실패한 절을 채점하지 않음
 
 ## 미결

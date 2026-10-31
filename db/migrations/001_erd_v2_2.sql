@@ -55,7 +55,7 @@ create table if not exists raw.raw_object (
   server_path text,
   download_url text,
   source_baseline_date date,
-  file_role text not null constraint raw_object_file_role_check check (file_role in ('cover_html', 'cover_xml', 'body_pdf', 'api_response', 'attachment', 'prospectus', 'prospectus_simple', 'change_summary')),
+  file_role text not null constraint raw_object_file_role_check check (file_role in ('cover_html', 'cover_xml', 'body_pdf', 'viewer_tree', 'api_response', 'attachment', 'prospectus', 'prospectus_simple', 'change_summary')),
   sha256 varchar(64) not null,
   storage_path text not null,
   blob_path text,

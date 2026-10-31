@@ -40,11 +40,11 @@ from signal_pipeline.parsing.extract import parser_version
 SOURCE = "dart"
 SEARCH_PATH = "raw,staging,mart"
 RCEPT_RE = re.compile(r"^\d{14}$")
-# viewer_tree는 raw_object.file_role CHECK에 없어 적재하지 않는다
 ROLE_FORMAT = {
     "body_pdf": ("pdf", "application/pdf"),
     "cover_html": ("html", "text/html"),
     "cover_xml": ("zip", "application/zip"),
+    "viewer_tree": ("html", "text/html"),
 }
 # TRUNCATE 대상. 스키마를 붙여 써서 검색 경로와 무관하게 같은 표를 가리킨다
 TABLES = (
