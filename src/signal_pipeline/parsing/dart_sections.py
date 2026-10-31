@@ -29,6 +29,8 @@ MAX_HEAD = 60
 # 본문 번호 목록 줄(「5. 투자신탁재산인 증권…」)을 잡지 않도록 줄이 짧고 겹치는 앞부분이 일정 길이 이상일 때만
 PREFIX_MIN = 4
 PREFIX_LINE_MAX = 40
+# 본문 부 표제가 목차 부 제목의 앞부분일 때 받는 최소 길이(「발행인」 3글자)
+PART_PREFIX_MIN = 3
 # 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(10월 10일 501건 실측 483건).
 # 없으면 줄에 「요약정보」만 있는 표제(예: 「요약 정보」)를 쓴다. 모두 첫 「제N부」 앞에서만 찾는다
 SUMMARY_MARK = re.compile(r"^\s*[\[<]\s*요\s*약\s*정\s*보\s*[\]>]")
@@ -466,6 +468,9 @@ def _is_heading(mark: Mark, toc_titles: dict[int, str]) -> bool:
     title = normalize(toc_titles.get(part, ""))
     # 목차 부 제목이 4글자보다 짧으면(「발행인」) 제목 전체가 들어 있어야 한다
     if not rest or not title or title[:PREFIX_MIN] in rest:
+        return True
+    # 본문 표제가 목차 제목의 앞부분만 쓴 경우(목차 「발행인에 관한 사항」, 본문 「제2부 발행인」, PR #61 리뷰)
+    if len(rest) >= PART_PREFIX_MIN and title.startswith(rest):
         return True
     return SequenceMatcher(None, rest[: len(title) + 3], title).ratio() >= SIMILAR_MIN
 

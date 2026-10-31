@@ -432,6 +432,19 @@ def test_short_toc_part_title_still_filters_cross_reference() -> None:
     assert sec.char_start is not None
 
 
+def test_body_part_heading_shorter_than_toc_title_is_kept() -> None:
+    # 목차 「제2부 발행인에 관한 사항」, 본문 「제2부 발행인」: 앞 4글자도 유사도도 안 맞지만 앞부분이므로 표제.
+    # 빠지면 본문 부 표제가 둘만 남아 SectionSplitError가 난다(PR #61 리뷰)
+    toc = ["제1부 모집", "   1. 투자대상", "제2부 발행인에 관한 사항"]
+    toc += ["   1. 회사의 개요", "제3부 투자위험", "   1. 위험요인"]
+    body = ["   제1부 모집", "1. 투자대상", "본문"]
+    body += ["   제2부 발행인", "1. 회사의 개요", "   제3부 투자위험", "1. 위험요인"]
+    text = make(toc, body)
+    result = split_sections(text)
+    check(result, text)
+    assert [p.part_seq for p in result.parts] == [1, 2, 3]
+
+
 def test_doubled_toc_part_heading_gives_title() -> None:
     # 목차 부 표제가 글자 두 번씩(「제제 11 부부 모모집집」)이어도 부 제목을 읽는다(PR #61 리뷰)
     toc = toc_block()
