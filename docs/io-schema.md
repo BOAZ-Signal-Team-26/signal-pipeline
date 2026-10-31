@@ -10,6 +10,7 @@
 | 기한 | 2026-10-14 |
 | 선행 산출물 | CDI 4축 변수표(09-23), 데이터 처리 요구 명세(09-30) |
 | 1단계와의 경계 | 09-16 데이터베이스 Schema는 두 계약을 담을 자리만 두고 모양을 미리 확정하지 않음. v2에서 먼저 들어간 모양은 「스키마에 먼저 들어간 모양」 |
+| LLM 추출 JSON 공통 계약 | 10월 24일 초안, 10월 30일 PM(대현) 리뷰 반영(아래 「LLM 추출 결과 JSON 공통 계약」). 필드별 정의는 추출 필드 확정 뒤(Week 7 예정) |
 
 ## 확정할 데이터 계약 2종
 
@@ -38,6 +39,250 @@
   - 금액·비율: 단위 없이 숫자만 넘기지 않음
 - LLM 6필드 출력은 점수 출력과 별도 계약
 - 입력 기록(10월 9일): 시도마다 `request.json`에 보낸 문서 텍스트, `input_sha256`, `inputs`(원본 파일·파서 버전·절 또는 문자 범위)를 남기고 `llm_field_extraction.input_sha256`에 같은 해시를 적음. 해시 규칙과 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」
+
+## LLM 추출 결과 JSON 공통 계약
+
+LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·결측·근거 규칙. 10월 24일 데이터 엔지니어링·인프라(주영) 초안, 10월 30일 PM(대현) 리뷰 반영.
+
+### 적용 범위
+
+- 공통 계약이 정하는 것: 필드 1건의 JSON envelope, 상태값과 `result_status` 대응, 결측 표기, 값 표기 규칙(원문·단위·목록), 근거 위치 형식, 입력 참조 형식
+- 필드별 정의가 정하는 것(추출 필드 확정 뒤, Week 7 예정): 필드 이름, `value`의 타입과 구조, 출처 절, 표지(HTML) 출처 필드의 근거 표기
+- 계약 밖: 문서 작성기준일은 규칙 기반 추출([데이터 처리 요구 명세](processing-requirements.md) 4-4). 부·절 제목 위치는 `structure.json`이 정본. 둘 다 LLM 입력을 고를 때 참조만 함
+
+| 파일·칼럼 | 내용 | 규칙 |
+|---|---|---|
+| `request.json` | 보낸 문서 텍스트, `input_sha256`, `inputs`, 프롬프트·모델 식별 | 입력 정본([원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」) |
+| `response.json` | 모델 원응답 바이트 그대로 | 불변. 해시는 `llm_field_extraction.response_sha256` |
+| `llm_field_extraction.value_json` | 원응답을 이 계약으로 정규화한 결과 | 아래 envelope. 적재 검증 대상 |
+| `evidence_section_id`·`evidence_char_start`·`evidence_char_end` | `value_json.evidence[0]` 복사 | 조회용. 정본은 `value_json` |
+
+### envelope (필드 1건)
+
+| 키 | 타입 | 필수 | 의미 |
+|---|---|---|---|
+| `contract_version` | int | 필수 | 이 계약의 판. 지금 1 |
+| `field_name` | string | 필수 | `llm_field_extraction.field_name`과 같은 값 |
+| `status` | string | 필수 | 아래 「상태값」 5개 중 하나 |
+| `value` | 필드별 | `status = FOUND`일 때 필수, 그 외 null | 구조는 필드별 정의 |
+| `raw_text` | string \| null | `FOUND`일 때 문자열 필수, 그 외 null | 값의 원문. 정규화하지 않음 |
+| `reason_code` | string \| null | `FOUND`일 때 null, 그 외 문자열 필수 | 아래 「결측 표기」 |
+| `evidence` | 배열 | `FOUND`일 때 1개 이상, 그 외 빈 배열 | 아래 「근거 위치」 |
+| `checked_section_ids` | int 배열 | `NOT_FOUND`일 때 1개 이상, 그 외 빈 배열 | 변환기가 확인한 출처 절 목록. 「없음」 판정의 검사 절 기록([데이터 테이블·ERD 설계](data-model.md) 「근거 위치 계약」). 아래 「NOT_FOUND 허용 조건」 |
+| `notes` | string \| null | 선택. 없으면 null | 모델이 남긴 설명. 판정에 쓰지 않음 |
+
+### 상태값
+
+| `status` | `result_status` 칼럼 | `value` | `reason_code` | 의미 |
+|---|---|---|---|---|
+| FOUND | OK | 필수 | null | 문서에서 값을 찾음 |
+| NOT_FOUND | OK | null | NOT_IN_DOCUMENT | 추출은 끝났고 문서에 해당 내용이 없음. 「고지 없음」 판정의 입력 |
+| UNDETERMINED | UNDETERMINED | null | AMBIGUOUS, SOURCE_SECTION_MISSING | 읽었으나 하나로 정하지 못함, 또는 출처 절이 추출되지 않음 |
+| NOT_APPLICABLE | NOT_APPLICABLE | null | OUT_OF_SCOPE | 문서 종류·상품 유형상 이 필드의 대상이 아님 |
+| FAILED | FAILED | null | CALL_FAILED, PARSE_FAILED, SCHEMA_INVALID, EVIDENCE_NOT_LOCATED | 호출·파싱·계약 검증·근거 위치 변환 실패. 재호출 대상 |
+
+- `result_status = PENDING`은 계획 행. `value_json`은 NULL
+- 「문서에 값이 없음」은 `OK` + `NOT_FOUND`로 둠(10월 25일 PM(대현) 동의, 아래 「NOT_FOUND 허용 조건」과 함께 확정). 채점의 파트 A 「없음 = OK·raw_score 0」([데이터 테이블·ERD 설계](data-model.md) 「두 파트 출력의 저장 계약」)과 같은 방식이고, DDL의 「OK이면 `value_json` 필수」 제약을 만족함. enum 변경 없음
+- `result_status`만 보면 NOT_FOUND도 「값 있음」으로 세짐. 값 유무는 `value_json->>'status'`로 보고, 조회용 view를 둠(`value_json`은 jsonb, PR #59 물리 결정 4). 이름·위치는 추출 모듈 구현 때
+- 적재 검증은 아래 「변환·검증 순서」 6
+
+### NOT_FOUND 허용 조건
+
+- 모델은 입력에서 빠진 절을 모르므로, 「없음」은 변환기가 확인해서 정함
+- 필드별 정의의 출처 절이 모두 다음을 만족할 때만 NOT_FOUND를 남김
+  - 절 범위가 있음(`SECTION_BOUNDARY_NOT_FOUND`가 아님)
+  - 절 전체가 이번 입력(`request.json`의 `inputs`)에 들어감. 절 일부·문자 범위만 보냈으면 만족하지 않음. 필드별 정의가 절 일부를 출처로 정했으면 그 범위 전체가 들어가야 함
+- 하나라도 만족하지 않으면 모델이 NOT_FOUND를 돌려줘도 UNDETERMINED(`SOURCE_SECTION_MISSING`)로 바꿈. FOUND·AMBIGUOUS·NOT_APPLICABLE은 바꾸지 않음(근거가 확인된 값은 출처 절 일부가 빠져도 유효)
+- FOUND를 유지할 때 조건을 만족하지 않은 출처 절은 `notes`에 「출처 절 누락: section_id …」로 남김(나중에 추적용)
+- `checked_section_ids`는 확인한 출처 절 전체. 위 조건을 통과해야 NOT_FOUND이므로 완전성은 따로 기록하지 않음
+- 「추출 실패」(FAILED·UNDETERMINED)를 「문서에 없음」(NOT_FOUND)으로 세지 않음. 채점은 NOT_FOUND만 「고지 없음」으로 봄
+
+### 결측 표기
+
+| `reason_code` | 상태 | 뜻 | 재호출 |
+|---|---|---|---|
+| NOT_IN_DOCUMENT | NOT_FOUND | 출처 절을 읽었고 해당 내용이 없음 | 안 함 |
+| SOURCE_SECTION_MISSING | UNDETERMINED | 출처 절이 `SECTION_BOUNDARY_NOT_FOUND`이거나 입력에 전부 들어가지 않음. 변환기가 정함 | 미결(지금 규칙은 재호출) |
+| AMBIGUOUS | UNDETERMINED | 서로 다른 값이 여러 곳에 있어 하나로 못 정함. 후보는 `notes`에 | 미결(지금 규칙은 재호출) |
+| OUT_OF_SCOPE | NOT_APPLICABLE | 필드 대상 아님(예: 환매금지형 상품에 환매 조건 필드) | 미결(지금 규칙은 재호출) |
+| CALL_FAILED | FAILED | API 오류·시간 초과 | 함 |
+| PARSE_FAILED | FAILED | 응답이 JSON이 아님 | 함 |
+| SCHEMA_INVALID | FAILED | envelope·필드 구조 검증 실패 | 함 |
+| EVIDENCE_NOT_LOCATED | FAILED | `quote`를 절 텍스트에서 찾지 못함 | 변환기 재실행 뒤에도 못 찾으면 함 |
+
+- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status = OK`일 때만 재사용. NOT_FOUND는 OK라 재사용되고, UNDETERMINED·NOT_APPLICABLE은 규칙에 없어 재호출됨(재사용 여부는 「미결」)
+
+### 값 표기 공통 규칙
+
+- `raw_text`: 모델이 값으로 읽은 원문 구간 그대로. 공백·기호 정리 금지
+- 숫자: `{"amount": 1.5, "unit": "%"}`. 단위 없는 숫자 금지. 통화 단위는 `KRW`. 원문 표기는 `raw_text`
+- 날짜: `YYYY-MM-DD`
+- 목록·중첩 구조(수수료 등): 배열·객체 유지. 단일 문자열·실수로 평탄화하지 않음
+- 적용 클래스: `applies_to`(클래스 이름 배열, 전체 적용이면 null)
+- `value`의 구조 자체는 필드별 정의
+
+### 근거 위치
+
+- `evidence[{"section_id", "char_start", "char_end", "quote"}]`. 여러 구간 허용, 첫 항목이 대표 구간이고 칼럼 3개에 복사
+- 범위는 그 절의 파서 버전이 만든 canonical text 기준 Unicode code point 반열린 구간, 절 범위 안([데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」 15)
+- 모델은 `quote`(원문 인용)만 돌려주고 절 식별자는 돌려주지 않음. 입력 텍스트에 `section_id`를 넣으면 파서 버전이 바뀔 때 `input_sha256`이 달라져 재호출 생략이 깨짐
+- 변환기가 `inputs` 순서대로 각 절 텍스트에서 `quote`를 찾아 `section_id`·`char_start`·`char_end`를 채움. 이번 입력의 절만 찾으므로 입력 밖 절을 가리킬 수 없음
+- 저장 위치: `char_start`·`char_end` = 그 절의 `section.char_start` + 절 텍스트 안 위치. 절 안 위치를 그대로 저장하지 않음
+- 찾는 방법: 절 텍스트와 `quote` 모두 연속 공백(공백·줄바꿈·탭)을 공백 하나로 줄여 찾고, 찾은 위치를 원래 텍스트 위치로 되돌림. `quote`는 찾은 원래 구간 텍스트로 다시 씀(`quote` = canonical text의 그 구간). 그 밖의 정규화(NFC 등)는 하지 않음
+- 여러 곳에서 일치하면 같은 절이든 다른 절이든 `inputs` 순서로 첫 구간을 쓰고 `notes`에 「다중 일치 n회」를 남김. 위치가 중요한 필드는 필드별 정의에서 인용 길이를 정함. 절 경계를 넘는 `quote`는 못 찾음으로 처리
+- 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`). 변환기 문제일 수 있으므로 재호출 전에 저장된 `response.json`으로 변환기를 다시 돌리고, 그래도 못 찾을 때만 재호출
+- 표지(HTML) 출처 필드의 근거 형식은 필드별 정의에서 정함(「미결」)
+
+### 재사용한 결과
+
+- 재호출 생략 규칙은 파서 버전이 올라도 보낸 텍스트가 같으면 이전 결과를 재사용함([원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」). 파서 버전이 바뀌면 `section` 행이 새로 생겨 `section_id`·위치가 달라지므로 이전 근거를 그대로 복사하지 않음
+- 재사용 때 이전 `response.json`을 이번 입력으로 다시 변환함(근거 위치와 「NOT_FOUND 허용 조건」을 이번 입력 절로 다시 확인). 변환이 실패하면 재사용하지 않고 재호출
+- 재사용 행은 이번 실행의 `run_id`로 새로 만듦
+  - `request.json`은 이번 실행에 새로 씀(이번 `inputs`). `reused_from`에 원래 행의 `run_id`·`extraction_id`
+  - `response.json`은 쓰지 않음. `raw_response_path`·`response_sha256`은 원래 실행의 것
+  - `input_tokens`·`output_tokens`는 NULL(비용 중복 집계 방지)
+  - `is_selected`는 일반 행과 같은 규칙((run_id, document_id, field_name)당 최대 1개)
+- 재사용 키에 파서 버전을 넣는 안은 쓰지 않음: 같은 텍스트에도 유료 재호출이 생김
+
+### 변환·검증 순서
+
+처음 실패한 단계의 `reason_code`를 씀.
+
+1. 호출: API 오류·시간 초과 → CALL_FAILED
+2. 응답 파싱 → PARSE_FAILED
+3. envelope·필드 구조 검증 → SCHEMA_INVALID
+4. 근거 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED
+5. 출처 절 확인(NOT_FOUND) → UNDETERMINED(SOURCE_SECTION_MISSING)
+6. 적재 검증: `status`와 `result_status`의 대응이 「상태값」 표와 같음. `FOUND`면 `value`·`evidence` 있음, 아니면 `value` null·`evidence` 빈 배열. `NOT_FOUND`면 `checked_section_ids` 있음. `reason_code`는 「결측 표기」 목록 안
+
+### 입력 참조 (`request.json`)
+
+| 키 | 내용 |
+|---|---|
+| `document_id`, `field_name`, `attempt_no` | `llm_field_extraction` 유일키 |
+| `prompt_id`, `prompt_sha256`, `model_name`, `model_params` | 프롬프트 설정 파일 식별과 모델 파라미터. 해시 규칙은 칼럼과 같음 |
+| `inputs[]` | `{raw_object_id, raw_sha256, parser_version, section_ids 또는 char 범위}`. 잇는 순서가 곧 텍스트 순서 |
+| `input_text` | 보낸 문서 텍스트. `inputs` 순서로 빈 줄 하나(`\n\n`)로 이음 |
+| `input_sha256` | `input_text`의 UTF-8/LF 바이트 sha256. 정규화 없음 |
+| `reused_from` | 재사용한 경우만. 원래 행의 `{run_id, extraction_id}`(위 「재사용한 결과」) |
+
+- 해시 규칙과 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」
+- 프롬프트 템플릿에 문서별 값을 변수로 넣지 않음. `prompt_sha256`은 템플릿 파일 해시라 변수 값이 바뀌어도 재호출 생략 키가 같아짐. 작성기준일 같은 문서 칼럼 값이 필요하면 `input_text`에 넣어 `input_sha256`에 포함시킴
+
+### 예시
+
+필드 이름은 예시용. 필드 이름은 추출 필드 확정 뒤 필드별 정의에서 정함.
+
+`request.json`
+
+```json
+{
+  "document_id": 123,
+  "field_name": "principal_loss_notice",
+  "attempt_no": 1,
+  "prompt_id": "principal_loss_notice:v1",
+  "prompt_sha256": "…64자…",
+  "model_name": "claude-sonnet-5-5",
+  "model_params": {"temperature": 0},
+  "inputs": [
+    {"raw_object_id": 456, "raw_sha256": "…64자…", "parser_version": "pdfplumber-0.11_prep-8", "section_ids": [7891, 7892]}
+  ],
+  "input_text": "…절 7891 텍스트…\n\n…절 7892 텍스트…",
+  "input_sha256": "…64자…"
+}
+```
+
+`value_json` — 값 있음
+
+```json
+{
+  "contract_version": 1,
+  "field_name": "principal_loss_notice",
+  "status": "FOUND",
+  "value": {"present": true},
+  "raw_text": "투자원금의 손실이 발생할 수 있으며",
+  "reason_code": null,
+  "evidence": [
+    {"section_id": 7891, "char_start": 1204, "char_end": 1223, "quote": "투자원금의 손실이 발생할 수 있으며"}
+  ],
+  "checked_section_ids": [],
+  "notes": null
+}
+```
+
+`value_json` — 문서에 없음
+
+```json
+{
+  "contract_version": 1,
+  "field_name": "principal_loss_notice",
+  "status": "NOT_FOUND",
+  "value": null,
+  "raw_text": null,
+  "reason_code": "NOT_IN_DOCUMENT",
+  "evidence": [],
+  "checked_section_ids": [7891, 7892],
+  "notes": null
+}
+```
+
+`value_json` — 미적용
+
+```json
+{
+  "contract_version": 1,
+  "field_name": "redemption_terms",
+  "status": "NOT_APPLICABLE",
+  "value": null,
+  "raw_text": null,
+  "reason_code": "OUT_OF_SCOPE",
+  "evidence": [],
+  "checked_section_ids": [],
+  "notes": "환매금지형 집합투자기구라 환매 조건 없음"
+}
+```
+
+`value_json` — 판정 불가
+
+```json
+{
+  "contract_version": 1,
+  "field_name": "fee_structure",
+  "status": "UNDETERMINED",
+  "value": null,
+  "raw_text": null,
+  "reason_code": "AMBIGUOUS",
+  "evidence": [],
+  "checked_section_ids": [],
+  "notes": "요약 정보 총보수 연 0.95%, 제2부 13절 총보수 연 0.85%"
+}
+```
+
+`value_json` — 실패
+
+```json
+{
+  "contract_version": 1,
+  "field_name": "key_risk_text",
+  "status": "FAILED",
+  "value": null,
+  "raw_text": null,
+  "reason_code": "PARSE_FAILED",
+  "evidence": [],
+  "checked_section_ids": [],
+  "notes": "응답이 JSON이 아님. 원응답은 response.json"
+}
+```
+
+### 미결
+
+| 질문 | 결정 주체 | 필요 시점 |
+|---|---|---|
+| 표지(HTML) 출처 필드의 근거 형식 | 필드별 정의 | 추출 필드 확정 뒤 |
+| 추출 필드 목록·이름·`value` 구조·출처 절 | 분석·리서치(민석)·데이터 사이언스(다빈) → 데이터 엔지니어링·인프라(주영) | 추출 필드 확정 티켓(마감 10월 28일, 미확정) |
+| 프롬프트 설정 파일 위치·버전 규칙 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
+| UNDETERMINED·NOT_APPLICABLE 결과의 재사용 여부(지금은 원본 보관 규칙대로 재호출. temperature 0이면 같은 답에 비용만 듦) | PM(대현) | 추출 모듈 구현 시작 전 |
+| 조회용 view(NOT_FOUND와 값 있음 구분) 이름·위치 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
 
 ## CDI 출력 요구
 
