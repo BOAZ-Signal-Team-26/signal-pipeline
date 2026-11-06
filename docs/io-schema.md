@@ -135,7 +135,8 @@
 - `field_name`: `redemption_terms` 제안. 지금까지 문서·예시가 쓴 이름이고, 다른 필드와 같은 영어 snake_case. 확정은 데이터 엔지니어링·인프라(주영)
 - `tiers`: 보유기간 구간 순서대로. `period`(원문 기간 표현), `basis`(부과 기준 원문 표현), `rate`, `applies_to`(공통 규칙. 전체 클래스면 null)
 - 환매수수료가 없는 펀드(필드 규칙 4): `FOUND`, `tiers` 빈 배열, `evidence`는 「환매수수료 없음」을 말하는 문장 1개
-- ETF·환매금지형: `NOT_APPLICABLE`(`OUT_OF_SCOPE`)
+- ETF: LLM을 호출하지 않고 이 필드의 추출 행도 만들지 않음. 상품 유형(수집 데이터)으로 알 수 있고, `llm_field_extraction`은 모델·프롬프트·입력 해시가 필수라 호출 없는 행을 둘 수 없음. 점검표 4.2는 축 4 판정에서 상품 유형으로 「적용 대상 아님」(11월 6일 PM 결정)
+- 환매금지형: 모델이 판단해 `NOT_APPLICABLE`(`OUT_OF_SCOPE`)
 
 ## LLM 추출 결과 JSON 공통 계약
 
@@ -200,15 +201,15 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 | `reason_code` | 상태 | 뜻 | 재호출 |
 |---|---|---|---|
 | NOT_IN_DOCUMENT | NOT_FOUND | 출처 절을 읽었고 해당 내용이 없음 | 안 함 |
-| SOURCE_SECTION_MISSING | UNDETERMINED | 출처 절이 `SECTION_BOUNDARY_NOT_FOUND`이거나 입력에 전부 들어가지 않음. 변환기가 정함 | 미결(지금 규칙은 재호출) |
-| AMBIGUOUS | UNDETERMINED | 서로 다른 값이 여러 곳에 있어 하나로 못 정함. 후보는 `notes`에 | 미결(지금 규칙은 재호출) |
-| OUT_OF_SCOPE | NOT_APPLICABLE | 필드 대상 아님(예: 환매금지형 상품에 환매 조건 필드) | 미결(지금 규칙은 재호출) |
+| SOURCE_SECTION_MISSING | UNDETERMINED | 출처 절이 `SECTION_BOUNDARY_NOT_FOUND`이거나 입력에 전부 들어가지 않음. 변환기가 정함 | 안 함. 저장된 `response.json`을 이번 입력으로 다시 변환해 정함 |
+| AMBIGUOUS | UNDETERMINED | 서로 다른 값이 여러 곳에 있어 하나로 못 정함. 후보는 `notes`에 | 안 함(재호출 생략 키가 같으면 재사용) |
+| OUT_OF_SCOPE | NOT_APPLICABLE | 필드 대상 아님(예: 환매금지형 상품에 환매 조건 필드) | 안 함(재호출 생략 키가 같으면 재사용) |
 | CALL_FAILED | FAILED | API 오류·시간 초과 | 함 |
 | PARSE_FAILED | FAILED | 응답이 JSON이 아님 | 함 |
 | SCHEMA_INVALID | FAILED | envelope·필드 구조 검증 실패 | 함 |
 | EVIDENCE_NOT_LOCATED | FAILED | `quote`를 절 텍스트에서 찾지 못함 | 변환기 재실행 뒤에도 못 찾으면 함 |
 
-- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status = OK`일 때만 재사용. NOT_FOUND는 OK라 재사용되고, UNDETERMINED·NOT_APPLICABLE은 규칙에 없어 재호출됨(재사용 여부는 「미결」)
+- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status` OK·UNDETERMINED·NOT_APPLICABLE 중 하나이면 재사용, FAILED이면 재호출(11월 6일 PM 결정). 같은 입력·프롬프트·모델이면 같은 답이 나와 재호출은 비용만 들기 때문. 재사용 때는 「재사용한 결과」대로 이번 입력으로 다시 변환하므로 `SOURCE_SECTION_MISSING`은 이번 입력 기준으로 다시 정해짐
 
 ### 값 표기 공통 규칙
 
@@ -380,7 +381,6 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 | 표지(HTML) 출처 필드의 근거 형식 | 필드별 정의 | 추출 필드 확정 뒤 |
 | 필드별 `value` 구조 초안(「필드별 `value` 구조 (초안)」, 11월 6일 PM) 검토와 환매 조건 `field_name` 확정. `field_name`은 적재 복합 유일키와 재호출 생략 조회에 들어가므로 확정 뒤 문서·코드에서 같은 값만 씀 | 데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 전수 추출 전(11월 8일) |
 | 프롬프트 설정 파일 위치·버전 규칙 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
-| UNDETERMINED·NOT_APPLICABLE 결과의 재사용 여부(지금은 원본 보관 규칙대로 재호출. temperature 0이면 같은 답에 비용만 듦) | PM(대현) | 추출 모듈 구현 시작 전 |
 | 조회용 view(NOT_FOUND와 값 있음 구분) 이름·위치 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
 
 ## CDI 출력 요구
