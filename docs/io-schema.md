@@ -78,6 +78,65 @@
 3. 숫자 단위: 보수는 연 %. 판매수수료와 환매수수료는 원문의 부과 기준(납입금액 / 환매금액 / 이익금 등)과 적용 조건(「3년 미만 환매 시」 같은 기간)을 문자열로 함께 저장함. 후취판매수수료는 환매금액 기준이거나 일정 기간 안에 환매할 때만 붙는 상품이 있으므로 기준을 납입금액으로 가정하지 않음. 같은 70이라도 기준에 따라 뜻이 다름
 4. 환매수수료가 없는 펀드는 빈 목록과 근거 문장. ETF는 환매 대신 상장 매매를 하므로 환매 조건은 `NOT_APPLICABLE`
 
+### 필드별 `value` 구조 (초안)
+
+- 상태: 11월 6일 PM(대현) 초안, 데이터 엔지니어링·인프라(주영) 검토 전([이슈 #76](https://github.com/BOAZ-Signal-Team-26/signal-pipeline/issues/76)). 아래 「LLM 추출 결과 JSON 공통 계약」의 envelope 안 `value` 칸의 구조만 정함
+- 공통
+  - 숫자는 공통 규칙대로 `{"amount": 1.0, "unit": "%"}`. 원문이 「없음」이면 `{"amount": 0, "unit": "%"}`, 원문에 칸이 없거나 「-」이면 그 키를 `null`
+  - 수수료 칸마다 원문 셀 그대로를 `text`에 둠(「납입금액의 1.00% 이내」). 「이내」 같은 상한 표현은 `text`로만 남기고 숫자는 적힌 값 그대로
+  - 키 이름은 영어 snake_case. 원문 문자열은 정규화하지 않음
+
+#### `principal_loss_notice`
+
+- `value`: 문자열. 대표 문장 1개(필드 규칙 1-2). `raw_text`와 같은 값
+- `evidence`: 1개(그 문장 위치)
+- 문서에 원금손실 고지가 없으면 `NOT_FOUND`(`NOT_IN_DOCUMENT`)
+
+#### `key_risk_phrases`
+
+- `value`: 문자열 배열, 원소 1~5개. 원소마다 한 문장
+- `evidence`: `value`와 같은 길이. `value[i]`의 근거는 `evidence[i]`. 조회용 근거 칼럼 3개는 `evidence[0]`
+- 중복 제거(필드 규칙 2)로 원소를 지우면 같은 순서의 `evidence`도 지움. 남은 원소가 있으면 `FOUND` 그대로이고 조회용 근거 칼럼을 새 `evidence[0]`으로 다시 채움
+- 원소가 모두 지워지면 `NOT_FOUND`(`NOT_IN_DOCUMENT`), `value` null, `evidence` 빈 배열, `checked_section_ids`는 이번 입력의 출처 절, `notes`에 「중복 제거로 n개 삭제」. 공통 계약상 `FOUND`는 `evidence` 1개 이상이어야 해서 「FOUND 빈 목록」은 쓸 수 없음. 「NOT_FOUND 허용 조건」을 만족하지 않으면 그 규칙대로 `UNDETERMINED`(`SOURCE_SECTION_MISSING`)
+- 점검표 나2는 이 필드가 `NOT_FOUND`이면 「없음」(점수 저장과 비교 모집단 「점검표 v0 판정 대상」)
+
+#### `fee_structure`
+
+```json
+{
+  "classes": [
+    {
+      "class_name": "수수료선취-오프라인(A1)",
+      "front_load": {"rate": {"amount": 1.0, "unit": "%"}, "basis": "납입금액", "condition": null, "text": "납입금액의 1.00% 이내"},
+      "back_load": {"rate": {"amount": 0, "unit": "%"}, "basis": null, "condition": null, "text": "없음"},
+      "total_fee": {"amount": 0.845, "unit": "%"},
+      "peer_total_fee": {"amount": 0.97, "unit": "%"}
+    }
+  ]
+}
+```
+
+- `classes`: 1개 이상. 원문 표의 클래스 순서대로. 클래스가 없는 펀드는 원소 1개에 `class_name` null
+- `front_load`·`back_load`(선취·후취 판매수수료): `rate`, `basis`(부과 기준, 원문 표현: 「납입금액」「환매금액」 등), `condition`(적용 조건, 원문 표현: 「3년 미만 환매시」 등. 없으면 null), `text`(원문 셀)
+- `total_fee`·`peer_total_fee`(총보수·동종유형 총보수): 연 %. 원문에 없으면 null
+- `evidence`: 1개 이상. 첫 항목은 수수료 표의 첫 클래스 행
+- 표가 요약정보와 제2부 13절에 함께 있고 값이 다르면 `UNDETERMINED`(`AMBIGUOUS`), 후보는 `notes`
+
+#### 환매 조건 (`redemption_terms`)
+
+```json
+{
+  "tiers": [
+    {"period": "90일 미만", "basis": "이익금", "rate": {"amount": 70, "unit": "%"}, "applies_to": null}
+  ]
+}
+```
+
+- `field_name`: `redemption_terms` 제안. 지금까지 문서·예시가 쓴 이름이고, 다른 필드와 같은 영어 snake_case. 확정은 데이터 엔지니어링·인프라(주영)
+- `tiers`: 보유기간 구간 순서대로. `period`(원문 기간 표현), `basis`(부과 기준 원문 표현), `rate`, `applies_to`(공통 규칙. 전체 클래스면 null)
+- 환매수수료가 없는 펀드(필드 규칙 4): `FOUND`, `tiers` 빈 배열, `evidence`는 「환매수수료 없음」을 말하는 문장 1개
+- ETF·환매금지형: `NOT_APPLICABLE`(`OUT_OF_SCOPE`)
+
 ## LLM 추출 결과 JSON 공통 계약
 
 LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·결측·근거 규칙. 10월 24일 데이터 엔지니어링·인프라(주영) 초안, 10월 30일 PM(대현) 리뷰 반영.
@@ -319,9 +378,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 | 질문 | 결정 주체 | 필요 시점 |
 |---|---|---|
 | 표지(HTML) 출처 필드의 근거 형식 | 필드별 정의 | 추출 필드 확정 뒤 |
-| 필드별 `value` JSON 구조, 환매 조건 `field_name` 확정(DB 칼럼 이름 규칙). `field_name`은 적재 복합 유일키와 재호출 생략 조회에 들어가므로 확정 뒤 문서·코드에서 같은 값만 씀 | 데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 전(11월 5일) |
-| `key_risk_phrases` 원소와 근거 위치의 대응. 제안: 원소마다 근거 1개, `value[i]`의 근거는 `evidence[i]`(같은 순서). 중복 제거로 원소를 지우면 같은 순서의 근거도 지우고, `evidence[0]`과 조회용 근거 칼럼 3개를 남은 첫 원소 기준으로 다시 채움 | PM(대현)·데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 때 |
-| 중복 제거로 `key_risk_phrases` 원소가 모두 지워질 때의 `status`(FOUND 빈 목록 / NOT_FOUND)와 그때의 `evidence`·`checked_section_ids`. 점검표 나2는 어느 쪽이든 「없음」으로 판정 | PM(대현)·데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 때 |
+| 필드별 `value` 구조 초안(「필드별 `value` 구조 (초안)」, 11월 6일 PM) 검토와 환매 조건 `field_name` 확정. `field_name`은 적재 복합 유일키와 재호출 생략 조회에 들어가므로 확정 뒤 문서·코드에서 같은 값만 씀 | 데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 전수 추출 전(11월 8일) |
 | 프롬프트 설정 파일 위치·버전 규칙 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
 | UNDETERMINED·NOT_APPLICABLE 결과의 재사용 여부(지금은 원본 보관 규칙대로 재호출. temperature 0이면 같은 답에 비용만 듦) | PM(대현) | 추출 모듈 구현 시작 전 |
 | 조회용 view(NOT_FOUND와 값 있음 구분) 이름·위치 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
