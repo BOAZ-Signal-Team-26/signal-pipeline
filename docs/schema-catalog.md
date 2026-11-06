@@ -377,7 +377,7 @@
 | run_id | varchar | 불가 | FK | 관리값 | EXTRACT run |
 | document_id | int | 불가 | FK | 관리값 |  |
 | raw_object_id | int | 허용 | FK | 관리값 | 파일 단위로 추출했으면 그 파일, 문서 단위면 NULL. 이번 버전은 문서 단위로 확정(raw_object_id는 참조용 NULL 허용). 파일 단위로 바꾸면 raw_object_id를 유일키에 넣는다(결정 대기, data-model.md 「v2.2」). 근거 절은 같은 문서 소속이어야 함(적재 검증) |
-| field_name | varchar | 불가 |  | 외부값 | 필드 목록은 11월 4일 확정(io-schema.md 「추출 필드 목록」). 값으로 두므로 필드가 바뀌어도 표 구조는 그대로 |
+| field_name | varchar | 불가 |  | 외부값 | 필드 목록은 11월 4일 확정(io-schema.md 「추출 필드 목록」, 환매 조건 이름만 미결). 값으로 두므로 필드가 바뀌어도 표 구조는 그대로 |
 | attempt_no | int | 불가 |  | 관리값 | 같은 run·문서·필드의 재시도 순번, 1부터 |
 | model_name | varchar | 불가 |  | 관리값 | 실제 호출한 모델 이름 |
 | prompt_sha256 | varchar(64) | 불가 |  | 관리값 | 프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일 |
@@ -540,7 +540,7 @@
 | 칼럼 | varchar 유지 이유 |
 |---|---|
 | `score.reason_code`, `score.normalization_reason`, `score.assessor_key` | 지표 계약에 따라 값 집합이 열림 |
-| `llm_field_extraction.field_name` | 필드 목록이 바뀔 수 있어 값으로 둠. 11월 4일 확정 목록은 [3단계 입출력 Schema 설계 입력](io-schema.md) 「추출 필드 목록」 |
+| `llm_field_extraction.field_name` | 필드 목록이 바뀔 수 있어 값으로 둠. 11월 4일 확정 목록은 [3단계 입출력 Schema 설계 입력](io-schema.md) 「추출 필드 목록」(환매 조건 이름만 미결) |
 
 - 대소문자: 기존 값이 소문자였던 `section_kind`·`match_target`·`observation_unit`은 소문자 유지, 새 enum은 대문자
 - 조건부 규칙: 해당 칼럼 설명과 [데이터 테이블·ERD 설계](data-model.md) 「적재 검증 규칙」
