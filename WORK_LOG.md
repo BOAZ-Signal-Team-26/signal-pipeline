@@ -1,5 +1,30 @@
 # 작업 기록
 
+## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
+
+- 기준: Notion 「기본 로컬 DB(signal)를 prep-8 절 분할 결과로 전환」 티켓. PR #61 병합(11월 6일) 뒤 남은 일
+- 바꾼 것(로컬 DB만, 코드·DDL 변경 없음)
+  - `signal`을 지우고 새로 만든 뒤 `db/apply.py`로 `001_erd_v2_2.sql`을 적용함. 기존 `signal`은 PR #71 이전 DDL이라 `raw_object_file_role_check`에 `viewer_tree`가 없어 적재가 거부됨. `apply.py`는 `IF NOT EXISTS`라 이미 있는 제약을 바꾸지 않음(이 파일 10월 31일 #68 기록의 재적용 한계). 새로 만든 뒤 스키마는 `signal_prep8`과 같음(`pg_dump -s` 비교)
+  - `local_load`를 `--force` 없이 두 번 실행. 입력은 `signal-data/runs/extract-20261031T113016Z-9999/`(10월 31일 prep-8 전체 추출)와 같은 `signal-data`의 `raw/`·`derived/`, 코드는 `dev`(PR #61 병합 시점). 건너뜀 2건(20260921000061, 20260922000056: 본문 PDF 없음)은 prep-7 적재 때와 같음
+  - 다시 만들 때 명령: `DATABASE_URL=… uv run python -m signal_pipeline.loading.local_load ../signal-data --parser-version pdfplumber-0.11_prep-8 --run-id extract-20261031T113016Z-9999 --checksum`. `--run-id`를 빼면 그 파서 버전의 마지막 전체 실행을 고르므로 다음 추출 뒤에는 다른 입력이 됨
+  - 전환 전 `signal`(prep-7)은 `signal_prep7` DB로 복원해 둠(`pg_dump` 백업에서 복원, section 17,251행)
+- 바꾸지 않은 것: `signal_prep8`(10월 31일 시험 적재본), `src/`·`db/migrations/`
+- 검증(11월 6일)
+  - 표별 행 수와 내용 md5(`local_load --checksum`): pipeline_run 1 `67c4c4ac4b4eaeaca18df4c794e3ca77`, document 504 `588f650ae8fe030bd11f2ce0cb16a137`, raw_object 1,858 `39295d9cc64ffbf61a470a195046eb2b`, file_extraction 502 `a7a901194bceb821f04cad4b53491e7c`, section 17,254 `4bc5e645af1b166e772484dba79c2eac`. 두 번 적재 출력(행 수·md5·건너뜀)이 시간 줄 빼고 같음
+  - 별도 DB에서 다시 만든 결과와 대조: 10월 31일 PR #61 브랜치로 따로 적재한 `signal_prep8`과 표 5개 행 수·md5가 모두 같음
+  - `load_checks` 24개 항목 통과(원본 SHA-256 1,858건, `text.txt` 구간 대조 17,213절 불일치 0, 경계 실패 41절 모두 범위·본문 NULL)
+  - 외래 키 32개 고아 0, 시퀀스 값 = 각 표 최대 ID, section·file_extraction 파서 버전은 prep-8뿐
+  - prep-7 대비(원본 키 + 부 + 절 번호로 맞춤): 두 버전 모두 찾은 절 15,693개의 시작 위치 이동 0, prep-7에서 찾고 prep-8에서 못 찾은 절 0, 새로 찾은 절 439개(+ 20260910000245의 새 행 3개). 경계 실패 480 → 41(제1부 5, 제2부 2, 제4부 21, 제5부 13)
+  - LLM 추출·점검표 입력 절을 찾은 문서 수: 제2부 10절 483 → 483, 11절 435 → 482, 13절 483 → 483, 제5부 2절 396 → 484. 줄어든 절 없음
+  - 절 길이가 500자·20% 넘게 줄어든 절 196개: 189개는 잘린 끝부분에서 prep-8이 새로 찾은 절이 시작됨(앞 절이 다음 절 본문을 포함하던 것이 분리됨). 1개(20260910000245 제2부 14절)는 바로 뒤 새로 찾은 제3부 1절. 6개는 부·절 번호가 없는 표지·요약 행이라 비교 키가 겹쳐 생긴 것으로 실제 값은 두 버전이 같음
+- 하류 영향: `section_id`는 다시 적재할 때마다 새로 발급됨(`TRUNCATE … RESTART IDENTITY`). 전환 시점에 `section_id`를 참조하는 산출물은 없음(`llm_field_extraction`·`score` 등 하류 표 모두 0행, LLM 호출 기록 없음)
+- 한계
+  - 재현은 `signal-data`의 `raw/`(목록 응답 포함)·`derived/` prep-8 폴더가 그대로일 때만 보장됨. 다음 수집이 목록 응답을 바꾸면 같은 `--run-id`로도 document 행이 달라질 수 있음. 입력 폴더 스냅숏은 따로 보관하지 않음(전환 전후 DB는 `signal_prep7`·`signal_prep8`로 보관)
+  - 20260910000245는 prep-8에서 `section_seq` 12개가 밀리고 제4부 4~6절이 제5부로 다시 분류됨
+- 남은 것
+  - LLM 추출 모듈(PM(대현)): 절을 `section_seq`·`section_id`가 아니라 원본 키 + 부 + 절 번호로 고르고, 재사용 때 이전 `response.json`을 이번 입력으로 다시 변환하는 규칙([3단계 입출력 Schema 설계 입력](docs/io-schema.md) 「재사용한 결과」)을 구현·검증함. 이번 전환에서는 검증하지 않음(모듈 없음)
+  - `signal_prep8`·`signal_prep7` 유지·삭제: PM(대현) 결정
+
 ## 2026-11-04 — 추출 필드·점검표 v0 확정 내용 반영 (#73)
 
 - 기준: Notion 「투자설명서에서 추출할 6개 필드 확정」(11월 3일 정리, 11월 4일 확정), 「설명의무 누락 검출 점검표 v0 확정」(11월 4일 확정), 금소법 시행령 원문(국가법령정보센터, 2023-11-02 시행본)
