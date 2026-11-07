@@ -651,7 +651,7 @@ Table llm_field_extraction {
   run_id varchar [not null, ref: > pipeline_run.run_id, note: 'EXTRACT run']
   document_id int [not null, ref: > document.document_id]
   raw_object_id int [ref: > raw_object.raw_object_id, note: '파일 단위로 추출했으면 그 파일, 문서 단위면 NULL. 이번 버전은 문서 단위로 확정(raw_object_id는 참조용 NULL 허용). 파일 단위로 바꾸면 raw_object_id를 유일키에 넣는다(결정 대기, data-model.md 「v2.2」). 근거 절은 같은 문서 소속이어야 함(적재 검증)']
-  field_name varchar [not null, note: '6필드 이름은 분석·리서치(민석)·데이터 사이언스(다빈)가 10월 5일 확정 전이라 값으로 둔다. 필드가 바뀌어도 표 구조는 그대로']
+  field_name varchar [not null, note: '필드 목록은 11월 4일 확정(io-schema.md 「추출 필드 목록」, 환매 조건 이름만 미결). 값으로 두므로 필드가 바뀌어도 표 구조는 그대로']
   attempt_no int [not null, note: '같은 run·문서·필드의 재시도 순번, 1부터']
   model_name varchar [not null, note: '실제 호출한 모델 이름']
   prompt_sha256 varchar(64) [not null, note: '프롬프트 원문 해시. 원문은 config_manifest가 가리키는 파일']
@@ -695,6 +695,6 @@ Table source_watermark {
 }
 
 // 추가 검증 규칙(범위/조건부 필수/상태 조합)은 data-model.md 「절과 점수 대상」·「적재 검증 규칙」.
-// 미확정: 지표별 단위/산식 승인, 고지 점수 배점/적용범위, 평가 프로토콜(표 연기), LLM 6필드 이름(10월 5일 확정 예정),
+// 미확정: 지표별 단위/산식 승인, 고지 점수 배점/적용범위, 평가 프로토콜(표 연기),
 // ELS 키(Phase 1 범위 밖, 9차 미팅), 판매 중 여부 판단 근거, 법령 대응, KRX 매칭 잔여, 물리 DB/정밀도.
 // 연기한 표(score_dependency, evaluation_run, evaluation_response, analysis_target_member)의 정의 요지: data-model.md 「예약 계약(승인 뒤 추가)」.
