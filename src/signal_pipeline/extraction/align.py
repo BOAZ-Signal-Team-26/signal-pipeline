@@ -4,8 +4,8 @@
 - fuzzy: 기준점 주변에서 quote와 가장 비슷한 구간(SequenceMatcher.ratio)
 - chain: 원문에 끼어든 표 라벨·쪽 머리글을 건너뛰도록 4글자 이상 공통 구간을 이어 붙임. 덮은 비율·구간 길이로 거름
 - same_numbers: 근사·연쇄 일치는 quote와 원문 구간의 숫자 값 묶음이 같을 때만 받는다(1.00 = 1.0 = 1, 쉼표 무시)
+- token_window: fee_structure의 짧은 표 셀을 200자 안에서 어절별로 찾음. 다른 클래스 행이 끼면 버림. 원문 위치를 돌려준다
 fuzzy·chain은 공백을 뺀 텍스트 위치를 돌려준다.
-토큰 근접 일치(짧은 표 셀을 200자 안에서 토큰별로 찾음)는 다른 클래스 행의 값을 이어 붙일 수 있어 뺐다(11월 7일).
 """
 
 from __future__ import annotations

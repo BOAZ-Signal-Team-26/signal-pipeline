@@ -2,7 +2,7 @@
 
 변환·검증 순서(처음 실패한 단계의 reason_code)
 1. 호출 오류 → CALL_FAILED  2. JSON 파싱 → PARSE_FAILED  3. envelope·value 구조 → SCHEMA_INVALID
-4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED. 정확 → 공백 무시 → 근사(0.9) → 연쇄 정렬(문장 필드).
+4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED. 정확 → 공백 무시 → 근사(0.9) → 연쇄 정렬(문장 필드) → 토큰 근접(fee_structure).
    근사·연쇄 정렬은 quote와 원문 구간의 숫자 값이 같아야 받는다
    key_risk_phrases는 못 찾은 원소만 지우고 하나라도 남으면 FOUND
 5. 출처 절 확인(NOT_FOUND) → UNDETERMINED(SOURCE_SECTION_MISSING)  6. 문서 단위 중복 제거(dedupe_document)  7. 적재 검증(validate_envelope)
@@ -273,9 +273,9 @@ def _fuzzy_value(field_name: str, value: Any, evidence: list[dict], at: list[int
     """근사 일치한 문장 필드는 모델이 고쳐 쓴 문장 대신 원문 구간을 값으로 씀."""
     if not at:
         return value
-    if field_name == "principal_loss_notice":
+    if field_name == PLN:
         return evidence[0]["quote"]
-    if field_name == "key_risk_phrases":
+    if field_name == KRP:
         return [evidence[i]["quote"] if i in at else v for i, v in enumerate(value)]
     return value
 
@@ -284,7 +284,7 @@ def _found(fi: FieldInput, data: dict) -> dict:
     index = [(s, *_collapse_map(s.text)) for s in fi.sections]
     # PDF 줄바꿈이 단어 중간을 끊으므로(「노\n출」) 못 찾으면 공백을 모두 지우고 다시 찾음
     bare = [(s, *_collapse_map(s.text, "")) for s in fi.sections]
-    evidence, keep, multi, fuzzy_at, lost = [], [], [], [], []
+    evidence, keep, extra_notes, fuzzy_at, lost = [], [], [], [], []
     classes = _class_names(data.get("value"))
     for i, e in enumerate(data["evidence"]):
         located, n, note = _place(fi, index, bare, e["quote"], classes)
@@ -295,17 +295,17 @@ def _found(fi: FieldInput, data: dict) -> dict:
             continue
         if note:
             fuzzy_at.append(len(evidence))
-            multi.append(note)
+            extra_notes.append(note)
         evidence.append(located)
         keep.append(i)
         if n > 1:
-            multi.append(f"다중 일치 {n}회")
+            extra_notes.append(f"다중 일치 {n}회")
     if lost and (fi.field_name != KRP or not evidence):
         return _failed(fi, "EVIDENCE_NOT_LOCATED", f"근거를 찾지 못함: {lost[0][:80]}")
     value = data["value"]
     if lost:
         value = [value[i] for i in keep]
-        multi.append(f"근거 없는 문장 {len(lost)}개 삭제")
+        extra_notes.append(f"근거 없는 문장 {len(lost)}개 삭제")
     value = _fuzzy_value(fi.field_name, value, evidence, fuzzy_at)
     return _envelope(
         fi.field_name,
@@ -313,7 +313,7 @@ def _found(fi: FieldInput, data: dict) -> dict:
         value=value,
         raw_text=_raw_text(fi.field_name, value, evidence),
         evidence=evidence,
-        notes=_notes(data.get("notes"), *multi, _missing_note(fi)),
+        notes=_notes(data.get("notes"), *extra_notes, _missing_note(fi)),
     )
 
 

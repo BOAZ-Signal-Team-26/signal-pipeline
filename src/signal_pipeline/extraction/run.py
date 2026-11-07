@@ -61,9 +61,8 @@ from signal_pipeline.loading.local_load import SEARCH_PATH
 from signal_pipeline.parsing.extract import parser_version as current_parser_version
 
 MAX_ATTEMPTS = 2  # 실행 안에서 필드당 호출 상한(첫 호출 + FAILED 재호출 1회)
-FAIL_RATE_MAX = (
-    0.2  # 선택된 필드 중 FAILED 비율이 이 값을 넘으면 실행 FAILED(11월 7일 PM 결정)
-)
+# 선택된 필드 중 FAILED 비율이 이 값을 넘으면 실행 FAILED(11월 7일 PM 결정)
+FAIL_RATE_MAX = 0.2
 EST_TOKENS_PER_CHAR = 1.0  # 예상 입력 토큰 = 글자 수 x 이 값. 한국어는 글자당 1토큰 미만이라 넉넉히 잡는 쪽
 DB_ENV = "SIGNAL_LOCAL_DATABASE_URL"
 KST = ZoneInfo("Asia/Seoul")

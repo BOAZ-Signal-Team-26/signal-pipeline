@@ -47,9 +47,8 @@ class CallResult:
     output_tokens: int | None = None
     raw: bytes | None = None  # 마지막 응답 바이트 그대로. 응답이 없었으면 None
     error: str | None = None
-    tries: list[str] = field(
-        default_factory=list
-    )  # 시도마다 "200", "HTTP 429", "ReadTimeout" 등
+    # 시도마다 "200", "HTTP 429", "ReadTimeout" 등
+    tries: list[str] = field(default_factory=list)
 
 
 def _text(raw: bytes) -> tuple[str, int | None, int | None]:
