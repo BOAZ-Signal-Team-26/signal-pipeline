@@ -684,3 +684,21 @@ def test_토큰_근접_구간에_다른_클래스_이름이_끼면_버림():
         fi, resp(value=_fee_value("A클래스", "C클래스"), quotes=["납입금액의 1.0%이내"])
     )
     assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_근거는_찾았지만_값을_고쳐_쓰면_원문_구간으로_바꿈():
+    src = "이 투자신탁은 원본을 보장하지 않습니다. 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    q = "이 투자신탁은 원본을 보장하지 않습니다."
+    env = convert(fi, resp(value="이 펀드는 원금을 보장하지 않습니다.", quotes=[q]))
+    assert env["status"] == "FOUND"
+    assert env["value"] == q
+    assert env["raw_text"] == q
+
+    fi = field_input(
+        "key_risk_phrases",
+        [(7, 0, "주가가 하락하면 손실이 납니다. 환율이 오르면 손실이 납니다.")],
+    )
+    quotes = ["주가가 하락하면 손실이 납니다.", "환율이 오르면 손실이 납니다."]
+    env = convert(fi, resp(value=["주가 하락 위험", quotes[1]], quotes=quotes))
+    assert env["value"] == quotes

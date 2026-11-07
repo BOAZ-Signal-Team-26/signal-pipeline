@@ -269,22 +269,24 @@ def _raw_text(field_name: str, value: Any, evidence: list[dict]) -> str:
     return value if field_name == PLN else "\n".join(e["quote"] for e in evidence)
 
 
-def _fuzzy_value(field_name: str, value: Any, evidence: list[dict], at: list[int]):
-    """근사 일치한 문장 필드는 모델이 고쳐 쓴 문장 대신 원문 구간을 값으로 씀."""
-    if not at:
+def _source_value(fi: FieldInput, field_name: str, value: Any, evidence: list[dict]):
+    """문장 필드 값이 원문에 그대로 없으면(모델이 고쳐 씀) 근거 원문 구간으로 바꿈.
+
+    근거 quote는 원문에서 찾았지만 value가 다른 경우도 막음. 공백 차이는 같은 것으로 봄.
+    """
+    if field_name not in (PLN, KRP):
         return value
+    src = WS.sub("", "".join(sec.text for sec in fi.sections))
     if field_name == PLN:
-        return evidence[0]["quote"]
-    if field_name == KRP:
-        return [evidence[i]["quote"] if i in at else v for i, v in enumerate(value)]
-    return value
+        return value if WS.sub("", value) in src else evidence[0]["quote"]
+    return [v if WS.sub("", v) in src else e["quote"] for v, e in zip(value, evidence)]
 
 
 def _found(fi: FieldInput, data: dict) -> dict:
     index = [(s, *_collapse_map(s.text)) for s in fi.sections]
     # PDF 줄바꿈이 단어 중간을 끊으므로(「노\n출」) 못 찾으면 공백을 모두 지우고 다시 찾음
     bare = [(s, *_collapse_map(s.text, "")) for s in fi.sections]
-    evidence, keep, extra_notes, fuzzy_at, lost = [], [], [], [], []
+    evidence, keep, extra_notes, lost = [], [], [], []
     classes = _class_names(data.get("value"))
     for i, e in enumerate(data["evidence"]):
         located, n, note = _place(fi, index, bare, e["quote"], classes)
@@ -294,7 +296,6 @@ def _found(fi: FieldInput, data: dict) -> dict:
                 break
             continue
         if note:
-            fuzzy_at.append(len(evidence))
             extra_notes.append(note)
         evidence.append(located)
         keep.append(i)
@@ -306,7 +307,7 @@ def _found(fi: FieldInput, data: dict) -> dict:
     if lost:
         value = [value[i] for i in keep]
         extra_notes.append(f"근거 없는 문장 {len(lost)}개 삭제")
-    value = _fuzzy_value(fi.field_name, value, evidence, fuzzy_at)
+    value = _source_value(fi, fi.field_name, value, evidence)
     return _envelope(
         fi.field_name,
         FOUND,

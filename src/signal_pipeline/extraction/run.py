@@ -168,7 +168,8 @@ def _reuse(ctx: Context, fi: FieldInput) -> tuple[int, dict] | None:
         ctx.client.params,
         reused_from,
     )
-    ctx.stats["reused"] += 1
+    with ctx.lock:
+        ctx.stats["reused"] += 1
     return _insert(
         ctx,
         fi,
@@ -187,7 +188,8 @@ def process_field(ctx: Context, fi: FieldInput) -> list[tuple[int, dict]]:
     model, params = ctx.client.model, ctx.client.params
     if not fi.sections:
         write_request(ctx.data_root, ctx.run_id, fi, 1, prompt, model, params)
-        ctx.stats["no_input"] += 1
+        with ctx.lock:
+            ctx.stats["no_input"] += 1
         none = {
             "raw_response_path": None,
             "response_sha256": None,
