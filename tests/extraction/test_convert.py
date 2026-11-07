@@ -550,34 +550,37 @@ def test_가장_긴_공통_구간이_엉뚱한_곳이어도_다른_기준점으�
     assert env["evidence"][0]["quote"] == real
 
 
-FEE_SRC = " 총보수 비용\n 납입금액의\n 수수료선취-\n 1.00% 1.5400 0.6800\n 오프라인(A) 이내 끝"
+def test_근사_일치는_숫자가_바뀌면_거부():
+    src = "앞 문장입니다. 이 투자신탁의 환매수수료는 환매금액의 2.00%로서 90일 미만 보유 시 부과됩니다. 뒤"
+    q = "이 투자신탁의 환매수수료는 환매금액의 1.00%로서 90일 미만 보유 시 부과됩니다."
+    for field, value in (("key_risk_phrases", [q]), ("principal_loss_notice", q)):
+        fi = field_input(field, [(7, 0, src)])
+        env = convert(fi, resp(value=value, quotes=[q]))
+        assert (env["status"], env["reason_code"]) == ("FAILED", "EVIDENCE_NOT_LOCATED")
 
 
-@pytest.mark.parametrize(
-    "q", ["납입금액의 1.0% 이내", "납입금액의 1%이내", "납입금액의 1.00% 이내"]
-)
-def test_수수료_짧은_인용은_토큰_근접_일치(q):
-    fi = field_input("fee_structure", [(9, 50, FEE_SRC)])
-    env = convert(fi, resp(value=FEE, quotes=[q]))
-    assert env["status"] == "FOUND", env["notes"]
-    ev = env["evidence"][0]
-    assert "토큰 근접 일치" in env["notes"]
-    assert ev["char_start"] == 50 + FEE_SRC.index("납입")
-    assert ev["char_end"] == 50 + FEE_SRC.index(" 끝")
+def test_연쇄_정렬도_숫자가_바뀌면_거부():
+    cut = KR.index("환율")
+    src = "앞 문장입니다. " + KR[:cut] + NOISE + KR[cut:] + " 뒤"
+    q = KR.replace("환율 변동", "환율 3% 변동")
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FAILED"  # 머리글 숫자(12, 40)는 원문 구간에만 있음
 
 
-@pytest.mark.parametrize(
-    "q", ["납입금액의 1.5% 이내", "납입금액의 1.005% 이내", "환매금액의 1.00% 이내"]
-)
-def test_수수료_토큰_근접_일치는_숫자가_다르면_거부(q):
-    fi = field_input("fee_structure", [(9, 0, FEE_SRC)])
-    assert convert(fi, resp(value=FEE, quotes=[q]))["status"] == "FAILED"
+def test_근사_일치는_같은_값의_숫자_표기_차이는_허용():
+    src = "앞 문장입니다. 이 투자신탁의 환매수수료는 환매금액의 1.00%로서 90일 미만 보유 시 부과됩니다. 뒤"
+    q = "이 투자신탁의 환매수수료는 환매금액의 1.0%로서 90일 미만 보유 시 부과됩니다."
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FOUND" and "근사 일치" in env["notes"]
 
 
-def test_토큰_근접_일치는_수수료_필드에만():
-    fi = field_input("key_risk_phrases", [(9, 0, FEE_SRC)])
-    q = "납입금액의 1.00% 이내"
-    assert convert(fi, resp(value=[q], quotes=[q]))["status"] == "FAILED"
+def test_다른_클래스_행의_값을_이어_붙인_수수료_인용은_거부():
+    src = " 판매수수료\n A클래스 없음\n C클래스 납입금액의\n 1.00% 이내 끝"
+    fi = field_input("fee_structure", [(9, 0, src)])
+    for q in ("A클래스 1.00% 이내", "A클래스 1%"):
+        assert convert(fi, resp(value=FEE, quotes=[q]))["status"] == "FAILED"
 
 
 def test_큰_절에서_대체_정렬_5건이_5초_안에_끝남():
@@ -614,3 +617,70 @@ def test_큰_절에서_대체_정렬_5건이_5초_안에_끝남():
     env = convert(fi, resp(value=quotes, quotes=quotes))
     assert time.perf_counter() - t0 < 5
     assert env["status"] == "FOUND" and len(env["evidence"]) == 5, env["notes"]
+
+
+def test_짧은_수수료_인용은_다른_클래스_행에_근사_일치하지_않음():
+    fi = field_input(
+        "fee_structure", [(7, 0, "A클래스 선취 없음\nC클래스 납입금액의 1% 이내")]
+    )
+    q = "A클래스 납입금액의 1%"
+    value = {
+        "classes": [
+            {
+                "class_name": "A클래스",
+                "front_load": {
+                    "rate": {"amount": 1, "unit": "%"},
+                    "basis": "납입금액",
+                    "condition": None,
+                    "text": q,
+                },
+                "back_load": None,
+                "total_fee": None,
+                "peer_total_fee": None,
+            }
+        ]
+    }
+    assert (
+        convert(fi, resp(value=value, quotes=[q]))["reason_code"]
+        == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def _fee_value(*names):
+    return {
+        "classes": [
+            {
+                "class_name": n,
+                "front_load": {
+                    "rate": {"amount": 1, "unit": "%"},
+                    "basis": "납입금액",
+                    "condition": None,
+                    "text": "납입금액의 1.0%이내",
+                },
+                "back_load": None,
+                "total_fee": None,
+                "peer_total_fee": None,
+            }
+            for n in names
+        ]
+    }
+
+
+def test_끊긴_수수료_셀은_토큰_근접으로_찾음():
+    fi = field_input(
+        "fee_structure",
+        [(7, 0, "수수료선취-  납입금액의\n 0.88 1.04 기타\n1.0%이내 끝")],
+    )
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["납입금액의 1.0%이내"]))
+    assert env["status"] == "FOUND"
+    assert "토큰 근접 일치" in env["notes"]
+
+
+def test_토큰_근접_구간에_다른_클래스_이름이_끼면_버림():
+    fi = field_input(
+        "fee_structure", [(7, 0, "A클래스 납입금액의 없음\nC클래스 1.0%이내")]
+    )
+    env = convert(
+        fi, resp(value=_fee_value("A클래스", "C클래스"), quotes=["납입금액의 1.0%이내"])
+    )
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"

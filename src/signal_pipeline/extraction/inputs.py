@@ -4,6 +4,7 @@
 - 절 선택: 제2부 N절 = part_seq=2 and source_section_no='N', 요약정보 = section_kind='summary',
   표지 = section_kind='other' and section_seq=1(500개 문서 모두 section_seq=1이 표지 other. other 중 section_seq>1은 표지가 아님).
   같은 라벨이 여럿이면 section_seq가 가장 작은 절을 고른다(현재 데이터에는 중복 없음).
+- 절은 지정한 파서 버전 것만 쓴다. 그 버전에서 한 문서의 절이 원본(raw_object) 둘 이상에서 오면 섞지 않고 오류로 멈춘다.
 - 텍스트는 strip·정규화 없이 그대로 쓴다. 해시 = sha256(UTF-8). section_text에 CR은 없다(적재 데이터 0건). 있어도 고치지 않는다.
 - 출처 절이 없거나 extract_status가 EXTRACT_OK가 아니면 missing에 라벨을 올리고 텍스트에 넣지 않는다.
   절 전체 사용이므로 「NOT_FOUND 허용 조건」의 나머지 조건(절 전체 포함)은 항상 만족한다.
@@ -190,22 +191,35 @@ SELECT s.document_id, s.section_id, s.raw_object_id, s.parser_version, s.section
        s.source_section_no, s.section_kind, s.char_start, s.extract_status, s.section_text,
        r.sha256 AS raw_sha256
 FROM staging.section s JOIN raw.raw_object r USING (raw_object_id)
-WHERE s.document_id = ANY(%(ids)s)
+WHERE s.document_id = ANY(%(ids)s) AND s.parser_version = %(parser)s
   AND (s.section_kind = 'summary' OR (s.section_kind = 'other' AND s.section_seq = 1) OR s.part_seq = 2)
-ORDER BY s.document_id, s.section_seq
+ORDER BY s.document_id, s.section_seq, s.section_id
 """
 
 
 def build_field_inputs(
-    conn, document_ids: Iterable[int] | None = None
+    conn, document_ids: Iterable[int] | None, parser_version: str
 ) -> tuple[list[FieldInput], list[dict]]:
-    """DB에서 읽어 (필드 입력, ETF 제외 기록)을 돌려준다. 문서 순서·필드 순서 고정."""
+    """DB에서 읽어 (필드 입력, ETF 제외 기록)을 돌려준다. 문서 순서·필드 순서 고정.
+
+    한 문서의 절이 원본 둘 이상에서 오면 ValueError(문서와 원본 id 목록).
+    """
     ids = None if document_ids is None else list(document_ids)
     with conn.cursor(row_factory=dict_row) as cur:
         docs = cur.execute(DOC_SQL, {"ids": ids}).fetchall()
         by_doc: dict[int, list[dict]] = {}
-        for row in cur.execute(SECTION_SQL, {"ids": [d["document_id"] for d in docs]}):
+        params = {"ids": [d["document_id"] for d in docs], "parser": parser_version}
+        for row in cur.execute(SECTION_SQL, params):
             by_doc.setdefault(row["document_id"], []).append(row)
+    mixed = {
+        doc: sorted({r["raw_object_id"] for r in rows})
+        for doc, rows in by_doc.items()
+        if len({r["raw_object_id"] for r in rows}) > 1
+    }
+    if mixed:
+        raise ValueError(
+            f"파서 버전 {parser_version}에서 원본이 둘 이상인 문서(document_id: raw_object_id 목록): {mixed}"
+        )
     field_inputs: list[FieldInput] = []
     exclusions: list[dict] = []
     for doc in docs:

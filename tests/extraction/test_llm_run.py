@@ -13,7 +13,8 @@ import psycopg
 import pytest
 
 from signal_pipeline.extraction.bedrock import MODELS, TOKEN_ENV, BedrockClient
-from signal_pipeline.extraction.run import run_extraction
+from signal_pipeline.extraction.inputs import build_field_inputs
+from signal_pipeline.extraction.run import Context, run_extraction
 from signal_pipeline.extraction.store import check_selected, verify_run, write_new
 from signal_pipeline.loading.local_load import SEARCH_PATH
 
@@ -167,6 +168,7 @@ def run(db, fake: Fake, **kw) -> dict:
         max_retries=1,
         transport=httpx.MockTransport(fake),
     )
+    kw.setdefault("parser_version", "p1")
     return run_extraction(conn, root, client, workers=kw.pop("workers", 2), **kw)
 
 
@@ -230,6 +232,7 @@ def test_failed_is_recalled_with_attempt_2(db) -> None:
     ]
     assert [g[1:] for g in got if g[0] == doc2] == [(1, "OK", True, None)]
     assert verify_run(conn, root, result["run_id"]) == []
+    assert result["status"] == "SUCCEEDED" and result["failed"] == 1  # 1/8 = 12.5%
 
     # 다음 실행: 이전 FAILED는 재사용하지 않고 다시 호출
     again = run(db, Fake())
@@ -285,13 +288,58 @@ def test_is_selected_unique_and_check_query(db) -> None:
 def test_budget_stops_new_calls(db) -> None:
     conn, _ = db
     fake = Fake()
-    # 호출 1회 = 1000*0.30/1e6 + 100*2.50/1e6 = 0.00055달러
-    result = run(db, fake, workers=1, budget_usd=0.001)
+    # 예상 비용(출력 4096토큰 x 2.5달러/1M ≈ 0.0102달러 + 입력 글자 수)을 미리 잡으므로 한두 번만 나간다
+    result = run(db, fake, workers=1, budget_usd=0.012)
     assert result["status"] == "FAILED" and "budget" in result["reason"]
-    assert result["calls"] == 2 and len(fake.calls) == 2
+    assert 0 < result["calls"] < 8 and len(fake.calls) == result["calls"]
+    assert result["cost_usd"] <= 0.012
     assert conn.execute(
         "select status from pipeline_run where run_id = %s", (result["run_id"],)
     ).fetchone() == ("FAILED",)
+
+
+def _ctx(tmp_path: Path, monkeypatch, budget: float) -> Context:
+    monkeypatch.setenv(TOKEN_ENV, FAKE)
+    client = BedrockClient(MODELS["lite"], transport=httpx.MockTransport(Fake()))
+    return Context(None, tmp_path, "r", client, {}, budget)
+
+
+def test_budget_reserves_for_in_flight_calls(tmp_path: Path, monkeypatch) -> None:
+    ctx = _ctx(tmp_path, monkeypatch, 0.015)
+    sys_text, text = "s" * 1000, "t" * 1000
+    # 예상 = 2000 x 0.30/1M + 4096 x 2.50/1M = 0.01084달러
+    first = ctx.reserve(sys_text, text)
+    assert first and abs(first - 0.01084) < 1e-9
+    assert not ctx.reserve(sys_text, text)  # 첫 호출이 아직 안 끝남
+    ctx.charge(first, 1000, 100)  # 실제 0.00055달러로 바꿈
+    assert ctx.reserve(sys_text, text)
+
+
+def test_budget_overshoot_by_actual_cost_sets_stop_reason(
+    tmp_path: Path, monkeypatch
+) -> None:
+    ctx = _ctx(tmp_path, monkeypatch, 0.02)
+    reserved = ctx.reserve("s", "t")
+    assert reserved and ctx.stop_reason is None
+    ctx.charge(reserved, 100_000, 0)  # 0.03달러
+    assert ctx.stop_reason and "budget" in ctx.stop_reason
+
+
+def test_run_failed_when_fields_fail(db) -> None:
+    conn, _ = db
+    result = run(db, Fake({f: [400] * 4 for f in GOOD}))
+    assert result["status"] == "FAILED" and result["failed"] == 8
+    assert "필드 실패율 100%" in result["reason"]
+    assert conn.execute(
+        "select status from pipeline_run where run_id = %s", (result["run_id"],)
+    ).fetchone() == ("FAILED",)
+
+
+def test_run_failed_when_fail_rate_over_limit(db) -> None:
+    bad = answer(value=FEE, quotes=["없는 문장"])
+    result = run(db, Fake({"fee_structure": [bad] * 4}))
+    assert result["status"] == "FAILED" and result["failed"] == 2
+    assert "필드 실패율 25%" in result["reason"]
 
 
 def test_no_key_in_written_files(db) -> None:
@@ -303,6 +351,71 @@ def test_no_key_in_written_files(db) -> None:
         [list(map(str, r)) for r in rows(conn, result["run_id"])], ensure_ascii=False
     )
     assert FAKE not in dump
+
+
+def _docs_raws(conn) -> list[tuple[int, int]]:
+    return conn.execute(
+        "select document_id, raw_object_id from raw_object order by 1"
+    ).fetchall()
+
+
+def test_inputs_use_only_given_parser_version(db) -> None:
+    conn, _ = db
+    doc, raw = _docs_raws(conn)[0]
+    conn.execute(
+        "insert into file_extraction (raw_object_id, parser_version, created_run_id, extract_status,"
+        " canonical_text_path, canonical_text_sha256, structure_status, text_length, extracted_at)"
+        " values (%s, 'p2', 'parse-1', 'EXTRACT_OK', 'x', repeat('b', 64), 'NOT_REQUESTED', 9999, now())",
+        (raw,),
+    )
+    conn.execute(
+        "insert into section (document_id, raw_object_id, parser_version, section_seq, part_seq,"
+        " source_section_no, section_kind, char_start, char_end, section_text, extract_status)"
+        " values (%s, %s, 'p2', 1, 2, '11', 'body', 0, 5, '새 파서 본문', 'EXTRACT_OK')",
+        (doc, raw),
+    )
+    p1, _ = build_field_inputs(conn, [doc], "p1")
+    assert {s.parser_version for fi in p1 for s in fi.sections} == {"p1"}
+    p2, _ = build_field_inputs(conn, [doc], "p2")
+    red = next(fi for fi in p2 if fi.field_name == "redemption_terms")
+    assert red.input_text == "새 파서 본문"
+    assert all(not fi.sections for fi in p2 if fi.field_name != "redemption_terms")
+
+
+def test_inputs_reject_two_raw_objects_for_one_document(db) -> None:
+    conn, _ = db
+    doc, _ = _docs_raws(conn)[0]
+    raw2 = conn.execute(
+        "insert into raw_object (document_id, source, source_object_key, version_seq, body_format, file_role,"
+        " sha256, storage_path, file_name, collected_at, request_params, collect_status)"
+        " values (%s, 'dart', 'other', 2, 'pdf', 'body_pdf', repeat('c', 64), 'y', 'b.pdf', now(), '{}', 'success')"
+        " returning raw_object_id",
+        (doc,),
+    ).fetchone()[0]
+    conn.execute(
+        "insert into file_extraction (raw_object_id, parser_version, created_run_id, extract_status,"
+        " canonical_text_path, canonical_text_sha256, structure_status, text_length, extracted_at)"
+        " values (%s, 'p1', 'parse-1', 'EXTRACT_OK', 'x', repeat('b', 64), 'NOT_REQUESTED', 9999, now())",
+        (raw2,),
+    )
+    conn.execute(
+        "insert into section (document_id, raw_object_id, parser_version, section_seq, part_seq,"
+        " source_section_no, section_kind, char_start, char_end, section_text, extract_status)"
+        " values (%s, %s, 'p1', 1, 2, '11', 'body', 0, 5, '다른 원본', 'EXTRACT_OK')",
+        (doc, raw2),
+    )
+    with pytest.raises(ValueError, match=str(raw2)):
+        build_field_inputs(conn, [doc], "p1")
+
+
+def test_parser_version_recorded_in_config(db) -> None:
+    conn, _ = db
+    result = run(db, Fake(), limit=1)
+    manifest = conn.execute(
+        "select config_manifest from pipeline_run where run_id = %s",
+        (result["run_id"],),
+    ).fetchone()[0]
+    assert manifest["parser_version"] == "p1"
 
 
 def test_write_new_refuses_overwrite(tmp_path: Path) -> None:

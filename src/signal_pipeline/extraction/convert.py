@@ -2,7 +2,8 @@
 
 변환·검증 순서(처음 실패한 단계의 reason_code)
 1. 호출 오류 → CALL_FAILED  2. JSON 파싱 → PARSE_FAILED  3. envelope·value 구조 → SCHEMA_INVALID
-4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED. 정확 → 공백 무시 → 근사(0.9) → 연쇄 정렬(문장 필드) → 토큰 근접(수수료).
+4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED. 정확 → 공백 무시 → 근사(0.9) → 연쇄 정렬(문장 필드).
+   근사·연쇄 정렬은 quote와 원문 구간의 숫자 값이 같아야 받는다
    key_risk_phrases는 못 찾은 원소만 지우고 하나라도 남으면 FOUND
 5. 출처 절 확인(NOT_FOUND) → UNDETERMINED(SOURCE_SECTION_MISSING)  6. 문서 단위 중복 제거(dedupe_document)  7. 적재 검증(validate_envelope)
 
@@ -175,21 +176,28 @@ def _locate(
 
 
 FUZZY_MIN = 0.9  # 근사 일치 하한(11월 7일 PM 결정)
+# 이보다 짧은 인용은 근사 일치하지 않음. 「A클래스 1%」와 「C클래스 1%」처럼 한두 글자 차이가 다른 행을 뜻함
+FUZZY_MIN_CHARS = 20
 
 
 def _fuzzy(
     bare: list[tuple[SectionText, str, list[int]]], quote: str, chain: bool
 ) -> tuple[dict | None, float]:
-    """공백을 뺀 절 텍스트에서 기준점마다 근사 일치, 안 되면 연쇄 정렬(chain=True일 때). (근거, 유사도)."""
+    """공백을 뺀 절 텍스트에서 기준점마다 근사 일치, 안 되면 연쇄 정렬(chain=True일 때). (근거, 유사도).
+
+    숫자 값이 quote와 다른 후보는 버린다(원문 2.00%를 1.00%로 바꾼 인용을 받지 않음).
+    """
     q = WS.sub("", quote)
+    if len(q) < FUZZY_MIN_CHARS:
+        return None, 0.0
     best, best_chain = (0.0, None), (0.0, None)
     for sec, norm, pos in bare:
         for g in align.anchors(q, norm):
             r, s, e = align.fuzzy(q, norm, g)
-            if r > best[0]:
+            if r > best[0] and align.same_numbers(q, norm[s:e]):
                 best = (r, (sec, pos, s, e))
             c = align.chain(q, norm, g) if chain else None
-            if c and c[0] > best_chain[0]:
+            if c and c[0] > best_chain[0] and align.same_numbers(q, c[3]):
                 best_chain = (c[0], (sec, pos, c[1], c[2]))
     if best[0] >= FUZZY_MIN:
         r, (sec, pos, s, e) = best
@@ -200,8 +208,19 @@ def _fuzzy(
     return _evidence(sec, pos[s], pos[e - 1] + 1), r
 
 
+def _class_names(value: Any) -> tuple[str, ...]:
+    """fee_structure value의 클래스 이름 목록. 다른 필드는 빈 튜플."""
+    if not isinstance(value, dict) or not isinstance(value.get("classes"), list):
+        return ()
+    return tuple(
+        c["class_name"]
+        for c in value["classes"]
+        if isinstance(c, dict) and c.get("class_name")
+    )
+
+
 def _place(
-    fi: FieldInput, index: list, bare: list, quote: str
+    fi: FieldInput, index: list, bare: list, quote: str, classes: tuple[str, ...] = ()
 ) -> tuple[dict | None, int, str | None]:
     """quote 하나의 (근거, 일치 수, 메모)."""
     located, n = _locate(index, quote)
@@ -213,8 +232,10 @@ def _place(
     if located is not None:
         return located, 1, f"근사 일치 {ratio:.2f}"
     if fi.field_name == FEE and len(quote.split()) <= align.TOKEN_MAX:
+        # PDF 표 셀이 다른 칸과 섞여 끊긴 경우. 인용에 없는 다른 클래스 이름이 구간에 끼면 버림
+        others = tuple(c for c in classes if c and c not in quote)
         for sec in fi.sections:
-            span, n = align.token_window(sec.text, quote)
+            span, n = align.token_window(sec.text, quote, others)
             if span:
                 return _evidence(sec, *span), n, "토큰 근접 일치"
     return None, 0, None
@@ -264,8 +285,9 @@ def _found(fi: FieldInput, data: dict) -> dict:
     # PDF 줄바꿈이 단어 중간을 끊으므로(「노\n출」) 못 찾으면 공백을 모두 지우고 다시 찾음
     bare = [(s, *_collapse_map(s.text, "")) for s in fi.sections]
     evidence, keep, multi, fuzzy_at, lost = [], [], [], [], []
+    classes = _class_names(data.get("value"))
     for i, e in enumerate(data["evidence"]):
-        located, n, note = _place(fi, index, bare, e["quote"])
+        located, n, note = _place(fi, index, bare, e["quote"], classes)
         if located is None:
             lost.append(e["quote"])
             if fi.field_name != KRP:

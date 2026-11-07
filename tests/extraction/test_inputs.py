@@ -139,5 +139,5 @@ def _local_url() -> str | None:
 @pytest.mark.skipif(not _local_url(), reason="SIGNAL_LOCAL_DATABASE_URL 없음")
 def test_db_smoke():
     with psycopg.connect(_local_url()) as conn:
-        fis, excl = build_field_inputs(conn, [])
+        fis, excl = build_field_inputs(conn, [], "p1")
     assert fis == [] and excl == []
