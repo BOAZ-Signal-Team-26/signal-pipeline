@@ -2,8 +2,9 @@
 
 변환·검증 순서(처음 실패한 단계의 reason_code)
 1. 호출 오류 → CALL_FAILED  2. JSON 파싱 → PARSE_FAILED  3. envelope·value 구조 → SCHEMA_INVALID
-4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED  5. 출처 절 확인(NOT_FOUND) → UNDETERMINED(SOURCE_SECTION_MISSING)
-6. 문서 단위 중복 제거(dedupe_document)  7. 적재 검증(validate_envelope)
+4. quote 위치 찾기(FOUND) → EVIDENCE_NOT_LOCATED. 정확 → 공백 무시 → 근사(0.9) → 연쇄 정렬(문장 필드) → 토큰 근접(수수료).
+   key_risk_phrases는 못 찾은 원소만 지우고 하나라도 남으면 FOUND
+5. 출처 절 확인(NOT_FOUND) → UNDETERMINED(SOURCE_SECTION_MISSING)  6. 문서 단위 중복 제거(dedupe_document)  7. 적재 검증(validate_envelope)
 
 모델 응답: {"status", "value", "evidence": [{"quote"}], "reason_code", "notes"}. 절 식별자·위치는 변환기가 채운다.
 """
@@ -12,9 +13,9 @@ from __future__ import annotations
 
 import json
 import re
-from difflib import SequenceMatcher
 from typing import Any
 
+from signal_pipeline.extraction import align
 from signal_pipeline.extraction.inputs import FieldInput, SectionText
 from signal_pipeline.extraction.schema import VALIDATORS, validate_value
 
@@ -47,7 +48,7 @@ MODEL_REASON = {
     UNDETERMINED: "AMBIGUOUS",
     NOT_APPLICABLE: "OUT_OF_SCOPE",
 }
-PLN, KRP = "principal_loss_notice", "key_risk_phrases"
+PLN, KRP, FEE = "principal_loss_notice", "key_risk_phrases", "fee_structure"
 WS_CHARS = " \t\n\r\f\v"
 WS = re.compile(f"[{WS_CHARS}]+")
 TOKEN = re.compile(f"[{WS_CHARS}]+|.", re.DOTALL)
@@ -149,6 +150,15 @@ def _collapse_map(text: str, sep: str = " ") -> tuple[str, list[int]]:
     return "".join(chars), pos
 
 
+def _evidence(sec: SectionText, start: int, end: int) -> dict:
+    return {
+        "section_id": sec.section_id,
+        "char_start": sec.char_start + start,
+        "char_end": sec.char_start + end,
+        "quote": sec.text[start:end],
+    }
+
+
 def _locate(
     index: list[tuple[SectionText, str, list[int]]], quote: str, bare: bool = False
 ) -> tuple[dict | None, int]:
@@ -159,50 +169,55 @@ def _locate(
         n = norm.count(q)
         if n and first is None:
             i = norm.find(q)
-            start, end = pos[i], pos[i + len(q) - 1] + 1
-            first = {
-                "section_id": sec.section_id,
-                "char_start": sec.char_start + start,
-                "char_end": sec.char_start + end,
-                "quote": sec.text[start:end],
-            }
+            first = _evidence(sec, pos[i], pos[i + len(q) - 1] + 1)
         count += n
     return first, count
 
 
 FUZZY_MIN = 0.9  # 근사 일치 하한(11월 7일 PM 결정)
-ANCHOR_MIN = 8  # 근사 일치 기준점이 될 최소 공통 글자 수
 
 
 def _fuzzy(
-    bare: list[tuple[SectionText, str, list[int]]], quote: str
+    bare: list[tuple[SectionText, str, list[int]]], quote: str, chain: bool
 ) -> tuple[dict | None, float]:
-    """정확히 못 찾을 때 공백을 뺀 절 텍스트에서 가장 비슷한 구간. (근거, 유사도)."""
+    """공백을 뺀 절 텍스트에서 기준점마다 근사 일치, 안 되면 연쇄 정렬(chain=True일 때). (근거, 유사도)."""
     q = WS.sub("", quote)
-    best, best_ratio = None, 0.0
+    best, best_chain = (0.0, None), (0.0, None)
     for sec, norm, pos in bare:
-        sm = SequenceMatcher(None, q, norm, autojunk=False)
-        m = sm.find_longest_match(0, len(q), 0, len(norm))
-        if m.size < ANCHOR_MIN:
-            continue
-        guess = m.b - m.a
-        # ponytail: 기준점 주변 ±10자·길이 ±20%만 봄. 기준점이 틀리면 놓침
-        for start in range(max(0, guess - 10), min(len(norm), guess + 11)):
-            for length in range(int(len(q) * 0.8), int(len(q) * 1.2) + 1):
-                cand = norm[start : start + length]
-                if not cand:
-                    continue
-                r = SequenceMatcher(None, q, cand, autojunk=False).ratio()
-                if r > best_ratio:
-                    s, e = pos[start], pos[start + len(cand) - 1] + 1
-                    best_ratio = r
-                    best = {
-                        "section_id": sec.section_id,
-                        "char_start": sec.char_start + s,
-                        "char_end": sec.char_start + e,
-                        "quote": sec.text[s:e],
-                    }
-    return (best, best_ratio) if best_ratio >= FUZZY_MIN else (None, best_ratio)
+        for g in align.anchors(q, norm):
+            r, s, e = align.fuzzy(q, norm, g)
+            if r > best[0]:
+                best = (r, (sec, pos, s, e))
+            c = align.chain(q, norm, g) if chain else None
+            if c and c[0] > best_chain[0]:
+                best_chain = (c[0], (sec, pos, c[1], c[2]))
+    if best[0] >= FUZZY_MIN:
+        r, (sec, pos, s, e) = best
+    elif best_chain[1]:
+        r, (sec, pos, s, e) = best_chain
+    else:
+        return None, best[0]
+    return _evidence(sec, pos[s], pos[e - 1] + 1), r
+
+
+def _place(
+    fi: FieldInput, index: list, bare: list, quote: str
+) -> tuple[dict | None, int, str | None]:
+    """quote 하나의 (근거, 일치 수, 메모)."""
+    located, n = _locate(index, quote)
+    if located is None:
+        located, n = _locate(bare, quote, bare=True)
+    if located is not None:
+        return located, n, None
+    located, ratio = _fuzzy(bare, quote, chain=fi.field_name in (PLN, KRP))
+    if located is not None:
+        return located, 1, f"근사 일치 {ratio:.2f}"
+    if fi.field_name == FEE and len(quote.split()) <= align.TOKEN_MAX:
+        for sec in fi.sections:
+            span, n = align.token_window(sec.text, quote)
+            if span:
+                return _evidence(sec, *span), n, "토큰 근접 일치"
+    return None, 0, None
 
 
 def _missing_note(fi: FieldInput) -> str | None:
@@ -248,25 +263,28 @@ def _found(fi: FieldInput, data: dict) -> dict:
     index = [(s, *_collapse_map(s.text)) for s in fi.sections]
     # PDF 줄바꿈이 단어 중간을 끊으므로(「노\n출」) 못 찾으면 공백을 모두 지우고 다시 찾음
     bare = [(s, *_collapse_map(s.text, "")) for s in fi.sections]
-    evidence, multi, fuzzy_at = [], [], []
-    for e in data["evidence"]:
-        located, n = _locate(index, e["quote"])
+    evidence, keep, multi, fuzzy_at, lost = [], [], [], [], []
+    for i, e in enumerate(data["evidence"]):
+        located, n, note = _place(fi, index, bare, e["quote"])
         if located is None:
-            located, n = _locate(bare, e["quote"], bare=True)
-        if located is None:
-            located, ratio = _fuzzy(bare, e["quote"])
-            if located is not None:
-                n = 1
-                fuzzy_at.append(len(evidence))
-                multi.append(f"근사 일치 {ratio:.2f}")
-        if located is None:
-            return _failed(
-                fi, "EVIDENCE_NOT_LOCATED", f"근거를 찾지 못함: {e['quote'][:80]}"
-            )
+            lost.append(e["quote"])
+            if fi.field_name != KRP:
+                break
+            continue
+        if note:
+            fuzzy_at.append(len(evidence))
+            multi.append(note)
         evidence.append(located)
+        keep.append(i)
         if n > 1:
             multi.append(f"다중 일치 {n}회")
-    value = _fuzzy_value(fi.field_name, data["value"], evidence, fuzzy_at)
+    if lost and (fi.field_name != KRP or not evidence):
+        return _failed(fi, "EVIDENCE_NOT_LOCATED", f"근거를 찾지 못함: {lost[0][:80]}")
+    value = data["value"]
+    if lost:
+        value = [value[i] for i in keep]
+        multi.append(f"근거 없는 문장 {len(lost)}개 삭제")
+    value = _fuzzy_value(fi.field_name, value, evidence, fuzzy_at)
     return _envelope(
         fi.field_name,
         FOUND,

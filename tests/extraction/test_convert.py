@@ -492,3 +492,125 @@ def test_조금_고쳐_쓴_인용은_근사_일치로_원문_구간을_씀():
     assert "근사 일치" in env["notes"]
     assert env["value"] == [env["evidence"][0]["quote"]]
     assert env["evidence"][0]["quote"].startswith("이 투자신탁은")
+
+
+NOISE = "\n투자설명서 12 / 40 페이지\n"
+KR = "이 투자신탁은 해외 주식에 주로 투자하므로 환율 변동에 따라 투자원금 손실이 발생할 수 있습니다."
+
+
+def test_원문에_끼어든_머리글은_연쇄_정렬로_건너뜀():
+    cut = KR.index("환율")
+    src = "앞 문장입니다. " + KR[:cut] + NOISE + KR[cut:] + " 뒤"
+    for field, value in (("key_risk_phrases", [KR]), ("principal_loss_notice", KR)):
+        fi = field_input(field, [(7, 0, src)])
+        env = convert(fi, resp(value=value, quotes=[KR]))
+        assert env["status"] == "FOUND", env["notes"]
+        assert "근사 일치" in env["notes"]
+        ev = env["evidence"][0]
+        assert ev["quote"] == src[ev["char_start"] : ev["char_end"]]
+        assert ev["quote"].startswith("이 투자신탁은") and ev["quote"].endswith(
+            "있습니다."
+        )
+        assert NOISE.strip() in ev["quote"]
+        assert env["value"] in (ev["quote"], [ev["quote"]])
+
+
+def test_지어낸_문장과_주어_바꾼_문장은_연쇄_정렬도_거부():
+    src = "앞 문장입니다. " + KR + " 뒤"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    fake = "이 투자신탁은 국내 채권에 투자하며 금리 상승 시 채권 가격이 하락하여 손실이 날 수 있습니다."
+    swapped = "집합투자업자는 해외 주식에 주로 투자하므로 환율 변동에 따라 투자자 손실을 보전하지 않습니다."
+    for q in (fake, swapped):
+        assert convert(fi, resp(value=q, quotes=[q]))["status"] == "FAILED"
+
+
+def test_근거_없는_위험문장만_지우고_나머지는_FOUND():
+    fi = field_input("key_risk_phrases", [(7, 0, f"{RISK1} {RISK2}")])
+    fake = "이 투자신탁은 파생상품 거래로 인해 원금 전액을 잃을 수도 있습니다."
+    env = convert(fi, resp(value=[RISK1, fake, RISK2], quotes=[RISK1, fake, RISK2]))
+    assert env["status"] == "FOUND"
+    assert env["value"] == [RISK1, RISK2]
+    assert [e["quote"] for e in env["evidence"]] == [RISK1, RISK2]
+    assert "근거 없는 문장 1개 삭제" in env["notes"]
+    assert validate_envelope(env) == []
+    env = convert(fi, resp(value=[fake], quotes=[fake]))
+    assert (env["status"], env["reason_code"]) == ("FAILED", "EVIDENCE_NOT_LOCATED")
+
+
+def test_가장_긴_공통_구간이_엉뚱한_곳이어도_다른_기준점으로_근사_일치():
+    a, b = (
+        "이 투자신탁은 해외 상장 주식에 ",
+        "투자하며 환율 변동과 시장 가격 변동으로 원금 손실 위험이 있습니다.",
+    )
+    real = a + b.replace("환율", "한율").replace("원금", "윈금")
+    src = "머리말 " + b + " 다른 문단입니다. " + real + " 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    env = convert(fi, resp(value=a + b, quotes=[a + b]))
+    assert env["status"] == "FOUND"
+    assert env["evidence"][0]["quote"] == real
+
+
+FEE_SRC = " 총보수 비용\n 납입금액의\n 수수료선취-\n 1.00% 1.5400 0.6800\n 오프라인(A) 이내 끝"
+
+
+@pytest.mark.parametrize(
+    "q", ["납입금액의 1.0% 이내", "납입금액의 1%이내", "납입금액의 1.00% 이내"]
+)
+def test_수수료_짧은_인용은_토큰_근접_일치(q):
+    fi = field_input("fee_structure", [(9, 50, FEE_SRC)])
+    env = convert(fi, resp(value=FEE, quotes=[q]))
+    assert env["status"] == "FOUND", env["notes"]
+    ev = env["evidence"][0]
+    assert "토큰 근접 일치" in env["notes"]
+    assert ev["char_start"] == 50 + FEE_SRC.index("납입")
+    assert ev["char_end"] == 50 + FEE_SRC.index(" 끝")
+
+
+@pytest.mark.parametrize(
+    "q", ["납입금액의 1.5% 이내", "납입금액의 1.005% 이내", "환매금액의 1.00% 이내"]
+)
+def test_수수료_토큰_근접_일치는_숫자가_다르면_거부(q):
+    fi = field_input("fee_structure", [(9, 0, FEE_SRC)])
+    assert convert(fi, resp(value=FEE, quotes=[q]))["status"] == "FAILED"
+
+
+def test_토큰_근접_일치는_수수료_필드에만():
+    fi = field_input("key_risk_phrases", [(9, 0, FEE_SRC)])
+    q = "납입금액의 1.00% 이내"
+    assert convert(fi, resp(value=[q], quotes=[q]))["status"] == "FAILED"
+
+
+def test_큰_절에서_대체_정렬_5건이_5초_안에_끝남():
+    import random
+    import time
+
+    rng = random.Random(0)
+    syl = "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도로모보소오조초"
+
+    def words(n):
+        out, size = [], 0
+        while size < n:
+            out.append("".join(rng.choices(syl, k=rng.randint(2, 6))))
+            if rng.random() < 0.05:
+                out.append("투자원금 손실이 발생할 수 있습니다.")
+            size += len(out[-1]) + 1
+        return " ".join(out)
+
+    quotes = [words(200) + " 있습니다." for _ in range(5)]
+    body = words(120_000)
+    step = len(body) // 6
+    src = body[:step]
+    for i, q in enumerate(quotes):
+        mid = q.index(" ", len(q) // 2)
+        # 짝수 번째는 머리글 끼어듦(연쇄 정렬), 홀수 번째는 두 글자 다름(근사 일치)
+        in_src = (
+            q[:mid] + NOISE + q[mid:]
+            if i % 2 == 0
+            else "차" + q[1:mid] + "카" + q[mid + 1 :]
+        )
+        src += " " + in_src + " " + body[(i + 1) * step : (i + 2) * step]
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    t0 = time.perf_counter()
+    env = convert(fi, resp(value=quotes, quotes=quotes))
+    assert time.perf_counter() - t0 < 5
+    assert env["status"] == "FOUND" and len(env["evidence"]) == 5, env["notes"]
