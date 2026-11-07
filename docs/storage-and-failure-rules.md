@@ -214,7 +214,7 @@ LLM 호출 저장:
 - 입력 특정(10월 9일 PM(대현) 확정, 데이터 엔지니어링·인프라(주영) PR #43 리뷰 3번): `llm_field_extraction.input_sha256` = LLM에 보낸 문서 텍스트 부분(절 선택·전처리 뒤, 프롬프트 템플릿 제외)의 UTF-8/LF 바이트 sha256. 추출은 문서 단위라 `raw_object_id`는 NULL 허용 그대로 둠. (raw_object_id, parser_version) 필수 안은 채택하지 않음(파일 여러 개를 한 행에 담을 수 없고, 보낸 텍스트가 절 일부·전처리 결과일 수 있음)
 - 해시 규칙: UTF-8, 줄바꿈 LF, 앞뒤 공백 제거하지 않음, 유니코드 정규화(NFC·NFKC)는 하지 않음, 절을 이어 붙일 때 구분자는 빈 줄 하나(`\n\n`)이고 잇는 순서는 `request.json`의 `inputs` 순서(10월 13일 데이터 엔지니어링·인프라(주영) 요청으로 두 항목 추가). 규칙을 바꾸면 전처리 버전처럼 프롬프트 설정 파일에 버전을 올림
 - `request.json`이 입력의 정본: 보낸 문서 텍스트, `input_sha256`, `inputs` 목록(`raw_object_id`, `raw_sha256`, `parser_version`, `section_ids` 또는 문자 범위). DB 칼럼은 조회용 해시
-- 재호출 생략: (`document_id`, `field_name`, `input_sha256`, `prompt_sha256`, `model_name`, `model_params`)가 모두 같고 이전 시도가 `result_status = OK`일 때만 다시 호출하지 않고 그 결과를 재사용. FAILED는 다시 호출. `model_params`는 키 정렬·UTF-8·구분자 고정 한 줄 JSON으로 정규화해 비교. 파서 버전이 올라도 보낸 텍스트가 같으면 해시가 같아 재호출하지 않음
+- 재호출 생략: (`document_id`, `field_name`, `input_sha256`, `prompt_sha256`, `model_name`, `model_params`)가 모두 같고 이전 시도가 `result_status` OK·UNDETERMINED·NOT_APPLICABLE 중 하나이면 다시 호출하지 않고 그 응답을 재사용(11월 6일 PM 결정, [3단계 입출력 Schema 설계 입력](io-schema.md) 「결측 표기」). FAILED는 다시 호출. `model_params`는 키 정렬·UTF-8·구분자 고정 한 줄 JSON으로 정규화해 비교. 파서 버전이 올라도 보낸 텍스트가 같으면 해시가 같아 재호출하지 않음
 - 적재 검증: `request.json`의 문서 텍스트로 다시 계산한 sha256이 `input_sha256`과 같음. `inputs`의 원본 파일은 같은 document_id 소속
 
 실행 폴더 불변:
