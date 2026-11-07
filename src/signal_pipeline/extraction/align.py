@@ -35,6 +35,30 @@ def same_numbers(a: str, b: str) -> bool:
     return values(a) == values(b)
 
 
+NEG = re.compile(r"않|없|아니|못")
+
+
+def same_negation(a: str, b: str) -> bool:
+    """부정 표현(않·없·아니·못) 수가 같은지. 「발생할 수 있습니다」와 「없습니다」를 같은 근거로 받지 않음."""
+    return Counter(NEG.findall(a)) == Counter(NEG.findall(b))
+
+
+def class_ok(
+    quote: str,
+    span: str,
+    other_classes: tuple[str, ...] = (),
+    own_classes: tuple[str, ...] = (),
+) -> bool:
+    """구간에 인용에 없는 클래스 이름이 있거나, 클래스 표시가 인용보다 많거나,
+    인용에 있는 클래스 이름이 구간에 없으면 False."""
+    span = re.sub(r"\s", "", span)
+    if len(CLASS_MARK.findall(span)) > len(CLASS_MARK.findall(quote)):
+        return False
+    if any(re.sub(r"\s", "", c) in span for c in other_classes if c):
+        return False
+    return all(re.sub(r"\s", "", c) in span for c in own_classes if c)
+
+
 def anchors(q: str, norm: str) -> list[int]:
     """quote 시작 위치 후보. 표가 많은 순, ±10자 안의 후보는 하나로."""
     votes: Counter[int] = Counter()
@@ -142,7 +166,6 @@ def token_window(
     pats = [_token_pattern(t) for t in TOK.findall(quote)]
     if not pats:
         return None, 0
-    others = [re.sub(r"\s", "", c) for c in other_classes if c]
     hits = []
     for m0 in pats[0].finditer(text):
         end = m0.end()
@@ -152,8 +175,6 @@ def token_window(
                 break
             end = m.end()
         else:
-            span = re.sub(r"\s", "", text[m0.start() : end])
-            marks = len(CLASS_MARK.findall(span)) > len(CLASS_MARK.findall(quote))
-            if not marks and not any(o in span for o in others):
+            if class_ok(quote, text[m0.start() : end], other_classes):
                 hits.append((m0.start(), end))
     return (hits[0] if hits else None), len(hits)

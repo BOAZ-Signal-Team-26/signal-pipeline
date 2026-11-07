@@ -180,8 +180,22 @@ FUZZY_MIN = 0.9  # 근사 일치 하한(11월 7일 PM 결정)
 FUZZY_MIN_CHARS = 20
 
 
+def _same(q: str, span: str, classes: tuple[str, ...]) -> bool:
+    """근사 일치 후보가 인용과 숫자·부정 표현·클래스가 같은지."""
+    own = tuple(c for c in classes if c and re.sub(r"\s", "", c) in q)
+    others = tuple(c for c in classes if c and c not in own)
+    return (
+        align.same_numbers(q, span)
+        and align.same_negation(q, span)
+        and align.class_ok(q, span, others, own)
+    )
+
+
 def _fuzzy(
-    bare: list[tuple[SectionText, str, list[int]]], quote: str, chain: bool
+    bare: list[tuple[SectionText, str, list[int]]],
+    quote: str,
+    chain: bool,
+    classes: tuple[str, ...] = (),
 ) -> tuple[dict | None, float]:
     """공백을 뺀 절 텍스트에서 기준점마다 근사 일치, 안 되면 연쇄 정렬(chain=True일 때). (근거, 유사도).
 
@@ -194,10 +208,10 @@ def _fuzzy(
     for sec, norm, pos in bare:
         for g in align.anchors(q, norm):
             r, s, e = align.fuzzy(q, norm, g)
-            if r > best[0] and align.same_numbers(q, norm[s:e]):
+            if r > best[0] and _same(q, norm[s:e], classes):
                 best = (r, (sec, pos, s, e))
             c = align.chain(q, norm, g) if chain else None
-            if c and c[0] > best_chain[0] and align.same_numbers(q, c[3]):
+            if c and c[0] > best_chain[0] and _same(q, c[3], classes):
                 best_chain = (c[0], (sec, pos, c[1], c[2]))
     if best[0] >= FUZZY_MIN:
         r, (sec, pos, s, e) = best
@@ -228,11 +242,12 @@ def _place(
         located, n = _locate(bare, quote, bare=True)
     if located is not None:
         return located, n, None
-    located, ratio = _fuzzy(bare, quote, chain=fi.field_name in (PLN, KRP))
+    # 다른 클래스 행 값을 근거로 받지 않도록 클래스 이름을 함께 대조
+    located, ratio = _fuzzy(bare, quote, fi.field_name in (PLN, KRP), classes)
     if located is not None:
         return located, 1, f"근사 일치 {ratio:.2f}"
     if fi.field_name == FEE and len(quote.split()) <= align.TOKEN_MAX:
-        # PDF 표 셀이 다른 칸과 섞여 끊긴 경우. 인용에 없는 다른 클래스 이름이 구간에 끼면 버림
+        # PDF 표 셀이 다른 칸과 섞여 끊긴 경우
         others = tuple(c for c in classes if c and c not in quote)
         for sec in fi.sections:
             span, n = align.token_window(sec.text, quote, others)
@@ -383,6 +398,9 @@ def dedupe_document(
         raise ValueError(
             "key_risk_phrases 원소가 모두 지워졌는데 key_risk_input이 없음"
         )
+    elif "근거 없는 문장" in (krp["notes"] or ""):
+        # 근거를 못 찾아 지운 원소가 있었으면 문서에 없다고 할 수 없음(나2 「없음」 오판 방지)
+        new = _failed(key_risk_input, "EVIDENCE_NOT_LOCATED", notes)
     else:
         new = _not_found(key_risk_input, notes)
     return {**envelopes, KRP: new}

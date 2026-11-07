@@ -702,3 +702,44 @@ def test_근거는_찾았지만_값을_고쳐_쓰면_원문_구간으로_바꿈(
     quotes = ["주가가 하락하면 손실이 납니다.", "환율이 오르면 손실이 납니다."]
     env = convert(fi, resp(value=["주가 하락 위험", quotes[1]], quotes=quotes))
     assert env["value"] == quotes
+
+
+def test_근사_일치는_부정_표현이_다르면_받지_않음():
+    src = "이 투자신탁은 투자원금의 손실이 발생할 수 없습니다. 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    q = "이 투자신탁은 투자원금의 손실이 발생할 수 있습니다."
+    assert (
+        convert(fi, resp(value=q, quotes=[q]))["reason_code"] == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def test_수수료_근사_일치는_다른_클래스_행을_받지_않음():
+    src = "A클래스 납입금액의 1.00% 이내 연 0.85\nC클래스 납입금액의 1.00% 이내 연 0.85"
+    fi = field_input("fee_structure", [(7, 0, src)])
+    q = "B클래스 납입금액의 1.00% 이내 연 0.85"
+    value = _fee_value("B클래스", "A클래스", "C클래스")
+    assert (
+        convert(fi, resp(value=value, quotes=[q]))["reason_code"]
+        == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def test_근거_없어_지운_원소가_있으면_중복_제거로_비어도_NOT_FOUND가_아님():
+    src = "원본을 보장하지 않으며 손실이 날 수 있습니다. 끝"
+    pln_fi = field_input("principal_loss_notice", [(7, 0, src)])
+    krp_fi = field_input("key_risk_phrases", [(7, 0, src)])
+    s = "원본을 보장하지 않으며 손실이 날 수 있습니다."
+    pln = convert(pln_fi, resp(value=s, quotes=[s]))
+    krp = convert(
+        krp_fi,
+        resp(
+            value=[s, "문서에 없는 지어낸 위험 문장입니다 정말로요."],
+            quotes=[s, "문서에 없는 지어낸 위험 문장입니다 정말로요."],
+        ),
+    )
+    assert "근거 없는 문장" in krp["notes"]
+    out = dedupe_document(
+        {"principal_loss_notice": pln, "key_risk_phrases": krp}, krp_fi
+    )
+    assert out["key_risk_phrases"]["status"] == "FAILED"
+    assert out["key_risk_phrases"]["reason_code"] == "EVIDENCE_NOT_LOCATED"
