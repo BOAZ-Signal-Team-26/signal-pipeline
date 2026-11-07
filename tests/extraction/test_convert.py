@@ -1,0 +1,745 @@
+import json
+
+import pytest
+
+from signal_pipeline.extraction.convert import (
+    convert,
+    dedupe_document,
+    result_status,
+    selected_evidence,
+    validate_envelope,
+)
+from signal_pipeline.extraction.inputs import FieldInput, SectionText
+
+LOSS = "투자원금의 손실이 발생할 수 있습니다."
+RISK1 = "주가 변동에 따라 손실이 날 수 있습니다."
+RISK2 = "환율 변동에 따라 손실이 날 수 있습니다."
+FEE = {
+    "classes": [
+        {
+            "class_name": "A",
+            "front_load": {
+                "rate": {"amount": 1.0, "unit": "%"},
+                "basis": "납입금액",
+                "condition": None,
+                "text": "납입금액의 1.00% 이내",
+            },
+            "back_load": {
+                "rate": {"amount": 0, "unit": "%"},
+                "basis": None,
+                "condition": None,
+                "text": "없음",
+            },
+            "total_fee": {"amount": 0.845, "unit": "%"},
+            "peer_total_fee": None,
+        }
+    ]
+}
+
+
+def field_input(field, sections, missing=()):
+    secs = tuple(
+        SectionText(label=f"절{i}", section_id=sid, char_start=cs, text=t)
+        for i, (sid, cs, t) in enumerate(sections)
+    )
+    text = "\n\n".join(s.text for s in secs)
+    return FieldInput(1, 2, field, secs, tuple(missing), text, "0" * 64, ())
+
+
+def resp(status="FOUND", value=None, quotes=(), reason_code=None, notes=None):
+    return json.dumps(
+        {
+            "status": status,
+            "value": value,
+            "evidence": [{"quote": q} for q in quotes],
+            "reason_code": reason_code,
+            "notes": notes,
+        },
+        ensure_ascii=False,
+    )
+
+
+PLN = field_input(
+    "principal_loss_notice", [(10, 100, "표지 문장. " + LOSS), (11, 5000, "10절 본문")]
+)
+KRP = field_input("key_risk_phrases", [(11, 5000, f"{LOSS} {RISK1} {RISK2}")])
+
+
+def test_found_principal_loss_offsets_and_raw_text() -> None:
+    env = convert(PLN, resp(value=LOSS, quotes=[LOSS]))
+    assert env == {
+        "contract_version": 1,
+        "field_name": "principal_loss_notice",
+        "status": "FOUND",
+        "value": LOSS,
+        "raw_text": LOSS,
+        "reason_code": None,
+        "evidence": [
+            {
+                "section_id": 10,
+                "char_start": 107,
+                "char_end": 107 + len(LOSS),
+                "quote": LOSS,
+            }
+        ],
+        "checked_section_ids": [],
+        "notes": None,
+    }
+    assert validate_envelope(env) == []
+    assert result_status(env) == "OK"
+    assert selected_evidence(env) == (10, 107, 107 + len(LOSS))
+
+
+def test_step1_call_failed_wins_over_everything() -> None:
+    env = convert(PLN, None, call_error="timeout")
+    assert (env["status"], env["reason_code"]) == ("FAILED", "CALL_FAILED")
+    assert env["notes"] == "timeout"
+    assert result_status(env) == "FAILED"
+    assert selected_evidence(env) == (None, None, None)
+    assert validate_envelope(env) == []
+
+
+@pytest.mark.parametrize("text", [None, "", "not json", "[1, 2]", '"str"'])
+def test_step2_parse_failed(text) -> None:
+    env = convert(PLN, text)
+    assert (env["status"], env["reason_code"]) == ("FAILED", "PARSE_FAILED")
+    assert validate_envelope(env) == []
+
+
+def test_fenced_json_is_parsed() -> None:
+    text = "```json\n" + resp(value=LOSS, quotes=[LOSS]) + "\n```"
+    assert convert(PLN, text)["status"] == "FOUND"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        resp(status="DONE"),
+        resp(status="FAILED", reason_code="CALL_FAILED"),
+        resp(status="FOUND", value=LOSS, quotes=[]),
+        resp(status="FOUND", value=None, quotes=[LOSS]),
+        resp(status="FOUND", value=LOSS, quotes=[LOSS], reason_code="AMBIGUOUS"),
+        resp(status="FOUND", value=LOSS, quotes=[LOSS, LOSS]),
+        resp(status="FOUND", value=["x"], quotes=[LOSS]),
+        resp(status="FOUND", value=LOSS, quotes=["  "]),
+        resp(status="NOT_FOUND", value="x", reason_code="NOT_IN_DOCUMENT"),
+        resp(status="NOT_FOUND", reason_code="AMBIGUOUS"),
+        json.dumps({"status": "FOUND", "value": LOSS, "evidence": [LOSS]}),
+    ],
+)
+def test_step3_schema_invalid(body) -> None:
+    env = convert(PLN, body)
+    assert (env["status"], env["reason_code"]) == ("FAILED", "SCHEMA_INVALID")
+    assert validate_envelope(env) == []
+
+
+def test_key_risk_length_mismatch_is_schema_invalid() -> None:
+    env = convert(KRP, resp(value=[RISK1, RISK2], quotes=[RISK1]))
+    assert env["reason_code"] == "SCHEMA_INVALID"
+
+
+def test_key_risk_more_than_five_is_schema_invalid() -> None:
+    env = convert(KRP, resp(value=[RISK1] * 6, quotes=[RISK1] * 6))
+    assert env["reason_code"] == "SCHEMA_INVALID"
+
+
+def test_fee_structure_found_and_bad_amount() -> None:
+    fi = field_input("fee_structure", [(20, 0, "A 납입금액의 1.00% 이내 없음 0.845")])
+    ok = convert(fi, resp(value=FEE, quotes=["A 납입금액의 1.00% 이내"]))
+    assert ok["status"] == "FOUND" and ok["raw_text"] == "A 납입금액의 1.00% 이내"
+    bad = json.loads(json.dumps(FEE))
+    bad["classes"][0]["total_fee"] = 0.845
+    assert convert(fi, resp(value=bad, quotes=["A"]))["reason_code"] == "SCHEMA_INVALID"
+    assert (
+        convert(fi, resp(value={"classes": []}, quotes=["A"]))["reason_code"]
+        == "SCHEMA_INVALID"
+    )
+
+
+def test_redemption_no_fee_found_with_empty_tiers() -> None:
+    fi = field_input(
+        "redemption_terms", [(30, 900, "이 투자신탁은 환매수수료를 부과하지 않습니다.")]
+    )
+    env = convert(
+        fi, resp(value={"tiers": []}, quotes=["환매수수료를 부과하지 않습니다."])
+    )
+    assert env["status"] == "FOUND" and env["value"] == {"tiers": []}
+    assert env["evidence"][0]["char_start"] == 900 + len("이 투자신탁은 ")
+    assert validate_envelope(env) == []
+
+
+def test_redemption_tier_shape() -> None:
+    fi = field_input("redemption_terms", [(30, 0, "90일 미만 환매시 이익금의 70%")])
+    tier = {
+        "period": "90일 미만",
+        "basis": "이익금",
+        "rate": {"amount": 70, "unit": "%"},
+        "applies_to": None,
+    }
+    assert (
+        convert(fi, resp(value={"tiers": [tier]}, quotes=["90일 미만"]))["status"]
+        == "FOUND"
+    )
+    del tier["applies_to"]
+    assert (
+        convert(fi, resp(value={"tiers": [tier]}, quotes=["90일 미만"]))["reason_code"]
+        == "SCHEMA_INVALID"
+    )
+
+
+def test_step4_whitespace_collapse_maps_back_to_original() -> None:
+    fi = field_input(
+        "principal_loss_notice",
+        [(10, 50, "앞\n투자원금의  손실이\n\t발생할 수 있습니다.")],
+    )
+    env = convert(
+        fi, resp(value=LOSS, quotes=[" 투자원금의 손실이 발생할\n수 있습니다. "])
+    )
+    ev = env["evidence"][0]
+    assert ev["quote"] == "투자원금의  손실이\n\t발생할 수 있습니다."
+    assert (ev["char_start"], ev["char_end"]) == (52, 52 + len(ev["quote"]))
+    assert env["raw_text"] == LOSS  # principal_loss_notice는 value와 같음
+
+
+def test_step4_quote_not_found() -> None:
+    env = convert(PLN, resp(value=LOSS, quotes=["없는 문장"]))
+    assert (env["status"], env["reason_code"]) == ("FAILED", "EVIDENCE_NOT_LOCATED")
+
+
+def test_step4_cross_section_quote_not_found() -> None:
+    fi = field_input(
+        "principal_loss_notice",
+        [(10, 0, "투자원금의"), (11, 100, "손실이 발생할 수 있습니다.")],
+    )
+    env = convert(fi, resp(value=LOSS, quotes=[LOSS]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_step4_multi_match_uses_first_and_notes() -> None:
+    fi = field_input(
+        "principal_loss_notice", [(10, 0, f"x {LOSS}"), (11, 100, f"{LOSS} {LOSS}")]
+    )
+    env = convert(fi, resp(value=LOSS, quotes=[LOSS], notes="모델 설명"))
+    assert (
+        env["evidence"][0]["section_id"] == 10 and env["evidence"][0]["char_start"] == 2
+    )
+    assert env["notes"] == "모델 설명; 다중 일치 3회"
+
+
+def test_step5_not_found_with_complete_sources() -> None:
+    env = convert(PLN, resp(status="NOT_FOUND", reason_code="NOT_IN_DOCUMENT"))
+    assert env["status"] == "NOT_FOUND" and env["checked_section_ids"] == [10, 11]
+    assert result_status(env) == "OK" and validate_envelope(env) == []
+
+
+def test_step5_not_found_with_missing_source_becomes_undetermined() -> None:
+    fi = field_input("principal_loss_notice", [(11, 0, "본문")], missing=["표지"])
+    env = convert(fi, resp(status="NOT_FOUND", reason_code="NOT_IN_DOCUMENT"))
+    assert (env["status"], env["reason_code"]) == (
+        "UNDETERMINED",
+        "SOURCE_SECTION_MISSING",
+    )
+    assert env["checked_section_ids"] == [] and result_status(env) == "UNDETERMINED"
+    assert validate_envelope(env) == []
+
+
+def test_step5_no_sources_at_all_is_source_missing() -> None:
+    fi = field_input("principal_loss_notice", [], missing=["표지", "제2부 10절"])
+    env = convert(fi, resp(status="NOT_FOUND", reason_code="NOT_IN_DOCUMENT"))
+    assert env["reason_code"] == "SOURCE_SECTION_MISSING"
+
+
+def test_found_with_missing_source_keeps_found_and_notes() -> None:
+    fi = field_input("principal_loss_notice", [(11, 0, LOSS)], missing=["표지"])
+    env = convert(fi, resp(value=LOSS, quotes=[LOSS]))
+    assert env["status"] == "FOUND" and env["notes"] == "출처 절 누락: 표지"
+
+
+def test_ambiguous_and_not_applicable_kept() -> None:
+    fi = field_input("redemption_terms", [], missing=["제2부 11절"])
+    amb = convert(
+        fi, resp(status="UNDETERMINED", reason_code="AMBIGUOUS", notes="후보 2개")
+    )
+    assert (amb["status"], amb["reason_code"], amb["notes"]) == (
+        "UNDETERMINED",
+        "AMBIGUOUS",
+        "후보 2개",
+    )
+    na = convert(fi, resp(status="NOT_APPLICABLE", reason_code="OUT_OF_SCOPE"))
+    assert result_status(na) == "NOT_APPLICABLE" and validate_envelope(na) == []
+
+
+def found_pair():
+    fi = field_input("principal_loss_notice", [(11, 5000, KRP.sections[0].text)])
+    return convert(fi, resp(value=LOSS, quotes=[LOSS]))
+
+
+def test_step6_partial_dedupe() -> None:
+    krp = convert(
+        KRP, resp(value=[LOSS, RISK1, RISK2], quotes=[LOSS[3:], RISK1, RISK2])
+    )
+    before = json.dumps(krp, ensure_ascii=False)
+    out = dedupe_document(
+        {"principal_loss_notice": found_pair(), "key_risk_phrases": krp}, KRP
+    )
+    new = out["key_risk_phrases"]
+    assert new["status"] == "FOUND" and new["value"] == [RISK1, RISK2]
+    assert [e["quote"] for e in new["evidence"]] == [RISK1, RISK2]
+    assert new["raw_text"] == f"{RISK1}\n{RISK2}"
+    assert new["notes"] == "중복 제거로 1개 삭제"
+    assert selected_evidence(new)[1] == 5000 + len(LOSS) + 1
+    assert json.dumps(krp, ensure_ascii=False) == before  # 입력을 고치지 않음
+    assert validate_envelope(new) == []
+
+
+def test_step6_all_removed_becomes_not_found() -> None:
+    krp = convert(KRP, resp(value=[LOSS], quotes=[LOSS]))
+    out = dedupe_document(
+        {"principal_loss_notice": found_pair(), "key_risk_phrases": krp}, KRP
+    )
+    new = out["key_risk_phrases"]
+    assert new == {
+        "contract_version": 1,
+        "field_name": "key_risk_phrases",
+        "status": "NOT_FOUND",
+        "value": None,
+        "raw_text": None,
+        "reason_code": "NOT_IN_DOCUMENT",
+        "evidence": [],
+        "checked_section_ids": [11],
+        "notes": "중복 제거로 1개 삭제",
+    }
+
+
+def test_step6_all_removed_with_missing_source_is_undetermined() -> None:
+    fi = field_input(
+        "key_risk_phrases", [(11, 5000, f"{LOSS} {RISK1}")], missing=["제2부 10절"]
+    )
+    krp = convert(fi, resp(value=[LOSS], quotes=[LOSS]))
+    out = dedupe_document(
+        {"principal_loss_notice": found_pair(), "key_risk_phrases": krp}, fi
+    )
+    assert (
+        out["key_risk_phrases"]["status"],
+        out["key_risk_phrases"]["reason_code"],
+    ) == (
+        "UNDETERMINED",
+        "SOURCE_SECTION_MISSING",
+    )
+
+
+def test_step6_no_overlap_or_not_found_is_unchanged() -> None:
+    krp = convert(KRP, resp(value=[RISK1], quotes=[RISK1]))
+    envs = {"principal_loss_notice": found_pair(), "key_risk_phrases": krp}
+    assert dedupe_document(envs, KRP) == envs
+    nf = convert(PLN, resp(status="NOT_FOUND", reason_code="NOT_IN_DOCUMENT"))
+    assert (
+        dedupe_document({"principal_loss_notice": nf, "key_risk_phrases": krp}, KRP)[
+            "key_risk_phrases"
+        ]
+        == krp
+    )
+    assert dedupe_document({"fee_structure": krp}, None) == {"fee_structure": krp}
+
+
+def test_step6_other_section_same_offsets_do_not_overlap() -> None:
+    pln = {
+        **found_pair(),
+        "evidence": [
+            {"section_id": 99, "char_start": 5000, "char_end": 5010, "quote": "x"}
+        ],
+    }
+    krp = convert(KRP, resp(value=[LOSS], quotes=[LOSS]))
+    assert (
+        dedupe_document({"principal_loss_notice": pln, "key_risk_phrases": krp}, KRP)[
+            "key_risk_phrases"
+        ]
+        == krp
+    )
+
+
+def test_step7_validate_envelope_catches_inconsistency() -> None:
+    env = convert(PLN, resp(value=LOSS, quotes=[LOSS]))
+    assert validate_envelope({**env, "evidence": []})
+    assert validate_envelope({**env, "reason_code": "AMBIGUOUS"})
+    assert validate_envelope(
+        {**env, "status": "NOT_FOUND", "value": None, "evidence": [], "raw_text": None}
+    )
+    assert validate_envelope({**env, "status": "WHAT"})
+    nf = convert(PLN, resp(status="NOT_FOUND", reason_code="NOT_IN_DOCUMENT"))
+    assert validate_envelope({**nf, "checked_section_ids": []})
+    assert validate_envelope({**nf, "reason_code": "BOGUS"})
+    assert validate_envelope({**nf, "contract_version": 2})
+
+
+def test_step6_all_removed_without_input_raises() -> None:
+    krp = convert(KRP, resp(value=[LOSS], quotes=[LOSS]))
+    with pytest.raises(ValueError):
+        dedupe_document(
+            {"principal_loss_notice": found_pair(), "key_risk_phrases": krp}, None
+        )
+
+
+def _fee_with(**changes):
+    cls = {**FEE["classes"][0], **changes}
+    return {"classes": [cls]}
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        [],
+        {"classes": "x"},
+        {"classes": [1]},
+        _fee_with(class_name=1),
+        _fee_with(front_load={"rate": None}),
+        _fee_with(
+            front_load={"rate": 1, "basis": None, "condition": None, "text": None}
+        ),
+        _fee_with(
+            back_load={"rate": None, "basis": 1, "condition": None, "text": None}
+        ),
+        _fee_with(peer_total_fee={"amount": True, "unit": "%"}),
+        _fee_with(total_fee={"amount": 1, "unit": ""}),
+    ],
+)
+def test_fee_structure_schema_errors(value) -> None:
+    fi = field_input("fee_structure", [(20, 0, "A 표")])
+    assert (
+        convert(fi, resp(value=value, quotes=["A"]))["reason_code"] == "SCHEMA_INVALID"
+    )
+
+
+def test_fee_structure_null_load_and_classless_ok() -> None:
+    fi = field_input("fee_structure", [(20, 0, "A 표")])
+    assert (
+        convert(
+            fi, resp(value=_fee_with(class_name=None, back_load=None), quotes=["A"])
+        )["status"]
+        == "FOUND"
+    )
+
+
+@pytest.mark.parametrize(
+    "tiers",
+    [
+        "x",
+        [1],
+        [{"period": 1, "basis": None, "rate": None, "applies_to": None}],
+        [{"period": "p", "basis": 1, "rate": None, "applies_to": None}],
+        [{"period": "p", "basis": None, "rate": 70, "applies_to": None}],
+        [{"period": "p", "basis": None, "rate": None, "applies_to": []}],
+    ],
+)
+def test_redemption_schema_errors(tiers) -> None:
+    fi = field_input("redemption_terms", [(30, 0, "환매 표")])
+    assert (
+        convert(fi, resp(value={"tiers": tiers}, quotes=["환매"]))["reason_code"]
+        == "SCHEMA_INVALID"
+    )
+
+
+def test_unknown_field_and_bad_notes_are_schema_invalid() -> None:
+    fi = field_input("risk_grade", [(1, 0, "x")])
+    assert convert(fi, resp(status="NOT_FOUND"))["reason_code"] == "SCHEMA_INVALID"
+    assert (
+        convert(PLN, resp(status="NOT_FOUND", notes=["x"]))["reason_code"]
+        == "SCHEMA_INVALID"
+    )
+
+
+def test_step7_more_inconsistencies() -> None:
+    env = convert(PLN, resp(value=LOSS, quotes=[LOSS]))
+    assert validate_envelope({**env, "raw_text": None})
+    assert validate_envelope({**env, "value": None})
+    assert validate_envelope({**env, "field_name": None})
+    assert validate_envelope({**env, "notes": 1})
+    assert validate_envelope({**env, "checked_section_ids": [1]})
+    assert validate_envelope(
+        {
+            **env,
+            "evidence": [
+                {"section_id": 1, "char_start": 5, "char_end": 5, "quote": ""}
+            ],
+        }
+    )
+    nf = convert(PLN, resp(status="NOT_FOUND"))
+    assert nf["reason_code"] == "NOT_IN_DOCUMENT"  # null이면 상태의 reason_code로 채움
+    assert validate_envelope({**nf, "value": "x"})
+    assert validate_envelope({**nf, "evidence": env["evidence"]})
+
+
+def test_줄바꿈이_단어를_끊어도_공백_없이_다시_찾음():
+    fi = field_input(
+        "key_risk_phrases", [(7, 100, "가격 하락 위험에 노\n출됩니다. 끝")]
+    )
+    q = "가격 하락 위험에 노출됩니다."
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FOUND"
+    assert env["evidence"][0]["char_start"] == 100
+    assert env["evidence"][0]["quote"] == "가격 하락 위험에 노\n출됩니다."
+
+
+def test_조금_고쳐_쓴_인용은_근사_일치로_원문_구간을_씀():
+    src = "앞 문장입니다. 이 투자신탁은 증권시장에 상장되어 거래되는 주식 등 가격변동으로 인한 손실위험에 노출됩니다. 뒤"
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    q = "이 투자신탁은 증권시장에 상장되어 거래되는 주식 등에 주로 투자하기 때문에 동 주식의 가격변동으로 인한 손실위험에 노출됩니다."
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FAILED"  # 유사도 0.9 미만은 그대로 실패
+    q2 = "이 투자신탁은 증권시장에 상장되어 거래되는 주식 등의 가격변동으로 인한 손실위험에 노출됩니다."
+    env = convert(fi, resp(value=[q2], quotes=[q2]))
+    assert env["status"] == "FOUND"
+    assert "근사 일치" in env["notes"]
+    assert env["value"] == [env["evidence"][0]["quote"]]
+    assert env["evidence"][0]["quote"].startswith("이 투자신탁은")
+
+
+NOISE = "\n투자설명서 12 / 40 페이지\n"
+KR = "이 투자신탁은 해외 주식에 주로 투자하므로 환율 변동에 따라 투자원금 손실이 발생할 수 있습니다."
+
+
+def test_원문에_끼어든_머리글은_연쇄_정렬로_건너뜀():
+    cut = KR.index("환율")
+    src = "앞 문장입니다. " + KR[:cut] + NOISE + KR[cut:] + " 뒤"
+    for field, value in (("key_risk_phrases", [KR]), ("principal_loss_notice", KR)):
+        fi = field_input(field, [(7, 0, src)])
+        env = convert(fi, resp(value=value, quotes=[KR]))
+        assert env["status"] == "FOUND", env["notes"]
+        assert "근사 일치" in env["notes"]
+        ev = env["evidence"][0]
+        assert ev["quote"] == src[ev["char_start"] : ev["char_end"]]
+        assert ev["quote"].startswith("이 투자신탁은") and ev["quote"].endswith(
+            "있습니다."
+        )
+        assert NOISE.strip() in ev["quote"]
+        assert env["value"] in (ev["quote"], [ev["quote"]])
+
+
+def test_지어낸_문장과_주어_바꾼_문장은_연쇄_정렬도_거부():
+    src = "앞 문장입니다. " + KR + " 뒤"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    fake = "이 투자신탁은 국내 채권에 투자하며 금리 상승 시 채권 가격이 하락하여 손실이 날 수 있습니다."
+    swapped = "집합투자업자는 해외 주식에 주로 투자하므로 환율 변동에 따라 투자자 손실을 보전하지 않습니다."
+    for q in (fake, swapped):
+        assert convert(fi, resp(value=q, quotes=[q]))["status"] == "FAILED"
+
+
+def test_근거_없는_위험문장만_지우고_나머지는_FOUND():
+    fi = field_input("key_risk_phrases", [(7, 0, f"{RISK1} {RISK2}")])
+    fake = "이 투자신탁은 파생상품 거래로 인해 원금 전액을 잃을 수도 있습니다."
+    env = convert(fi, resp(value=[RISK1, fake, RISK2], quotes=[RISK1, fake, RISK2]))
+    assert env["status"] == "FOUND"
+    assert env["value"] == [RISK1, RISK2]
+    assert [e["quote"] for e in env["evidence"]] == [RISK1, RISK2]
+    assert "근거 없는 문장 1개 삭제" in env["notes"]
+    assert validate_envelope(env) == []
+    env = convert(fi, resp(value=[fake], quotes=[fake]))
+    assert (env["status"], env["reason_code"]) == ("FAILED", "EVIDENCE_NOT_LOCATED")
+
+
+def test_가장_긴_공통_구간이_엉뚱한_곳이어도_다른_기준점으로_근사_일치():
+    a, b = (
+        "이 투자신탁은 해외 상장 주식에 ",
+        "투자하며 환율 변동과 시장 가격 변동으로 원금 손실 위험이 있습니다.",
+    )
+    real = a + b.replace("환율", "한율").replace("원금", "윈금")
+    src = "머리말 " + b + " 다른 문단입니다. " + real + " 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    env = convert(fi, resp(value=a + b, quotes=[a + b]))
+    assert env["status"] == "FOUND"
+    assert env["evidence"][0]["quote"] == real
+
+
+def test_근사_일치는_숫자가_바뀌면_거부():
+    src = "앞 문장입니다. 이 투자신탁의 환매수수료는 환매금액의 2.00%로서 90일 미만 보유 시 부과됩니다. 뒤"
+    q = "이 투자신탁의 환매수수료는 환매금액의 1.00%로서 90일 미만 보유 시 부과됩니다."
+    for field, value in (("key_risk_phrases", [q]), ("principal_loss_notice", q)):
+        fi = field_input(field, [(7, 0, src)])
+        env = convert(fi, resp(value=value, quotes=[q]))
+        assert (env["status"], env["reason_code"]) == ("FAILED", "EVIDENCE_NOT_LOCATED")
+
+
+def test_연쇄_정렬도_숫자가_바뀌면_거부():
+    cut = KR.index("환율")
+    src = "앞 문장입니다. " + KR[:cut] + NOISE + KR[cut:] + " 뒤"
+    q = KR.replace("환율 변동", "환율 3% 변동")
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FAILED"  # 머리글 숫자(12, 40)는 원문 구간에만 있음
+
+
+def test_근사_일치는_같은_값의_숫자_표기_차이는_허용():
+    src = "앞 문장입니다. 이 투자신탁의 환매수수료는 환매금액의 1.00%로서 90일 미만 보유 시 부과됩니다. 뒤"
+    q = "이 투자신탁의 환매수수료는 환매금액의 1.0%로서 90일 미만 보유 시 부과됩니다."
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    env = convert(fi, resp(value=[q], quotes=[q]))
+    assert env["status"] == "FOUND" and "근사 일치" in env["notes"]
+
+
+def test_다른_클래스_행의_값을_이어_붙인_수수료_인용은_거부():
+    src = " 판매수수료\n A클래스 없음\n C클래스 납입금액의\n 1.00% 이내 끝"
+    fi = field_input("fee_structure", [(9, 0, src)])
+    for q in ("A클래스 1.00% 이내", "A클래스 1%"):
+        assert convert(fi, resp(value=FEE, quotes=[q]))["status"] == "FAILED"
+
+
+def test_큰_절에서_대체_정렬_5건이_5초_안에_끝남():
+    import random
+    import time
+
+    rng = random.Random(0)
+    syl = "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도로모보소오조초"
+
+    def words(n):
+        out, size = [], 0
+        while size < n:
+            out.append("".join(rng.choices(syl, k=rng.randint(2, 6))))
+            if rng.random() < 0.05:
+                out.append("투자원금 손실이 발생할 수 있습니다.")
+            size += len(out[-1]) + 1
+        return " ".join(out)
+
+    quotes = [words(200) + " 있습니다." for _ in range(5)]
+    body = words(120_000)
+    step = len(body) // 6
+    src = body[:step]
+    for i, q in enumerate(quotes):
+        mid = q.index(" ", len(q) // 2)
+        # 짝수 번째는 머리글 끼어듦(연쇄 정렬), 홀수 번째는 두 글자 다름(근사 일치)
+        in_src = (
+            q[:mid] + NOISE + q[mid:]
+            if i % 2 == 0
+            else "차" + q[1:mid] + "카" + q[mid + 1 :]
+        )
+        src += " " + in_src + " " + body[(i + 1) * step : (i + 2) * step]
+    fi = field_input("key_risk_phrases", [(7, 0, src)])
+    t0 = time.perf_counter()
+    env = convert(fi, resp(value=quotes, quotes=quotes))
+    assert time.perf_counter() - t0 < 5
+    assert env["status"] == "FOUND" and len(env["evidence"]) == 5, env["notes"]
+
+
+def test_짧은_수수료_인용은_다른_클래스_행에_근사_일치하지_않음():
+    fi = field_input(
+        "fee_structure", [(7, 0, "A클래스 선취 없음\nC클래스 납입금액의 1% 이내")]
+    )
+    q = "A클래스 납입금액의 1%"
+    value = {
+        "classes": [
+            {
+                "class_name": "A클래스",
+                "front_load": {
+                    "rate": {"amount": 1, "unit": "%"},
+                    "basis": "납입금액",
+                    "condition": None,
+                    "text": q,
+                },
+                "back_load": None,
+                "total_fee": None,
+                "peer_total_fee": None,
+            }
+        ]
+    }
+    assert (
+        convert(fi, resp(value=value, quotes=[q]))["reason_code"]
+        == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def _fee_value(*names):
+    return {
+        "classes": [
+            {
+                "class_name": n,
+                "front_load": {
+                    "rate": {"amount": 1, "unit": "%"},
+                    "basis": "납입금액",
+                    "condition": None,
+                    "text": "납입금액의 1.0%이내",
+                },
+                "back_load": None,
+                "total_fee": None,
+                "peer_total_fee": None,
+            }
+            for n in names
+        ]
+    }
+
+
+def test_끊긴_수수료_셀은_토큰_근접으로_찾음():
+    fi = field_input(
+        "fee_structure",
+        [(7, 0, "수수료선취-  납입금액의\n 0.88 1.04 기타\n1.0%이내 끝")],
+    )
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["납입금액의 1.0%이내"]))
+    assert env["status"] == "FOUND"
+    assert "토큰 근접 일치" in env["notes"]
+
+
+def test_토큰_근접_구간에_다른_클래스_이름이_끼면_버림():
+    fi = field_input(
+        "fee_structure", [(7, 0, "A클래스 납입금액의 없음\nC클래스 1.0%이내")]
+    )
+    env = convert(
+        fi, resp(value=_fee_value("A클래스", "C클래스"), quotes=["납입금액의 1.0%이내"])
+    )
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_근거는_찾았지만_값을_고쳐_쓰면_원문_구간으로_바꿈():
+    src = "이 투자신탁은 원본을 보장하지 않습니다. 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    q = "이 투자신탁은 원본을 보장하지 않습니다."
+    env = convert(fi, resp(value="이 펀드는 원금을 보장하지 않습니다.", quotes=[q]))
+    assert env["status"] == "FOUND"
+    assert env["value"] == q
+    assert env["raw_text"] == q
+
+    fi = field_input(
+        "key_risk_phrases",
+        [(7, 0, "주가가 하락하면 손실이 납니다. 환율이 오르면 손실이 납니다.")],
+    )
+    quotes = ["주가가 하락하면 손실이 납니다.", "환율이 오르면 손실이 납니다."]
+    env = convert(fi, resp(value=["주가 하락 위험", quotes[1]], quotes=quotes))
+    assert env["value"] == quotes
+
+
+def test_근사_일치는_부정_표현이_다르면_받지_않음():
+    src = "이 투자신탁은 투자원금의 손실이 발생할 수 없습니다. 끝"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    q = "이 투자신탁은 투자원금의 손실이 발생할 수 있습니다."
+    assert (
+        convert(fi, resp(value=q, quotes=[q]))["reason_code"] == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def test_수수료_근사_일치는_다른_클래스_행을_받지_않음():
+    src = "A클래스 납입금액의 1.00% 이내 연 0.85\nC클래스 납입금액의 1.00% 이내 연 0.85"
+    fi = field_input("fee_structure", [(7, 0, src)])
+    q = "B클래스 납입금액의 1.00% 이내 연 0.85"
+    value = _fee_value("B클래스", "A클래스", "C클래스")
+    assert (
+        convert(fi, resp(value=value, quotes=[q]))["reason_code"]
+        == "EVIDENCE_NOT_LOCATED"
+    )
+
+
+def test_근거_없어_지운_원소가_있으면_중복_제거로_비어도_NOT_FOUND가_아님():
+    src = "원본을 보장하지 않으며 손실이 날 수 있습니다. 끝"
+    pln_fi = field_input("principal_loss_notice", [(7, 0, src)])
+    krp_fi = field_input("key_risk_phrases", [(7, 0, src)])
+    s = "원본을 보장하지 않으며 손실이 날 수 있습니다."
+    pln = convert(pln_fi, resp(value=s, quotes=[s]))
+    krp = convert(
+        krp_fi,
+        resp(
+            value=[s, "문서에 없는 지어낸 위험 문장입니다 정말로요."],
+            quotes=[s, "문서에 없는 지어낸 위험 문장입니다 정말로요."],
+        ),
+    )
+    assert "근거 없는 문장" in krp["notes"]
+    out = dedupe_document(
+        {"principal_loss_notice": pln, "key_risk_phrases": krp}, krp_fi
+    )
+    assert out["key_risk_phrases"]["status"] == "FAILED"
+    assert out["key_risk_phrases"]["reason_code"] == "EVIDENCE_NOT_LOCATED"
