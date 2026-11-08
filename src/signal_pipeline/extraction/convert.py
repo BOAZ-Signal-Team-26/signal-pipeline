@@ -180,14 +180,24 @@ FUZZY_MIN = 0.9  # 근사 일치 하한(11월 7일 PM 결정)
 FUZZY_MIN_CHARS = 20
 
 
-def _same(q: str, span: str, classes: tuple[str, ...]) -> bool:
-    """근사 일치 후보가 인용과 숫자·부정 표현·클래스가 같은지."""
+CLASS_LOOKBACK = 12  # 구간 앞 몇 글자까지 다른 클래스 이름을 찾을지(「A」를 빼고 「클래스…」부터 잡는 경우)
+
+
+def _same(
+    q: str, span: str, before: str, classes: tuple[str, ...], sentence: bool
+) -> bool:
+    """근사 일치 후보가 인용과 숫자·클래스가 같은지. 문장 필드는 부정 표현도 대조.
+
+    클래스 이름은 PDF 표에서 잘려 나오므로(「퇴직연금」→「퇴」) 인용의 클래스 이름을 요구하지 않고,
+    인용에 없는 다른 클래스 이름이 구간이나 바로 앞에 있으면 버린다.
+    부정 표현은 문장 필드만 본다. 값이 숫자 구조인 필드는 모델이 원문 「않습니다」를 빠뜨린 인용도 있어서.
+    """
     own = tuple(c for c in classes if c and re.sub(r"\s", "", c) in q)
     others = tuple(c for c in classes if c and c not in own)
     return (
         align.same_numbers(q, span)
-        and align.same_negation(q, span)
-        and align.class_ok(q, span, others, own)
+        and (not sentence or align.same_negation(q, span))
+        and align.class_ok(q, before[-CLASS_LOOKBACK:] + span, others)
     )
 
 
@@ -208,10 +218,14 @@ def _fuzzy(
     for sec, norm, pos in bare:
         for g in align.anchors(q, norm):
             r, s, e = align.fuzzy(q, norm, g)
-            if r > best[0] and _same(q, norm[s:e], classes):
+            if r > best[0] and _same(q, norm[s:e], norm[:s], classes, chain):
                 best = (r, (sec, pos, s, e))
             c = align.chain(q, norm, g) if chain else None
-            if c and c[0] > best_chain[0] and _same(q, c[3], classes):
+            if (
+                c
+                and c[0] > best_chain[0]
+                and _same(q, c[3], norm[: c[1]], classes, chain)
+            ):
                 best_chain = (c[0], (sec, pos, c[1], c[2]))
     if best[0] >= FUZZY_MIN:
         r, (sec, pos, s, e) = best

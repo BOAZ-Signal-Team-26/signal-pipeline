@@ -43,20 +43,12 @@ def same_negation(a: str, b: str) -> bool:
     return Counter(NEG.findall(a)) == Counter(NEG.findall(b))
 
 
-def class_ok(
-    quote: str,
-    span: str,
-    other_classes: tuple[str, ...] = (),
-    own_classes: tuple[str, ...] = (),
-) -> bool:
-    """구간에 인용에 없는 클래스 이름이 있거나, 클래스 표시가 인용보다 많거나,
-    인용에 있는 클래스 이름이 구간에 없으면 False."""
+def class_ok(quote: str, span: str, other_classes: tuple[str, ...] = ()) -> bool:
+    """구간에 인용에 없는 클래스 이름이 있거나 클래스 표시가 인용보다 많으면 False."""
     span = re.sub(r"\s", "", span)
     if len(CLASS_MARK.findall(span)) > len(CLASS_MARK.findall(quote)):
         return False
-    if any(re.sub(r"\s", "", c) in span for c in other_classes if c):
-        return False
-    return all(re.sub(r"\s", "", c) in span for c in own_classes if c)
+    return not any(re.sub(r"\s", "", c) in span for c in other_classes if c)
 
 
 def anchors(q: str, norm: str) -> list[int]:
