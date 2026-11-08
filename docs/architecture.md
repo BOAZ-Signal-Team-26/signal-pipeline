@@ -17,9 +17,11 @@
 
 저장 계층 설계 5절 구성 그림 위에 처리 흐름을 겹친 것. 상자는 실행 주체, 화살표는 데이터 이동.
 
-![파이프라인 아키텍처 한 장 그림](images/architecture.drawio.svg)
+![파이프라인 아키텍처 v2](images/architecture-v2.png)
 
-- 그림 원본은 draw.io. SVG 파일에 편집 원본이 들어 있어 draw.io로 열어 고칠 수 있음
+- v2(11월 8일, PM(대현)): 저장 계층 설계(signal-infra PR #28)의 VPC·서브넷·S3 게이트웨이 엔드포인트·보안 그룹·Session Manager 접속·Budgets, LLM 추출(Bedrock Nova 2 Lite), 배포(GitHub Actions → OIDC 역할 → CodeDeploy, 11월 8일 PM 결정)를 반영
+- 그림 원본은 [architecture-v2.drawio](images/architecture-v2.drawio). draw.io로 열어 고친 뒤 PNG를 다시 내보냄. 원본을 넣은 SVG는 1MB를 넘어 PNG로 둠
+- 10월 22일 초안(데이터 엔지니어링·인프라(주영)): [architecture.drawio.svg](images/architecture.drawio.svg). 아래 두 항목은 초안 기준 설명
 - 그림에서 저장 계층 설계와 다른 곳은 없음. 추가한 것은 EC2 안의 작업 상자 4개와 로컬 디스크, 화살표의 표 이름
 - 금투협·금감원은 그리지 않음: 금감원 정기 수집은 보류(11차 미팅 안건 2), 금투협 Phase 1 포함은 결정 대기 D
 
