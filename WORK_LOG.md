@@ -1,5 +1,13 @@
 # 작업 기록
 
+## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
+
+- 바꾼 것
+  - `docs/images/architecture-v2.drawio`(원본)와 `architecture-v2.png`(2배 크기로 내보냄)를 추가함. 원본을 넣은 SVG는 1.19MB로 1MB 차단에 걸려 PNG로 둠
+  - `docs/architecture.md` 1절 그림을 v2로 바꾸고 10월 22일 초안은 링크로 남김
+- 바꾸지 않은 것: `docs/images/architecture.drawio.svg`(10월 22일 초안), `docs/architecture.md` 2절 이후 본문
+- 확인: draw.io 명령줄로 PNG를 다시 내보내 원본과 같은 그림인지 확인. 원본에 계정 번호·IP·키 문자열 없음
+
 ## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
 
 - 기준: Notion 「기본 로컬 DB(signal)를 prep-8 절 분할 결과로 전환」 티켓. PR #61 병합(11월 6일) 뒤 남은 일
