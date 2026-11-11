@@ -94,6 +94,9 @@ class Context:
     def reserve(self, system: str, text: str) -> float | None:
         """호출 1건의 예상 비용을 잡아 두고 돌려준다. 상한을 넘게 되면 None.
 
+        한 번 상한에 걸리면(stop_reason) 이후 호출은 예상 비용이 작아도 모두 None.
+        실행은 어차피 FAILED로 닫히므로 비용만 더 쓰지 않게 한다.
+
         예상 = (프롬프트 + 입력 글자 수) x EST_TOKENS_PER_CHAR 입력 토큰 + maxTokens 출력 토큰
         """
         estimate = cost_usd(
@@ -102,6 +105,8 @@ class Context:
             self.client.params["maxTokens"],
         )
         with self.lock:
+            if self.stop_reason:
+                return None
             if (
                 self.budget_usd is not None
                 and self.cost + self.reserved + estimate > self.budget_usd
@@ -153,7 +158,10 @@ def _reuse(ctx: Context, fi: FieldInput) -> tuple[int, dict] | None:
         prior = find_prior(ctx.conn, fi, prompt, ctx.client.model, ctx.client.params)
     if prior is None:
         return None
-    raw = (ctx.data_root / prior["raw_response_path"]).read_bytes()
+    try:
+        raw = (ctx.data_root / prior["raw_response_path"]).read_bytes()
+    except FileNotFoundError:  # 다른 data_root이거나 파일 누락 → 재호출
+        return None
     envelope = convert(fi, response_text(raw))
     if result_status(envelope) == "FAILED":  # 이번 입력으로는 변환 실패 → 재호출
         return None

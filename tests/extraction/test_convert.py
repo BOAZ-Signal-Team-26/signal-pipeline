@@ -743,3 +743,21 @@ def test_근거_없어_지운_원소가_있으면_중복_제거로_비어도_NOT
     )
     assert out["key_risk_phrases"]["status"] == "FAILED"
     assert out["key_risk_phrases"]["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_공백을_모두_지운_일치에서_숫자가_달라지면_받지_않음():
+    # 표 칸 「1」과 「0.5%」가 붙어 「10.5%」로 읽힌 인용
+    fi = field_input("fee_structure", [(10, 1000, "A클래스 판매보수 1 0.5% 적용")])
+    value = {"classes": [{**FEE["classes"][0], "class_name": "A"}]}
+    out = convert(fi, resp(value=value, quotes=["판매보수 10.5%"]))
+    assert out["status"] == "FAILED"
+    assert out["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_공백을_모두_지운_일치는_숫자가_같으면_받음():
+    fi = field_input(
+        "principal_loss_notice", [(10, 1000, "투자원금의 손 실이 발생할 수 있습니다.")]
+    )
+    out = convert(fi, resp(value=LOSS, quotes=[LOSS]))
+    assert out["status"] == "FOUND"
+    assert out["evidence"][0]["quote"] == "투자원금의 손 실이 발생할 수 있습니다."

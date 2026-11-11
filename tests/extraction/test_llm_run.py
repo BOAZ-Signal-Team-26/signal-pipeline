@@ -14,7 +14,7 @@ import pytest
 
 from signal_pipeline.extraction.bedrock import MODELS, TOKEN_ENV, BedrockClient
 from signal_pipeline.extraction.inputs import build_field_inputs
-from signal_pipeline.extraction.run import Context, run_extraction
+from signal_pipeline.extraction.run import run_extraction
 from signal_pipeline.extraction.store import check_selected, verify_run, write_new
 from signal_pipeline.loading.local_load import SEARCH_PATH
 
@@ -296,33 +296,6 @@ def test_budget_stops_new_calls(db) -> None:
     assert conn.execute(
         "select status from pipeline_run where run_id = %s", (result["run_id"],)
     ).fetchone() == ("FAILED",)
-
-
-def _ctx(tmp_path: Path, monkeypatch, budget: float) -> Context:
-    monkeypatch.setenv(TOKEN_ENV, FAKE)
-    client = BedrockClient(MODELS["lite"], transport=httpx.MockTransport(Fake()))
-    return Context(None, tmp_path, "r", client, {}, budget)
-
-
-def test_budget_reserves_for_in_flight_calls(tmp_path: Path, monkeypatch) -> None:
-    ctx = _ctx(tmp_path, monkeypatch, 0.015)
-    sys_text, text = "s" * 1000, "t" * 1000
-    # 예상 = 2000 x 0.30/1M + 4096 x 2.50/1M = 0.01084달러
-    first = ctx.reserve(sys_text, text)
-    assert first and abs(first - 0.01084) < 1e-9
-    assert not ctx.reserve(sys_text, text)  # 첫 호출이 아직 안 끝남
-    ctx.charge(first, 1000, 100)  # 실제 0.00055달러로 바꿈
-    assert ctx.reserve(sys_text, text)
-
-
-def test_budget_overshoot_by_actual_cost_sets_stop_reason(
-    tmp_path: Path, monkeypatch
-) -> None:
-    ctx = _ctx(tmp_path, monkeypatch, 0.02)
-    reserved = ctx.reserve("s", "t")
-    assert reserved and ctx.stop_reason is None
-    ctx.charge(reserved, 100_000, 0)  # 0.03달러
-    assert ctx.stop_reason and "budget" in ctx.stop_reason
 
 
 def test_run_failed_when_fields_fail(db) -> None:

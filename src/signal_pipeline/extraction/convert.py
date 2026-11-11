@@ -254,6 +254,9 @@ def _place(
     located, n = _locate(index, quote)
     if located is None:
         located, n = _locate(bare, quote, bare=True)
+        # 공백을 모두 지우면 떨어진 숫자가 붙는다(「1 0.5%」 → 「10.5%」). 숫자가 다르면 받지 않음
+        if located is not None and not align.same_numbers(quote, located["quote"]):
+            located = None
     if located is not None:
         return located, n, None
     # 다른 클래스 행 값을 근거로 받지 않도록 클래스 이름을 함께 대조
