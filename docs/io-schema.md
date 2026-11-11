@@ -98,7 +98,8 @@
 - `evidence`: `value`와 같은 길이. `value[i]`의 근거는 `evidence[i]`. 조회용 근거 칼럼 3개는 `evidence[0]`
 - 중복 제거(필드 규칙 2)로 원소를 지우면 같은 순서의 `evidence`도 지움. 남은 원소가 있으면 `FOUND` 그대로이고 조회용 근거 칼럼을 새 `evidence[0]`으로 다시 채움
 - 근거를 못 찾은 원소는 그 원소만 지우고(`value[i]`와 `evidence[i]`) 남은 원소가 있으면 `FOUND`, `notes`에 「근거 없는 문장 n개 삭제」. 모두 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`)(11월 7일 PM 결정)
-- 원소가 모두 지워지면 `NOT_FOUND`(`NOT_IN_DOCUMENT`). 단 앞에서 근거를 못 찾아 지운 원소(「근거 없는 문장」)가 있었으면 문서에 없다고 할 수 없으므로 FAILED(`EVIDENCE_NOT_LOCATED`)(11월 7일 CodeRabbit 검토 반영), `value` null, `evidence` 빈 배열, `checked_section_ids`는 이번 입력의 출처 절, `notes`에 「중복 제거로 n개 삭제」. 공통 계약상 `FOUND`는 `evidence` 1개 이상이어야 해서 「FOUND 빈 목록」은 쓸 수 없음. 「NOT_FOUND 허용 조건」을 만족하지 않으면 그 규칙대로 `UNDETERMINED`(`SOURCE_SECTION_MISSING`)
+- 원소가 모두 지워지면 `NOT_FOUND`(`NOT_IN_DOCUMENT`). `value` null, `evidence` 빈 배열, `checked_section_ids`는 이번 입력의 출처 절, `notes`에 「중복 제거로 n개 삭제」. 공통 계약상 `FOUND`는 `evidence` 1개 이상이어야 해서 「FOUND 빈 목록」은 쓸 수 없음. 「NOT_FOUND 허용 조건」을 만족하지 않으면 그 규칙대로 `UNDETERMINED`(`SOURCE_SECTION_MISSING`)
+  - 단 앞에서 근거를 못 찾아 지운 원소(「근거 없는 문장」)가 있었으면 문서에 없다고 할 수 없으므로 FAILED(`EVIDENCE_NOT_LOCATED`)(11월 7일 CodeRabbit 검토 반영). 이때는 공통 계약대로 `value` null, `evidence`·`checked_section_ids` 빈 배열(`checked_section_ids`는 NOT_FOUND일 때만 채움)
 - 점검표 나2는 이 필드가 `NOT_FOUND`이면 「없음」(점수 저장과 비교 모집단 「점검표 v0 판정 대상」)
 
 #### `fee_structure`
@@ -237,8 +238,8 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
   - 2·3은 인용과 원문 구간의 숫자가 값으로 모두 같고, 인용에 없는 다른 클래스 이름이 구간과 구간 바로 앞 12자 안에 없고, 클래스 표시가 인용보다 많지 않을 때만 받음(1.00%와 1.0%는 같음). 같은 표의 다른 클래스 값이나 바뀐 금액을 근거로 받지 않기 위함(11월 7일 Codex 검토 반영). 수수료 표 셀을 어절 근접으로 받는 방식은 다른 클래스 행을 이어 붙이는 오인정이 재현돼 아래 4의 제한을 둠
   - 인용에 든 클래스 이름이 구간에 있는지는 보지 않음. PDF 표 텍스트가 클래스 이름을 잘라 내기 때문(「퇴직연금」이 「퇴」로 나옴). 앞 12자까지 보는 것은 구간이 클래스 이름을 빼고 「클래스…」부터 시작하는 경우를 막기 위함(11월 8일 결정)
   - 부정 표현(않·없·아니·못) 수가 같아야 하는 조건은 문장 필드(`principal_loss_notice`, `key_risk_phrases`)에만 적용(「발생할 수 있습니다」와 「없습니다」는 다름, 11월 7일 CodeRabbit 검토 반영). 수수료처럼 값이 숫자 구조인 필드는 모델이 원문의 「않습니다」를 빠뜨린 인용도 있어 적용하지 않음(11월 8일 결정)
-  4. `fee_structure`만: 4어절 이하 인용의 어절이 같은 절 200자 안에 순서대로 있고(숫자는 값으로 비교) 그 구간에 인용에 없는 클래스 이름이나 클래스 표시(「클래스」, 「(A)」 같은 괄호 코드)가 더 들어 있지 않으면 일치. `notes`에 「토큰 근접 일치」. PDF 표 텍스트가 셀을 다른 칸과 섞어 끊기 때문(11월 7일 PM 결정)
-  - 2~4로 찾으면 `quote`는 원문 구간으로 다시 씀. 문장 필드(`principal_loss_notice`, `key_risk_phrases`)는 `value`도 그 원문 구간으로 바꿈
+  4. `fee_structure`만: 4어절 이하 인용의 어절이 같은 절 200자 안에 순서대로 있고(숫자는 값으로 비교) 그 구간에 인용에 없는 클래스 이름이나 클래스 표시(「클래스」, 「(A)」 같은 괄호 코드)가 더 들어 있지 않고, 인용 어절 사이에 인용에 없는 다른 수수료·보수 항목 이름(「선취판매수수료」, 「운용보수」 등)이 끼지 않으면 일치. 「후취판매수수료 1% 선취판매수수료 없음」에서 「후취판매수수료 없음」 인용이 두 항목의 셀을 이어 붙여 일치하지 않게 하기 위함(11월 11일 CodeRabbit 검토 반영). `notes`에 「토큰 근접 일치」. PDF 표 텍스트가 셀을 다른 칸과 섞어 끊기 때문(11월 7일 PM 결정)
+  - 2~4로 찾으면 `quote`는 원문 구간으로 다시 씀. 문장 필드(`principal_loss_notice`, `key_risk_phrases`)는 `value`와 `raw_text`도 그 원문 구간으로 바꿈(`principal_loss_notice`의 `value` = `raw_text` 규칙 유지)
 - 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`). 변환기 문제일 수 있으므로 재호출 전에 저장된 `response.json`으로 변환기를 다시 돌리고, 그래도 못 찾을 때만 재호출
 - 표지(HTML) 출처 필드의 근거 형식은 필드별 정의에서 정함(「미결」)
 
@@ -373,7 +374,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 ```json
 {
   "contract_version": 1,
-  "field_name": "key_risk_text",
+  "field_name": "key_risk_phrases",
   "status": "FAILED",
   "value": null,
   "raw_text": null,
