@@ -8,6 +8,13 @@
 - 바꾸지 않은 것: `docs/images/architecture.drawio.svg`(10월 22일 초안), `docs/architecture.md` 2절 이후 본문
 - 확인: draw.io 명령줄로 PNG를 다시 내보내 원본과 같은 그림인지 확인. 원본에 계정 번호·IP·키 문자열 없음
 
+## 2026-11-06 — LLM 추출 필드별 value 구조 초안 (#76)
+
+- 기준: `docs/io-schema.md` 미결(필드별 value 구조, 원래 기한 11월 5일), 11월 6일 PM 결정(PM 초안, 데이터 엔지니어링·인프라(주영) 검토)
+- 바꾼 것: `docs/io-schema.md` 「필드별 `value` 구조 (초안)」 절 신설(4개 필드의 value 키, 필드별 상태 규칙, `key_risk_phrases` 원소와 근거의 순서 대응, 원소가 모두 지워지면 `NOT_FOUND`, 환매 조건 `field_name`은 `redemption_terms` 제안). 미결 표에서 근거 대응·모두 지워질 때 상태 2행 삭제, value 구조 행을 검토 행으로 바꿈
+- 재사용 규칙(11월 6일 PM 결정): 재호출 생략 조건을 `result_status = OK`에서 OK·UNDETERMINED·NOT_APPLICABLE로 넓힘(`docs/io-schema.md` 「결측 표기」, `docs/storage-and-failure-rules.md` 「LLM 호출 저장」). ETF 환매 조건은 추출 행을 만들지 않고 점검표 4.2를 상품 유형으로 「적용 대상 아님」 처리(`docs/scoring-and-population.md`). `llm_field_extraction`의 모델·프롬프트·입력 해시가 NOT NULL이라 호출 없는 행을 두지 않음
+- 바꾸지 않은 것: 공통 계약 envelope·상태값, DDL. `fee_structure` 키는 실제 수수료 표(20260918000497) 형태를 보고 정함(클래스가 많고 「이내」 상한 표기, 표 밖 적용 조건)
+
 ## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
 
 - 기준: Notion 「기본 로컬 DB(signal)를 prep-8 절 분할 결과로 전환」 티켓. PR #61 병합(11월 6일) 뒤 남은 일

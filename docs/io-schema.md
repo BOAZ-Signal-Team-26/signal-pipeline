@@ -78,6 +78,68 @@
 3. 숫자 단위: 보수는 연 %. 판매수수료와 환매수수료는 원문의 부과 기준(납입금액 / 환매금액 / 이익금 등)과 적용 조건(「3년 미만 환매 시」 같은 기간)을 문자열로 함께 저장함. 후취판매수수료는 환매금액 기준이거나 일정 기간 안에 환매할 때만 붙는 상품이 있으므로 기준을 납입금액으로 가정하지 않음. 같은 70이라도 기준에 따라 뜻이 다름
 4. 환매수수료가 없는 펀드는 빈 목록과 근거 문장. ETF는 환매 대신 상장 매매를 하므로 환매 조건은 `NOT_APPLICABLE`
 
+### 필드별 `value` 구조 (초안)
+
+- 상태: 11월 6일 PM(대현) 초안, 데이터 엔지니어링·인프라(주영) 검토 전([이슈 #76](https://github.com/BOAZ-Signal-Team-26/signal-pipeline/issues/76)). 아래 「LLM 추출 결과 JSON 공통 계약」의 envelope 안 `value` 칸의 구조만 정함
+- 공통
+  - 숫자는 공통 규칙대로 `{"amount": 1.0, "unit": "%"}`. 원문이 「없음」이면 `{"amount": 0, "unit": "%"}`, 원문에 칸이 없거나 「-」이면 그 키를 `null`
+  - 수수료 칸마다 원문 셀 그대로를 `text`에 둠(「납입금액의 1.00% 이내」). 「이내」 같은 상한 표현은 `text`로만 남기고 숫자는 적힌 값 그대로
+  - 키 이름은 영어 snake_case. 원문 문자열은 정규화하지 않음
+
+#### `principal_loss_notice`
+
+- `value`: 문자열. 대표 문장 1개(필드 규칙 1-2). `raw_text`와 같은 값
+- `evidence`: 1개(그 문장 위치)
+- 문서에 원금손실 고지가 없으면 `NOT_FOUND`(`NOT_IN_DOCUMENT`)
+
+#### `key_risk_phrases`
+
+- `value`: 문자열 배열, 원소 1~5개. 원소마다 한 문장
+- `evidence`: `value`와 같은 길이. `value[i]`의 근거는 `evidence[i]`. 조회용 근거 칼럼 3개는 `evidence[0]`
+- 중복 제거(필드 규칙 2)로 원소를 지우면 같은 순서의 `evidence`도 지움. 남은 원소가 있으면 `FOUND` 그대로이고 조회용 근거 칼럼을 새 `evidence[0]`으로 다시 채움
+- 근거를 못 찾은 원소는 그 원소만 지우고(`value[i]`와 `evidence[i]`) 남은 원소가 있으면 `FOUND`, `notes`에 「근거 없는 문장 n개 삭제」. 모두 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`)(11월 7일 PM 결정)
+- 원소가 모두 지워지면 `NOT_FOUND`(`NOT_IN_DOCUMENT`). `value` null, `evidence` 빈 배열, `checked_section_ids`는 이번 입력의 출처 절, `notes`에 「중복 제거로 n개 삭제」. 공통 계약상 `FOUND`는 `evidence` 1개 이상이어야 해서 「FOUND 빈 목록」은 쓸 수 없음. 「NOT_FOUND 허용 조건」을 만족하지 않으면 그 규칙대로 `UNDETERMINED`(`SOURCE_SECTION_MISSING`)
+  - 단 앞에서 근거를 못 찾아 지운 원소(「근거 없는 문장」)가 있었으면 문서에 없다고 할 수 없으므로 FAILED(`EVIDENCE_NOT_LOCATED`)(11월 7일 CodeRabbit 검토 반영). 이때는 공통 계약대로 `value` null, `evidence`·`checked_section_ids` 빈 배열(`checked_section_ids`는 NOT_FOUND일 때만 채움)
+- 점검표 나2는 이 필드가 `NOT_FOUND`이면 「없음」(점수 저장과 비교 모집단 「점검표 v0 판정 대상」)
+
+#### `fee_structure`
+
+```json
+{
+  "classes": [
+    {
+      "class_name": "수수료선취-오프라인(A1)",
+      "front_load": {"rate": {"amount": 1.0, "unit": "%"}, "basis": "납입금액", "condition": null, "text": "납입금액의 1.00% 이내"},
+      "back_load": {"rate": {"amount": 0, "unit": "%"}, "basis": null, "condition": null, "text": "없음"},
+      "total_fee": {"amount": 0.845, "unit": "%"},
+      "peer_total_fee": {"amount": 0.97, "unit": "%"}
+    }
+  ]
+}
+```
+
+- `classes`: 1개 이상. 원문 표의 클래스 순서대로. 클래스가 없는 펀드는 원소 1개에 `class_name` null
+- `front_load`·`back_load`(선취·후취 판매수수료): `rate`, `basis`(부과 기준, 원문 표현: 「납입금액」「환매금액」 등), `condition`(적용 조건, 원문 표현: 「3년 미만 환매시」 등. 없으면 null), `text`(원문 셀)
+- `total_fee`·`peer_total_fee`(총보수·동종유형 총보수): 연 %. 원문에 없으면 null
+- `evidence`: 1개 이상. 첫 항목은 수수료 표의 첫 클래스 행. 클래스마다 근거를 요구하지 않음: 2026-11-07 실측에서 근거 1개 위치 확정도 8%가 실패해(PDF 표 텍스트가 셀을 섞음) 클래스별로 요구하면 점검표 4.1 판정이 무너짐. 첫 클래스 밖의 값은 근거로 확인되지 않은 값으로 읽음. 표 추출 뒤 다시 정함([이슈 #80](https://github.com/BOAZ-Signal-Team-26/signal-pipeline/issues/80))
+- 표가 요약정보와 제2부 13절에 함께 있고 값이 다르면 `UNDETERMINED`(`AMBIGUOUS`), 후보는 `notes`
+
+#### 환매 조건 (`redemption_terms`)
+
+```json
+{
+  "tiers": [
+    {"period": "90일 미만", "basis": "이익금", "rate": {"amount": 70, "unit": "%"}, "applies_to": null}
+  ]
+}
+```
+
+- `field_name`: `redemption_terms` 제안. 지금까지 문서·예시가 쓴 이름이고, 다른 필드와 같은 영어 snake_case. 확정은 데이터 엔지니어링·인프라(주영)
+- `tiers`: 보유기간 구간 순서대로. `period`(원문 기간 표현), `basis`(부과 기준 원문 표현), `rate`, `applies_to`(공통 규칙. 전체 클래스면 null)
+- 환매수수료가 없는 펀드(필드 규칙 4): `FOUND`, `tiers` 빈 배열, `evidence`는 「환매수수료 없음」을 말하는 문장 1개
+- ETF: LLM을 호출하지 않고 이 필드의 추출 행도 만들지 않음. 상품 유형(수집 데이터)으로 알 수 있고, `llm_field_extraction`은 모델·프롬프트·입력 해시가 필수라 호출 없는 행을 둘 수 없음. 점검표 4.2는 축 4 판정에서 상품 유형으로 「적용 대상 아님」(11월 6일 PM 결정)
+- 환매금지형: 모델이 판단해 `NOT_APPLICABLE`(`OUT_OF_SCOPE`)
+
 ## LLM 추출 결과 JSON 공통 계약
 
 LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·결측·근거 규칙. 10월 24일 데이터 엔지니어링·인프라(주영) 초안, 10월 30일 PM(대현) 리뷰 반영.
@@ -141,15 +203,15 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 | `reason_code` | 상태 | 뜻 | 재호출 |
 |---|---|---|---|
 | NOT_IN_DOCUMENT | NOT_FOUND | 출처 절을 읽었고 해당 내용이 없음 | 안 함 |
-| SOURCE_SECTION_MISSING | UNDETERMINED | 출처 절이 `SECTION_BOUNDARY_NOT_FOUND`이거나 입력에 전부 들어가지 않음. 변환기가 정함 | 미결(지금 규칙은 재호출) |
-| AMBIGUOUS | UNDETERMINED | 서로 다른 값이 여러 곳에 있어 하나로 못 정함. 후보는 `notes`에 | 미결(지금 규칙은 재호출) |
-| OUT_OF_SCOPE | NOT_APPLICABLE | 필드 대상 아님(예: 환매금지형 상품에 환매 조건 필드) | 미결(지금 규칙은 재호출) |
+| SOURCE_SECTION_MISSING | UNDETERMINED | 출처 절이 `SECTION_BOUNDARY_NOT_FOUND`이거나 입력에 전부 들어가지 않음. 변환기가 정함 | 안 함. 저장된 `response.json`을 이번 입력으로 다시 변환해 정함 |
+| AMBIGUOUS | UNDETERMINED | 서로 다른 값이 여러 곳에 있어 하나로 못 정함. 후보는 `notes`에 | 안 함(재호출 생략 키가 같으면 재사용) |
+| OUT_OF_SCOPE | NOT_APPLICABLE | 필드 대상 아님(예: 환매금지형 상품에 환매 조건 필드) | 안 함(재호출 생략 키가 같으면 재사용) |
 | CALL_FAILED | FAILED | API 오류·시간 초과 | 함 |
 | PARSE_FAILED | FAILED | 응답이 JSON이 아님 | 함 |
 | SCHEMA_INVALID | FAILED | envelope·필드 구조 검증 실패 | 함 |
 | EVIDENCE_NOT_LOCATED | FAILED | `quote`를 절 텍스트에서 찾지 못함 | 변환기 재실행 뒤에도 못 찾으면 함 |
 
-- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status = OK`일 때만 재사용. NOT_FOUND는 OK라 재사용되고, UNDETERMINED·NOT_APPLICABLE은 규칙에 없어 재호출됨(재사용 여부는 「미결」)
+- 재호출 생략 조건은 [원본 보관 규칙](storage-and-failure-rules.md) 「LLM 호출 저장」 그대로: `document_id`·`field_name`·`input_sha256`·`prompt_sha256`·`model_name`·`model_params`가 모두 같고 이전 시도가 `result_status` OK·UNDETERMINED·NOT_APPLICABLE 중 하나이면 재사용, FAILED이면 재호출(11월 6일 PM 결정). 같은 입력·프롬프트·모델이면 같은 답이 나와 재호출은 비용만 들기 때문. 재사용 때는 「재사용한 결과」대로 이번 입력으로 다시 변환하므로 `SOURCE_SECTION_MISSING`은 이번 입력 기준으로 다시 정해짐
 
 ### 값 표기 공통 규칙
 
@@ -169,6 +231,15 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 - 저장 위치: `char_start`·`char_end` = 그 절의 `section.char_start` + 절 텍스트 안 위치. 절 안 위치를 그대로 저장하지 않음
 - 찾는 방법: 절 텍스트와 `quote` 모두 연속 공백(공백·줄바꿈·탭)을 공백 하나로 줄여 찾고, 찾은 위치를 원래 텍스트 위치로 되돌림. `quote`는 찾은 원래 구간 텍스트로 다시 씀(`quote` = canonical text의 그 구간). 그 밖의 정규화(NFC 등)는 하지 않음
 - 여러 곳에서 일치하면 같은 절이든 다른 절이든 `inputs` 순서로 첫 구간을 쓰고 `notes`에 「다중 일치 n회」를 남김. 위치가 중요한 필드는 필드별 정의에서 인용 길이를 정함. 절 경계를 넘는 `quote`는 못 찾음으로 처리
+- 그대로 못 찾을 때 쓰는 단계(11월 7일 PM 결정. 10건 실측에서 PDF 줄바꿈이 단어를 끊거나 표 칸 글자·쪽 머리말이 문장 중간에 끼어 원문 인용도 못 찾음). 앞 단계에서 찾으면 멈춤
+  1. 공백을 모두 지우고 찾음
+  2. 근사 일치: 같은 절에서 유사도 0.9 이상인 구간. 유사도는 공백을 뺀 인용과 공백을 뺀 원문 후보 구간의 Python `difflib.SequenceMatcher(autojunk=False).ratio()`. 후보 구간은 인용의 8자 조각이 원문에 나오는 위치로 시작점 후보를 정해(조각이 많이 맞는 시작점 3개, 각 ±10자), 길이를 인용의 0.8~1.2배로 바꿔 가며 비율이 가장 높은 구간. 같으면 앞 구간. 공백을 뺀 인용이 20자 미만이면 쓰지 않음(「A클래스 1%」처럼 한두 글자가 다른 행을 뜻함). `notes`에 「근사 일치 0.xx」
+  3. 끼어든 글자 건너뛰기(`principal_loss_notice`·`key_risk_phrases`만. 수수료는 쓰지 않음): 인용 글자의 0.9 이상이 순서대로 일치하고 구간 길이가 인용의 1.5배 이하. 공백을 뺀 인용이 20자 미만이면 쓰지 않음(2와 같음). `notes`에 「근사 일치 0.xx」. 지어낸 문장은 이 기준을 넘지 못함(실측 0.2~0.4)
+  - 2·3은 인용과 원문 구간의 숫자가 값으로 모두 같고, 인용에 없는 다른 클래스 이름이 구간과 구간 바로 앞 12자 안에 없고, 클래스 표시가 인용보다 많지 않을 때만 받음(1.00%와 1.0%는 같음). 같은 표의 다른 클래스 값이나 바뀐 금액을 근거로 받지 않기 위함(11월 7일 Codex 검토 반영). 수수료 표 셀을 어절 근접으로 받는 방식은 다른 클래스 행을 이어 붙이는 오인정이 재현돼 아래 4의 제한을 둠
+  - 인용에 든 클래스 이름이 구간에 있는지는 보지 않음. PDF 표 텍스트가 클래스 이름을 잘라 내기 때문(「퇴직연금」이 「퇴」로 나옴). 앞 12자까지 보는 것은 구간이 클래스 이름을 빼고 「클래스…」부터 시작하는 경우를 막기 위함(11월 8일 결정)
+  - 부정 표현(않·없·아니·못) 수가 같아야 하는 조건은 문장 필드(`principal_loss_notice`, `key_risk_phrases`)에만 적용(「발생할 수 있습니다」와 「없습니다」는 다름, 11월 7일 CodeRabbit 검토 반영). 수수료처럼 값이 숫자 구조인 필드는 모델이 원문의 「않습니다」를 빠뜨린 인용도 있어 적용하지 않음(11월 8일 결정)
+  4. `fee_structure`만: 4어절 이하 인용의 어절이 같은 절 200자 안에 순서대로 있고(숫자는 값으로 비교) 그 구간에 인용에 없는 클래스 이름이나 클래스 표시(「클래스」, 「(A)」 같은 괄호 코드)가 더 들어 있지 않고, 인용 어절 사이에 인용에 없는 다른 수수료·보수 항목 이름(「선취판매수수료」, 「운용보수」 등)이 끼지 않으면 일치. 「후취판매수수료 1% 선취판매수수료 없음」에서 「후취판매수수료 없음」 인용이 두 항목의 셀을 이어 붙여 일치하지 않게 하기 위함(11월 11일 CodeRabbit 검토 반영). `notes`에 「토큰 근접 일치」. PDF 표 텍스트가 셀을 다른 칸과 섞어 끊기 때문(11월 7일 PM 결정)
+  - 2~4로 찾으면 `quote`는 원문 구간으로 다시 씀. 문장 필드(`principal_loss_notice`, `key_risk_phrases`)는 `value`와 `raw_text`도 그 원문 구간으로 바꿈(`principal_loss_notice`의 `value` = `raw_text` 규칙 유지)
 - 못 찾으면 FAILED(`EVIDENCE_NOT_LOCATED`). 변환기 문제일 수 있으므로 재호출 전에 저장된 `response.json`으로 변환기를 다시 돌리고, 그래도 못 찾을 때만 재호출
 - 표지(HTML) 출처 필드의 근거 형식은 필드별 정의에서 정함(「미결」)
 
@@ -303,7 +374,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 ```json
 {
   "contract_version": 1,
-  "field_name": "key_risk_text",
+  "field_name": "key_risk_phrases",
   "status": "FAILED",
   "value": null,
   "raw_text": null,
@@ -319,11 +390,8 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 | 질문 | 결정 주체 | 필요 시점 |
 |---|---|---|
 | 표지(HTML) 출처 필드의 근거 형식 | 필드별 정의 | 추출 필드 확정 뒤 |
-| 필드별 `value` JSON 구조, 환매 조건 `field_name` 확정(DB 칼럼 이름 규칙). `field_name`은 적재 복합 유일키와 재호출 생략 조회에 들어가므로 확정 뒤 문서·코드에서 같은 값만 씀 | 데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 전(11월 5일) |
-| `key_risk_phrases` 원소와 근거 위치의 대응. 제안: 원소마다 근거 1개, `value[i]`의 근거는 `evidence[i]`(같은 순서). 중복 제거로 원소를 지우면 같은 순서의 근거도 지우고, `evidence[0]`과 조회용 근거 칼럼 3개를 남은 첫 원소 기준으로 다시 채움 | PM(대현)·데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 때 |
-| 중복 제거로 `key_risk_phrases` 원소가 모두 지워질 때의 `status`(FOUND 빈 목록 / NOT_FOUND)와 그때의 `evidence`·`checked_section_ids`. 점검표 나2는 어느 쪽이든 「없음」으로 판정 | PM(대현)·데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 구현 때 |
+| 필드별 `value` 구조 초안(「필드별 `value` 구조 (초안)」, 11월 6일 PM) 검토와 환매 조건 `field_name` 확정. `field_name`은 적재 복합 유일키와 재호출 생략 조회에 들어가므로 확정 뒤 문서·코드에서 같은 값만 씀 | 데이터 엔지니어링·인프라(주영) | LLM 추출 모듈 전수 추출 전(11월 8일) |
 | 프롬프트 설정 파일 위치·버전 규칙 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
-| UNDETERMINED·NOT_APPLICABLE 결과의 재사용 여부(지금은 원본 보관 규칙대로 재호출. temperature 0이면 같은 답에 비용만 듦) | PM(대현) | 추출 모듈 구현 시작 전 |
 | 조회용 view(NOT_FOUND와 값 있음 구분) 이름·위치 | 데이터 엔지니어링·인프라(주영) | 추출 모듈 구현 때 |
 
 ## CDI 출력 요구
