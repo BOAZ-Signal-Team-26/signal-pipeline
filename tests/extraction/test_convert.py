@@ -686,6 +686,19 @@ def test_토큰_근접_구간에_다른_클래스_이름이_끼면_버림():
     assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
 
 
+def test_토큰_근접은_다른_수수료_항목_셀을_잇지_않음():
+    # 후취 1%, 선취 없음인데 「후취판매수수료 없음」이 두 셀을 이어 붙여 일치하던 문제
+    fi = field_input(
+        "fee_structure", [(7, 0, "A클래스 후취판매수수료 1% 선취판매수수료 없음")]
+    )
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["후취판매수수료 없음"]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+    fi = field_input("fee_structure", [(7, 0, "판매보수 연 0.5 % 운용보수 0.3%")])
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["판매보수 0.3%"]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
 def test_근거는_찾았지만_값을_고쳐_쓰면_원문_구간으로_바꿈():
     src = "이 투자신탁은 원본을 보장하지 않습니다. 끝"
     fi = field_input("principal_loss_notice", [(7, 0, src)])

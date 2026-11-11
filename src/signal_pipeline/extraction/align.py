@@ -147,26 +147,43 @@ def _token_pattern(tok: str) -> re.Pattern:
     return re.compile(rf"(?<![\d.]){body}(?!\.?\d)" + (r"\s*%" if pct else ""))
 
 
+# 수수료·보수 항목 이름(「선취판매수수료」, 「운용보수」 등)
+FEE_ITEM = re.compile(r"[^\s\d]*(?:수수료|보수)[^\s\d]*")
+
+
+def _other_fee_item(quote: str, gap: str) -> bool:
+    """인용 어절 사이에 인용에 없는 다른 수수료·보수 항목 이름이 끼었는지.
+
+    「후취판매수수료 1% 선취판매수수료 없음」에서 「후취판매수수료 없음」 인용이
+    두 항목의 셀을 이어 붙여 일치하지 않게 한다.
+    """
+    return any(item not in quote for item in FEE_ITEM.findall(gap))
+
+
 def token_window(
     text: str, quote: str, other_classes: tuple[str, ...] = ()
 ) -> tuple[tuple[int, int] | None, int]:
     """((첫 토큰 시작, 마지막 토큰 끝) 첫 일치, 일치 수). 원문 위치.
 
     구간 안에 다른 클래스 이름이 있거나 클래스 표시가 quote보다 많으면 버린다
-    (A클래스 인용이 C클래스 행 값을 잡지 않게).
+    (A클래스 인용이 C클래스 행 값을 잡지 않게). 인용 어절 사이에 인용에 없는
+    다른 수수료·보수 항목 이름이 끼어도 버린다(다른 항목 셀을 잇지 않게).
     """
     pats = [_token_pattern(t) for t in TOK.findall(quote)]
     if not pats:
         return None, 0
     hits = []
     for m0 in pats[0].finditer(text):
-        end = m0.end()
+        end, gaps = m0.end(), []
         for p in pats[1:]:
             m = p.search(text, end, m0.start() + TOKEN_WINDOW)
             if not m:
                 break
+            gaps.append(text[end : m.start()])
             end = m.end()
         else:
-            if class_ok(quote, text[m0.start() : end], other_classes):
+            if class_ok(quote, text[m0.start() : end], other_classes) and not any(
+                _other_fee_item(quote, g) for g in gaps
+            ):
                 hits.append((m0.start(), end))
     return (hits[0] if hits else None), len(hits)
