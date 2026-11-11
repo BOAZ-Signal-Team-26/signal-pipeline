@@ -1,5 +1,15 @@
 # 작업 기록
 
+## 2026-11-10 — 아키텍처 v2 그림에 대시보드 연결 경로 추가
+
+- 바꾼 것
+  - `docs/images/architecture-v2.drawio`: Scoring → S3 `exports/` 내보내기 선, Streamlit Community Cloud(AWS 밖), 대시보드 전용 IAM 사용자(`exports/*` 읽기만)와 키 전달 선, 열람자, 대시보드 코드 저장소 → Streamlit 배포 선 추가. IAM 관련 선을 빨간 점선으로 통일. S3 버킷을 게이트웨이 엔드포인트 아래로 옮겨 Region 안에 있음을 분명히 함. Budgets·CloudWatch 아이콘 위치 이동
+  - `docs/images/architecture-v2.drawio`: SSM Parameter Store 선을 Bedrock이 아니라 EC2로 향하게 고침(EC2가 비밀값을 읽어 환경 변수로 씀, `docs/architecture.md` 2절). 이름도 「(API Key)」에서 「(Secrets)」로 바꿈(Bedrock 키와 DB 비밀번호를 함께 보관)
+  - `docs/images/architecture-v2.png`: 원본에서 2배 크기로 다시 내보냄
+  - `docs/architecture.md` 1절: 대시보드 연결 설명 추가
+- 바꾸지 않은 것: `docs/architecture.md` 2절 이후 본문, signal-infra `docs/storage-design.md`(3.9절 결정은 미결 그대로)
+- 확인: draw.io 명령줄로 PNG를 내보내 그림 확인. 원본에 계정 번호·ARN·IP·키 문자열 없음(12자리 숫자는 도형 좌표값)
+
 ## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
 
 - 바꾼 것

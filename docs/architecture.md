@@ -20,6 +20,9 @@
 ![파이프라인 아키텍처 v2](images/architecture-v2.png)
 
 - v2(11월 8일, PM(대현)): 저장 계층 설계(signal-infra PR #28)의 VPC·서브넷·S3 게이트웨이 엔드포인트·보안 그룹·Session Manager 접속·Budgets, LLM 추출(Bedrock Nova 2 Lite), 배포(GitHub Actions → OIDC 역할 → CodeDeploy, 11월 8일 PM 결정)를 반영
+- 대시보드 연결 추가(11월 10일, PM(대현)): 채점 작업(Scoring)이 결과를 S3 `exports/`에 내보내고, AWS 밖의 Streamlit Community Cloud가 대시보드 전용 IAM 사용자 키로 `exports/*`만 읽는 경로. signal-infra `docs/storage-design.md` 3.9절 권고안(Streamlit Community Cloud + S3 내보내기 파일)을 그린 것. 대시보드 연결 방식은 아직 미결(결정: PM(대현)·데이터 사이언스(다빈))
+  - Streamlit은 AWS 밖 서비스임. S3 게이트웨이 엔드포인트를 거치지 않는 인터넷 경로로 S3를 읽음
+  - 빨간 점선은 IAM 권한·자격 증명 관계. 대시보드 앱 코드는 GitHub 저장소에서 Streamlit이 직접 배포함. GitHub Actions·CodeDeploy를 거치지 않음
 - 그림 원본은 [architecture-v2.drawio](images/architecture-v2.drawio). draw.io로 열어 고친 뒤 PNG를 다시 내보냄. 원본을 넣은 SVG는 1MB를 넘어 PNG로 둠
 - 10월 22일 초안(데이터 엔지니어링·인프라(주영)): [architecture.drawio.svg](images/architecture.drawio.svg). 아래 두 항목은 초안 기준 설명
 - 그림에서 저장 계층 설계와 다른 곳은 없음. 추가한 것은 EC2 안의 작업 상자 4개와 로컬 디스크, 화살표의 표 이름
