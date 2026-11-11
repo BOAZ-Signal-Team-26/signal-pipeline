@@ -1,5 +1,13 @@
 # 작업 기록
 
+## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
+
+- 바꾼 것
+  - `docs/images/architecture-v2.drawio`(원본)와 `architecture-v2.png`(2배 크기로 내보냄)를 추가함. 원본을 넣은 SVG는 1.19MB로 1MB 차단에 걸려 PNG로 둠
+  - `docs/architecture.md` 1절 그림을 v2로 바꾸고 10월 22일 초안은 링크로 남김
+- 바꾸지 않은 것: `docs/images/architecture.drawio.svg`(10월 22일 초안), `docs/architecture.md` 2절 이후 본문
+- 확인: draw.io 명령줄로 PNG를 다시 내보내 원본과 같은 그림인지 확인. 원본에 계정 번호·IP·키 문자열 없음
+
 ## 2026-11-06 — LLM 추출 필드별 value 구조 초안 (#76)
 
 - 기준: `docs/io-schema.md` 미결(필드별 value 구조, 원래 기한 11월 5일), 11월 6일 PM 결정(PM 초안, 데이터 엔지니어링·인프라(주영) 검토)
@@ -15,7 +23,8 @@
   - `local_load`를 `--force` 없이 두 번 실행. 입력은 `signal-data/runs/extract-20261031T113016Z-9999/`(10월 31일 prep-8 전체 추출)와 같은 `signal-data`의 `raw/`·`derived/`, 코드는 `dev`(PR #61 병합 시점). 건너뜀 2건(20260921000061, 20260922000056: 본문 PDF 없음)은 prep-7 적재 때와 같음
   - 다시 만들 때 명령: `DATABASE_URL=… uv run python -m signal_pipeline.loading.local_load ../signal-data --parser-version pdfplumber-0.11_prep-8 --run-id extract-20261031T113016Z-9999 --checksum`. `--run-id`를 빼면 그 파서 버전의 마지막 전체 실행을 고르므로 다음 추출 뒤에는 다른 입력이 됨
   - 전환 전 `signal`(prep-7)은 `signal_prep7` DB로 복원해 둠(`pg_dump` 백업에서 복원, section 17,251행)
-- 바꾸지 않은 것: `signal_prep8`(10월 31일 시험 적재본), `src/`·`db/migrations/`
+- 바꾸지 않은 것: `src/`·`db/migrations/`
+- 시험용 DB `signal_prep8`(10월 31일 PR #61 브랜치 적재본) 삭제(11월 6일 PM 결정). 삭제 직전 `signal`과 section·raw_object 행 수·md5가 같음을 다시 확인함
 - 검증(11월 6일)
   - 표별 행 수와 내용 md5(`local_load --checksum`): pipeline_run 1 `67c4c4ac4b4eaeaca18df4c794e3ca77`, document 504 `588f650ae8fe030bd11f2ce0cb16a137`, raw_object 1,858 `39295d9cc64ffbf61a470a195046eb2b`, file_extraction 502 `a7a901194bceb821f04cad4b53491e7c`, section 17,254 `4bc5e645af1b166e772484dba79c2eac`. 두 번 적재 출력(행 수·md5·건너뜀)이 시간 줄 빼고 같음
   - 별도 DB에서 다시 만든 결과와 대조: 10월 31일 PR #61 브랜치로 따로 적재한 `signal_prep8`과 표 5개 행 수·md5가 모두 같음
@@ -30,7 +39,7 @@
   - 20260910000245는 prep-8에서 `section_seq` 12개가 밀리고 제4부 4~6절이 제5부로 다시 분류됨
 - 남은 것
   - LLM 추출 모듈(PM(대현)): 절을 `section_seq`·`section_id`가 아니라 원본 키 + 부 + 절 번호로 고르고, 재사용 때 이전 `response.json`을 이번 입력으로 다시 변환하는 규칙([3단계 입출력 Schema 설계 입력](docs/io-schema.md) 「재사용한 결과」)을 구현·검증함. 이번 전환에서는 검증하지 않음(모듈 없음)
-  - `signal_prep8`·`signal_prep7` 유지·삭제: PM(대현) 결정
+  - `signal_prep7` 삭제: LLM 추출 결과 비교가 끝난 뒤(PM(대현))
 
 ## 2026-11-04 — 추출 필드·점검표 v0 확정 내용 반영 (#73)
 
