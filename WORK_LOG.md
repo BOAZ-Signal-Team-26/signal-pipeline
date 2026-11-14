@@ -1,5 +1,14 @@
 # 작업 기록
 
+## 2026-11-14 — 마이그레이션 이력 표와 DB 데이터 이전 절차 (#87)
+
+- 바꾼 것
+  - `db/apply.py`: 이력 표 `public.schema_migrations`(파일 이름, sha256, 적용 시각). 이력에 없는 파일만 파일별 트랜잭션으로 적용하고 같은 트랜잭션에서 이력을 남김. 적용한 파일의 sha256이 바뀌었거나, 이력의 파일이 없거나, 새 파일이 마지막 적용 파일보다 앞서면 멈춤. 이력 표 없이 만든 DB는 멈추고 `--adopt-existing`으로만 등록. `--status`, 동시 실행 방지(advisory lock)
+  - 테스트: `tests/test_apply.py` 11개(TEST_DATABASE_URL 필요)
+  - `docs/data-model.md` 운영 규칙: `apply.py` 설명, 다른 DB로 데이터 옮기기(`apply.py`로 표 생성 → `pg_dump --data-only` → `pg_restore --data-only --single-transaction` → 행 수·내용 md5 비교). `docs/architecture.md` 8절 미결 「마이그레이션 이력 표」 행 삭제
+- 바꾸지 않은 것: `db/migrations/001_erd_v2_2.sql`, 적재(`local_load.py`)·점검(`load_checks.py`)
+- 확인: PostgreSQL 16 컨테이너에서 전체 131개 통과. prep-8 결과(문서 515, 원본 1,902, 추출 513, 절 17,657행)를 위 절차로 슈퍼유저가 아닌 DB 소유자 계정 DB로 옮겨 `local_load.table_checksums` 일치, identity 시퀀스 10개 원본과 같음, `load_checks` 모두 통과. 자기 참조 표에 자식 행을 부모보다 먼저 COPY해도 슈퍼유저가 아닌 계정에서 통과
+
 ## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
 
 - 바꾼 것

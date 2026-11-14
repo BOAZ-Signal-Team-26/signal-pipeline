@@ -653,7 +653,14 @@ DBML과 물리 형태의 차이:
 운영 규칙:
 
 - 적재 코드는 identity 칼럼에 ID를 직접 넣지 않는다(`generated always`라 넣으면 오류). 발급된 ID는 `INSERT ... RETURNING`으로 받는다. 전체를 다시 적재할 때는 `TRUNCATE ... RESTART IDENTITY`로 비운다
-- `db/apply.py`는 적용 이력 표가 없고 `IF NOT EXISTS`에 의존한다. `IF NOT EXISTS`는 이미 있는 표의 정의를 바꾸지 않으므로, RDS 적용 전에 001을 고치면 로컬 DB를 새로 만들어 다시 적용한다. RDS 적용 뒤의 변경은 새 번호 파일로 추가하고, 다시 실행해도 안전하게 쓰거나 그때 적용 이력 표를 추가한다
+- `db/apply.py`는 적용한 파일을 이력 표 `public.schema_migrations`(파일 이름, sha256, 적용 시각)에 남기고, 이력에 없는 파일만 파일 하나씩 트랜잭션으로 적용한다(11월 13일, 데이터 엔지니어링·인프라(주영)). 실패한 파일은 변경과 이력이 함께 롤백된다
+  - 적용한 파일은 고치지 않는다. 바꿀 내용은 새 번호 파일로 추가한다. 적용한 파일의 sha256이 이력과 다르거나, 이력에 있는 파일이 없거나, 새 파일 이름이 마지막 적용 파일보다 앞서면 아무것도 적용하지 않고 멈춘다
+  - 이력 표 없이 만든 DB(11월 13일 이전 `apply.py`)에서는 멈춘다. `IF NOT EXISTS`는 이미 있는 표의 정의를 바꾸지 않으므로 지금 파일과 정의가 같다는 보장이 없기 때문이다. 로컬 DB는 새로 만들어 적용한다. 지금 파일로 만든 DB가 확실하면 `--adopt-existing`으로 실행 없이 이력에 등록한다
+  - 파일별 상태는 `--status`로 본다. 실행 계정은 `public` 스키마에 표를 만들 수 있어야 한다(PostgreSQL 15부터 `public`의 CREATE 권한은 DB 소유자에게만 있음)
+- 다른 DB(로컬 → RDS)로 데이터를 옮길 때는 PostgreSQL 기본 도구를 쓴다(11월 14일, 데이터 엔지니어링·인프라(주영)). 별도 이전 코드를 두지 않는다
+  - 대상 DB의 표는 `db/apply.py`로만 만든다. 데이터만 옮긴다: `pg_dump --data-only -Fc -n raw -n staging -n mart`로 내보내고 `pg_restore --data-only --single-transaction --exit-on-error`로 넣는다. 실패하면 전부 롤백되고, identity 시퀀스 값도 함께 옮겨진다
+  - `pg_dump`가 `document`·`pipeline_run`에 「순환 외래 키라 복원이 안 될 수 있다」는 경고를 낸다. 자기 참조 외래 키뿐이고, 외래 키는 COPY 명령이 끝날 때 검사하므로 슈퍼유저가 아닌 계정(RDS 마스터 포함)에서도 복원된다
+  - 확인: 두 DB에서 표별 행 수·내용 md5를 출력해 같은지 본다. `DATABASE_URL=<DB> uv run python -c "import os, psycopg; from signal_pipeline.loading.local_load import SEARCH_PATH, table_checksums; print(table_checksums(psycopg.connect(os.environ['DATABASE_URL'], options=f'-c search_path={SEARCH_PATH}')))"`. 그 뒤 대상에서 `load_checks`를 돌린다
 - 기존 `public` 표가 있는 로컬 DB는 001을 다시 적용해도 정리되지 않는다. `docker rm -f signal-pg-local` 뒤 새로 만들어 적용한다
 - 권한(grant)·기본 권한(default privileges)과 소유자 설정은 RDS 구축 때 별도 마이그레이션으로 정한다(7주차). 001은 계정을 만들지 않는다
 
