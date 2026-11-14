@@ -42,3 +42,34 @@ jobs:
         run: |
           pipx run ruff==0.16.9 check .
           pipx run ruff==0.16.9 format --check .
+
+  test:
+    # DB 테스트(TEST_DATABASE_URL이 있어야 도는 테스트)까지 실행. 로컬 검증과 같은 PostgreSQL 16
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: signal_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/signal_test
+      UV_VERSION: 0.11.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: uv 설치
+        run: pipx install "uv==${UV_VERSION}"
+
+      - name: 의존성 설치 (uv.lock 그대로)
+        run: uv sync --locked
+
+      - name: 테스트 (pytest, DB 테스트 포함)
+        run: uv run pytest -q -rs
