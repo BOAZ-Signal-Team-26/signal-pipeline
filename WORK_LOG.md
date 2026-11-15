@@ -27,6 +27,14 @@
   - 11월 7일 504건 실행 결과: 위치 찾기 규칙이 바뀌었지만 다시 변환하지 않음. 다음 실행에서 저장된 응답을 재사용해 새 규칙으로 변환됨
 - 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 243개 중 242개 통과, 1개 생략. 추가한 회귀 테스트 11개(CodeRabbit 검토분 4개 포함, 4개 모두 수정 전 코드에서 실패 확인)(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
 
+## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
+
+- 바꾼 것
+  - `docs/images/architecture-v2.drawio`(원본)와 `architecture-v2.png`(2배 크기로 내보냄)를 추가함. 원본을 넣은 SVG는 1.19MB로 1MB 차단에 걸려 PNG로 둠
+  - `docs/architecture.md` 1절 그림을 v2로 바꾸고 10월 22일 초안은 링크로 남김
+- 바꾸지 않은 것: `docs/images/architecture.drawio.svg`(10월 22일 초안), `docs/architecture.md` 2절 이후 본문
+- 확인: draw.io 명령줄로 PNG를 다시 내보내 원본과 같은 그림인지 확인. 원본에 계정 번호·IP·키 문자열 없음
+
 ## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
 
 - 기준: Notion 「기본 로컬 DB(signal)를 prep-8 절 분할 결과로 전환」 티켓. PR #61 병합(11월 6일) 뒤 남은 일
@@ -52,6 +60,16 @@
 - 남은 것
   - LLM 추출 모듈(PM(대현)): 절을 `section_seq`·`section_id`가 아니라 원본 키 + 부 + 절 번호로 고르고, 재사용 때 이전 `response.json`을 이번 입력으로 다시 변환하는 규칙([3단계 입출력 Schema 설계 입력](docs/io-schema.md) 「재사용한 결과」)을 구현·검증함. 이번 전환에서는 검증하지 않음(모듈 없음)
   - `signal_prep7` 삭제: LLM 추출 결과 비교가 끝난 뒤(PM(대현))
+
+## 2026-11-04 — 추출 필드·점검표 v0 확정 내용 반영 (#73)
+
+- 기준: Notion 「투자설명서에서 추출할 6개 필드 확정」(11월 3일 정리, 11월 4일 확정), 「설명의무 누락 검출 점검표 v0 확정」(11월 4일 확정), 금소법 시행령 원문(국가법령정보센터, 2023-11-02 시행본)
+- 바꾼 것
+  - `docs/io-schema.md`: 「추출 필드 목록」 절 신설(AI 추출 4개 `fee_structure`·`principal_loss_notice`·`key_risk_phrases`·환매 조건, 규칙 추출 2개, 제외 2개, 두 필드 경계, 단위). 「변환·검증 순서」에 6단계 문서 단위 중복 제거 추가. 미결에서 필드 목록 행을 지우고 `value` 구조·빈 목록 상태 행 추가
+  - `docs/scoring-and-population.md`: 「점검표 v0 판정 대상」 절 신설(10항목, 근거 조문, 출처 절, 판정 입력). 대리 점검 근거에 시행령 14조① 단서 추가. 해지(4.3)·예금자보호(11.2) 판정 대상, 민원처리·분쟁조정(11.1) 대리판정 불가, 청약철회 NOT_APPLICABLE
+  - `docs/schema.dbml`, `docs/schema-catalog.md`, `docs/data-model.md`: 「6필드 이름 10월 5일 확정 전/확정」 문구를 11월 4일 확정으로 고침
+- 바꾸지 않은 것: 표 구조(`llm_field_extraction.field_name`은 값이라 그대로), LLM 추출 JSON 공통 계약의 envelope·상태값, 「LLM 6필드 추출 결과」처럼 표 내용을 가리키는 이름
+- 검증: 4.3·11.1·11.2 건수는 prep-7·prep-8 추출 텍스트 501건(두 버전 본문 텍스트 동일)에서 셈(해지 조항 제목 499, 「민원」 5·「분쟁조정」 0, 문서 앞부분 「예금자보호」 501). `dbml2sql`로 표 17개 생성 확인, `git diff --check` 통과
 
 ## 2026-10-31 — 본문 부 표제가 목차 부 제목의 앞부분이면 표제로 받음 (#60)
 
