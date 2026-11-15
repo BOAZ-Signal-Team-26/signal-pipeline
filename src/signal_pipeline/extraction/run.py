@@ -347,47 +347,48 @@ def run_extraction(
                 run["started_at"],
             ),
         )
-    write_new(
-        log.dir / "llm" / "excluded_etf.json",
-        json.dumps(exclusions, ensure_ascii=False, indent=1).encode("utf-8"),
-    )
     ctx = Context(conn, data_root, log.run_id, client, prompts, budget_usd)
+    # pipeline_run 행을 만든 뒤의 처리가 어디서 실패해도 RUNNING으로 남기지 않는다
     try:
+        write_new(
+            log.dir / "llm" / "excluded_etf.json",
+            json.dumps(exclusions, ensure_ascii=False, indent=1).encode("utf-8"),
+        )
         errors = _process_all(ctx, docs, workers)
         failed, fail_reason = _fail_reason(conn, log.run_id, ctx.stats["no_input"])
         violations = verify_run(conn, data_root, log.run_id)
+        reason = (
+            ctx.stop_reason
+            or (errors[0] if errors else None)
+            or fail_reason
+            or (
+                f"적재 검증 위반 {len(violations)}건: {violations[0]}"
+                if violations
+                else None
+            )
+        )
+        status = "FAILED" if reason else "SUCCEEDED"
+        summary = {
+            "run_id": log.run_id,
+            "status": status,
+            "reason": reason,
+            "documents": len(docs),
+            "calls": ctx.stats["calls"],
+            "reused": ctx.stats["reused"],
+            "prior_missing": ctx.stats["prior_missing"],
+            "no_input": ctx.stats["no_input"],
+            "input_tokens": ctx.stats["input_tokens"],
+            "output_tokens": ctx.stats["output_tokens"],
+            "cost_usd": round(ctx.cost, 6),
+            "errors": len(errors),
+            "failed": failed,
+            "violations": len(violations),
+            "excluded_etf": len(exclusions),
+            "status_counts": _status_counts(conn, log.run_id),
+        }
     except BaseException as error:
         _close(conn, log, "FAILED", {"stopped_by": f"{type(error).__name__}: {error}"})
         raise
-    reason = (
-        ctx.stop_reason
-        or (errors[0] if errors else None)
-        or fail_reason
-        or (
-            f"적재 검증 위반 {len(violations)}건: {violations[0]}"
-            if violations
-            else None
-        )
-    )
-    status = "FAILED" if reason else "SUCCEEDED"
-    summary = {
-        "run_id": log.run_id,
-        "status": status,
-        "reason": reason,
-        "documents": len(docs),
-        "calls": ctx.stats["calls"],
-        "reused": ctx.stats["reused"],
-        "prior_missing": ctx.stats["prior_missing"],
-        "no_input": ctx.stats["no_input"],
-        "input_tokens": ctx.stats["input_tokens"],
-        "output_tokens": ctx.stats["output_tokens"],
-        "cost_usd": round(ctx.cost, 6),
-        "errors": len(errors),
-        "failed": failed,
-        "violations": len(violations),
-        "excluded_etf": len(exclusions),
-        "status_counts": _status_counts(conn, log.run_id),
-    }
     _close(conn, log, status, summary)
     if summary["prior_missing"]:
         print(
@@ -400,7 +401,7 @@ def run_extraction(
 def _process_all(ctx: Context, docs: list[list[FieldInput]], workers: int) -> list[str]:
     """문서들을 스레드로 돌린다. 문서 하나의 예외는 모아 돌려주고 나머지는 끝까지 돌린다.
 
-    Ctrl-C 등 Exception이 아닌 예외는 대기 중인 문서를 취소하고(진행 중인 호출만 끝냄) 다시 올린다.
+    Ctrl-C 등 Exception이 아닌 예외는 대기 중인 문서를 취소하고, 돌고 있는 문서도 새 호출을 멈추게 한 뒤(진행 중인 호출만 끝냄) 다시 올린다.
     """
     errors: list[str] = []
     pool = ThreadPoolExecutor(max_workers=workers)
@@ -411,6 +412,10 @@ def _process_all(ctx: Context, docs: list[list[FieldInput]], workers: int) -> li
             except Exception as error:  # noqa: BLE001 — 실행을 FAILED로 닫을 사유로 모은다
                 errors.append(f"{type(error).__name__}: {error}")
     except BaseException:
+        with (
+            ctx.lock
+        ):  # 이미 돌고 있는 문서도 남은 필드의 새 호출을 멈추게 한다(reserve가 None)
+            ctx.stop_reason = ctx.stop_reason or "중단(예외·Ctrl-C)"
         pool.shutdown(wait=True, cancel_futures=True)
         raise
     pool.shutdown(wait=True)

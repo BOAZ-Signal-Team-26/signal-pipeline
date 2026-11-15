@@ -16,11 +16,16 @@
   - `loading/load_checks.py`: C2의 실행 선택과 R12의 상태 검사를 `file_extraction`을 쓴 실행(절 추출 실행)으로 좁힘. LLM 추출 실행도 `run_kind` EXTRACT라 FAILED 실행 하나로 R12가 실패하던 문제
   - `docs/architecture.md`: LLM 추출 위치를 SCORE DAG 작업 1로 기록(11월 15일 PM 결정), 2-2에 LLM 추출 실행과 `baseline_date` 차이 추가, 3-3 전환 범위에 LLM 추출의 로컬 읽기 추가, 8절 해당 미결 삭제
   - `docs/io-schema.md`: 실패 예시의 `field_name`을 `key_risk_phrases`로 고침
+  - CodeRabbit 검토 반영(11월 15일)
+    - `align._other_fee_item`: 수수료 토큰 근접 일치에서 끼어든 항목 이름의 공백을 지우고 비교함(「운용 보수」도 다른 항목으로 봄)
+    - `convert._locate`: 공백 제거 일치에서 숫자가 다른 첫 일치를 버린 뒤 포기하지 않고, 숫자가 같은 다음 일치를 씀
+    - `run.py`: `pipeline_run` 행을 만든 뒤의 처리(`excluded_etf.json` 쓰기, 요약 생성 포함)가 실패해도 FAILED로 닫음. 중단 때 이미 돌고 있는 문서도 남은 필드의 새 호출을 멈춤
 - 바꾸지 않은 것
   - LLM 추출을 SCORE 실행으로 바꾸는 코드(`run_kind`, `--upstream-run-id`, `baseline_date` 상속)와 `data-model.md` 「실행 적재 검증」의 `llm_field_extraction` 소속: Week 7 DAG 작성 때
   - ETF 환매 조건 처리: 코드 변경 없음. 판별 기준과 `excluded_etf.json`은 PR #77 `io-schema.md`에 기록(11월 15일 PM 결정)
-  - DB 스키마, 프롬프트, 변환 규칙
-- 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 239개 통과, 1개 생략. 추가한 회귀 테스트 7개(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
+  - DB 스키마, 프롬프트
+  - 11월 7일 504건 실행 결과: 위치 찾기 규칙이 바뀌었지만 다시 변환하지 않음. 다음 실행에서 저장된 응답을 재사용해 새 규칙으로 변환됨
+- 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 243개 중 242개 통과, 1개 생략. 추가한 회귀 테스트 11개(CodeRabbit 검토분 4개 포함, 4개 모두 수정 전 코드에서 실패 확인)(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
 
 ## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
 

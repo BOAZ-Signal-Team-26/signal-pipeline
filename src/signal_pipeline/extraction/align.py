@@ -156,8 +156,14 @@ def _other_fee_item(quote: str, gap: str) -> bool:
 
     「후취판매수수료 1% 선취판매수수료 없음」에서 「후취판매수수료 없음」 인용이
     두 항목의 셀을 이어 붙여 일치하지 않게 한다.
+    PDF가 항목 이름 안에 공백을 넣는 경우(「운용 보수」)가 있어 공백을 지우고 글자만 남겨 비교한다.
     """
-    return any(item not in quote for item in FEE_ITEM.findall(gap))
+    q = re.sub(r"\s", "", quote)
+    items = (
+        re.sub(r"[^가-힣A-Za-z]", "", item)
+        for item in FEE_ITEM.findall(re.sub(r"\s", "", gap))
+    )
+    return any(item and item not in q for item in items)
 
 
 def token_window(

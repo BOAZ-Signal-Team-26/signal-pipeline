@@ -698,6 +698,20 @@ def test_토큰_근접은_다른_수수료_항목_셀을_잇지_않음():
     env = convert(fi, resp(value=_fee_value("A"), quotes=["판매보수 0.3%"]))
     assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
 
+    # PDF가 항목 이름 안에 공백을 넣은 경우(「운용 보수」)도 다른 항목으로 봄
+    fi = field_input("fee_structure", [(7, 0, "판매보수 연 0.5 % 운용 보수 0.3%")])
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["판매보수 0.3%"]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_공백_제거_일치는_숫자가_같은_뒤쪽_일치를_씀():
+    # 첫 구간 「손실 1 0%」는 공백을 지우면 「손실10%」지만 숫자가 1·0이라 버리고, 뒤 「손실 10%」를 씀
+    src = "손실 1 0% / 손실 10%"
+    fi = field_input("principal_loss_notice", [(7, 0, src)])
+    env = convert(fi, resp(value="손실10%", quotes=["손실10%"]))
+    assert env["status"] == "FOUND"
+    assert env["evidence"][0]["char_start"] == src.index("손실 10%")
+
 
 def test_근거는_찾았지만_값을_고쳐_쓰면_원문_구간으로_바꿈():
     src = "이 투자신탁은 원본을 보장하지 않습니다. 끝"

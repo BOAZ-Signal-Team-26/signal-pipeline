@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from typing import Any
 
 from signal_pipeline.extraction import align
@@ -161,17 +162,25 @@ def _evidence(sec: SectionText, start: int, end: int) -> dict:
 
 
 def _locate(
-    index: list[tuple[SectionText, str, list[int]]], quote: str, bare: bool = False
+    index: list[tuple[SectionText, str, list[int]]],
+    quote: str,
+    bare: bool = False,
+    accept: Callable[[dict], bool] | None = None,
 ) -> tuple[dict | None, int]:
-    """4단계: 절 하나 안에서만 찾는다. (inputs 순서로 첫 근거, 전체 일치 수)."""
+    """4단계: 절 하나 안에서만 찾는다. (inputs 순서로 첫 근거, 전체 일치 수).
+
+    accept가 있으면 그 조건을 만족하는 첫 일치를 근거로 하고, 일치 수도 만족하는 것만 센다.
+    """
     q = WS.sub("", quote) if bare else _collapse(quote)
     first, count = None, 0
     for sec, norm, pos in index:
-        n = norm.count(q)
-        if n and first is None:
-            i = norm.find(q)
-            first = _evidence(sec, pos[i], pos[i + len(q) - 1] + 1)
-        count += n
+        i = norm.find(q)
+        while i >= 0:
+            ev = _evidence(sec, pos[i], pos[i + len(q) - 1] + 1)
+            if accept is None or accept(ev):
+                count += 1
+                first = first or ev
+            i = norm.find(q, i + len(q))  # str.count와 같이 겹치지 않게 셈
     return first, count
 
 
@@ -253,10 +262,13 @@ def _place(
     """quote 하나의 (근거, 일치 수, 메모)."""
     located, n = _locate(index, quote)
     if located is None:
-        located, n = _locate(bare, quote, bare=True)
-        # 공백을 모두 지우면 떨어진 숫자가 붙는다(「1 0.5%」 → 「10.5%」). 숫자가 다르면 받지 않음
-        if located is not None and not align.same_numbers(quote, located["quote"]):
-            located = None
+        # 공백을 모두 지우면 떨어진 숫자가 붙는다(「1 0.5%」 → 「10.5%」). 숫자가 같은 일치만 받음
+        located, n = _locate(
+            bare,
+            quote,
+            bare=True,
+            accept=lambda ev: align.same_numbers(quote, ev["quote"]),
+        )
     if located is not None:
         return located, n, None
     # 다른 클래스 행 값을 근거로 받지 않도록 클래스 이름을 함께 대조

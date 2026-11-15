@@ -491,3 +491,48 @@ def test_inputs_only_prospectus_and_needed_part2_sections(db) -> None:
     fis, _ = build_field_inputs(conn, None, "p1")
     assert {fi.document_id for fi in fis} == {d for d, _ in _docs_raws(conn)}
     assert all("12절 본문" not in fi.input_text for fi in fis)
+
+
+def test_interrupt_stops_new_calls_in_running_documents(db) -> None:
+    import threading
+    import time
+
+    conn, root = db
+    lock, seen = threading.Lock(), []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        with lock:
+            seen.append(1)
+            n = len(seen)
+        if n == 1:
+            time.sleep(0.2)  # 다른 문서가 첫 호출을 시작할 시간
+            raise KeyboardInterrupt
+        time.sleep(0.5)  # 중단이 처리되는 동안 진행 중인 호출
+        return Fake()(request)
+
+    client = BedrockClient(
+        MODELS["lite"],
+        backoff_base=0,
+        max_retries=1,
+        transport=httpx.MockTransport(handler),
+    )
+    with pytest.raises(KeyboardInterrupt):
+        run_extraction(conn, root, client, parser_version="p1", workers=2)
+    # 문서 2건이 동시에 첫 호출을 하고, 중단 뒤에는 남은 필드를 호출하지 않음(고치기 전에는 4번 더 호출)
+    assert len(seen) == 2
+
+
+def test_failure_after_run_row_closes_failed(db, monkeypatch) -> None:
+    import signal_pipeline.extraction.run as run_module
+
+    conn, _ = db
+
+    def broken(*args, **kwargs):
+        raise OSError("디스크 가득 참")
+
+    monkeypatch.setattr(run_module, "write_new", broken)
+    with pytest.raises(OSError):
+        run(db, Fake())
+    assert conn.execute(
+        "select status from pipeline_run where run_id <> 'parse-1'"
+    ).fetchone() == ("FAILED",)
