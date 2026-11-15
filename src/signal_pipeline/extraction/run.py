@@ -31,7 +31,7 @@ import os
 import sys
 import threading
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime
 from itertools import groupby
@@ -406,7 +406,10 @@ def _process_all(ctx: Context, docs: list[list[FieldInput]], workers: int) -> li
     errors: list[str] = []
     pool = ThreadPoolExecutor(max_workers=workers)
     try:
-        for future in [pool.submit(process_document, ctx, doc) for doc in docs]:
+        # 끝난 순서로 받는다. 제출 순서로 기다리면 뒤 문서의 중단을 앞 문서가 끝날 때까지 알아채지 못한다
+        for future in as_completed(
+            [pool.submit(process_document, ctx, doc) for doc in docs]
+        ):
             try:
                 future.result()
             except Exception as error:  # noqa: BLE001 — 실행을 FAILED로 닫을 사유로 모은다

@@ -9,6 +9,7 @@
     - 재사용할 이전 `response.json`이 없거나 바이트 sha256이 `response_sha256`과 다르면 다시 호출하고, 그 수를 요약·`run.json`의 `prior_missing`에 남김(0이 아니면 표준 오류에 경고)
     - 입력 절이 있는 필드가 0건이면 FAILED로 닫음(파서 버전을 올린 뒤 DB 재적재 전에 돌린 경우)
     - 예외·Ctrl-C면 대기 중인 문서를 취소하고 FAILED로 닫은 뒤 예외를 다시 올림. 마감 UPDATE는 `status = 'RUNNING'`인 행만 바꿈
+    - 문서 결과를 끝난 순서로 받음. 제출 순서로 기다리면 뒤 문서에서 난 중단을 앞 문서가 남은 필드를 다 호출할 때까지 알아채지 못함(dev 병합 뒤 테스트 10번 중 6번 실패로 발견)
     - `--budget-usd` 필수(`--dry-run` 제외, 11월 15일 PM 결정). DB 환경 변수를 `DATABASE_URL`로, 데이터 루트 인자를 생략하면 `RAW_ROOT`를 씀
     - `config_manifest`에서 `data_root` 절대경로를 뺌(장비마다 `config_sha256`이 달라지고 홈 경로가 DB에 남음)
   - `write_new`를 `extraction/store.py`에서 `common/storage.py`로 옮김(S3 전환 때 바꿀 곳을 한곳으로)
