@@ -1,5 +1,15 @@
 # 작업 기록
 
+## 2026-11-15 — 마이그레이션 이력 표 리뷰 반영 (#87)
+
+- 바꾼 것
+  - `db/apply.py`: 적용할 파일에 트랜잭션 제어 문장(줄 처음이나 `;` 뒤의 BEGIN·START TRANSACTION·COMMIT·END·ABORT·ROLLBACK·SAVEPOINT·RELEASE, 주석 제외)이 있으면 적용 전에 멈춤. `--adopt-existing <마지막 파일 이름>`으로 그 파일까지만 등록하고 뒤 파일은 적용. `--status`에 `out_of_order` 상태. 권한 오류에 DB 소유자 계정 안내를 붙임. 락 해제 오류가 원래 실패 원인을 가리지 않게 함
+  - 테스트: `tests/test_apply.py`에 8개 추가(트랜잭션 제어 5, 주석 허용, `main()` 등록 경로, DB 소유자가 아닌 계정). 실제 마이그레이션 표 수는 파일의 `create table` 수와 비교
+  - `docs/data-model.md` 운영 규칙: 실행 계정은 DB 소유자(`signal_owner`), 복원도 같은 계정, 대상은 빈 DB, 실행 위치(로컬에서 Session Manager 포트 전달, `sslmode=require`), 덤프 파일은 임시 경로·S3 `backups/`에 두지 않음, 비밀번호는 `PGPASSWORD`·`~/.pgpass`, 도구 주 버전, 세 스키마 모든 표 행 수 확인
+  - `.gitattributes`: `db/migrations/*.sql`은 LF로 체크아웃(sha256이 줄바꿈에 따라 달라지지 않게)
+- 바꾸지 않은 것: `db/migrations/001_erd_v2_2.sql`, CI 건너뜀 검사(#88 리뷰 의견, 나중에 별도)
+- 확인: PostgreSQL 16 컨테이너에서 전체 139개 통과. `public` CREATE 권한만 받은 계정은 `permission denied for database`로 멈춤
+
 ## 2026-11-14 — 마이그레이션 이력 표와 DB 데이터 이전 절차 (#87)
 
 - 바꾼 것
