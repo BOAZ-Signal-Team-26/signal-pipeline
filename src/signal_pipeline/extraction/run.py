@@ -1,8 +1,9 @@
 """LLM 필드 추출 실행. 문서마다 필드 4개를 Bedrock에 보내고 결과를 파일과 staging.llm_field_extraction에 남긴다.
 
-사용: SIGNAL_LOCAL_DATABASE_URL=postgresql://... AWS_BEARER_TOKEN_BEDROCK=... \\
-    uv run python -m signal_pipeline.extraction.run ../signal-data --model lite|pro \\
-    [--limit N] [--document-ids FILE] [--workers 8] [--budget-usd X] [--parser-version V] [--dry-run]
+사용: DATABASE_URL=postgresql://... RAW_ROOT=../signal-data AWS_BEARER_TOKEN_BEDROCK=... \\
+    uv run python -m signal_pipeline.extraction.run [data_root] --model lite|pro --budget-usd X \\
+    [--limit N] [--document-ids FILE] [--workers 8] [--parser-version V] [--dry-run]
+data_root를 생략하면 RAW_ROOT를 쓴다. --budget-usd는 --dry-run이 아니면 필수
 
 - 시작 때 raw.pipeline_run 행(EXTRACT, RUNNING)과 runs/{run_id}/run.json을 만들고, 끝에 SUCCEEDED·FAILED로 닫는다
 - 필드 1건 처리 순서(io-schema.md 「재사용한 결과」·「결측 표기」)
@@ -14,13 +15,17 @@
   (마지막 비FAILED 시도, 없으면 마지막 시도)
 - 호출마다 예상 비용을 먼저 잡아 두고(진행 중인 호출 포함) --budget-usd를 넘게 되면 새 호출을 멈추고 실행을 FAILED로 닫는다.
   호출이 끝나면 예상 비용을 실제 비용으로 바꾼다
-- 선택된 필드 중 FAILED 비율이 FAIL_RATE_MAX를 넘거나 성공한 필드가 없으면 실행을 FAILED로 닫는다
+- 선택된 필드 중 FAILED 비율이 FAIL_RATE_MAX를 넘거나, 성공한 필드가 없거나, 입력 절이 있는 필드가 없으면 실행을 FAILED로 닫는다
+- 상태를 정하기 전에 적재 검증(store.verify_run)을 돌리고 위반이 있으면 FAILED로 닫는다
+- 재사용할 이전 response.json이 없거나 바이트 해시가 response_sha256과 다르면 다시 호출하고 prior_missing으로 센다
+- 예외·Ctrl-C면 대기 중인 문서를 취소하고 실행을 FAILED로 닫은 뒤 예외를 다시 올린다
 - DB 쓰기는 연결 하나를 잠금으로 나눠 쓴다. CLI는 autocommit이라 중간에 멈춰도 끝난 행은 남는다
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -36,6 +41,7 @@ from zoneinfo import ZoneInfo
 import psycopg
 
 from signal_pipeline.common.runlog import RunLog
+from signal_pipeline.common.storage import write_new
 from signal_pipeline.extraction.bedrock import (
     MODELS,
     REGION,
@@ -53,7 +59,7 @@ from signal_pipeline.extraction.store import (
     install_prompts,
     select_attempt,
     update_envelope,
-    write_new,
+    verify_run,
     write_request,
     write_response,
 )
@@ -64,7 +70,8 @@ MAX_ATTEMPTS = 2  # 실행 안에서 필드당 호출 상한(첫 호출 + FAILED
 # 선택된 필드 중 FAILED 비율이 이 값을 넘으면 실행 FAILED(11월 7일 PM 결정)
 FAIL_RATE_MAX = 0.2
 EST_TOKENS_PER_CHAR = 1.0  # 예상 입력 토큰 = 글자 수 x 이 값. 한국어는 글자당 1토큰 미만이라 넉넉히 잡는 쪽
-DB_ENV = "SIGNAL_LOCAL_DATABASE_URL"
+DB_ENV = "DATABASE_URL"
+ROOT_ENV = "RAW_ROOT"
 KST = ZoneInfo("Asia/Seoul")
 NO_INPUT = json.dumps(
     {
@@ -161,6 +168,10 @@ def _reuse(ctx: Context, fi: FieldInput) -> tuple[int, dict] | None:
     try:
         raw = (ctx.data_root / prior["raw_response_path"]).read_bytes()
     except FileNotFoundError:  # 다른 data_root이거나 파일 누락 → 재호출
+        raw = None
+    if raw is None or hashlib.sha256(raw).hexdigest() != prior["response_sha256"]:
+        with ctx.lock:  # 바뀐 파일을 재사용하면 적재 검증이 실패하므로 다시 호출한다
+            ctx.stats["prior_missing"] += 1
         return None
     envelope = convert(fi, response_text(raw))
     if result_status(envelope) == "FAILED":  # 이번 입력으로는 변환 실패 → 재호출
@@ -271,14 +282,19 @@ def _status_counts(conn, run_id: str) -> dict[str, int]:
     return dict(rows)
 
 
-def _fail_reason(conn, run_id: str) -> tuple[int, str | None]:
-    """(선택된 FAILED 행 수, 실행을 FAILED로 닫을 사유 또는 None)."""
+def _fail_reason(conn, run_id: str, no_input: int) -> tuple[int, str | None]:
+    """(선택된 FAILED 행 수, 실행을 FAILED로 닫을 사유 또는 None). no_input은 입력 절이 없어 호출하지 않은 필드 수."""
     selected, failed = conn.execute(
         "SELECT count(*), count(*) FILTER (WHERE result_status = 'FAILED')"
         " FROM llm_field_extraction WHERE run_id = %s AND is_selected",
         (run_id,),
     ).fetchone()
     rate = failed / selected if selected else 0.0
+    if selected and selected == no_input:
+        return (
+            failed,
+            f"입력 절이 있는 필드 0건({selected}건 모두 입력 없음, 파서 버전 확인)",
+        )
     if rate > FAIL_RATE_MAX or selected == failed:
         return failed, f"필드 실패율 {rate:.0%}({failed}/{selected})"
     return failed, None
@@ -301,7 +317,6 @@ def run_extraction(
     docs = _by_document(fis)[:limit]
     prompts = install_prompts(data_root)
     config = {
-        "data_root": str(data_root.resolve()),
         "model": client.model,
         "model_params": client.params,
         "region": REGION,
@@ -337,15 +352,23 @@ def run_extraction(
         json.dumps(exclusions, ensure_ascii=False, indent=1).encode("utf-8"),
     )
     ctx = Context(conn, data_root, log.run_id, client, prompts, budget_usd)
-    errors: list[str] = []
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        for future in [pool.submit(process_document, ctx, doc) for doc in docs]:
-            try:
-                future.result()
-            except Exception as error:  # noqa: BLE001 — 문서 하나가 실패해도 나머지는 끝까지 돌리고 실행을 FAILED로 닫는다
-                errors.append(f"{type(error).__name__}: {error}")
-    failed, fail_reason = _fail_reason(conn, log.run_id)
-    reason = ctx.stop_reason or (errors[0] if errors else None) or fail_reason
+    try:
+        errors = _process_all(ctx, docs, workers)
+        failed, fail_reason = _fail_reason(conn, log.run_id, ctx.stats["no_input"])
+        violations = verify_run(conn, data_root, log.run_id)
+    except BaseException as error:
+        _close(conn, log, "FAILED", {"stopped_by": f"{type(error).__name__}: {error}"})
+        raise
+    reason = (
+        ctx.stop_reason
+        or (errors[0] if errors else None)
+        or fail_reason
+        or (
+            f"적재 검증 위반 {len(violations)}건: {violations[0]}"
+            if violations
+            else None
+        )
+    )
     status = "FAILED" if reason else "SUCCEEDED"
     summary = {
         "run_id": log.run_id,
@@ -354,22 +377,55 @@ def run_extraction(
         "documents": len(docs),
         "calls": ctx.stats["calls"],
         "reused": ctx.stats["reused"],
+        "prior_missing": ctx.stats["prior_missing"],
         "no_input": ctx.stats["no_input"],
         "input_tokens": ctx.stats["input_tokens"],
         "output_tokens": ctx.stats["output_tokens"],
         "cost_usd": round(ctx.cost, 6),
         "errors": len(errors),
         "failed": failed,
+        "violations": len(violations),
         "excluded_etf": len(exclusions),
         "status_counts": _status_counts(conn, log.run_id),
     }
+    _close(conn, log, status, summary)
+    if summary["prior_missing"]:
+        print(
+            f"경고: 이전 응답 파일이 없거나 바뀌어 다시 호출한 필드 {summary['prior_missing']}건",
+            file=sys.stderr,
+        )
+    return summary
+
+
+def _process_all(ctx: Context, docs: list[list[FieldInput]], workers: int) -> list[str]:
+    """문서들을 스레드로 돌린다. 문서 하나의 예외는 모아 돌려주고 나머지는 끝까지 돌린다.
+
+    Ctrl-C 등 Exception이 아닌 예외는 대기 중인 문서를 취소하고(진행 중인 호출만 끝냄) 다시 올린다.
+    """
+    errors: list[str] = []
+    pool = ThreadPoolExecutor(max_workers=workers)
+    try:
+        for future in [pool.submit(process_document, ctx, doc) for doc in docs]:
+            try:
+                future.result()
+            except Exception as error:  # noqa: BLE001 — 실행을 FAILED로 닫을 사유로 모은다
+                errors.append(f"{type(error).__name__}: {error}")
+    except BaseException:
+        pool.shutdown(wait=True, cancel_futures=True)
+        raise
+    pool.shutdown(wait=True)
+    return errors
+
+
+def _close(conn, log: RunLog, status: str, summary: dict) -> None:
+    """pipeline_run과 run.json을 닫는다. 다른 실행이 이미 FAILED로 마감한 행은 덮어쓰지 않는다."""
     with conn.transaction():
         conn.execute(
-            "UPDATE pipeline_run SET status = %s, completed_at = now() WHERE run_id = %s",
+            "UPDATE pipeline_run SET status = %s, completed_at = now()"
+            " WHERE run_id = %s AND status = 'RUNNING'",
             (status, log.run_id),
         )
     log.finish(status, summary)
-    return summary
 
 
 def _read_ids(path: str) -> list[int]:
@@ -382,12 +438,16 @@ def _read_ids(path: str) -> list[int]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("data_root", type=Path)
+    ap.add_argument(
+        "data_root", type=Path, nargs="?", help=f"데이터 루트(기본: {ROOT_ENV})"
+    )
     ap.add_argument("--model", choices=sorted(MODELS), required=True)
     ap.add_argument("--limit", type=int, help="앞에서부터 문서 N건")
     ap.add_argument("--document-ids", help="document_id 목록 파일(줄마다 1개)")
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--budget-usd", type=float)
+    ap.add_argument(
+        "--budget-usd", type=float, help="비용 상한(달러). --dry-run이 아니면 필수"
+    )
     ap.add_argument(
         "--parser-version",
         default=current_parser_version(),
@@ -399,6 +459,12 @@ def main() -> int:
         help="입력만 조립해 건수를 보이고 호출·기록하지 않음",
     )
     args = ap.parse_args()
+    if args.data_root is None:
+        if not os.environ.get(ROOT_ENV):
+            ap.error(f"data_root 인자나 {ROOT_ENV} 환경 변수가 필요하다")
+        args.data_root = Path(os.environ[ROOT_ENV])
+    if args.budget_usd is None and not args.dry_run:
+        ap.error("--budget-usd가 필요하다(비용 상한 없이 호출하지 않음)")
 
     url = os.environ.get(DB_ENV)
     if not url:

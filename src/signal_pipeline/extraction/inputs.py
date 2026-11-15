@@ -183,16 +183,26 @@ def assemble_document(
 
 DOC_SQL = """
 SELECT document_id, source_doc_key, rcept_no, report_name FROM raw.document
-WHERE %(ids)s::bigint[] IS NULL OR document_id = ANY(%(ids)s)
+WHERE document_type = '투자설명서' AND (%(ids)s::bigint[] IS NULL OR document_id = ANY(%(ids)s))
 ORDER BY document_id
 """
+# 제2부에서 읽을 절 번호. FIELD_SOURCES의 「제2부 N절」에서 뽑는다(쓰지 않는 절까지 메모리에 올리지 않음)
+PART2_SECTIONS = sorted(
+    {
+        label.removeprefix("제2부 ").removesuffix("절")
+        for labels in FIELD_SOURCES.values()
+        for label in labels
+        if label.startswith("제2부 ")
+    }
+)
 SECTION_SQL = """
 SELECT s.document_id, s.section_id, s.raw_object_id, s.parser_version, s.section_seq, s.part_seq,
        s.source_section_no, s.section_kind, s.char_start, s.extract_status, s.section_text,
        r.sha256 AS raw_sha256
 FROM staging.section s JOIN raw.raw_object r USING (raw_object_id)
 WHERE s.document_id = ANY(%(ids)s) AND s.parser_version = %(parser)s
-  AND (s.section_kind = 'summary' OR (s.section_kind = 'other' AND s.section_seq = 1) OR s.part_seq = 2)
+  AND (s.section_kind = 'summary' OR (s.section_kind = 'other' AND s.section_seq = 1)
+       OR (s.part_seq = 2 AND s.source_section_no = ANY(%(part2)s)))
 ORDER BY s.document_id, s.section_seq, s.section_id
 """
 
@@ -208,7 +218,11 @@ def build_field_inputs(
     with conn.cursor(row_factory=dict_row) as cur:
         docs = cur.execute(DOC_SQL, {"ids": ids}).fetchall()
         by_doc: dict[int, list[dict]] = {}
-        params = {"ids": [d["document_id"] for d in docs], "parser": parser_version}
+        params = {
+            "ids": [d["document_id"] for d in docs],
+            "parser": parser_version,
+            "part2": PART2_SECTIONS,
+        }
         for row in cur.execute(SECTION_SQL, params):
             by_doc.setdefault(row["document_id"], []).append(row)
     mixed = {

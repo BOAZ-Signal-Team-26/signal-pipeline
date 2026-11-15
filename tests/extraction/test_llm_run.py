@@ -12,10 +12,11 @@ import httpx
 import psycopg
 import pytest
 
+from signal_pipeline.common.storage import write_new
 from signal_pipeline.extraction.bedrock import MODELS, TOKEN_ENV, BedrockClient
 from signal_pipeline.extraction.inputs import build_field_inputs
 from signal_pipeline.extraction.run import run_extraction
-from signal_pipeline.extraction.store import check_selected, verify_run, write_new
+from signal_pipeline.extraction.store import check_selected, verify_run
 from signal_pipeline.loading.local_load import SEARCH_PATH
 
 URL = os.environ.get("TEST_DATABASE_URL")
@@ -397,3 +398,96 @@ def test_write_new_refuses_overwrite(tmp_path: Path) -> None:
     with pytest.raises(FileExistsError):
         write_new(path, b"second")
     assert path.read_bytes() == b"first"
+
+
+def test_tampered_prior_response_is_recalled_and_counted(db) -> None:
+    conn, root = db
+    first = run(db, Fake())
+    path = conn.execute(
+        "select raw_response_path from llm_field_extraction where run_id = %s"
+        " and field_name = 'fee_structure' order by document_id limit 1",
+        (first["run_id"],),
+    ).fetchone()[0]
+    target = root / path
+    target.chmod(0o644)
+    target.write_bytes(target.read_bytes() + b" ")
+    fake = Fake()
+    second = run(db, fake)
+    assert fake.calls == ["fee_structure"] and second["prior_missing"] == 1
+    assert second["reused"] == 7 and second["status"] == "SUCCEEDED"
+    assert verify_run(conn, root, second["run_id"]) == []
+
+
+def test_missing_prior_files_are_counted(db, tmp_path: Path) -> None:
+    conn, _ = db
+    run(db, Fake())
+    other = tmp_path / "other-root"
+    other.mkdir()
+    second = run((conn, other), Fake())
+    assert second["reused"] == 0 and second["prior_missing"] == 8
+
+
+def test_run_failed_when_no_field_has_input(db) -> None:
+    conn, _ = db
+    conn.execute(
+        "insert into file_extraction (raw_object_id, parser_version, created_run_id, extract_status,"
+        " canonical_text_path, canonical_text_sha256, structure_status, text_length, extracted_at)"
+        " select raw_object_id, 'p9', 'parse-1', 'EXTRACT_OK', 'x', repeat('b', 64), 'NOT_REQUESTED', 1, now()"
+        " from raw_object"
+    )
+    fake = Fake()
+    result = run(db, fake, parser_version="p9")
+    assert fake.calls == [] and result["no_input"] == 8
+    assert (
+        result["status"] == "FAILED" and "입력 절이 있는 필드 0건" in result["reason"]
+    )
+
+
+def test_violation_fails_run(db, monkeypatch) -> None:
+    import signal_pipeline.extraction.run as run_module
+
+    monkeypatch.setattr(run_module, "verify_run", lambda *a: ["x: 가짜 위반"])
+    result = run(db, Fake())
+    assert result["status"] == "FAILED" and "적재 검증 위반 1건" in result["reason"]
+
+
+def test_interrupt_cancels_pending_and_closes_failed(db) -> None:
+    conn, _ = db
+    fake = Fake()
+
+    def boom(request: httpx.Request) -> httpx.Response:
+        if len(fake.calls) >= 1:
+            raise KeyboardInterrupt
+        return fake(request)
+
+    client = BedrockClient(
+        MODELS["lite"],
+        backoff_base=0,
+        max_retries=1,
+        transport=httpx.MockTransport(boom),
+    )
+    with pytest.raises(KeyboardInterrupt):
+        run_extraction(conn, db[1], client, parser_version="p1", workers=1)
+    assert len(fake.calls) == 1
+    assert conn.execute(
+        "select status, completed_at is not null from pipeline_run where run_kind = 'EXTRACT'"
+        " and run_id <> 'parse-1'"
+    ).fetchone() == ("FAILED", True)
+
+
+def test_inputs_only_prospectus_and_needed_part2_sections(db) -> None:
+    conn, _ = db
+    doc, raw = _docs_raws(conn)[0]
+    conn.execute(
+        "insert into section (document_id, raw_object_id, parser_version, section_seq, part_seq,"
+        " source_section_no, section_kind, char_start, char_end, section_text, extract_status)"
+        " values (%s, %s, 'p1', 6, 2, '12', 'body', 900, 905, '12절 본문', 'EXTRACT_OK')",
+        (doc, raw),
+    )
+    conn.execute(
+        "insert into document (source, source_doc_key, source_key_payload, document_type, report_name,"
+        " received_date) values ('fss', 's-1', '{}', '제재공시', '제재', '2026-11-07')"
+    )
+    fis, _ = build_field_inputs(conn, None, "p1")
+    assert {fi.document_id for fi in fis} == {d for d, _ in _docs_raws(conn)}
+    assert all("12절 본문" not in fi.input_text for fi in fis)

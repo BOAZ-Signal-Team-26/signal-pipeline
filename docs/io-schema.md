@@ -263,7 +263,7 @@ LLM 추출 필드 전부에 같은 모양으로 적용하는 envelope·상태·�
 ```json
 {
   "contract_version": 1,
-  "field_name": "key_risk_text",
+  "field_name": "key_risk_phrases",
   "status": "FAILED",
   "value": null,
   "raw_text": null,

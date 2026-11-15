@@ -1,5 +1,27 @@
 # 작업 기록
 
+## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
+
+- 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
+- 바꾼 것
+  - `extraction/run.py`
+    - 상태를 정하기 전에 `verify_run`을 돌려 위반이 있으면 FAILED로 닫음
+    - 재사용할 이전 `response.json`이 없거나 바이트 sha256이 `response_sha256`과 다르면 다시 호출하고, 그 수를 요약·`run.json`의 `prior_missing`에 남김(0이 아니면 표준 오류에 경고)
+    - 입력 절이 있는 필드가 0건이면 FAILED로 닫음(파서 버전을 올린 뒤 DB 재적재 전에 돌린 경우)
+    - 예외·Ctrl-C면 대기 중인 문서를 취소하고 FAILED로 닫은 뒤 예외를 다시 올림. 마감 UPDATE는 `status = 'RUNNING'`인 행만 바꿈
+    - `--budget-usd` 필수(`--dry-run` 제외, 11월 15일 PM 결정). DB 환경 변수를 `DATABASE_URL`로, 데이터 루트 인자를 생략하면 `RAW_ROOT`를 씀
+    - `config_manifest`에서 `data_root` 절대경로를 뺌(장비마다 `config_sha256`이 달라지고 홈 경로가 DB에 남음)
+  - `write_new`를 `extraction/store.py`에서 `common/storage.py`로 옮김(S3 전환 때 바꿀 곳을 한곳으로)
+  - `extraction/inputs.py`: 입력 조회를 `document_type = '투자설명서'`와 제2부 10·11·13절로 좁힘. 절 번호는 `FIELD_SOURCES`에서 뽑음
+  - `loading/load_checks.py`: C2의 실행 선택과 R12의 상태 검사를 `file_extraction`을 쓴 실행(절 추출 실행)으로 좁힘. LLM 추출 실행도 `run_kind` EXTRACT라 FAILED 실행 하나로 R12가 실패하던 문제
+  - `docs/architecture.md`: LLM 추출 위치를 SCORE DAG 작업 1로 기록(11월 15일 PM 결정), 2-2에 LLM 추출 실행과 `baseline_date` 차이 추가, 3-3 전환 범위에 LLM 추출의 로컬 읽기 추가, 8절 해당 미결 삭제
+  - `docs/io-schema.md`: 실패 예시의 `field_name`을 `key_risk_phrases`로 고침
+- 바꾸지 않은 것
+  - LLM 추출을 SCORE 실행으로 바꾸는 코드(`run_kind`, `--upstream-run-id`, `baseline_date` 상속)와 `data-model.md` 「실행 적재 검증」의 `llm_field_extraction` 소속: Week 7 DAG 작성 때
+  - ETF 환매 조건 처리: 코드 변경 없음. 판별 기준과 `excluded_etf.json`은 PR #77 `io-schema.md`에 기록(11월 15일 PM 결정)
+  - DB 스키마, 프롬프트, 변환 규칙
+- 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 239개 통과, 1개 생략. 추가한 회귀 테스트 7개(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
+
 ## 2026-11-06 — 기본 로컬 DB(`signal`)를 prep-8 절 분할 결과로 전환
 
 - 기준: Notion 「기본 로컬 DB(signal)를 prep-8 절 분할 결과로 전환」 티켓. PR #61 병합(11월 6일) 뒤 남은 일

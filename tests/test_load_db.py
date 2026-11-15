@@ -88,3 +88,21 @@ def test_reload_stops_on_foreign_rows(
     with pytest.raises(RuntimeError, match="--force"):
         load(conn, build_rows(data), PARSER)
     load(conn, build_rows(data), PARSER, force=True)
+
+
+def test_failed_llm_run_does_not_fail_run_status_rule(
+    loaded: tuple[psycopg.Connection, Path],
+) -> None:
+    conn, data = loaded
+    # LLM 추출 실행도 run_kind EXTRACT. file_extraction을 쓰지 않은 실행의 상태는 R12에서 보지 않는다
+    conn.execute(
+        "insert into pipeline_run (run_id, run_kind, baseline_date, status, config_manifest, config_sha256, started_at)"
+        " values ('extract-llm-1', 'EXTRACT', '2026-11-15', 'FAILED', '{}', repeat('0', 64), now())"
+    )
+    assert _failed(conn, data) == set()
+    conn.execute(
+        "update pipeline_run set status = 'FAILED' where run_id in (select created_run_id from file_extraction)"
+    )
+    assert any(
+        d.startswith("절 추출 실행이 SUCCEEDED 아님") for d in _failed(conn, data)
+    )

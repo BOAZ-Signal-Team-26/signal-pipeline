@@ -19,6 +19,7 @@ from typing import Any
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
+from signal_pipeline.common.storage import write_new
 from signal_pipeline.extraction.convert import result_status, selected_evidence
 from signal_pipeline.extraction.inputs import FIELDS, FieldInput, sha256_text
 
@@ -38,13 +39,6 @@ class Prompt:
 
 def canonical(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-
-
-def write_new(path: Path, data: bytes) -> None:
-    """새 파일만 쓴다. 있으면 FileExistsError(실행 폴더·assets 불변)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("xb") as handle:
-        handle.write(data)
 
 
 def install_prompts(data_root: Path) -> dict[str, Prompt]:
