@@ -45,6 +45,8 @@
 | 워터마크 | 로컬 파일 `state/{source}.json` | ERD `source_watermark` 표. 로컬 파일은 DB 가동 전 임시 | DB 구축 뒤 적재 스크립트 전환 때 |
 | 수집 기록 순서 | 원본 저장 뒤 `attempts.jsonl` 한 줄 | 시작 행(`outcome = STARTED`) 기록 → 결과 갱신(적재 순서 1·5) | DB 적재 구현 때(PR #47 리뷰 합의) |
 | 적재 입력 | 추출 실행의 `extraction_attempts.jsonl` 파일 | 같음. DAG에서는 같은 run의 파일을 읽으므로 `--run-id` 지정 불필요 | 변경 없음 |
+| LLM 추출 실행 | PR #79 `extraction.run`이 `RunLog`로 실행을 직접 만들고 닫음. `run_kind` EXTRACT, `upstream_run_id` 없음, `baseline_date`는 실행한 날(KST). 같은 `run_id`로 다시 돌리면 `request.json` 덮어쓰기 거부와 유일키 때문에 모든 문서가 실패함 | SCORE DAG 작업 1(3-2). `run_kind` SCORE, `--upstream-run-id`로 EXTRACT 실행을 받고 `baseline_date`는 그 실행에서 이어받음. [데이터 테이블·ERD 설계](data-model.md) 「실행 적재 검증」에서 `llm_field_extraction`을 EXTRACT run 소속으로 둔 부분도 함께 고침 | Week 7 DAG 작성 때 |
+| `baseline_date` | 수집기 어제(KST), 추출기 오늘(UTC), LLM 추출 오늘(KST)로 모듈마다 다름 | DAG 시작 작업 한 곳에서 정해 `run.json`으로 넘김 | Week 7 DAG 작성 때 |
 | 적재 방식 | PR #63 로컬 적재: 4개 표를 `TRUNCATE` 뒤 다시 넣는 일회성 기준선 | DAG 적재는 upsert. `file_extraction`은 EXTRACT_OK 재사용, FAILED·PARTIAL은 같은 키 행을 덮어씀(원본 보관 규칙 「버전·중복·재추출」 3) | Week 7 DAG 작성 때 |
 
 ### 2-3. 작업 실행 방식
@@ -89,7 +91,7 @@
 | 순서 | 작업 | 입력 | 출력(S3) | 출력(RDS) | 비고 |
 |---|---|---|---|---|---|
 | 0 | 실행 시작 | 수동 트리거 또는 EXTRACT 완료 | `runs/{score_run_id}/run.json` | `raw.pipeline_run`(SCORE, RUNNING, `upstream_run_id`) | |
-| 1 | LLM 6필드 추출 | `section`, `derived/text.txt` | `runs/{run_id}/llm/{document_id}/{field}/attempt-{n}/request.json`·`response.json` | `staging.llm_field_extraction`(`input_sha256`로 재호출 생략) | 담당·시작일은 10월 31일 미팅에서 확정 예정. EXTRACT DAG에 둘지 여기 둘지는 그때 정함 |
+| 1 | LLM 6필드 추출 | `section`, `derived/text.txt` | `runs/{run_id}/llm/{document_id}/{field}/attempt-{n}/request.json`·`response.json` | `staging.llm_field_extraction`(`input_sha256`로 재호출 생략) | SCORE DAG에 둠(11월 15일 PM 결정). 프롬프트·모델이 채점 설정과 같은 실행의 `config_manifest`에 고정되고, Bedrock 호출 비용과 실패가 주간 수집 실행에 섞이지 않음. 지금 코드(PR #79)는 임시로 독립 EXTRACT 실행(2-2) |
 | 2 | 채점 입력 생성 | `fund_group`, `section`, `derived/` | `runs/{score_run_id}/inputs.json`·`selection.json`·`documents.parquet`·`excluded.parquet` | 없음 | [데이터 처리 요구 명세](processing-requirements.md) 2절. 시작 때 한 번 쓰고 불변 |
 | 3 | 채점 | 채점 입력 파일 | `runs/{score_run_id}/populations/…` | `mart.score`, `mart.population_snapshot` | 산식은 CDI 담당. 구현 담당은 10월 31일 미팅에서 확정 예정 |
 | 4 | 게시 | `mart.score` | `exports/runs/{score_run_id}/scores.parquet`·`sensitivity/`·`dashboard_documents.parquet` | 없음 | 공식 지정은 작업 6. 대시보드 연결 Week 7 결정 |
@@ -106,7 +108,7 @@
 | `state/{source}.json` | `source_watermark` 표 | 2-2 |
 | 실행 기록을 실행 폴더에 바로 씀 | 로컬 임시 → 실행 끝에 1회 업로드 | 2-4 |
 
-- 전환 범위: 공통 모듈 3개(`common/storage.py`·`common/state.py`·`common/runlog.py`)와 추출기 `parsing/extract.py`. 추출기는 로컬 경로를 직접 읽고 씀: `main`(`RAW_ROOT`를 로컬 경로로 받음), `latest_pdfs`(로컬 디렉터리 훑기), `process_file`(PDF 읽기, `derived/` 쓰기), `_existing`(기존 `derived/` 읽기)
+- 전환 범위: 공통 모듈 3개(`common/storage.py`·`common/state.py`·`common/runlog.py`)와 추출기 `parsing/extract.py`, LLM 추출의 로컬 읽기(`extraction/store.py`의 `install_prompts`·`verify_run`, `extraction/run.py`의 `_reuse`). LLM 추출의 새 파일 쓰기는 `common/storage.py`의 `write_new`로 모음. 추출기는 로컬 경로를 직접 읽고 씀: `main`(`RAW_ROOT`를 로컬 경로로 받음), `latest_pdfs`(로컬 디렉터리 훑기), `process_file`(PDF 읽기, `derived/` 쓰기), `_existing`(기존 `derived/` 읽기)
 - 완료 기준: 시험 DAG에서 「PDF 내려받기 → `derived/` 업로드 → 다음 실행이 같은 파일 × 파서 버전을 재사용」이 한 번 돎
 - 수집기는 전환 때 같은 기준으로 확인
 
@@ -190,7 +192,7 @@ PR #47(수집)·#51(추출)·#59(로컬 DDL, 리뷰 중)·#63(적재, 리뷰 중
 | 뷰어 목차(`viewer_tree`) | 파일로 저장하지만 적재 안 함(`file_role` enum에 없음) | enum에 추가하고 적재. 계속 수집할 파일인지 확인 | 이슈 #68 | PM(대현) |
 | 같은 PDF 두 문서 | 문서마다 `raw_object`·`section` 따로(34행 중복) | 원본 보관 규칙대로 유지 | 변경 없음 | |
 | 등록·매칭 | 미구현 | EXTRACT DAG 작업 3 | 담당 미정 | 10월 31일 미팅에서 확정 예정 |
-| LLM 추출·채점 | 미구현 | SCORE DAG 1·3 | 담당 미정 | 10월 31일 미팅에서 확정 예정 |
+| LLM 추출·채점 | LLM 추출은 독립 EXTRACT 실행(PR #79), 채점은 미구현 | SCORE DAG 1·3(LLM 추출 위치는 11월 15일 PM 결정) | Week 7 DAG 작성 | 채점 담당 미정 |
 
 ## 7. Week 7 구축 확인 항목에 더하는 것
 
@@ -209,7 +211,6 @@ PR #47(수집)·#51(추출)·#59(로컬 DDL, 리뷰 중)·#63(적재, 리뷰 중
 
 | 질문 | 결정 필요 주체 | 필요 시점 |
 |---|---|---|
-| LLM 추출 작업을 EXTRACT DAG와 SCORE DAG 중 어디에 둘지(`llm/`이 어느 `run_id` 아래 생기는지) | PM(대현), 담당자 | 10월 31일 미팅 담당 확정 때 |
 | 등록·매칭 작업의 구현 담당과 추출과의 순서 | PM(대현) | 10월 31일 미팅 |
 | 추출기 S3 전환 방식(3-3: `latest_pdfs` 목록 조회, `process_file`·`_existing` 읽기·쓰기) | 데이터 엔지니어링·인프라(주영) | Week 7 S3 전환 |
 | Airflow 2.11.2와 signal-pipeline이 함께 쓸 Python 3.12의 arm64 실제 실행 확인(판은 4-1에서 3.12로 정함) | 데이터 엔지니어링·인프라(주영) | Week 7 arm64 실행 확인 때 |

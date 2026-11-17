@@ -1,5 +1,33 @@
 # 작업 기록
 
+## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
+
+- 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
+- 바꾼 것
+  - `extraction/run.py`
+    - 상태를 정하기 전에 `verify_run`을 돌려 위반이 있으면 FAILED로 닫음
+    - 재사용할 이전 `response.json`이 없거나 바이트 sha256이 `response_sha256`과 다르면 다시 호출하고, 그 수를 요약·`run.json`의 `prior_missing`에 남김(0이 아니면 표준 오류에 경고)
+    - 입력 절이 있는 필드가 0건이면 FAILED로 닫음(파서 버전을 올린 뒤 DB 재적재 전에 돌린 경우)
+    - 예외·Ctrl-C면 대기 중인 문서를 취소하고 FAILED로 닫은 뒤 예외를 다시 올림. 마감 UPDATE는 `status = 'RUNNING'`인 행만 바꿈
+    - 문서 결과를 끝난 순서로 받음. 제출 순서로 기다리면 뒤 문서에서 난 중단을 앞 문서가 남은 필드를 다 호출할 때까지 알아채지 못함(dev 병합 뒤 테스트 10번 중 6번 실패로 발견)
+    - `--budget-usd` 필수(`--dry-run` 제외, 11월 15일 PM 결정). DB 환경 변수를 `DATABASE_URL`로, 데이터 루트 인자를 생략하면 `RAW_ROOT`를 씀
+    - `config_manifest`에서 `data_root` 절대경로를 뺌(장비마다 `config_sha256`이 달라지고 홈 경로가 DB에 남음)
+  - `write_new`를 `extraction/store.py`에서 `common/storage.py`로 옮김(S3 전환 때 바꿀 곳을 한곳으로)
+  - `extraction/inputs.py`: 입력 조회를 `document_type = '투자설명서'`와 제2부 10·11·13절로 좁힘. 절 번호는 `FIELD_SOURCES`에서 뽑음
+  - `loading/load_checks.py`: C2의 실행 선택과 R12의 상태 검사를 `file_extraction`을 쓴 실행(절 추출 실행)으로 좁힘. LLM 추출 실행도 `run_kind` EXTRACT라 FAILED 실행 하나로 R12가 실패하던 문제
+  - `docs/architecture.md`: LLM 추출 위치를 SCORE DAG 작업 1로 기록(11월 15일 PM 결정), 2-2에 LLM 추출 실행과 `baseline_date` 차이 추가, 3-3 전환 범위에 LLM 추출의 로컬 읽기 추가, 8절 해당 미결 삭제
+  - `docs/io-schema.md`: 실패 예시의 `field_name`을 `key_risk_phrases`로 고침
+  - CodeRabbit 검토 반영(11월 15일)
+    - `align._other_fee_item`: 수수료 토큰 근접 일치에서 끼어든 항목 이름의 공백을 지우고 비교함(「운용 보수」도 다른 항목으로 봄)
+    - `convert._locate`: 공백 제거 일치에서 숫자가 다른 첫 일치를 버린 뒤 포기하지 않고, 숫자가 같은 다음 일치를 씀
+    - `run.py`: `pipeline_run` 행을 만든 뒤의 처리(`excluded_etf.json` 쓰기, 요약 생성 포함)가 실패해도 FAILED로 닫음. 중단 때 이미 돌고 있는 문서도 남은 필드의 새 호출을 멈춤
+- 바꾸지 않은 것
+  - LLM 추출을 SCORE 실행으로 바꾸는 코드(`run_kind`, `--upstream-run-id`, `baseline_date` 상속)와 `data-model.md` 「실행 적재 검증」의 `llm_field_extraction` 소속: Week 7 DAG 작성 때
+  - ETF 환매 조건 처리: 코드 변경 없음. 판별 기준과 `excluded_etf.json`은 PR #77 `io-schema.md`에 기록(11월 15일 PM 결정)
+  - DB 스키마, 프롬프트
+  - 11월 7일 504건 실행 결과: 위치 찾기 규칙이 바뀌었지만 다시 변환하지 않음. 다음 실행에서 저장된 응답을 재사용해 새 규칙으로 변환됨
+- 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 243개 중 242개 통과, 1개 생략. 추가한 회귀 테스트 11개(CodeRabbit 검토분 4개 포함, 4개 모두 수정 전 코드에서 실패 확인)(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
+
 ## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
 
 - 바꾼 것

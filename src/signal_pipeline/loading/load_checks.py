@@ -67,7 +67,13 @@ def expected_counts(data: Path, run_id: str) -> dict[str, int]:
 def checklist(cur: psycopg.Cursor, data: Path, parser: str) -> list[Result]:
     """11차 미팅 로컬 점검 체크리스트(DDL 적용·2회 실행 비교는 apply.py·local_load --checksum으로 따로)."""
     out: list[Result] = []
-    run_id = _one(cur, "select run_id from pipeline_run where run_kind = 'EXTRACT'")
+    # 절 추출 실행만 본다. LLM 추출 실행도 run_kind EXTRACT라 file_extraction을 쓴 실행으로 가린다
+    run_id = _one(
+        cur,
+        "select run_id from pipeline_run where run_kind = 'EXTRACT'"
+        " and run_id in (select created_run_id from file_extraction)"
+        " order by started_at desc limit 1",
+    )
     want = expected_counts(data, run_id)
     got = {t: _one(cur, f"select count(*) from {t}") for t in want}
     out.append(("C2", "행 수(DB / 디스크)", f"{got} / {want}", got == want))
@@ -236,9 +242,10 @@ RULES = [
     ),
     (
         "R12",
-        "SUCCEEDED 아님 또는 설정 해시 형식",
+        "절 추출 실행이 SUCCEEDED 아님 또는 설정 해시 형식(LLM 추출 실행은 상태를 보지 않음)",
         (
-            "select count(*) from pipeline_run where status <> 'SUCCEEDED'"
+            "select count(*) from pipeline_run where (status <> 'SUCCEEDED'"
+            " and run_id in (select created_run_id from file_extraction))"
             " or config_sha256 !~ '^[0-9a-f]{64}$'"
         ),
     ),
