@@ -28,6 +28,18 @@
   - 11월 7일 504건 실행 결과: 위치 찾기 규칙이 바뀌었지만 다시 변환하지 않음. 다음 실행에서 저장된 응답을 재사용해 새 규칙으로 변환됨
 - 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 243개 중 242개 통과, 1개 생략. 추가한 회귀 테스트 11개(CodeRabbit 검토분 4개 포함, 4개 모두 수정 전 코드에서 실패 확인)(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
 
+## 2026-11-10 — 아키텍처 v2 그림에 대시보드 연결 경로 추가
+
+- 바꾼 것
+  - `docs/images/architecture-v2.drawio`: Scoring → S3 `exports/` 내보내기 선, Streamlit Community Cloud(AWS 밖), 대시보드 전용 IAM 사용자(`exports/*` 읽기만)와 키 전달 선, 열람자, 대시보드 코드 저장소 → Streamlit 배포 선 추가. IAM 관련 선을 빨간 점선으로 통일. S3 버킷을 게이트웨이 엔드포인트 아래로 옮겨 Region 안에 있음을 분명히 함. Budgets·CloudWatch 아이콘 위치 이동
+  - `docs/images/architecture-v2.drawio`: SSM Parameter Store 선을 Bedrock이 아니라 EC2로 향하게 고침(EC2가 비밀값을 읽어 환경 변수로 씀, `docs/architecture.md` 2절). 이름도 「(API Key)」에서 「(Secrets)」로 바꿈(Bedrock 키와 DB 비밀번호를 함께 보관)
+  - `docs/images/architecture-v2.drawio`: IAM 선 3개(Session Manager, 대시보드 접근 키, GitHub OIDC)의 색을 화면 모드에 따라 바뀌는 값(밝은 화면 검정, 어두운 화면 빨강)에서 빨강으로 고정(11월 15일, 리뷰 반영). App Deploy 화살촉을 Streamlit 이름표 아래로 옮기고, 「열람」 이름표를 선 위로 올림
+  - `docs/images/architecture-v2.png`: 원본에서 2배 크기로 다시 내보냄
+  - `docs/architecture.md` 1절: 대시보드 연결 설명 추가. 빨간 점선이 가리키는 선 3개를 적고, 그림의 대시보드 코드 저장소는 위치를 정한 것이 아니라고 적음
+  - `docs/architecture.md` 8절: 대시보드 앱 코드를 둘 저장소(signal-pipeline 안 폴더 또는 별도 저장소)를 미결로 추가
+- 바꾸지 않은 것: `docs/architecture.md` 2절 이후 본문, signal-infra `docs/storage-design.md`(3.9절 결정은 미결 그대로)
+- 확인: draw.io 명령줄로 PNG를 내보내 그림 확인. 원본에 계정 번호·ARN·IP·키 문자열 없음(12자리 숫자는 도형 좌표값)
+
 ## 2026-11-08 — 아키텍처 v2 그림 추가 (#81)
 
 - 바꾼 것
