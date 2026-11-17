@@ -154,3 +154,13 @@ def write_atomic(path: Path, data: bytes) -> None:
     temp = path.with_name(path.name + ".part")
     temp.write_bytes(data)
     os.replace(temp, path)
+
+
+def write_new(path: Path, data: bytes) -> None:
+    """새 파일만 쓴다. 있으면 FileExistsError(실행 폴더·assets 불변).
+
+    S3로 옮길 때는 put_object(IfNoneMatch="*")가 같은 뜻이다(이미 있으면 412).
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("xb") as handle:
+        handle.write(data)
