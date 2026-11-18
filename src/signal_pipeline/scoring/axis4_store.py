@@ -31,12 +31,12 @@ from signal_pipeline.scoring.axis4_rules import (
     validate_keywords,
 )
 
-ASSET_NAME = "axis4_v0.json"
+ASSET_NAME = "axis4_v1.json"
 ASSET_ID = "axis4"
 ASSESSOR = "deterministic"
 SELECTION_POLICY = "axis4-all-prospectus-v0"
 CONTRACT_VERSION = 2
-RULE_VERSION = "axis4-rules-v0"
+RULE_VERSION = "axis4-rules-v1"
 RESULT_STATUS = {
     MET: "OK",
     UNMET: "OK",

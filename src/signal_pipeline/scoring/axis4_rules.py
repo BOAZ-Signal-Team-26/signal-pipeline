@@ -39,6 +39,7 @@ KEYWORD_SHAPE: dict[str, tuple[str, ...]] = {
 }
 # 문장 끝: 마침표류 뒤 공백, 또는 다/요 뒤 줄바꿈. 그 밖의 줄바꿈은 문장 안 공백이다
 _SENTENCE = re.compile(r"(?<=[.!?。])\s+|(?<=[다요])[ \t]*\n\s*")
+_CLAUSE = re.compile(r"(?<=[며고서])\s*,\s*")
 
 
 @dataclass(frozen=True)
@@ -286,7 +287,13 @@ def _body_verdict(
     ]
     evidence = _evidence(sec, idx[0], idx[-1] + 1)
     group = keywords["items"]["body"]
-    sentences = [s.strip() for s in _SENTENCE.split(remainder) if s.strip()]
+    # 연결 어미 + 쉼표로 절을 나눈다. 「해지하며, 자세한 내용은 규약을 참고」의 앞 절은 실제 내용이라 있음
+    sentences = [
+        c.strip()
+        for s in _SENTENCE.split(remainder)
+        for c in _CLAUSE.split(s)
+        if c.strip()
+    ]
     pointer = _patterns(group["pointer"])
     if not all(_hit(pointer, s) for s in sentences):
         return "MET", evidence, ()
@@ -433,7 +440,7 @@ def _judge_na2(doc: DocInput) -> Judgment:
     ids = _ids([pln, krp])
     not_found = [r for r, (k, _) in zip((pln, krp), views) if k == "NOT_FOUND"]
     phrases = (krp.value_json or {}).get("value") if krp else None
-    if not_found or (all(k == "FOUND" for k, _ in views) and not phrases):
+    if not_found or (views[1][0] == "FOUND" and not phrases):
         checked = sorted({i for r in not_found for i in _checked(r)}) or [
             sec10.section_id
         ]

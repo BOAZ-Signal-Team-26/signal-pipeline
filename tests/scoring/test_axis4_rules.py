@@ -386,6 +386,11 @@ def test_na2_unmet_cases() -> None:
     )  # 빈 목록
     und = llm("UNDETERMINED", reason="AMBIGUOUS")
     assert na2(pln=nf, krp=und).status == "UNMET"  # 없음이 판정 불가보다 앞선다
+    # 원금손실 고지가 판정 불가여도 핵심 위험 문구가 빈 목록이면 없음
+    empty = llm("FOUND", [], [(11, 11100, 11110, "q")])
+    assert na2(pln=und, krp=empty).status == "UNMET"
+    # 핵심 위험 문구 추출 자체가 실패하면 빈 목록과 다르게 판정 불가
+    assert na2(krp=llm("FAILED", reason="LLM_ERROR")).status == "UNDETERMINED"
     assert na2(
         pln=llm("NOT_FOUND", reason="NOT_IN_DOCUMENT", checked=[]), krp=PLN_OK
     ).checked_section_ids == (11,)  # checked가 비면 10절로 대신함
@@ -491,7 +496,7 @@ def test_validate_keywords_rejects_bad_shapes() -> None:
 
 
 def test_real_keyword_asset_shape() -> None:
-    path = resources.files("signal_pipeline.scoring") / "keywords" / "axis4_v0.json"
+    path = resources.files("signal_pipeline.scoring") / "keywords" / "axis4_v1.json"
     validate_keywords(json.loads(path.read_text(encoding="utf-8")))
 
 
@@ -561,4 +566,17 @@ def test_body_rule_newline_inside_sentence() -> None:
             "신탁의 해지\n수익자 전원이 동의하면 해지한다\n집합투자규약을 참고"
         ).status
         == "MET"
+    )
+
+
+def test_body_rule_pointer_clause_with_real_condition_is_met() -> None:
+    # 실제 해지 조건 절 + 외부 문서 참조 절이 한 문장이면 있음
+    j = _item43(
+        "신탁의 해지\n수익자 전원이 동의하면 해지하며, 자세한 내용은 집합투자규약을 참고하시기 바랍니다."
+    )
+    assert j.status == "MET"
+    # 외부 문서 참조뿐이면 계속 없음
+    assert (
+        _item43("신탁의 해지\n해지 사유는 집합투자규약을 참고하시기 바랍니다.").status
+        == "UNMET"
     )

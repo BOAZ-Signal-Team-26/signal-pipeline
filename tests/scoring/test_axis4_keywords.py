@@ -1,4 +1,4 @@
-"""축 4 키워드 자산(axis4_v0.json) 회귀 테스트. 정규식만 확인하고 DB는 쓰지 않는다."""
+"""축 4 키워드 자산(axis4_v1.json) 회귀 테스트. 정규식만 확인하고 DB는 쓰지 않는다."""
 
 import json
 import re
@@ -8,7 +8,7 @@ import pytest
 
 ASSET = (
     Path(__file__).resolve().parents[2]
-    / "src/signal_pipeline/scoring/keywords/axis4_v0.json"
+    / "src/signal_pipeline/scoring/keywords/axis4_v1.json"
 )
 ITEMS = json.loads(ASSET.read_text(encoding="utf-8"))["items"]
 
@@ -98,3 +98,37 @@ def test_deposit_protection_matches_11_2():
     text = "이 집합투자증권은 「예금자보호법」에 따라 보호되지 않는 실적배당상품입니다."
     assert _hit(ITEMS["11.2"]["any"], text)
     assert _hit(ITEMS["11.2"]["any"], "예금자\n보호법에 따라 보호되지\n아니하며")
+
+
+# ---- PR #91 리뷰 반영(키워드 v1) ----
+
+
+def test_invest_then_grade_statement_matches_3_2():
+    assert _hit(ITEMS["3.2"]["any"], "이 펀드는 주식에 투자해 2등급입니다.")
+
+
+def test_risk_labels_without_grade_context_are_not_3_3_meaning():
+    text = (
+        "이 투자신탁은 매우 높은 위험을 부담합니다. 일부 자산은 매우 낮은 위험을 가집니다."
+        " 위험등급은 변경될 수 있습니다."
+    )
+    assert not _hit(ITEMS["3.3"]["meaning"], text)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "1등급 매우 높은 위험 2등급 높은 위험 3등급 다소 높은 위험 4등급 보통 위험 5등급 낮은 위험 6등급 매우 낮은 위험",
+        "위험등급 기준표\n 매우 높은 다소 높은 매우 낮은\n 높은 위험 보통 위험 낮은 위험\n (2등급) (4등급) (5등급)",
+        "<투자위험 등급 기준>\n Level 1 매우 높은 위험 ... Level 3 다소 높은 위험 ... Level 4 보통 위험 ... Level 6 매우 낮은 위험",
+    ],
+)
+def test_grade_tables_are_3_3_meaning(text):
+    assert _hit(ITEMS["3.3"]["meaning"], text)
+
+
+def test_distributor_caution_needs_grade_context():
+    caution = ITEMS["3.3"]["caution"]
+    assert not _hit(caution, "판매회사별 수수료는 상이할 수 있습니다.")
+    assert _hit(caution, "판매회사의 분류 등급과는 상이할 수 있습니다.")
+    assert _hit(caution, "판매회사가 산정한\n 위험등급과는 상이할 수 있습니다.")

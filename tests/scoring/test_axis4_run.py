@@ -434,3 +434,43 @@ def test_etf_by_report_name_is_not_applicable(db) -> None:
         " and score_payload->>'item' = '4.2'",
         (rid, min(docs)),
     ).fetchone() == ("NOT_APPLICABLE", "ETF_REPORT_NAME")
+
+
+def _run_json(root: Path) -> dict:
+    (path,) = (root / "runs").glob("*/run.json")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_run_json_records_upstream_run(db) -> None:
+    _, root, _ = db
+    run(db)
+    assert _run_json(root)["upstream_run_id"] == "llm-1"
+
+
+def test_insert_failure_closes_run_json_as_failed(db, monkeypatch) -> None:
+    _, root, _ = db
+
+    class BadDateLog(axis4_run.RunLog):
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.run["baseline_date"] = "not-a-date"
+
+    monkeypatch.setattr(axis4_run, "RunLog", BadDateLog)
+    with pytest.raises(psycopg.Error):
+        run(db)
+    assert _run_json(root)["status"] == "FAILED"
+
+
+def test_normal_close_failure_closes_run_json_as_failed(db, monkeypatch) -> None:
+    _, root, _ = db
+    calls = []
+
+    def close_db_down(*a, **k):
+        calls.append(a[3])
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(axis4_run, "_close", close_db_down)
+    with pytest.raises(RuntimeError, match="db down"):
+        run(db)
+    assert calls == ["SUCCEEDED", "FAILED"]
+    assert _run_json(root)["status"] == "FAILED"

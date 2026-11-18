@@ -124,20 +124,22 @@ def run_axis4(
         data_root, datetime.now(KST).date().isoformat(), config, run_kind="SCORE"
     )
     run = log.run
-    with conn.transaction():
-        conn.execute(
-            "INSERT INTO pipeline_run (run_id, run_kind, upstream_run_id, baseline_date, status, config_manifest,"
-            " config_sha256, started_at) VALUES (%s, 'SCORE', %s, %s, 'RUNNING', %s::jsonb, %s, %s)",
-            (
-                run["run_id"],
-                llm_run_id,
-                run["baseline_date"],
-                run["config_manifest"],
-                run["config_sha256"],
-                run["started_at"],
-            ),
-        )
+    run["upstream_run_id"] = llm_run_id
+    log._write_run()
     try:
+        with conn.transaction():
+            conn.execute(
+                "INSERT INTO pipeline_run (run_id, run_kind, upstream_run_id, baseline_date, status, config_manifest,"
+                " config_sha256, started_at) VALUES (%s, 'SCORE', %s, %s, 'RUNNING', %s::jsonb, %s, %s)",
+                (
+                    run["run_id"],
+                    llm_run_id,
+                    run["baseline_date"],
+                    run["config_manifest"],
+                    run["config_sha256"],
+                    run["started_at"],
+                ),
+            )
         ids = [d["document_id"] for d in docs]
         selection = write_new_json(
             log.dir / ARTIFACT_DIR / "selection.json",
@@ -188,17 +190,31 @@ def run_axis4(
             "csv": str(csv_path.relative_to(data_root)),
             "status_counts": store.status_counts(conn, log.run_id),
         }
+        _close(conn, log, data_root, status, summary, selection=selection)
     except BaseException as error:
-        try:
-            _close(conn, log, data_root, "FAILED", {"stopped_by": _error_tag(error)})
-        except Exception as close_error:  # noqa: BLE001 -- 마감 실패가 원래 예외를 가리지 않게 한다
-            print(
-                f"경고: 실행 {log.run_id}을 FAILED로 마감하지 못함({_error_tag(close_error)})",
-                file=sys.stderr,
-            )
+        _close_failed(conn, log, data_root, error)
         raise
-    _close(conn, log, data_root, status, summary, selection=selection)
     return summary
+
+
+def _close_failed(conn, log: RunLog, data_root: Path, error: BaseException) -> None:
+    """FAILED 마감. DB 마감이 실패해도 run.json은 따로 FAILED로 닫는다. 마감 실패가 원래 예외를 가리지 않게 한다."""
+    summary = {"stopped_by": _error_tag(error)}
+    try:
+        _close(conn, log, data_root, "FAILED", summary)
+        return
+    except Exception as close_error:  # noqa: BLE001
+        print(
+            f"경고: 실행 {log.run_id}의 DB 기록을 FAILED로 마감하지 못함({_error_tag(close_error)})",
+            file=sys.stderr,
+        )
+    try:
+        log.finish("FAILED", summary)
+    except Exception as close_error:  # noqa: BLE001
+        print(
+            f"경고: 실행 {log.run_id}의 run.json을 FAILED로 마감하지 못함({_error_tag(close_error)})",
+            file=sys.stderr,
+        )
 
 
 def write_new_json(path: Path, value: object) -> Path:
