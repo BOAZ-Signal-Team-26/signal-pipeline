@@ -1,5 +1,18 @@
 # 작업 기록
 
+## 2026-11-19 — 축 4(고지 충실도) 판정 구현(이슈 #90)
+
+- 기준: `docs/scoring-and-population.md` 「점검표 v0 판정 대상」
+- 바꾼 것
+  - `src/signal_pipeline/scoring/`: 판정 함수(`axis4_rules.py`), 입력 조회(`axis4_inputs.py`), 지표 등록·score 적재·검증(`axis4_store.py`), 실행 명령(`axis4_run.py`), CSV 내보내기(`axis4_export.py`), 키워드 파일(`keywords/axis4_v0.json`)
+  - 지표 10개 `disclosure_item_<항목>:v0`(DRAFT). 키워드 파일 경로와 sha256을 정의 해시에 넣어, 키워드가 바뀌면 새 지표 버전 없이는 실행을 거부함
+  - `docs/scoring-and-population.md`: 3.2·3.3 기준, ETF 판정 기준, 4.1 13절 부재 처리, 표지 대체 규칙(11월 18일 PM 결정)
+  - `tests/scoring/`: 판정 함수, 실행 통합(TEST_DATABASE_URL 필요), 키워드 회귀 테스트
+- 바꾸지 않은 것
+  - DB 마이그레이션 없음. 지표 정의는 실행 시작 때 코드가 등록함
+  - SCORE DAG 편입은 하지 않음. 축 4 실행이 자기 SCORE 실행을 따로 만듦(Week 7 DAG 작성 때 데이터 엔지니어링·인프라(주영)가 연결)
+- 실측(로컬 DB 투자설명서 504건): score 5,040행 적재, 적재 검증 통과. 확정 정답 세트 10건과 일치 99/100칸. 불일치는 문서 2의 3.3 한 칸(제2부 10절 추출 텍스트에서 등급표 라벨이 빠진 입력 문제)
+
 ## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
 
 - 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
