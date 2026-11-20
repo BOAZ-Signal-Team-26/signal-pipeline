@@ -3,7 +3,7 @@
 ## 2026-11-20 — 마이그레이션을 Flyway로 전환 (#87)
 
 - 바꾼 것
-  - 직접 만든 `db/apply.py`와 `tests/test_apply.py`를 지우고 Flyway(OSS 13.13.0)로 바꿈. 학습용 프로젝트라 현업 표준 도구를 쓰기로 함(데이터 엔지니어링·인프라(주영))
+  - 직접 만든 `db/apply.py`와 `tests/test_apply.py`를 지우고 Flyway(OSS 13.13.0)로 바꿈. 같은 일을 하는 표준 도구가 있고 직접 만든 정규식 검사에 결함(문자열 안 `--` 놓침, CASE `END` 오탐)이 있어서 바꿈. 학습용 프로젝트라 현업 도구 경험도 덧붙는 이유(데이터 엔지니어링·인프라(주영))
   - `flyway.toml` 추가: 마이그레이션 위치 `db/migrations`, 이름 규칙 검사, 환경 `local`·`rds`. 계정·비밀번호는 환경 변수로 받음
   - `db/migrations/001_erd_v2_2.sql` → `V1__erd_v2_2.sql`(Flyway 이름 규칙). 내용은 그대로
   - CI `test` 작업에 Flyway Docker(`redgate/flyway:13.13.0`)로 `migrate` 2회·`validate`·`info` 단계 추가
