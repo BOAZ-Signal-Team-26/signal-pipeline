@@ -1,0 +1,16 @@
+# Flyway 설정(DB 마이그레이션). 실행 방법과 규칙은 docs/data-model.md 「운영 규칙」
+# 계정·비밀번호는 이 파일에 쓰지 않는다. 환경 변수 ENVIRONMENTS_<환경>_USER·ENVIRONMENTS_<환경>_PASSWORD로 넘긴다
+
+[flyway]
+locations = ["filesystem:db/migrations"]
+# 이름 규칙(V<버전>__<설명>.sql)에 맞지 않는 파일이 있으면 무시하지 않고 멈춘다
+validateMigrationNaming = true
+
+# 로컬 PostgreSQL 16 컨테이너(signal-pg-local)
+[environments.local]
+url = "jdbc:postgresql://localhost:5432/signal"
+
+# RDS. Session Manager 포트 전달로 로컬 15432번에 붙는다(signal-infra scripts/aws/README.md)
+[environments.rds]
+url = "jdbc:postgresql://localhost:15432/signal?sslmode=require"
+user = "signal_owner"

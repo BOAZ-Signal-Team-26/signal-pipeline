@@ -1,5 +1,17 @@
 # 작업 기록
 
+## 2026-11-20 — 마이그레이션을 Flyway로 전환 (#87)
+
+- 바꾼 것
+  - 직접 만든 `db/apply.py`와 `tests/test_apply.py`를 지우고 Flyway(OSS 13.13.0)로 바꿈. 학습용 프로젝트라 현업 표준 도구를 쓰기로 함(데이터 엔지니어링·인프라(주영))
+  - `flyway.toml` 추가: 마이그레이션 위치 `db/migrations`, 이름 규칙 검사, 환경 `local`·`rds`. 계정·비밀번호는 환경 변수로 받음
+  - `db/migrations/001_erd_v2_2.sql` → `V1__erd_v2_2.sql`(Flyway 이름 규칙). 내용은 그대로
+  - CI `test` 작업에 Flyway Docker(`redgate/flyway:13.13.0`)로 `migrate` 2회·`validate`·`info` 단계 추가
+  - 마이그레이션 린터 Squawk 2.73.0 추가: `.squawk.toml`(파일마다 트랜잭션 가정, PostgreSQL 16, 물리 결정과 부딪히는 규칙 2개 제외), pre-commit 훅, CI `check` 작업에서 이 PR이 추가·수정한 마이그레이션 파일만 검사. Flyway가 막지 않는 파일 안 `COMMIT`을 막기 위함
+  - `docs/data-model.md` 운영 규칙과 데이터 이전 절차를 Flyway 기준으로, `tests/test_ddl_tables.py` 파일 경로, `load_checks.py` 주석
+- 바꾸지 않은 것: DDL 내용, DB 테스트가 마이그레이션 파일을 직접 적용하는 방식(`test_load_db.py`, `test_llm_run.py`), `.gitattributes`
+- 확인: PostgreSQL 16 컨테이너에서 `migrate` 2회(두 번째 적용 0건, 표 17개), 파일을 고치면 `validate`·`migrate`가 checksum mismatch로 멈춤, 문자열 안 `--`는 그대로 들어감, DB 소유자가 아닌 계정은 `permission denied for database`. 파일 안 `COMMIT`은 Flyway가 막지 않아 앞 문장이 남음. Docker 이미지로도 같은 결과. Squawk: 문자열 `'a--b'` 뒤 `commit`을 잡고, 문자열·주석 안 `commit`, 여러 줄 CASE의 `END`, PL/pgSQL 본문은 잡지 않음. `set local` 시간 제한을 둔 파일은 통과하고 Flyway로도 적용됨
+
 ## 2026-11-15 — 마이그레이션 이력 표 리뷰 반영 (#87)
 
 - 바꾼 것

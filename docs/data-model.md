@@ -617,7 +617,7 @@ v2.2 수정 1로 아래 표 4개를 DBML에서 뺐다. 산식·평가 프로토�
 
 ## 물리 결정
 
-ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약·배치 6건이다(1~5는 10월 20일 확정, 6은 10월 25일 PM 결정). DDL은 `db/migrations/001_erd_v2_2.sql`, 적용은 `DATABASE_URL=... uv run python db/apply.py`. DBML이 칼럼·관계의 정본이며 DDL은 DBML에서 만든 물리 형태다.
+ERD v2.2를 PostgreSQL 16에 적용하면서 정한 자료형·제약·배치 6건이다(1~5는 10월 20일 확정, 6은 10월 25일 PM 결정). DDL은 `db/migrations/V1__erd_v2_2.sql`, 적용은 Flyway(아래 「운영 규칙」). DBML이 칼럼·관계의 정본이며 DDL은 DBML에서 만든 물리 형태다.
 
 | # | 결정 | 적용 범위 |
 |---|---|---|
@@ -653,26 +653,33 @@ DBML과 물리 형태의 차이:
 운영 규칙:
 
 - 적재 코드는 identity 칼럼에 ID를 직접 넣지 않는다(`generated always`라 넣으면 오류). 발급된 ID는 `INSERT ... RETURNING`으로 받는다. 전체를 다시 적재할 때는 `TRUNCATE ... RESTART IDENTITY`로 비운다
-- `db/apply.py`는 적용한 파일을 이력 표 `public.schema_migrations`(파일 이름, sha256, 적용 시각)에 남기고, 이력에 없는 파일만 파일 하나씩 트랜잭션으로 적용한다(11월 13일, 데이터 엔지니어링·인프라(주영)). 실패한 파일은 변경과 이력이 함께 롤백된다
-  - 적용한 파일은 고치지 않는다. 바꿀 내용은 새 번호 파일로 추가한다. 적용한 파일의 sha256이 이력과 다르거나, 이력에 있는 파일이 없거나, 새 파일 이름이 마지막 적용 파일보다 앞서면 아무것도 적용하지 않고 멈춘다
-  - 파일 안에 트랜잭션 제어 문장(BEGIN·COMMIT·ROLLBACK·SAVEPOINT 등)을 쓰지 않는다. 그 지점에서 트랜잭션이 끝나 앞 문장만 남기 때문이다. 적용할 파일에 있으면 아무것도 적용하지 않고 멈춘다. 검사는 줄 처음이나 `;` 뒤의 키워드로 하므로, 여러 줄 CASE의 END나 PL/pgSQL 본문의 BEGIN·END가 줄 처음에 오면 잘못 멈출 수 있다
-  - 이력 표 없이 만든 DB(11월 13일 이전 `apply.py`)에서는 멈춘다. `IF NOT EXISTS`는 이미 있는 표의 정의를 바꾸지 않으므로 지금 파일과 정의가 같다는 보장이 없기 때문이다. 로컬 DB는 새로 만들어 적용한다. 그 DB를 만든 파일이 확실하면 `--adopt-existing <마지막 파일 이름>`으로 그 파일까지 실행 없이 이력에 등록하고, 뒤 파일은 이어서 적용한다. 스키마가 파일과 같은지는 확인하지 않는다
-  - 파일별 상태는 `--status`로 본다. `out_of_order`는 이름이 마지막 적용 파일보다 앞서 적용이 멈추는 파일이다
-  - 실행 계정은 대상 DB의 소유자여야 한다. 001의 `CREATE SCHEMA`는 DB의 CREATE 권한이, 이력 표는 `public` 스키마의 CREATE 권한이 필요하고, 둘 다 기본으로 DB 소유자에게만 있다(`public`은 PostgreSQL 15부터). RDS에서는 마이그레이션 계정 `signal_owner`(signal-infra `docs/storage-design.md` 3.6)를 `signal` DB 소유자로 만든다. `public` CREATE 권한만으로는 `permission denied for database`로 멈춘다(11월 15일 PostgreSQL 16에서 확인)
+- 마이그레이션은 Flyway(OSS 13.13.0)로 적용한다(11월 20일, 데이터 엔지니어링·인프라(주영)). 학습용 프로젝트라 현업 표준 도구를 쓰기로 해서, 직접 만든 `db/apply.py`를 대신한다
+  - 설정은 저장소 루트 `flyway.toml`. 마이그레이션 파일은 `db/migrations/V<버전>__<설명>.sql`
+  - 적용한 파일은 이력 표 `public.flyway_schema_history`에 체크섬과 함께 남고, 이력에 없는 파일만 버전 순서로 하나씩 트랜잭션으로 적용된다. 실패한 파일은 변경이 롤백된다
+  - 적용한 파일은 고치지 않는다. 바꿀 내용은 새 버전 파일로 추가한다. 적용한 파일의 체크섬이 이력과 다르면 `migrate`·`validate`가 아무것도 적용하지 않고 멈춘다
+  - 파일 안에 트랜잭션 제어 문장(BEGIN·COMMIT·ROLLBACK·SAVEPOINT 등)을 쓰지 않는다. Flyway는 이를 막지 않는다. `COMMIT` 앞 문장은 남고 이력에는 기록되지 않아, 다시 실행하면 충돌한다(11월 20일 PostgreSQL 16에서 확인). 마이그레이션 린터 Squawk가 막는다(아래)
+  - 새 마이그레이션 파일은 커밋 전(pre-commit 훅)과 PR CI에서 Squawk 2.73.0으로 검사한다. 설정은 저장소 루트 `.squawk.toml`. 추가·수정한 파일만 검사하고, 이름만 바뀐 파일은 검사하지 않는다. V1은 Squawk 도입 전에 확정된 DDL이라 검사에서 뺀다(`.squawk.toml` `excluded_paths`, pre-commit `exclude`)
+    - `assume_in_transaction = true`: Flyway가 파일마다 트랜잭션을 연다고 보고, 파일 안 트랜잭션 제어 문장을 `transaction-nesting`으로 잡는다
+    - 끈 규칙: `prefer-bigint-over-int`, `prefer-text-field`. 위 「물리 결정」(길이가 있는 `varchar(n)` 유지, `int`는 `integer`)과 부딪히기 때문이다
+    - 잠금·실행 시간 제한 규칙이 켜져 있어, 표·함수를 만들거나 바꾸는 파일은 맨 앞에 `set local lock_timeout = '5s';`, `set local statement_timeout = '60s';`처럼 시간 제한을 둔다. `set local`은 Flyway가 연 트랜잭션 안에서만 적용된다. 값은 작업에 맞게 정한다
+  - 실행: 저장소 루트에서 `flyway -environment=local migrate`(로컬), `flyway -environment=rds migrate`(RDS). 상태는 `info`, 검증만 할 때는 `validate`. 로컬은 Homebrew `flyway`, CI는 Docker `redgate/flyway:13.13.0`
+  - 계정·비밀번호는 `flyway.toml`에 쓰지 않는다. `ENVIRONMENTS_LOCAL_USER`·`ENVIRONMENTS_LOCAL_PASSWORD`, `ENVIRONMENTS_RDS_PASSWORD` 환경 변수로 넘긴다(RDS 계정은 `signal_owner`로 고정). 주소를 바꿀 때는 `ENVIRONMENTS_LOCAL_URL`
+  - 실행 계정은 대상 DB의 소유자여야 한다. V1의 `CREATE SCHEMA`는 DB의 CREATE 권한이, 이력 표는 `public` 스키마의 CREATE 권한이 필요하고, 둘 다 기본으로 DB 소유자에게만 있다(`public`은 PostgreSQL 15부터). RDS에서는 마이그레이션 계정 `signal_owner`(signal-infra `docs/storage-design.md` 3.6)를 `signal` DB 소유자로 만든다. `public` CREATE 권한만으로는 `permission denied for database`로 멈춘다(11월 20일 PostgreSQL 16에서 확인)
+  - 이력 표 없이 만든 로컬 DB(이전 `apply.py`로 만든 DB)는 새로 만들어 적용한다. Flyway의 기준점 등록(`baseline`)은 스키마가 파일과 같은지 확인하지 않으므로 쓰지 않는다
 - 다른 DB(로컬 → RDS)로 데이터를 옮길 때는 PostgreSQL 기본 도구를 쓴다(11월 14일, 데이터 엔지니어링·인프라(주영)). 별도 이전 코드를 두지 않는다
-  - 대상 DB는 `db/apply.py`를 막 적용한 빈 DB여야 한다. 행이 있으면 DB를 새로 만들어 적용한다. 데이터만 넣으므로 키가 겹치는 행은 PK 충돌로 전부 롤백되지만, 겹치지 않는 행은 섞여 들어가고 시퀀스 값도 덮어쓴다
-  - 대상 DB의 표는 `db/apply.py`로만 만든다. 데이터만 옮긴다: `pg_dump --data-only -Fc -n raw -n staging -n mart`로 내보내고 `pg_restore --data-only --single-transaction --exit-on-error`로 넣는다. 실패하면 전부 롤백되고, identity 시퀀스 값도 함께 옮겨진다. 이력 표 `public.schema_migrations`는 옮기지 않는다. 대상의 이력은 대상에서 실행한 `apply.py`가 남긴다
-  - `pg_restore`는 `apply.py`를 실행한 계정(표 소유자. RDS에서는 `signal_owner`)으로 실행한다. RDS 마스터는 표 소유자가 아니라 INSERT·시퀀스 값 설정 권한이 없다
+  - 대상 DB는 Flyway `migrate`를 막 적용한 빈 DB여야 한다. 행이 있으면 DB를 새로 만들어 적용한다. 데이터만 넣으므로 키가 겹치는 행은 PK 충돌로 전부 롤백되지만, 겹치지 않는 행은 섞여 들어가고 시퀀스 값도 덮어쓴다
+  - 대상 DB의 표는 Flyway로만 만든다. 데이터만 옮긴다: `pg_dump --data-only -Fc -n raw -n staging -n mart`로 내보내고 `pg_restore --data-only --single-transaction --exit-on-error`로 넣는다. 실패하면 전부 롤백되고, identity 시퀀스 값도 함께 옮겨진다. 이력 표 `public.flyway_schema_history`는 옮기지 않는다. 대상의 이력은 대상에서 실행한 Flyway가 남긴다
+  - `pg_restore`는 Flyway를 실행한 계정(표 소유자. RDS에서는 `signal_owner`)으로 실행한다. RDS 마스터는 표 소유자가 아니라 INSERT·시퀀스 값 설정 권한이 없다
   - `pg_dump`가 `document`·`pipeline_run`에 「순환 외래 키라 복원이 안 될 수 있다」는 경고를 낸다. 자기 참조 외래 키뿐이고, 외래 키는 COPY 명령이 끝날 때 검사하므로 슈퍼유저가 아닌 계정에서도 복원된다
   - `pg_dump`는 원본 서버보다 주 버전이 낮으면 내보내지 못한다. 로컬 DB와 RDS가 모두 PostgreSQL 16(signal-infra `docs/storage-design.md` 3.1)이라 `pg_dump`·`pg_restore` 모두 로컬 컨테이너(`postgres:16`) 안의 16 도구를 쓴다
-  - RDS는 EC2 보안 그룹에서만 5432번을 받는다(signal-infra `docs/storage-design.md` 3.8). 로컬에서 Session Manager 원격 호스트 포트 전달(`AWS-StartPortForwardingSessionToRemoteHost`, EC2 경유)로 붙어 `apply.py`·`pg_restore`를 실행하고 `sslmode=require`를 쓴다. 순서와 명령은 signal-infra `scripts/aws/README.md`
+  - RDS는 EC2 보안 그룹에서만 5432번을 받는다(signal-infra `docs/storage-design.md` 3.8). 로컬에서 Session Manager 원격 호스트 포트 전달(`AWS-StartPortForwardingSessionToRemoteHost`, EC2 경유)로 붙어 Flyway·`pg_restore`를 실행하고 `sslmode=require`를 쓴다. 순서와 명령은 signal-infra `scripts/aws/README.md`
   - 덤프 파일은 저장소 밖 임시 경로에 만들고 확인이 끝나면 지운다. S3 `backups/`(주간 백업 전용, 35일 수명 주기)에 두지 않는다
   - 비밀번호는 `DATABASE_URL`에 넣지 않고 `PGPASSWORD`나 `~/.pgpass`로 준다
   - 확인 1: 두 DB에서 적재 5개 표(`pipeline_run`·`document`·`raw_object`·`file_extraction`·`section`)의 행 수·내용 md5를 출력해 같은지 본다. `DATABASE_URL=<DB> uv run python -c "import os, psycopg; from signal_pipeline.loading.local_load import SEARCH_PATH, table_checksums; print(table_checksums(psycopg.connect(os.environ['DATABASE_URL'], options=f'-c search_path={SEARCH_PATH}')))"`
   - 확인 2: 두 DB에서 세 스키마 모든 표의 행 수를 출력해 같은지 본다. 확인 1에 없는 표(`llm_field_extraction` 등)도 여기서 본다. `select table_schema || '.' || table_name, (xpath('/row/c/text()', query_to_xml(format('select count(*) as c from %I.%I', table_schema, table_name), false, true, '')))[1]::text::bigint from information_schema.tables where table_schema in ('raw', 'staging', 'mart') and table_type = 'BASE TABLE' order by 1`
   - 그 뒤 대상에서 `load_checks`를 돌린다
-- 기존 `public` 표가 있는 로컬 DB는 001을 다시 적용해도 정리되지 않는다. `docker rm -f signal-pg-local` 뒤 새로 만들어 적용한다
-- 권한(grant)·기본 권한(default privileges)과 소유자 설정은 RDS 구축 때 별도 마이그레이션으로 정한다(7주차). 001은 계정을 만들지 않는다
+- 기존 `public` 표가 있는 로컬 DB는 V1을 다시 적용해도 정리되지 않는다. `docker rm -f signal-pg-local` 뒤 새로 만들어 적용한다
+- 권한(grant)·기본 권한(default privileges)과 소유자 설정은 RDS 구축 때 별도 마이그레이션으로 정한다(7주차). V1은 계정을 만들지 않는다
 
 ## 적재 검증 규칙
 
