@@ -43,6 +43,19 @@ jobs:
           pipx run ruff==0.16.9 check .
           pipx run ruff==0.16.9 format --check .
 
+      - name: 마이그레이션 SQL 검사 (Squawk, 이 PR에서 추가·수정한 파일만)
+        # 설정은 .squawk.toml. 이름만 바뀐 파일(내용 같음)은 검사하지 않는다
+        env:
+          SQUAWK_VERSION: 2.73.0
+        run: |
+          files=$(git diff --name-only --diff-filter=AM \
+            "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" \
+            -- 'db/migrations/*.sql')
+          if [ -z "$files" ]; then echo "바뀐 마이그레이션 파일 없음"; exit 0; fi
+          echo "$files"
+          # shellcheck disable=SC2086
+          npx --yes "squawk-cli@${SQUAWK_VERSION}" $files
+
   test:
     # DB 테스트(TEST_DATABASE_URL이 있어야 도는 테스트)까지 실행. 로컬 검증과 같은 PostgreSQL 16
     runs-on: ubuntu-latest
@@ -70,6 +83,19 @@ jobs:
 
       - name: 의존성 설치 (uv.lock 그대로)
         run: uv sync --locked
+
+      - name: 마이그레이션 확인 (Flyway migrate 2회·validate·info)
+        # 테스트가 쓰는 signal_test와 겹치지 않게 서비스 컨테이너의 postgres DB에 적용한다. 두 번째 migrate는 적용할 것이 없어야 한다
+        env:
+          FLYWAY_IMAGE: redgate/flyway:13.13.0
+          FLYWAY_URL: jdbc:postgresql://localhost:5432/postgres
+          FLYWAY_USER: postgres
+          FLYWAY_PASSWORD: postgres
+        run: |
+          for command in migrate migrate validate info; do
+            docker run --rm --network host -v "$PWD:/repo" -w /repo \
+              -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD "$FLYWAY_IMAGE" "$command"
+          done
 
       - name: 테스트 (pytest, DB 테스트 포함)
         run: uv run pytest -q -rs

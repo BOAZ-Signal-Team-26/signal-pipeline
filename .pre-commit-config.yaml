@@ -22,3 +22,13 @@ repos:
       - id: ruff-check
         args: ["--fix"]
       - id: ruff-format
+
+  # 마이그레이션 SQL 린터. 설정은 .squawk.toml. CI도 같은 버전
+  - repo: https://github.com/sbdchd/squawk
+    rev: v2.73.0
+    hooks:
+      - id: squawk
+        files: ^db/migrations/.*\.sql$
+        # .squawk.toml excluded_paths와 같은 파일. 제외 파일만 넘기면 squawk가 「파일 없음」으로 실패하므로 여기서도 뺀다
+        exclude: ^db/migrations/V1__erd_v2_2\.sql$
+        additional_dependencies: ["squawk-cli@2.73.0"]

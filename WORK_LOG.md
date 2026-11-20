@@ -1,5 +1,27 @@
 # 작업 기록
 
+## 2026-11-20 — 마이그레이션을 Flyway로 전환 (#87)
+
+- 바꾼 것
+  - 직접 만든 `db/apply.py`와 `tests/test_apply.py`를 지우고 Flyway(OSS 13.13.0)로 바꿈. 같은 일을 하는 표준 도구가 있고 직접 만든 정규식 검사에 결함(문자열 안 `--` 놓침, CASE `END` 오탐)이 있어서 바꿈. 학습용 프로젝트라 현업 도구 경험도 덧붙는 이유(데이터 엔지니어링·인프라(주영))
+  - `flyway.toml` 추가: 마이그레이션 위치 `db/migrations`, 이름 규칙 검사, 환경 `local`·`rds`. 계정·비밀번호는 환경 변수로 받음
+  - `db/migrations/001_erd_v2_2.sql` → `V1__erd_v2_2.sql`(Flyway 이름 규칙). 내용은 그대로
+  - CI `test` 작업에 Flyway Docker(`redgate/flyway:13.13.0`)로 `migrate` 2회·`validate`·`info` 단계 추가
+  - 마이그레이션 린터 Squawk 2.73.0 추가: `.squawk.toml`(파일마다 트랜잭션 가정, PostgreSQL 16, 물리 결정과 부딪히는 규칙 2개 제외), pre-commit 훅, CI `check` 작업에서 이 PR이 추가·수정한 마이그레이션 파일만 검사. Flyway가 막지 않는 파일 안 `COMMIT`을 막기 위함
+  - `docs/data-model.md` 운영 규칙과 데이터 이전 절차를 Flyway 기준으로, `tests/test_ddl_tables.py` 파일 경로, `load_checks.py` 주석
+- 바꾸지 않은 것: DDL 내용, DB 테스트가 마이그레이션 파일을 직접 적용하는 방식(`test_load_db.py`, `test_llm_run.py`), `.gitattributes`
+- 확인: PostgreSQL 16 컨테이너에서 `migrate` 2회(두 번째 적용 0건, 표 17개), 파일을 고치면 `validate`·`migrate`가 checksum mismatch로 멈춤, 문자열 안 `--`는 그대로 들어감, DB 소유자가 아닌 계정은 `permission denied for database`. 파일 안 `COMMIT`은 Flyway가 막지 않아 앞 문장이 남음. Docker 이미지로도 같은 결과. Squawk: 문자열 `'a--b'` 뒤 `commit`을 잡고, 문자열·주석 안 `commit`, 여러 줄 CASE의 `END`, PL/pgSQL 본문은 잡지 않음. `set local` 시간 제한을 둔 파일은 통과하고 Flyway로도 적용됨
+
+## 2026-11-15 — 마이그레이션 이력 표 리뷰 반영 (#87)
+
+- 바꾼 것
+  - `db/apply.py`: 적용할 파일에 트랜잭션 제어 문장(줄 처음이나 `;` 뒤의 BEGIN·START TRANSACTION·COMMIT·END·ABORT·ROLLBACK·SAVEPOINT·RELEASE, 주석 제외)이 있으면 적용 전에 멈춤. `--adopt-existing <마지막 파일 이름>`으로 그 파일까지만 등록하고 뒤 파일은 적용. `--status`에 `out_of_order` 상태. 권한 오류에 DB 소유자 계정 안내를 붙임. 락 해제 오류가 원래 실패 원인을 가리지 않게 함
+  - 테스트: `tests/test_apply.py`에 8개 추가(트랜잭션 제어 5, 주석 허용, `main()` 등록 경로, DB 소유자가 아닌 계정). 실제 마이그레이션 표 수는 파일의 `create table` 수와 비교
+  - `docs/data-model.md` 운영 규칙: 실행 계정은 DB 소유자(`signal_owner`), 복원도 같은 계정, 대상은 빈 DB, 실행 위치(로컬에서 Session Manager 포트 전달, `sslmode=require`), 덤프 파일은 임시 경로·S3 `backups/`에 두지 않음, 비밀번호는 `PGPASSWORD`·`~/.pgpass`, 도구 주 버전, 세 스키마 모든 표 행 수 확인
+  - `.gitattributes`: `db/migrations/*.sql`은 LF로 체크아웃(sha256이 줄바꿈에 따라 달라지지 않게)
+- 바꾸지 않은 것: `db/migrations/001_erd_v2_2.sql`, CI 건너뜀 검사(#88 리뷰 의견, 나중에 별도)
+- 확인: PostgreSQL 16 컨테이너에서 전체 139개 통과. `public` CREATE 권한만 받은 계정은 `permission denied for database`로 멈춤
+
 ## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
 
 - 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
@@ -28,6 +50,14 @@
   - 11월 7일 504건 실행 결과: 위치 찾기 규칙이 바뀌었지만 다시 변환하지 않음. 다음 실행에서 저장된 응답을 재사용해 새 규칙으로 변환됨
 - 검증: 빈 PostgreSQL 16 DB로 `uv run pytest` 243개 중 242개 통과, 1개 생략. 추가한 회귀 테스트 11개(CodeRabbit 검토분 4개 포함, 4개 모두 수정 전 코드에서 실패 확인)(바뀐 이전 응답 재호출, 이전 응답 파일 없음 집계, 입력 절 0건 FAILED, 적재 검증 위반 FAILED, Ctrl-C 중단, 입력 범위, `load_checks` R12). `ruff check`, `ruff format --check` 통과
 
+## 2026-11-14 — 마이그레이션 이력 표와 DB 데이터 이전 절차 (#87)
+
+- 바꾼 것
+  - `db/apply.py`: 이력 표 `public.schema_migrations`(파일 이름, sha256, 적용 시각). 이력에 없는 파일만 파일별 트랜잭션으로 적용하고 같은 트랜잭션에서 이력을 남김. 적용한 파일의 sha256이 바뀌었거나, 이력의 파일이 없거나, 새 파일이 마지막 적용 파일보다 앞서면 멈춤. 이력 표 없이 만든 DB는 멈추고 `--adopt-existing`으로만 등록. `--status`, 동시 실행 방지(advisory lock)
+  - 테스트: `tests/test_apply.py` 11개(TEST_DATABASE_URL 필요)
+  - `docs/data-model.md` 운영 규칙: `apply.py` 설명, 다른 DB로 데이터 옮기기(`apply.py`로 표 생성 → `pg_dump --data-only` → `pg_restore --data-only --single-transaction` → 행 수·내용 md5 비교). `docs/architecture.md` 8절 미결 「마이그레이션 이력 표」 행 삭제
+- 바꾸지 않은 것: `db/migrations/001_erd_v2_2.sql`, 적재(`local_load.py`)·점검(`load_checks.py`)
+- 확인: PostgreSQL 16 컨테이너에서 전체 131개 통과. prep-8 결과(문서 515, 원본 1,902, 추출 513, 절 17,657행)를 위 절차로 슈퍼유저가 아닌 DB 소유자 계정 DB로 옮겨 `local_load.table_checksums` 일치, identity 시퀀스 10개 원본과 같음, `load_checks` 모두 통과. 자기 참조 표에 자식 행을 부모보다 먼저 COPY해도 슈퍼유저가 아닌 계정에서 통과
 ## 2026-11-10 — 아키텍처 v2 그림에 대시보드 연결 경로 추가
 
 - 바꾼 것

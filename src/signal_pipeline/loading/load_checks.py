@@ -65,7 +65,7 @@ def expected_counts(data: Path, run_id: str) -> dict[str, int]:
 
 
 def checklist(cur: psycopg.Cursor, data: Path, parser: str) -> list[Result]:
-    """11차 미팅 로컬 점검 체크리스트(DDL 적용·2회 실행 비교는 apply.py·local_load --checksum으로 따로)."""
+    """11차 미팅 로컬 점검 체크리스트(DDL 적용·2회 실행 비교는 Flyway·local_load --checksum으로 따로)."""
     out: list[Result] = []
     # 절 추출 실행만 본다. LLM 추출 실행도 run_kind EXTRACT라 file_extraction을 쓴 실행으로 가린다
     run_id = _one(
