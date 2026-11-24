@@ -282,6 +282,13 @@ def _place(
             span, n = align.token_window(sec.text, quote, others)
             if span:
                 return _evidence(sec, *span), n, "토큰 근접 일치"
+    if fi.field_name == FEE:
+        # 줄바꿈·다른 열 숫자로 갈라진 표 셀(이슈 #80). 다른 필드는 OK 행이 바뀌어 쓰지 않음
+        others = tuple(c for c in classes if c and c not in quote)
+        for sec in fi.sections:
+            span, n, gap = align.fragments(sec.text, quote, classes, others)
+            if span:
+                return _evidence(sec, *span), n, f"조각 일치(건너뜀 {gap}자)"
     return None, 0, None
 
 
