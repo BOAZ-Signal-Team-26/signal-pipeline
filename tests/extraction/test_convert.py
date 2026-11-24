@@ -686,6 +686,55 @@ def test_토큰_근접_구간에_다른_클래스_이름이_끼면_버림():
     assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
 
 
+def test_줄바꿈과_다른_열_숫자로_갈라진_수수료_셀은_조각_일치로_찾음():
+    # 이슈 #80: 같은 클래스 행 사이에 총보수 숫자 열이 끼고 클래스 이름이 줄에서 끊김
+    src = (
+        "수수료선취- 납입금액의\n 1.1154 0.5274 1.08 213 332\n 오프라인(A) 1.0% 이내 끝"
+    )
+    fi = field_input("fee_structure", [(7, 0, src)])
+    env = convert(
+        fi,
+        resp(
+            value=_fee_value("수수료선취-오프라인(A)"), quotes=["납입금액의 1.0% 이내"]
+        ),
+    )
+    assert env["status"] == "FOUND"
+    assert "조각 일치" in env["notes"]
+    ev = env["evidence"][0]
+    assert src[ev["char_start"] : ev["char_end"]].startswith("납입금액의")
+    assert src[ev["char_start"] : ev["char_end"]].endswith("1.0% 이내")
+
+
+def test_조각_일치는_숫자를_가운데서_자르지_않음():
+    fi = field_input("fee_structure", [(7, 0, "납입금액의 기타 열 11.0% 이내")])
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["납입금액의 1.0% 이내"]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def test_조각_일치는_다른_클래스_행이나_다른_항목_셀을_잇지_않음():
+    names = ("수수료선취-오프라인(A)", "수수료미징구-오프라인(C)")
+    for src in (
+        "납입금액의 수수료미징구-오프라인(C) 없음\n 0.50% 이내",  # 다른 클래스 이름
+        "납입금액의 (C-e) 0.50% 이내",  # 답에 없는 클래스 표시
+        "납입금액의 후취판매수수료 0.50% 이내",  # 다른 수수료 항목
+    ):
+        fi = field_input("fee_structure", [(7, 0, src)])
+        env = convert(
+            fi, resp(value=_fee_value(*names), quotes=["납입금액의 0.50% 이내"])
+        )
+        assert env["reason_code"] == "EVIDENCE_NOT_LOCATED", src
+
+
+def test_조각_일치는_수수료_필드에만_씀():
+    q = "투자원금의 손실이 발생할 수 있습니다"
+    fi = field_input(
+        "principal_loss_notice",
+        [(7, 0, "투자원금의\n 12 34 56 \n손실이 발생할 수 있습니다")],
+    )
+    env = convert(fi, resp(value={"text": q}, quotes=[q]))
+    assert "조각 일치" not in (env.get("notes") or "")
+
+
 def test_토큰_근접은_다른_수수료_항목_셀을_잇지_않음():
     # 후취 1%, 선취 없음인데 「후취판매수수료 없음」이 두 셀을 이어 붙여 일치하던 문제
     fi = field_input(

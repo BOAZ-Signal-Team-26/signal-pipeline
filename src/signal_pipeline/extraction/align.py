@@ -5,12 +5,14 @@
 - chain: 원문에 끼어든 표 라벨·쪽 머리글을 건너뛰도록 4글자 이상 공통 구간을 이어 붙임. 덮은 비율·구간 길이로 거름
 - same_numbers: 근사·연쇄 일치는 quote와 원문 구간의 숫자 값 묶음이 같을 때만 받는다(1.00 = 1.0 = 1, 쉼표 무시)
 - token_window: fee_structure의 짧은 표 셀을 200자 안에서 어절별로 찾음. 다른 클래스 행이 끼면 버림. 원문 위치를 돌려준다
+- fragments: fee_structure만. 위가 모두 실패했을 때 줄바꿈·다른 열 숫자로 갈라진 quote를 조각으로 찾음(이슈 #80). 원문 위치를 돌려준다
 fuzzy·chain은 공백을 뺀 텍스트 위치를 돌려준다.
 """
 
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections import Counter
 from decimal import Decimal
 from difflib import SequenceMatcher
@@ -193,3 +195,154 @@ def token_window(
             ):
                 hits.append((m0.start(), end))
     return (hits[0] if hits else None), len(hits)
+
+
+# 조각 일치(이슈 #80): PDF 표에서 줄바꿈·다른 열 숫자가 끼어 quote가 여러 조각으로 갈라진 경우.
+# quote의 모든 글자가 순서대로 원문에 있어야 하고(유사도 없음), 조각 사이 건너뛴 글자만 허용한다
+FRAG_MIN = 3  # 조각 최소 글자 수(끝에 남은 숫자·「%」·「이내」는 예외)
+FRAG_GAP = 160  # 조각 사이 건너뛸 수 있는 글자 수(공백 제외)
+FRAG_SPAN = 500  # 원문 구간 최대 길이
+FRAG_TAIL = ("%", "이내")
+SENTINEL = (
+    "\x00"  # 공백으로 떨어진 두 숫자 사이에 넣어 「1 0.5%」가 「10.5%」로 붙지 않게 함
+)
+DASHES = dict.fromkeys(map(ord, "‐‑‒–—−－―"), "-")
+INVISIBLE = "\u200b\ufeff\u00a0"
+
+
+def _nfkc(ch: str) -> str:
+    return unicodedata.normalize("NFKC", ch).translate(DASHES)
+
+
+def norm_map(text: str) -> tuple[str, list[int]]:
+    """공백을 지우고 NFKC로 정규화한 텍스트와 글자마다의 원문 위치."""
+    out: list[str] = []
+    pos: list[int] = []
+    gap_at = None
+    for i, ch in enumerate(text):
+        if ch.isspace() or ch in INVISIBLE:
+            if gap_at is None and out:
+                gap_at = i
+            continue
+        for c in _nfkc(ch):
+            if gap_at is not None and out[-1] in NUM_CHARS | {"%"} and c in NUM_CHARS:
+                out.append(SENTINEL)
+                pos.append(gap_at)
+            gap_at = None
+            out.append(c)
+            pos.append(i)
+    return "".join(out), pos
+
+
+def _norm_quote(q: str) -> str:
+    return "".join(c for ch in q if not ch.isspace() for c in _nfkc(ch))
+
+
+def _edge_ok(t: str, a: int, b: int, q: str, qi: int, qj: int) -> bool:
+    """조각 t[a:b] == q[qi:qj]의 양 끝이 숫자 중간을 자르지 않는지."""
+    if q[qi] in NUM_CHARS and qi > 0 and q[qi - 1] in NUM_CHARS:
+        return False
+    if q[qj - 1] in NUM_CHARS and qj < len(q) and q[qj] in NUM_CHARS:
+        return False
+    if q[qi].isdigit() and (qi == 0 or q[qi - 1] not in NUM_CHARS):
+        p = t[a - 1] if a else ""
+        if p.isdigit() or (p in ".," and a >= 2 and t[a - 2].isdigit()):
+            return False
+    if q[qj - 1].isdigit() and (qj == len(q) or q[qj] not in NUM_CHARS):
+        n = t[b] if b < len(t) else ""
+        if n.isdigit() or (n in ".," and b + 1 < len(t) and t[b + 1].isdigit()):
+            return False
+    return True
+
+
+def _chain_frags(t: str, q: str, i: int, k0: int) -> list[tuple[int, int]] | None:
+    """t[i:i+k0] == q[:k0]에서 시작해 남은 quote를 가장 긴 조각부터 앞으로 찾아 잇는다."""
+    frags, qi, p = [(i, i + k0)], k0, i + k0
+    while qi < len(q):
+        rest = len(q) - qi
+        win = t[p : p + FRAG_GAP + rest]
+        hit = None
+        for size in range(rest, 0, -1):
+            if size < FRAG_MIN and not (
+                size == rest and (q[qi:].isdigit() or q[qi:] in FRAG_TAIL)
+            ):
+                break
+            sub = q[qi : qi + size]
+            j = win.find(sub)
+            while 0 <= j <= FRAG_GAP:
+                if _edge_ok(t, p + j, p + j + size, q, qi, qi + size):
+                    hit = (p + j, p + j + size)
+                    break
+                j = win.find(sub, j + 1)
+            if hit:
+                break
+        if not hit:
+            return None
+        frags.append(hit)
+        qi += hit[1] - hit[0]
+        p = hit[1]
+    return frags
+
+
+# 조각 사이에 낀 클래스 표시: 「C클래스」, 「(C-e)」
+GAP_CLASS = re.compile(r"[A-Za-z0-9-]*클래스|\([A-Za-z][A-Za-z0-9-]{0,5}\)")
+
+
+def _frags_ok(
+    t: str, frags: list, q: str, classes: tuple[str, ...], others: tuple[str, ...]
+) -> bool:
+    """다른 클래스 행·다른 수수료 항목 셀을 잇지 않았는지.
+
+    - 구간에 인용에 없는 다른 클래스 이름이 통째로 있으면 거부
+    - 조각 사이에 낀 클래스 표시가 모델이 답한 클래스 이름의 일부가 아니면 거부
+    - 조각 사이에 인용에 없는 다른 수수료·보수 항목 이름이 끼면 거부
+    """
+    inside = t[frags[0][0] : frags[-1][1]]
+    if any((c := _norm_quote(o)) and c not in q and c in inside for o in others):
+        return False
+    names = [_norm_quote(c) for c in classes if c]
+    for (_, b), (a, _) in pairwise(frags):
+        gap = t[b:a].replace(SENTINEL, "")
+        if any(not any(m in n for n in names) for m in GAP_CLASS.findall(gap)):
+            return False
+        if _other_fee_item(q, gap):
+            return False
+    return True
+
+
+def fragments(
+    text: str,
+    quote: str,
+    classes: tuple[str, ...] = (),
+    others: tuple[str, ...] = (),
+) -> tuple[tuple[int, int] | None, int, int]:
+    """((원문 시작, 끝), 후보 수, 건너뛴 글자 수). 건너뛴 글자가 가장 적은 후보, 같으면 앞의 것.
+
+    classes = 모델이 답한 클래스 이름 전부, others = 그중 인용에 없는 것.
+    """
+    q = _norm_quote(quote)
+    if len(q) < 4:
+        return None, 0, 0
+    t, pos = norm_map(text)
+    head = q[:FRAG_MIN]
+    best, seen = None, set()
+    i = t.find(head)
+    while i >= 0:
+        k = FRAG_MIN
+        while k < len(q) and t.startswith(q[: k + 1], i):
+            k += 1
+        while k > 0 and not _edge_ok(t, i, i + k, q, 0, k):
+            k -= 1
+        frags = _chain_frags(t, q, i, k) if k >= FRAG_MIN else None
+        if frags and _frags_ok(t, frags, q, classes, others):
+            s, e = pos[frags[0][0]], pos[frags[-1][1] - 1] + 1
+            if e - s <= FRAG_SPAN and (s, e) not in seen:
+                seen.add((s, e))
+                gap = (frags[-1][1] - frags[0][0]) - len(q)
+                if best is None or gap < best[2]:
+                    best = (s, e, gap)
+        i = t.find(head, i + 1)
+    if best is None:
+        return None, 0, 0
+    s, e, gap = best
+    return (s, e), len(seen), gap
