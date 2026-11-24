@@ -1,5 +1,24 @@
 # 작업 기록
 
+## 2026-11-25 — fund_key 묶음 매칭과 대표 위험등급 적재 (이슈 #96)
+
+- 기준: `docs/matching-rules.md`(클래스 표기만 제거, 호수·모자 보존), `docs/data-model.md` 「상품과 법인」(대표 등급: 표지 등급, 충돌 시 고르지 않음, 외국 엄브렐러 제외), 11월 24일 PM 결정(표지 등급 적재는 fund_key 단계 뒤)
+- 바꾼 것
+  - `matching/fund_key.py`: 묶음 규칙(순수 함수). 키 = (DART 운용사 corp_code, 정규화한 펀드명). 이름 끝의 클래스 표기(종류A, Class A, A형, C-e형)만 떼고 「제N호」는 「N호」로 통일. 호수 숫자·모/자·유형 괄호·(H)/(UH)는 이름에 남김. 대표 등급은 묶음 안 표지 등급이 모두 같을 때만 값을 내고, 다르거나 표지에 복수 등급이면 고르지 않음(CONFLICT), 하위펀드별 등급 안내가 있으면 FOREIGN_UMBRELLA
+  - `matching/fund_group.py`: 실행 CLI. EXTRACT 실행 행(`match-...`)을 만들고 `staging.distributor`(운용사), `staging.fund_group`, `staging.match_failure`에 적재한 뒤 적재 검증. `--verify-only` 지원. fund_key는 `FGnnnnnn`로 한 번 발급하면 유지. 다시 돌리면 같은 (운용사, 묶음 키)는 fund_key·이름·created_run_id를 두고 대표 등급 3칼럼과 `grouping_evidence.risk_grade_status`만 갱신
+  - 표지 등급 입력은 PR #94의 CSV(`--grades-csv`). 문서 번호·접수번호가 DB와 다르면 중단
+  - 테스트 `tests/matching/`: 규칙 10개(DB 없음), DB 2개(`TEST_DATABASE_URL`)
+- 바꾸지 않은 것
+  - `staging.product`, `document_product`: 만들지 않음. DART 표지에서 클래스별 코드·이름을 확정할 수 없고 `etf_confidence`가 NOT NULL이라 값을 지어내야 함. 금투협·공공데이터포털 마스터 적재 때 만듦
+  - `CLASS_GRADE_MISMATCH`: 클래스 등급이 없어 기록하지 않음
+  - `raw.document`(`corp_code`·`distributor_id` 칼럼은 NULL 그대로). 운용사는 `source_record_payload`의 corp_code를 씀
+  - sp-93 파서와 CSV
+- 실측(2026-11-25, 복사 DB, 투자설명서 504건)
+  - fund_group 489개(문서 1건 474개, 2건 15개). 대표 등급 있음 478(1등급 102, 2등급 176, 3등급 59, 4등급 68, 5등급 48, 6등급 25), 외국 엄브렐러 제외 11. 등급 충돌 0, NORMALIZE_FAILED 0, match_failure 0행
+  - distributor 47행(운용사 38, 미상 9). 표지 없는 문서 1건은 같은 묶음의 다른 문서 등급으로 채워짐
+  - 다시 실행: 새 fund_group 0, fund_key 변화 없음
+- 검증: `ruff check`, `ruff format --check` 통과. PostgreSQL 16 빈 DB로 `uv run pytest` 254개 통과, 1개 생략(DB 없이는 223개 통과, 32개 생략)
+
 ## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
 
 - 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
