@@ -20,6 +20,18 @@
 - 검증: `ruff check`, `ruff format --check` 통과. PostgreSQL 16 빈 DB로 `uv run pytest` 254개 통과, 1개 생략(DB 없이는 223개 통과, 32개 생략)
 - Codex 리뷰 반영: 입력에서 빠진 기존 fund_group이 있으면 실행 실패(자동 삭제 없음), 등급 CSV의 중복·추가·누락 행과 1~6 밖 등급 거부, 같은 corp_code의 distributor 중복 시 중단과 기존 묶음 중복 검사를 (corp_code, group_key) 기준으로, NORMALIZE_FAILED 검증은 미해결·수동확인중·보류 행만 인정. 테스트 12개 추가, 복사 DB 재실행 결과 동일(fund_group 489, 등급 478, fund_key 변화 없음)
 
+## 2026-11-24 — 투자설명서 표지 위험등급 추출(이슈 #93)
+
+- 기준: `docs/data-model.md` 「`risk_grade`」(대표 등급 출처는 간이투자설명서 표제, 없으면 투자설명서 표지. 충돌 시 임의 선택 금지)
+- 출처 확인(11월 24일): 공공데이터포털 펀드상품기본정보 응답 필드 8개(`asoStdCd`, `basDt`, `ctg`, `fndNm`, `fndTp`, `prdClsfCd`, `setpDt`, `srtnCd`)에 위험등급 없음(API 실호출). 금투협 수시공시는 목록 응답에 없고 첨부 PDF에만 있음. 그래서 이미 수집한 DART 투자설명서 표지를 출처로 씀(11월 24일 PM 결정)
+- 바꾼 것
+  - `parsing/risk_grade.py`: 표지 HTML에서 「n등급[명칭]」·「n등급(명칭)」을 읽는 `cover_grade`와 문서 단위 CSV를 내는 실행 명령. 서로 다른 등급이 둘 이상이면 MULTIPLE_GRADES, 「하위펀드별 위험등급」이면 UMBRELLA_SUBFUND_GRADES, 표지가 없으면 NO_COVER, 표기가 없으면 NO_GRADE_TEXT
+  - 테스트 7개(`tests/parsing/test_risk_grade.py`)
+- 바꾸지 않은 것
+  - DB 스키마와 `staging.fund_group`. 대표 등급 칼럼은 펀드 묶음(`fund_key`)을 만드는 매칭 단계가 아직 없어 채우지 않음. 우선 문서 단위 파일로 냄(11월 24일 PM 결정)
+- 실측(11월 24일, 로컬 DB 투자설명서 504건): 등급 있음 492건(1등급 106, 2등급 180, 3등급 62, 4등급 70, 5등급 48, 6등급 26), 결측 12건(외국 엄브렐러 하위펀드별 등급 11, 표지 없음 1), 서로 다른 등급이 둘 이상인 표지 0건. 괄호 표기로 읽은 11건은 원문과 대조해 모두 맞음. 출력 `signal-data/exports/risk_grade/prospectus_cover__20261124.csv`
+- 검증: `uv run ruff check .`, `ruff format --check` 통과. `uv run pytest` 220개 통과, 30개 생략(DB 연결이 필요한 테스트)
+
 ## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
 
 - 기준: PR #79 데이터 엔지니어링·인프라(주영) 리뷰(11월 14일)
