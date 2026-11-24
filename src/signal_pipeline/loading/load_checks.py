@@ -3,7 +3,7 @@
 
 사용: DATABASE_URL=postgresql://... uv run python -m signal_pipeline.loading.load_checks DATA_DIR
 
-- 하나라도 실패하면 종료 코드 1. 결과는 「번호 / 내용 / 값 / PASS·FAIL」 탭 구분 한 줄씩
+- 하나라도 실패하면 종료 코드 1. 결과는 「번호 / 내용 / 값 / PASS·FAIL·WARN」 탭 구분 한 줄씩. WARN은 실패로 세지 않는다
 - 기대 행 수는 디스크 입력(접수번호 폴더 수, 추출 기록 줄 수, structure.json 절 수)에서 다시 센다
 - 원본 바이트·derived/ 파일 해시와 section_text·text.txt 구간 대조 모두 전수. text.txt는 파일마다 한 번만 읽는다
 - 규칙 2·3·5·8~11·13~15·18은 대상 표가 비어 있어 여기서 보지 않는다
@@ -25,7 +25,7 @@ from signal_pipeline.loading.local_load import RCEPT_RE, SEARCH_PATH, SOURCE
 from signal_pipeline.parsing.extract import parser_version
 
 CHECKS_DIR = Path(__file__).resolve().parents[3] / "db" / "checks"
-Result = tuple[str, str, Any, bool]
+Result = tuple[str, str, Any, bool | None]  # None이면 경고(WARN)
 
 
 def _sha(path: Path) -> str:
@@ -137,7 +137,27 @@ def checklist(cur: psycopg.Cursor, data: Path, parser: str) -> list[Result]:
     out.append(
         ("C6b", "text.txt·structure.json 경로·해시(전수)", f"불일치 {bad}", bad == 0)
     )
+    out.append(
+        (
+            "C7",
+            "목차 부 0건인데 본문 부 있음(목차 없이 절을 찾은 문서)",
+            *_no_toc(cur, data),
+        )
+    )
     return out
+
+
+def _no_toc(cur: psycopg.Cursor, data: Path) -> tuple[str, bool | None]:
+    """목차에서 부·절을 읽지 못했는데 본문 「제N부」는 찾은 문서(#75). 있으면 경고."""
+    keys = []
+    for (path,) in cur.execute(
+        "select structure_manifest_path from file_extraction"
+        " where structure_status in ('AVAILABLE', 'PARTIAL') order by 1"
+    ):
+        structure = json.loads((data / path).read_text(encoding="utf-8"))
+        if structure["parts"] and structure["toc_part_count"] == 0:
+            keys.append(structure["source_key"])
+    return f"{len(keys)}건 {keys}", None if keys else True
 
 
 RULES = [
@@ -319,8 +339,9 @@ def main() -> int:
         with conn.cursor() as cur:
             results = checklist(cur, args.data_dir, parser) + rules(cur, args.data_dir)
     for key, desc, value, ok in results:
-        print(f"{key}\t{desc}\t{value}\t{'PASS' if ok else 'FAIL'}")
-    failed = sum(not ok for *_, ok in results)
+        status = "WARN" if ok is None else "PASS" if ok else "FAIL"
+        print(f"{key}\t{desc}\t{value}\t{status}")
+    failed = sum(ok is False for *_, ok in results)
     print(f"실패 {failed}건" if failed else "모두 통과")
     return 1 if failed else 0
 

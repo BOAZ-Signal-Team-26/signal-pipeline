@@ -462,3 +462,51 @@ def test_toc_part_heading_alone_followed_by_section_has_no_title() -> None:
     result = split_sections(text)
     check(result, text)
     assert [p.part_seq for p in result.parts] == [1, 2, 3]
+
+
+def test_two_column_toc_is_read() -> None:
+    # 목차가 두 단이라 한 줄에 두 부가 섞이면(「제 1 부 …      제 3 부 …」) 단별로 나눠 읽는다(#75, 11월 24일 prep-8 4건)
+    pad = " " * 12
+    toc = [
+        "     목 차",
+        f"     제 1 부. 모집 또는 매출에 관한 사항{pad}제 3 부. 투자위험요소",
+        f"     1. 투자대상{pad}1. 위험요인",
+        f"     2. 투자전략{pad}2. 기타사항",
+        "     제 2 부. 발행인에 관한 사항",
+        "     1. 회사의 개요",
+    ]
+    text = make(toc, body_block())
+    result = split_sections(text)
+    check(result, text)
+    assert result.toc_part_count == 3 and result.toc_section_count == 5
+    assert [(s.part_seq, s.source_section_no) for s in bodies(result)] == [
+        (1, "1"), (1, "2"), (2, "1"), (3, "1"), (3, "2"),
+    ]  # fmt: skip
+    assert all(s.char_start is not None and s.in_toc for s in bodies(result))
+
+
+def test_without_toc_text_uses_standard_sections() -> None:
+    # 목차 글이 없는 투자설명서(#75, 11월 24일 prep-8 12건)는 표준 절 목록과 맞는 본문 줄만 절로 낸다
+    body = [
+        "제1부 모집 또는 매출에 관한 사항",
+        "1. 집합투자기구의 명칭",
+        "본문",
+        "제2부 집합투자기구에 관한 사항",
+        "10. 집합투자기구의 투자위험",
+        "자세한 내용은",
+        "“13. 보수 및 수수료에 관한 사항”을 참고하시기 바랍니다.",
+        "13. 보수 및 수수료에 관한 사항",
+        "본문",
+        "제3부 집합투자기구의 재무 및 운용실적 등에 관한 사항",
+    ]
+    text = make(body)
+    result = split_sections(text)
+    check(result, text)
+    assert result.toc_part_count == 0 and result.toc_section_count == 0
+    found = bodies(result)
+    assert [(s.part_seq, s.source_section_no) for s in found] == [
+        (1, "1"), (2, "10"), (2, "13"),
+    ]  # fmt: skip
+    # 따옴표로 시작하는 안내 문장은 절 시작이 아니다
+    assert found[2].title == "13. 보수 및 수수료에 관한 사항"
+    assert not any(s.in_toc for s in found)

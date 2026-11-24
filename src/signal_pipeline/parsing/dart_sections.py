@@ -3,6 +3,7 @@
 알고리즘은 research/scripts/dart_sections.py에서 옮겼다(근거: docs/records/phase1-erd/dart-section-split.md).
 - 「제N부」 표제 행의 첫 오름차순 묶음(셋 이상)이 목차다. 그 뒤에서 번호가 커지는 표제만 골라 본문 부로 본다.
   그 뒤에 표제가 없으면 목차 없는 문서로 보고, 1~2개뿐이면 구조를 만들지 않는다
+- 목차 없는 문서는 두 단 목차를 단별로 읽고, 목차 글도 없으면 표준 절 목록(STANDARD_TOC)과 맞는 본문 줄만 절로 낸다(#75)
 - 목차에서 부별 절 목록을 읽고, 본문에서 정규화한 제목 앞부분이 일치하는 줄을 절 시작으로 본다
 - 결과는 줄 번호가 아니라 글자 위치(text 안의 반열린 구간 [start, end))로 낸다
 - 부·절 체계 밖 앞부분은 요약정보(`summary`)와 표지·목차·유의사항(`other`) 구간으로 함께 낸다(PR #49 4-2 ⑤)
@@ -49,6 +50,29 @@ BODY_SEC_LOOSE = re.compile(r"^\s*(\d{1,2})\s*\.?\s*(\D.*)$")
 # 목차와 본문 제목이 일부만 같을 때(「집합투자기구의 투자위험」/「투자위험」 등) 같은 절·부로 보는 유사도 하한.
 # 10월 20일 prep-7 실패 483개 시험에서 0.6일 때 표본 129개 오검출 0개, 0.7이면 62개를 덜 찾는다
 SIMILAR_MIN = 0.6
+# 두 단 목차 한 줄의 오른쪽 단 시작: 넓은 공백 뒤 「제N부」 또는 「N.」
+# (「제 1 부. 모집 …      제 3 부. 집합투자기구의 재무 …」, 11월 24일 prep-8 500건 중 4건, #75)
+COLUMN_GAP = re.compile(r"\s{4,}(?=제\s*[1-5]\s*부|\d{1,2}\.\s)")
+# 이 문자로 시작하는 줄은 절 시작으로 받지 않는다(절을 가리키는 안내 문장)
+QUOTES = ("“", "‘", '"', "'", "「", "『")
+# 목차 글이 없는 문서(11월 24일 prep-8 500건 중 12건, #75)에서 본문 절을 찾을 때 쓰는 표준 절 목록.
+# prep-8 목차 483건에서 부마다 가장 많이 나온 목록. 제4부 합본 절은 _affiliate_sections가 회사별로 나눈다
+STANDARD_TOC: dict[int, list[tuple[int, str]]] = {
+    1: list(enumerate(["집합투자기구의 명칭", "집합투자기구의 종류 및 형태", "모집예정금액",
+                       "모집의 내용 및 절차", "인수에 관한 사항", "상장 및 매매에 관한 사항"], 1)),
+    2: list(enumerate(["집합투자기구의 명칭", "집합투자기구의 연혁", "집합투자기구의 신탁계약기간",
+                       "집합투자업자", "운용전문인력", "집합투자기구의 구조", "집합투자기구의 투자목적",
+                       "집합투자기구의 투자대상", "집합투자기구의 투자전략, 투자방침 및 수익구조",
+                       "집합투자기구의 투자위험", "매입, 환매, 전환 절차 및 기준가격 적용 기준",
+                       "기준가격 산정 기준 및 집합투자재산의 평가", "보수 및 수수료에 관한 사항",
+                       "이익 배분 및 과세에 관한 사항"], 1)),
+    3: list(enumerate(["재무정보", "연도별 설정 및 환매현황", "집합투자기구의 운용실적"], 1)),
+    4: list(enumerate(["집합투자업자에 관한 사항", "운용관련 업무 수탁회사 등에 관한 사항",
+                       "기타 집합투자기구 관련회사에 관한 사항"], 1)),
+    5: list(enumerate(["투자자의 권리에 관한 사항", "집합투자기구의 해지에 관한 사항",
+                       "집합투자기구의 공시에 관한 사항", "이해관계인 등과의 거래에 관한 사항",
+                       "집합투자업자의 고유재산 투자에 관한 사항", "외국 집합투자기구에 관한 추가 기재사항"], 1)),
+}  # fmt: skip
 
 FOUND = "EXTRACT_OK"
 NOT_FOUND = "SECTION_BOUNDARY_NOT_FOUND"
@@ -172,6 +196,34 @@ def toc(
     return found
 
 
+def column_toc(
+    lines: list[str], stop: int
+) -> tuple[int | None, dict[int, list[tuple[int, str]]]]:
+    """`stop` 앞 두 단 목차의 (첫 줄 번호, 부별 절 목록). 두 단 목차가 없으면 (None, {}).
+
+    한 줄에 왼쪽·오른쪽 단 항목이 함께 있어 줄 순서로는 부가 오름차순으로 나오지 않는다.
+    「제N부」로 시작하고 오른쪽 단이 있는 첫 줄부터 `stop` 앞까지를 단별로 나눠
+    왼쪽 단 전체, 오른쪽 단 전체 순으로 이어 붙인 뒤 보통 목차처럼 읽는다.
+    """
+    pieces = [COLUMN_GAP.split(line.strip(), maxsplit=1) for line in lines[:stop]]
+    start = next(
+        (
+            i
+            for i, cols in enumerate(pieces)
+            if len(cols) == 2 and PART.match(LEADER.sub("", cols[0]))
+        ),
+        None,
+    )
+    if start is None:
+        return None, {}
+    region = pieces[start:]
+    merged = [cols[0] for cols in region] + [
+        cols[1] for cols in region if len(cols) == 2
+    ]
+    run = next((r for r in part_runs(part_marks(merged)) if len(r) >= 3), None)
+    return (start, toc(merged, run, len(merged))) if run else (None, {})
+
+
 def normalize(text: str) -> str:
     return re.sub(r"[^0-9A-Za-z가-힣]", "", text)
 
@@ -189,7 +241,12 @@ def _find_start(
     앞 절보다 뒤에서만 찾는다. 뒤 절 제목이 앞쪽 본문 줄에 맞으면 구간이 거꾸로 잡힌다
     (10월 10일 502건 실측 12건).
     """
-    body = [(i, text) for i, text in body if i > after]
+    # 따옴표로 시작하는 줄은 절을 가리키는 문장이다(「“11. 매입, …”에서 상세하게 설명」, #75 20260916000146)
+    body = [
+        (i, text)
+        for i, text in body
+        if i > after and not lines[i].lstrip().startswith(QUOTES)
+    ]
     key = normalize(name)
     head = normalize(f"{number}.") + key[:12]
     spot = next((i for i, text in body if text.startswith(head)), None)
@@ -379,6 +436,8 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
     toc_titles = {part: _part_title(lines, index) for index, part, _ in first}
     marks = [m for m in marks if m[0] <= first[-1][0] or _is_heading(m, toc_titles)]
     body_run = ascending([m for m in marks if m[0] > first[-1][0]])
+    toc_line = first[0][0]
+    standard = False  # True면 목차 대신 STANDARD_TOC로 찾은 절만 낸다
     if len(body_run) >= 3:
         contents = toc(lines, first, body_run[0][0])
         toc_part_count = len(first)
@@ -389,10 +448,15 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
             f"목차 뒤 본문 「제N부」 표제가 {len(body_run)}개뿐이다"
         )
     else:
-        contents: dict[int, list[tuple[int, str]]] = {}
+        # 「제N부」 목차 묶음이 없다: 두 단 목차를 읽고, 그것도 없으면 표준 절 목록으로 찾는다(#75)
         toc_titles = {}
         body_run = ascending([m for m in marks if m[0] >= first[0][0]])
-        toc_part_count = 0
+        column_line, contents = column_toc(lines, first[0][0])
+        toc_part_count = len(contents)
+        if column_line is not None:
+            toc_line = column_line
+        else:
+            contents, standard = STANDARD_TOC, True
 
     parts: list[Part] = []
     body: list[Section] = []
@@ -415,15 +479,19 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         added = _affiliate_sections(lines, lined, spots)
         if added and spots[-1][2] is None:
             number, name, _ = spots[-1]
-            replaced.append((part, str(number), name))
+            if not standard:
+                replaced.append((part, str(number), name))
             spots = spots[:-1]
-        in_toc = [True] * len(spots) + [False] * len(added)
+        # 표준 절 목록으로 찾은 절은 문서 목차에 없으므로 in_toc False
+        in_toc = [not standard] * len(spots) + [False] * len(added)
         spots = spots + added
         # 찾은 절의 끝 = 다음으로 찾은 절의 시작, 마지막이면 부의 끝
         starts = [offsets[s] for _, _, s in spots if s is not None]
         ends = iter(starts[1:] + [part_end])
         for (number, name, spot), listed in zip(spots, in_toc, strict=True):
             found = spot is not None
+            if standard and not found:
+                continue  # 목차가 없으니 못 찾은 표준 절을 경계 실패로 남기지 않는다
             body.append(
                 Section(
                     section_seq=0,
@@ -441,14 +509,14 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
                     in_toc=listed,
                 )
             )
-    front = _front_sections(text, lines, offsets, body_run[0][0], first[0][0])
+    front = _front_sections(text, lines, offsets, body_run[0][0], toc_line)
     sections = [
         replace(sec, section_seq=seq) for seq, sec in enumerate(front + body, 1)
     ]
     split = SplitResult(
         parts,
         sections,
-        sum(len(v) for v in contents.values()),
+        0 if standard else sum(len(v) for v in contents.values()),
         toc_part_count,
         replaced,
     )
