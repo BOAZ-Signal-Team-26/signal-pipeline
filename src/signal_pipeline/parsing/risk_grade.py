@@ -27,7 +27,7 @@ import psycopg
 from signal_pipeline.common.storage import write_new
 
 KST = timezone(timedelta(hours=9))
-GRADE = re.compile(r"([1-6])\s*등급\s*[\[(（]")
+GRADE = re.compile(r"(?<!\d)([1-6])\s*등급\s*[\[(（]")
 TAG = re.compile(r"<[^>]+>")
 UMBRELLA = re.compile(r"하위\s*펀드\s*별\s*위험\s*등급")
 COLUMNS = ("document_id", "접수번호", "위험등급", "결측사유", "근거원본")
@@ -48,13 +48,14 @@ ORDER BY d.document_id
 def cover_grade(page: str) -> tuple[int | None, str | None]:
     """(등급, None) 또는 (None, 결측 사유)."""
     text = html.unescape(TAG.sub(" ", page))
+    # 하위펀드별 등급 안내가 있으면 특정 하위펀드의 등급을 문서 등급으로 쓰지 않음
+    if UMBRELLA.search(text):
+        return None, "UMBRELLA_SUBFUND_GRADES"
     grades = set(GRADE.findall(text))
     if len(grades) == 1:
         return int(grades.pop()), None
     if grades:
         return None, "MULTIPLE_GRADES"
-    if UMBRELLA.search(text):
-        return None, "UMBRELLA_SUBFUND_GRADES"
     return None, "NO_GRADE_TEXT"
 
 

@@ -39,3 +39,13 @@ def test_no_grade_text() -> None:
 
 def test_grade_number_out_of_range_is_ignored() -> None:
     assert cover_grade(wrap("7등급[없는 등급]")) == (None, "NO_GRADE_TEXT")
+
+
+def test_two_digit_number_is_not_read_as_last_digit() -> None:
+    assert cover_grade(wrap("12등급[범위 밖 등급]")) == (None, "NO_GRADE_TEXT")
+    assert cover_grade(wrap("12등급[범위 밖] 2등급[높은 위험]")) == (2, None)
+
+
+def test_umbrella_notice_wins_over_one_subfund_grade() -> None:
+    html = wrap("하위펀드별 위험등급 참조. A하위펀드 2등급[높은 위험]")
+    assert cover_grade(html) == (None, "UMBRELLA_SUBFUND_GRADES")
