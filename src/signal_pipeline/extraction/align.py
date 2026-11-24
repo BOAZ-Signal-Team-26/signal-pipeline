@@ -235,7 +235,8 @@ def norm_map(text: str) -> tuple[str, list[int]]:
 
 
 def _norm_quote(q: str) -> str:
-    return "".join(c for ch in q if not ch.isspace() for c in _nfkc(ch))
+    """원문과 같은 정규화. 공백으로 떨어진 두 숫자 사이에는 SENTINEL을 넣어 「1 0.5%」가 「10.5%」와 맞지 않게 한다."""
+    return norm_map(q)[0]
 
 
 def _edge_ok(t: str, a: int, b: int, q: str, qi: int, qj: int) -> bool:
@@ -269,6 +270,9 @@ def _chain_frags(t: str, q: str, i: int, k0: int) -> list[tuple[int, int]] | Non
                 break
             sub = q[qi : qi + size]
             j = win.find(sub)
+            if sub[0] == "%":
+                # 「%」로 시작하는 조각은 앞 조각 숫자에 바로 붙어야 한다. 건너뛴 다른 숫자의 「%」는 잇지 않음
+                j = 0 if win.startswith(sub) else -1
             while 0 <= j <= FRAG_GAP:
                 if _edge_ok(t, p + j, p + j + size, q, qi, qi + size):
                     hit = (p + j, p + j + size)
@@ -286,6 +290,10 @@ def _chain_frags(t: str, q: str, i: int, k0: int) -> list[tuple[int, int]] | Non
 
 # 조각 사이에 낀 클래스 표시: 「C클래스」, 「(C-e)」
 GAP_CLASS = re.compile(r"[A-Za-z0-9-]*클래스|\([A-Za-z][A-Za-z0-9-]{0,5}\)")
+# 조각 사이에 낀 다른 값 칸 표지. 같은 행 안에서 끼는 것은 총보수·비용 숫자 열이나 날짜뿐이므로,
+# 요율·「없음」·「이내」가 끼면 다른 행(클래스 표시가 없는 행 포함)의 값 칸을 건넌 것으로 본다
+GAP_VALUE = re.compile(r"%|없음|이내|해당없|미징구")
+EDGE = 6  # 조각 경계 양쪽에서 다른 수수료 항목 이름을 찾을 글자 수
 
 
 def _frags_ok(
@@ -296,16 +304,23 @@ def _frags_ok(
     - 구간에 인용에 없는 다른 클래스 이름이 통째로 있으면 거부
     - 조각 사이에 낀 클래스 표시가 모델이 답한 클래스 이름의 일부가 아니면 거부
     - 조각 사이에 인용에 없는 다른 수수료·보수 항목 이름이 끼면 거부
+    - 조각 사이에 다른 값 칸 표지(요율 %, 「없음」, 「이내」)가 끼면 거부(다른 행을 건넌 것으로 봄)
     """
     inside = t[frags[0][0] : frags[-1][1]]
     if any((c := _norm_quote(o)) and c not in q and c in inside for o in others):
         return False
     names = [_norm_quote(c) for c in classes if c]
-    for (_, b), (a, _) in pairwise(frags):
+    for (s0, b), (a, e1) in pairwise(frags):
         gap = t[b:a].replace(SENTINEL, "")
+        # 다른 항목 이름의 일부가 조각에 흡수된 경우도 보도록 경계 양쪽 글자를 붙여 검사
+        edge = t[max(s0, b - EDGE) : min(e1, a + EDGE)].replace(SENTINEL, "")
+        if _other_fee_item(q, edge):
+            return False
         if any(not any(m in n for n in names) for m in GAP_CLASS.findall(gap)):
             return False
         if _other_fee_item(q, gap):
+            return False
+        if GAP_VALUE.search(gap):
             return False
     return True
 

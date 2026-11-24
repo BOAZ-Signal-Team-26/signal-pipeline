@@ -705,6 +705,19 @@ def test_줄바꿈과_다른_열_숫자로_갈라진_수수료_셀은_조각_일
     assert src[ev["char_start"] : ev["char_end"]].endswith("1.0% 이내")
 
 
+def test_조각_일치는_클래스_표시_없는_다른_행의_요율을_잇지_않음():
+    # Codex 리뷰(PR #95): 클래스 표시가 없는 표에서 한 행의 기준 문구와 다음 행의 요율을 잇던 문제
+    from signal_pipeline.extraction import align
+
+    src = "납입금액의 없음\n 0.88 1.04\n 환매금액의 1.0% 이내"
+    assert align.fragments(src, "납입금액의 1.0% 이내")[0] is None
+    # 같은 행이라도 사이에 다른 요율 칸이 끼면 거부(보수적)
+    src = "납입금액의 0.563% 0.220%\n 오프라인(A) 0.8% 이내"
+    fi = field_input("fee_structure", [(7, 0, src)])
+    env = convert(fi, resp(value=_fee_value("A"), quotes=["납입금액의 0.8% 이내"]))
+    assert env["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
 def test_조각_일치는_숫자를_가운데서_자르지_않음():
     fi = field_input("fee_structure", [(7, 0, "납입금액의 기타 열 11.0% 이내")])
     env = convert(fi, resp(value=_fee_value("A"), quotes=["납입금액의 1.0% 이내"]))
@@ -837,3 +850,29 @@ def test_공백을_모두_지운_일치는_숫자가_같으면_받음():
     out = convert(fi, resp(value=LOSS, quotes=[LOSS]))
     assert out["status"] == "FOUND"
     assert out["evidence"][0]["quote"] == "투자원금의 손 실이 발생할 수 있습니다."
+
+
+def test_조각_일치_인용의_떨어진_숫자는_붙이지_않음():
+    # CodeRabbit(PR #95): 인용 「1 0.5%」가 원문 「10.5%」와 맞던 문제
+    from signal_pipeline.extraction import align
+
+    assert (
+        align.fragments("납입금액의 기타 10.5% 이내", "납입금액의 1 0.5% 이내")[0]
+        is None
+    )
+
+
+def test_조각_일치는_건너뛴_다른_숫자의_퍼센트를_잇지_않음():
+    # CodeRabbit(PR #95): 앞 조각 「1.0」 뒤에 건너뛴 「2.0%」의 「%」를 잇던 문제
+    from signal_pipeline.extraction import align
+
+    assert align.fragments("납입금액의 1.0 기타 2.0%", "납입금액의 1.0%")[0] is None
+
+
+def test_조각_일치는_경계에_걸친_다른_수수료_항목을_거부():
+    # CodeRabbit(PR #95): 다른 항목 이름 일부가 조각에 흡수된 경우
+    from signal_pipeline.extraction import align
+
+    # 「수수료 없음」 조각이 「후취판매수수료 없음」의 끝에 맞고, 사이에는 「후취판매」만 남음
+    src = "선취판매수수료 1.1154 후취판매수수료 없음"
+    assert align.fragments(src, "선취판매수수료 1.1154 수수료 없음")[0] is None
