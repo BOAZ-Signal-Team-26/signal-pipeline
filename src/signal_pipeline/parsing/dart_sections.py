@@ -52,7 +52,9 @@ BODY_SEC_LOOSE = re.compile(r"^\s*(\d{1,2})\s*\.?\s*(\D.*)$")
 SIMILAR_MIN = 0.6
 # 두 단 목차 한 줄의 오른쪽 단 시작: 넓은 공백 뒤 「제N부」 또는 「N.」
 # (「제 1 부. 모집 …      제 3 부. 집합투자기구의 재무 …」, 11월 24일 prep-8 500건 중 4건, #75)
-COLUMN_GAP = re.compile(r"\s{4,}(?=제\s*[1-5]\s*부|\d{1,2}\.\s)")
+COLUMN_GAP = re.compile(r"\s{4,}(?=제\s*[1-5]\s*부|\d{1,2}\.)")
+# 오른쪽 단 항목만 있는 줄: 들여쓰기가 오른쪽 단 시작 위치보다 이만큼 이상 덜하지 않으면 오른쪽 단으로 본다
+COLUMN_SLACK = 4
 # 이 문자로 시작하는 줄은 절 시작으로 받지 않는다(절을 가리키는 안내 문장)
 QUOTES = ("“", "‘", '"', "'", "「", "『")
 # 목차 글이 없는 문서(11월 24일 prep-8 500건 중 12건, #75)에서 본문 절을 찾을 때 쓰는 표준 절 목록.
@@ -204,22 +206,40 @@ def column_toc(
     한 줄에 왼쪽·오른쪽 단 항목이 함께 있어 줄 순서로는 부가 오름차순으로 나오지 않는다.
     「제N부」로 시작하고 오른쪽 단이 있는 첫 줄부터 `stop` 앞까지를 단별로 나눠
     왼쪽 단 전체, 오른쪽 단 전체 순으로 이어 붙인 뒤 보통 목차처럼 읽는다.
+    왼쪽 단이 먼저 끝나 오른쪽 단 항목만 남은 줄은 들여쓰기로 오른쪽 단에 넣는다.
     """
-    pieces = [COLUMN_GAP.split(line.strip(), maxsplit=1) for line in lines[:stop]]
+    # (왼쪽, 오른쪽, 오른쪽 단 시작 위치)
+    pieces: list[tuple[str, str | None, int]] = []
+    for line in lines[:stop]:
+        body = line.lstrip()
+        indent = len(line) - len(body)
+        gap = COLUMN_GAP.search(body)
+        if gap:
+            pieces.append((body[: gap.start()], body[gap.end() :], indent + gap.end()))
+        else:
+            pieces.append((body.rstrip(), None, indent))
     start = next(
         (
             i
-            for i, cols in enumerate(pieces)
-            if len(cols) == 2 and PART.match(LEADER.sub("", cols[0]))
+            for i, (left, right, _) in enumerate(pieces)
+            if right is not None and PART.match(LEADER.sub("", left))
         ),
         None,
     )
     if start is None:
         return None, {}
     region = pieces[start:]
-    merged = [cols[0] for cols in region] + [
-        cols[1] for cols in region if len(cols) == 2
-    ]
+    right_x = min(x for _, right, x in region if right is not None)
+    lefts, rights = [], []
+    for left, right, x in region:
+        if right is not None:
+            lefts.append(left)
+            rights.append(right)
+        elif left and x >= right_x - COLUMN_SLACK:
+            rights.append(left)  # 왼쪽 단이 비고 오른쪽 단 항목만 있는 줄
+        else:
+            lefts.append(left)
+    merged = lefts + rights
     run = next((r for r in part_runs(part_marks(merged)) if len(r) >= 3), None)
     return (start, toc(merged, run, len(merged))) if run else (None, {})
 
@@ -235,6 +255,7 @@ def _find_start(
     name: str,
     after: int,
     later: Sequence[tuple[int, str]] | None = (),  # None이면 유사도 규칙을 쓰지 않음
+    numbered: bool = False,  # True면 절 번호로 시작하는 줄만 받는다(표준 절 목록 경로)
 ) -> int | None:
     """본문 줄(줄 번호, 정규화 텍스트) 중 `after` 뒤의 절 시작 줄 번호. 못 찾으면 None.
 
@@ -250,7 +271,9 @@ def _find_start(
     key = normalize(name)
     head = normalize(f"{number}.") + key[:12]
     spot = next((i for i, text in body if text.startswith(head)), None)
-    if spot is None:
+    if spot is None and not numbered:
+        # 번호 없는 제목 일치. 목차가 없는 문서에서는 「집합투자기구의 명칭은 …」 같은
+        # 본문 문장이 잡히므로 쓰지 않는다(PR #92 리뷰)
         spot = next(
             (
                 i
@@ -264,7 +287,9 @@ def _find_start(
     if spot is None and later is not None:
         # 뒤 절이 앞의 세 규칙으로 잡히는 줄보다 앞에서만 찾는다. 뒤 절 안의 번호 목록 줄을 잡으면
         # 이 절 경계가 틀리고 뒤 절은 「앞 절보다 뒤」 조건 때문에 못 찾는다(PR #61 리뷰)
-        found = (_find_start(body, lines, n, nm, after, None) for n, nm in later)
+        found = (
+            _find_start(body, lines, n, nm, after, None, numbered) for n, nm in later
+        )
         limit = min((f for f in found if f is not None), default=None)
         if limit is not None:
             body = [(i, text) for i, text in body if i < limit]
@@ -473,7 +498,9 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         last = start
         listed = contents.get(part, [])
         for k, (number, name) in enumerate(listed):
-            spot = _find_start(lined, lines, number, name, last, listed[k + 1 :])
+            spot = _find_start(
+                lined, lines, number, name, last, listed[k + 1 :], standard
+            )
             spots.append((number, name, spot))
             last = spot if spot is not None else last
         added = _affiliate_sections(lines, lined, spots)

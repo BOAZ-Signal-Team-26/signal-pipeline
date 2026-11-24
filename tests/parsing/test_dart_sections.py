@@ -510,3 +510,50 @@ def test_without_toc_text_uses_standard_sections() -> None:
     # 따옴표로 시작하는 안내 문장은 절 시작이 아니다
     assert found[2].title == "13. 보수 및 수수료에 관한 사항"
     assert not any(s.in_toc for s in found)
+
+
+def test_two_column_toc_right_number_without_space_and_right_only_row() -> None:
+    # 오른쪽 단 절 번호 뒤 공백이 없거나(「1.위험요인」), 왼쪽 단이 먼저 끝나
+    # 오른쪽 단 항목만 남은 줄도 오른쪽 부의 절로 읽는다(PR #92 리뷰)
+    pad = " " * 12
+    toc = [
+        "     목 차",
+        f"     제 1 부. 모집 또는 매출에 관한 사항{pad}제 3 부. 투자위험요소",
+        f"     1. 투자대상{pad}1.위험요인",
+        f"     2. 투자전략{pad}2. 기타사항",
+        f"     제 2 부. 발행인에 관한 사항{pad}3. 추가사항",
+        f"     1. 회사의 개요{pad}4. 남은사항",
+        " " * 5 + " " * 34 + "5. 마지막사항",
+    ]
+    body = body_block() + [
+        "3. 추가사항",
+        "본문",
+        "4. 남은사항",
+        "본문",
+        "5. 마지막사항",
+        "본문",
+    ]
+    text = make(toc, body)
+    result = split_sections(text)
+    check(result, text)
+    third = [s.source_section_no for s in bodies(result) if s.part_seq == 3]
+    assert third == ["1", "2", "3", "4", "5"]
+    second = [s.source_section_no for s in bodies(result) if s.part_seq == 2]
+    assert second == ["1"]
+
+
+def test_without_toc_text_ignores_unnumbered_title_sentence() -> None:
+    # 목차 글이 없으면 번호 없는 본문 문장(「집합투자기구의 명칭은 …」)을 절 시작으로 받지 않는다(PR #92 리뷰)
+    body = [
+        "제1부 모집 또는 매출에 관한 사항",
+        "집합투자기구의 명칭은 다음과 같습니다.",
+        "본문",
+        "제2부 집합투자기구에 관한 사항",
+        "10. 집합투자기구의 투자위험",
+        "본문",
+        "제3부 집합투자기구의 재무 및 운용실적 등에 관한 사항",
+    ]
+    text = make(body)
+    result = split_sections(text)
+    check(result, text)
+    assert [(s.part_seq, s.source_section_no) for s in bodies(result)] == [(2, "10")]
