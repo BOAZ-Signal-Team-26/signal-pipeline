@@ -1,5 +1,17 @@
 # 작업 기록
 
+## 2026-11-24 — 투자설명서 표지 위험등급 추출(이슈 #93)
+
+- 기준: `docs/data-model.md` 「`risk_grade`」(대표 등급 출처는 간이투자설명서 표제, 없으면 투자설명서 표지. 충돌 시 임의 선택 금지)
+- 출처 확인(11월 24일): 공공데이터포털 펀드상품기본정보 응답 필드 8개(`asoStdCd`, `basDt`, `ctg`, `fndNm`, `fndTp`, `prdClsfCd`, `setpDt`, `srtnCd`)에 위험등급 없음(API 실호출). 금투협 수시공시는 목록 응답에 없고 첨부 PDF에만 있음. 그래서 이미 수집한 DART 투자설명서 표지를 출처로 씀(11월 24일 PM 결정)
+- 바꾼 것
+  - `parsing/risk_grade.py`: 표지 HTML에서 「n등급[명칭]」·「n등급(명칭)」을 읽는 `cover_grade`와 문서 단위 CSV를 내는 실행 명령. 서로 다른 등급이 둘 이상이면 MULTIPLE_GRADES, 「하위펀드별 위험등급」이면 UMBRELLA_SUBFUND_GRADES, 표지가 없으면 NO_COVER, 표기가 없으면 NO_GRADE_TEXT
+  - 테스트 7개(`tests/parsing/test_risk_grade.py`)
+- 바꾸지 않은 것
+  - DB 스키마와 `staging.fund_group`. 대표 등급 칼럼은 펀드 묶음(`fund_key`)을 만드는 매칭 단계가 아직 없어 채우지 않음. 우선 문서 단위 파일로 냄(11월 24일 PM 결정)
+- 실측(11월 24일, 로컬 DB 투자설명서 504건): 등급 있음 492건(1등급 106, 2등급 180, 3등급 62, 4등급 70, 5등급 48, 6등급 26), 결측 12건(외국 엄브렐러 하위펀드별 등급 11, 표지 없음 1), 서로 다른 등급이 둘 이상인 표지 0건. 괄호 표기로 읽은 11건은 원문과 대조해 모두 맞음. 출력 `signal-data/exports/risk_grade/prospectus_cover__20261124.csv`
+- 검증: `uv run ruff check .`, `ruff format --check` 통과. `uv run pytest` 220개 통과, 30개 생략(DB 연결이 필요한 테스트)
+
 ## 2026-11-19 — 축 4(고지 충실도) 판정 구현(이슈 #90)
 
 - 기준: `docs/scoring-and-population.md` 「점검표 v0 판정 대상」
