@@ -30,6 +30,9 @@ MAX_HEAD = 60
 # 본문 번호 목록 줄(「5. 투자신탁재산인 증권…」)을 잡지 않도록 줄이 짧고 겹치는 앞부분이 일정 길이 이상일 때만
 PREFIX_MIN = 4
 PREFIX_LINE_MAX = 40
+STANDARD_TAIL = (
+    3  # 표준 절 목록 경로: 제목 뒤에 붙어도 되는 글자 수(「및」, 「등」 같은 끝말)
+)
 # 본문 부 표제가 목차 부 제목의 앞부분일 때 받는 최소 길이(「발행인」 3글자)
 PART_PREFIX_MIN = 3
 # 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(10월 10일 501건 실측 483건).
@@ -270,6 +273,8 @@ def _find_start(
     ]
     key = normalize(name)
     head = normalize(f"{number}.") + key[:12]
+    if numbered:
+        return _standard_start(body, lines, number, key, head)
     spot = next((i for i, text in body if text.startswith(head)), None)
     if spot is None and not numbered:
         # 번호 없는 제목 일치. 목차가 없는 문서에서는 「집합투자기구의 명칭은 …」 같은
@@ -297,6 +302,30 @@ def _find_start(
     return spot
 
 
+def _standard_start(
+    body: list[tuple[int, str]], lines: list[str], number: int, key: str, head: str
+) -> int | None:
+    """표준 절 목록 경로(목차 글이 없는 문서)의 절 시작. 후보가 하나일 때만 받는다.
+
+    목차가 없어 번호·제목 말고는 확인할 근거가 없다(PR #92 Codex 리뷰).
+    - 후보: 제목 뒤에 다른 말이 붙지 않은 「N. 제목」 줄. 「7. 집합투자기구의 투자목적을 참조하시길
+      바랍니다」 같은 안내 문장이나 표·목록 안의 긴 줄은 받지 않는다
+    - 그런 줄이 없으면 제목이 비슷한 짧은 「N.」 줄(_similar_title과 같은 기준)
+    - 어느 쪽이든 같은 부 안에 후보가 둘 이상이면 어느 줄이 절 시작인지 모르므로 경계를 정하지 않는다
+    """
+    num = normalize(f"{number}.")
+    exact = [
+        i
+        for i, text in body
+        if len(text) - len(num) <= len(key) + STANDARD_TAIL
+        and (text.startswith(head) or _prefix_title(text, number, key))
+    ]
+    if exact:
+        return exact[0] if len(exact) == 1 else None
+    similar = _similar_scores(body, lines, number, key)
+    return similar[0][1] if len(similar) == 1 else None
+
+
 def _similar_title(
     body: list[tuple[int, str]], lines: list[str], number: int, key: str
 ) -> int | None:
@@ -306,9 +335,17 @@ def _similar_title(
     번호 목록 줄을 잡지 않도록 PREFIX_LINE_MAX 이하 줄만 본다. 합본 관련회사 절은
     _affiliate_sections가 회사별 절로 대신하므로 목차·본문 어느 쪽이 합본이어도 받지 않는다.
     """
+    scored = _similar_scores(body, lines, number, key)
+    return max(scored, key=lambda s: s[0])[1] if scored else None
+
+
+def _similar_scores(
+    body: list[tuple[int, str]], lines: list[str], number: int, key: str
+) -> list[tuple[float, int]]:
+    """_similar_title 기준을 넘는 (유사도, 줄 번호) 전부. 동점이면 앞 줄이 먼저(max는 첫 최댓값)."""
     if COMBINED_TOC.match(key):
-        return None
-    best: tuple[float, int] | None = None
+        return []
+    out = []
     for i, _ in body:
         match = BODY_SEC_LOOSE.match(lines[i])
         if not match or int(match.group(1)) != number:
@@ -317,9 +354,9 @@ def _similar_title(
         if len(rest) > PREFIX_LINE_MAX or COMBINED_TOC.match(rest):
             continue
         score = SequenceMatcher(None, rest[: len(key) + 3], key).ratio()
-        if score >= SIMILAR_MIN and (best is None or score > best[0]):
-            best = (score, i)
-    return best[1] if best else None
+        if score >= SIMILAR_MIN:
+            out.append((score, i))
+    return out
 
 
 def _prefix_title(text: str, number: int, key: str) -> bool:

@@ -557,3 +557,30 @@ def test_without_toc_text_ignores_unnumbered_title_sentence() -> None:
     result = split_sections(text)
     check(result, text)
     assert [(s.part_seq, s.source_section_no) for s in bodies(result)] == [(2, "10")]
+
+
+def test_without_toc_text_skips_repeated_or_sentence_section_lines() -> None:
+    # 목차 글이 없으면 같은 「N. 제목」 줄이 표·목록에 다시 나와 후보가 둘 이상인 절은 경계를 정하지 않고,
+    # 「N. 제목을 참조하시길 바랍니다」 같은 안내 문장은 후보로 보지 않는다(PR #92 Codex 리뷰)
+    body = [
+        "제1부 모집 또는 매출에 관한 사항",
+        "본문",
+        "제2부 집합투자기구에 관한 사항",
+        "7. 집합투자기구의 투자목적",
+        "본문",
+        "10. 집합투자기구의 투자위험",
+        "본문",
+        "10. 집합투자기구의 투자위험",
+        "표 안에 다시 나온 제목",
+        "13. 보수 및 수수료에 관한 사항",
+        "자세한 내용은 7. 집합투자기구의 투자목적을 참조하시길 바랍니다.",
+        "7. 집합투자기구의 투자목적을 참조하시길 바랍니다.",
+        "제3부 집합투자기구의 재무 및 운용실적 등에 관한 사항",
+    ]
+    text = make(body)
+    result = split_sections(text)
+    check(result, text)
+    assert [(s.part_seq, s.source_section_no) for s in bodies(result)] == [
+        (2, "7"),
+        (2, "13"),
+    ]
