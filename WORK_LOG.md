@@ -18,6 +18,7 @@
   - distributor 47행(운용사 38, 미상 9). 표지 없는 문서 1건은 같은 묶음의 다른 문서 등급으로 채워짐
   - 다시 실행: 새 fund_group 0, fund_key 변화 없음
 - 검증: `ruff check`, `ruff format --check` 통과. PostgreSQL 16 빈 DB로 `uv run pytest` 254개 통과, 1개 생략(DB 없이는 223개 통과, 32개 생략)
+- Codex 리뷰 반영: 입력에서 빠진 기존 fund_group이 있으면 실행 실패(자동 삭제 없음), 등급 CSV의 중복·추가·누락 행과 1~6 밖 등급 거부, 같은 corp_code의 distributor 중복 시 중단과 기존 묶음 중복 검사를 (corp_code, group_key) 기준으로, NORMALIZE_FAILED 검증은 미해결·수동확인중·보류 행만 인정. 테스트 12개 추가, 복사 DB 재실행 결과 동일(fund_group 489, 등급 478, fund_key 변화 없음)
 
 ## 2026-11-15 — LLM 추출 실행 마감·검증 보강(PR #79 리뷰 반영)
 

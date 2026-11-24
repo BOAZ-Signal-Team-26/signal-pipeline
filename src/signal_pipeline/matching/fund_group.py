@@ -47,6 +47,8 @@ from signal_pipeline.matching.fund_key import (
 
 KST = timezone(timedelta(hours=9))
 SOURCE = "fund_group"
+# match_failure.status 중 아직 처리 중인 값. 해결·대상외는 현재 미파싱 문서의 근거로 인정하지 않음
+OPEN_STATUS = ("미해결", "수동확인중", "보류")
 KEY_FORMAT = "FG{:06d}"
 KEY_PATTERN = re.compile(r"^FG(\d{6})$")
 DOCS_SQL = """
@@ -79,18 +81,35 @@ def load_docs(conn: psycopg.Connection) -> list[Doc]:
 
 
 def read_grades(path: Path, docs: list[Doc]) -> dict[int, CoverGrade]:
-    """표지 등급 CSV를 읽는다. 문서 번호와 접수번호가 DB와 어긋나면 중단(다른 DB용 파일 방지)."""
+    """표지 등급 CSV를 읽는다. 중복·추가·누락 행, 접수번호 불일치, 1~6 밖의 등급은 모두 중단."""
     with path.open(encoding="utf-8-sig", newline="") as f:
-        rows = {int(r["document_id"]): r for r in csv.DictReader(f)}
+        raw = list(csv.DictReader(f))
+    rows: dict[int, dict[str, str]] = {}
+    for r in raw:
+        doc_id = int(r["document_id"])
+        if doc_id in rows:
+            raise ValueError(f"등급 CSV에 같은 document_id가 두 번 있음: {doc_id}")
+        rows[doc_id] = r
+    expected = {d.document_id for d in docs}
+    if extra := sorted(set(rows) - expected):
+        raise ValueError(f"등급 CSV에 DB에 없는 document_id가 있음: {extra[:5]}")
+    if lost := sorted(expected - set(rows)):
+        raise ValueError(f"등급 CSV에 빠진 document_id가 있음: {lost[:5]}")
     out: dict[int, CoverGrade] = {}
     for doc in docs:
-        row = rows.get(doc.document_id)
-        if row is None or row["접수번호"] != doc.rcept_no:
+        row = rows[doc.document_id]
+        if row["접수번호"] != doc.rcept_no:
             raise ValueError(
-                f"등급 CSV가 DB와 맞지 않음: document_id={doc.document_id}"
+                f"등급 CSV 접수번호가 DB와 다름: document_id={doc.document_id}"
             )
-        grade = int(row["위험등급"]) if row["위험등급"] else None
-        out[doc.document_id] = CoverGrade(grade, row["결측사유"] or None)
+        text = row["위험등급"].strip()
+        if text and text not in {"1", "2", "3", "4", "5", "6"}:
+            raise ValueError(
+                f"위험등급이 1~6이 아님: document_id={doc.document_id} {text!r}"
+            )
+        out[doc.document_id] = CoverGrade(
+            int(text) if text else None, row["결측사유"] or None
+        )
     return out
 
 
@@ -104,10 +123,15 @@ def ensure_distributors(cur: psycopg.Cursor, docs: Iterable[Doc]) -> dict[str, i
     for doc in docs:
         if doc.corp_code in ids:
             continue
-        row = cur.execute(
-            "SELECT distributor_id FROM staging.distributor WHERE corp_code = %s ORDER BY 1 LIMIT 1",
+        found = cur.execute(
+            "SELECT distributor_id FROM staging.distributor WHERE corp_code = %s ORDER BY 1",
             (doc.corp_code,),
-        ).fetchone()
+        ).fetchall()
+        if len(found) > 1:
+            raise ValueError(
+                f"corp_code {doc.corp_code}의 distributor 행이 {len(found)}개라 고를 수 없음"
+            )
+        row = found[0] if found else None
         if row is None:
             row = cur.execute(
                 "INSERT INTO staging.distributor (corp_code, distributor_name, distributor_type)"
@@ -152,19 +176,27 @@ def upsert_groups(
     run_id: str,
 ) -> tuple[dict[str, str], list[tuple[Group, str, GradePick]], int]:
     """묶음을 넣거나 갱신한다. 반환: (group_key별 fund_key, (묶음, fund_key, 등급 판정) 목록, 새로 만든 수)."""
-    existing = {
-        (r[0], r[1]): r[2]
-        for r in cur.execute(
-            "SELECT manager_id, grouping_evidence->>'group_key', fund_key FROM staging.fund_group"
-        ).fetchall()
-    }
+    existing: dict[tuple[str | None, str | None], str] = {}
+    for corp, gkey, fkey in cur.execute(
+        "SELECT dist.corp_code, g.grouping_evidence->>'group_key', g.fund_key"
+        " FROM staging.fund_group g JOIN staging.distributor dist ON dist.distributor_id = g.manager_id"
+    ).fetchall():
+        if (corp, gkey) in existing:
+            raise ValueError(
+                f"fund_group에 (corp_code, group_key)가 겹침: {corp} {gkey}"
+            )
+        existing[(corp, gkey)] = fkey
+    # 입력에서 빠진 기존 묶음은 지우지 않고 실행을 실패시킨다(사람이 확인)
+    if ghosts := sorted(set(existing) - {(g.corp_code, g.key) for g in groups}):
+        listed = ", ".join(existing[k] for k in ghosts[:5])
+        raise ValueError(f"입력에 없는 기존 fund_group {len(ghosts)}개: {listed}")
     number = _next_key_number(cur)
     created = 0
     picks: list[tuple[Group, str, GradePick]] = []
     for group in groups:
         manager_id = manager_ids[group.corp_code]
         pick = pick_grade(group, grades)
-        fund_key = existing.get((manager_id, group.key))
+        fund_key = existing.get((group.corp_code, group.key))
         grade_cols = (
             pick.grade,
             pick.source_document_id,
@@ -215,8 +247,8 @@ def _record_failure(
     """같은 (소스, 사유, 시도 키)의 미해결 행이 있으면 새로 넣지 않는다. 넣었으면 1."""
     dup = cur.execute(
         "SELECT 1 FROM staging.match_failure WHERE source = %s AND failure_reason_code = %s"
-        " AND attempted_key_value = %s AND status <> '해결'",
-        (SOURCE, reason, key_value),
+        " AND attempted_key_value = %s AND status = ANY(%s)",
+        (SOURCE, reason, key_value, list(OPEN_STATUS)),
     ).fetchone()
     if dup:
         return 0
@@ -395,8 +427,9 @@ def _verify_coverage(conn: psycopg.Connection) -> list[str]:
         r[0]
         for r in conn.execute(
             "SELECT related_document_id FROM staging.match_failure"
-            " WHERE source = %s AND failure_reason_code = 'NORMALIZE_FAILED'",
-            (SOURCE,),
+            " WHERE source = %s AND failure_reason_code = 'NORMALIZE_FAILED'"
+            " AND status = ANY(%s)",
+            (SOURCE, list(OPEN_STATUS)),
         ).fetchall()
     }
     if lost := [d.document_id for d in unparsed if d.document_id not in failed]:

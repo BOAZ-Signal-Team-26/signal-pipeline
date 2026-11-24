@@ -95,3 +95,56 @@ def test_verify_detects_grade_without_source(conn: psycopg.Connection) -> None:
     # CHECK 제약이 근거 없는 등급을 막는지
     with pytest.raises(psycopg.errors.CheckViolation):
         conn.execute("UPDATE staging.fund_group SET risk_grade_source_kind = NULL")
+
+
+def test_ghost_group_fails(conn: psycopg.Connection) -> None:
+    first = _insert_doc(conn, 1, "가나증권투자신탁")
+    second = _insert_doc(conn, 2, "가나증권투자신탁2호")
+    docs = fg.load_docs(conn)
+    run_id = fg.start_run(conn, {"t": 4}, date(2026, 11, 25), commit=False)
+    groups, _ = build_groups(docs)
+    grades = {
+        first.document_id: CoverGrade(3, None),
+        second.document_id: CoverGrade(None, "NO_COVER"),
+    }
+    with conn.cursor() as cur:
+        ids = fg.ensure_distributors(cur, docs)
+        fg.upsert_groups(cur, groups, grades, ids, run_id)
+        cur.execute(
+            "DELETE FROM raw.document WHERE document_id = %s", (second.document_id,)
+        )
+        remaining = build_groups(fg.load_docs(conn))[0]
+        with pytest.raises(ValueError, match="입력에 없는 기존 fund_group 1개"):
+            fg.upsert_groups(cur, remaining, grades, ids, run_id)
+
+
+def test_duplicate_distributor_stops(conn: psycopg.Connection) -> None:
+    doc = _insert_doc(conn, 1, "가나증권투자신탁")
+    for _ in range(2):
+        conn.execute(
+            "INSERT INTO staging.distributor (corp_code, distributor_name, distributor_type)"
+            " VALUES (%s, 'x', '운용사')",
+            (doc.corp_code,),
+        )
+    with conn.cursor() as cur, pytest.raises(ValueError, match="distributor 행이 2개"):
+        fg.ensure_distributors(cur, [doc])
+
+
+def test_resolved_failure_does_not_cover_unparsed(conn: psycopg.Connection) -> None:
+    conn.execute(
+        "INSERT INTO raw.document (source, source_doc_key, source_key_payload, source_record_payload,"
+        " rcept_no, document_type, report_name, received_date) VALUES ('dart', '20260901009999', '{}',"
+        " %s, '20260901009999', '투자설명서', '이상한제목', '2026-09-01')",
+        (
+            psycopg.types.json.Jsonb(
+                {"corp_code": "00000001", "corp_name": "가나자산운용"}
+            ),
+        ),
+    )
+    doc = fg.load_docs(conn)[0]
+    run_id = fg.start_run(conn, {"t": 5}, date(2026, 11, 25), commit=False)
+    with conn.cursor() as cur:
+        fg.record_failures(cur, run_id, [doc], [])
+        assert fg._verify_coverage(conn) == []
+        cur.execute("UPDATE staging.match_failure SET status = '해결'")
+        assert fg._verify_coverage(conn) == ["NORMALIZE_FAILED 기록이 없는 문서 1"]
