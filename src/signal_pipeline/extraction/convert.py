@@ -368,8 +368,11 @@ def _found(fi: FieldInput, data: dict) -> dict:
         n_classes = len(value["classes"])
         extra_notes += [fix] if fix else []
         if len(evidence) < n_classes or lost:
+            # 근거는 classes 순서로 요구하므로, 남은 근거가 어느 클래스 것인지 알 수 있게 근거 순번을 남김
+            kept = ", ".join(str(i + 1) for i in keep)
             extra_notes.append(
-                f"클래스별 근거 확인 {len(evidence)}/{n_classes}(위치를 못 찾은 근거 {len(lost)}개)"
+                f"클래스별 근거 확인 {len(evidence)}/{n_classes}"
+                f"(위치를 못 찾은 근거 {len(lost)}개, 남은 근거의 원래 순번 {kept})"
             )
     return _envelope(
         fi.field_name,

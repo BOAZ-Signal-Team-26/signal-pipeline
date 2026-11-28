@@ -114,13 +114,42 @@ def _rate(cell: str | None) -> tuple[bool, dict | None]:
         return False, None
 
 
-def _match(name: str | None, index: int, n_classes: int, rows: tuple[FeeRow, ...]):
-    """클래스에 맞는 행. 이름이 한쪽에 포함되는 행이 하나뿐이면 그 행, 아니면 행 수가 같을 때 같은 순서의 행."""
+def _code_in(short: str, long: str) -> bool:
+    """짧은 이름이 긴 이름 안에 클래스 코드로 들어 있는지: 「(A)」 괄호 코드이거나 「A(…)」처럼 맨 앞 코드.
+
+    「A」가 「…(Ae)」나 「AG(…)」에 글자로만 들어 있는 경우를 같은 클래스로 보지 않기 위함.
+    """
+    return f"({short})" in long or (
+        long.startswith(short) and len(long) > len(short) and long[len(short)] == "("
+    )
+
+
+def _name_index(name: str | None, rows: tuple[FeeRow, ...]) -> int | None:
+    """이름으로 맞춘 행 번호. 정확히 같은 이름 하나, 없으면 클래스 코드로 맞는 행 하나. 아니면 None."""
     key = _bare(name)
-    hits = [r for r in rows if key and r.label and (key in r.label or r.label in key)]
-    if len(hits) == 1:
-        return hits[0]
-    return rows[index] if len(rows) == n_classes else None
+    if not key:
+        return None
+    exact = [i for i, r in enumerate(rows) if r.label == key]
+    if len(exact) == 1:
+        return exact[0]
+    coded = [
+        i
+        for i, r in enumerate(rows)
+        if r.label and (_code_in(r.label, key) or _code_in(key, r.label))
+    ]
+    return coded[0] if len(coded) == 1 else None
+
+
+def _mapping(classes: list[dict], rows: tuple[FeeRow, ...]) -> list[int | None]:
+    """클래스마다 맞춘 행 번호. 이름으로 못 맞춘 클래스는 행 수가 같고, 이름으로 맞춘 클래스가 모두
+    같은 순서의 행에 맞았을 때만 같은 순서의 행을 씀(순서가 하나라도 어긋나면 순서 매칭을 쓰지 않음)."""
+    by_name = [_name_index(c["class_name"], rows) for c in classes]
+    in_order = len(rows) == len(classes) and all(
+        j is None or j == i for i, j in enumerate(by_name)
+    )
+    return [
+        j if j is not None else (i if in_order else None) for i, j in enumerate(by_name)
+    ]
 
 
 def correct(value: dict, table: FeeTable | None) -> tuple[dict, str | None]:
@@ -132,8 +161,9 @@ def correct(value: dict, table: FeeTable | None) -> tuple[dict, str | None]:
     if table is None or not table.rows:
         return value, None
     classes, n_total, n_peer = [], 0, 0
-    for i, cls in enumerate(value["classes"]):
-        row = _match(cls["class_name"], i, len(value["classes"]), table.rows)
+    mapping = _mapping(value["classes"], table.rows)
+    for cls, j in zip(value["classes"], mapping):
+        row = None if j is None else table.rows[j]
         new = dict(cls)
         if row is not None:
             ok, total = _rate(row.total)

@@ -156,7 +156,10 @@ def test_per_class_evidence_is_partial_with_table() -> None:
     env = convert(with_table, lost_one)
     assert env["status"] == "FOUND" and len(env["evidence"]) == 1
     assert len(env["value"]["classes"]) == 2
-    assert "클래스별 근거 확인 1/2(위치를 못 찾은 근거 1개)" in env["notes"]
+    assert (
+        "클래스별 근거 확인 1/2(위치를 못 찾은 근거 1개, 남은 근거의 원래 순번 1)"
+        in env["notes"]
+    )
     both = convert(with_table, _resp(value, ["수수료선취-", "수수료미징구-"]))
     assert both["status"] == "FOUND" and "클래스별 근거 확인" not in (
         both["notes"] or ""
@@ -230,3 +233,31 @@ def test_correct_keeps_model_value_when_no_match_or_not_number() -> None:
     fixed, note = fee_input.correct(value, table)
     assert fixed == value and note is None
     assert fee_input.correct(value, None) == (value, None)
+
+
+def test_short_code_does_not_match_other_class() -> None:
+    # 표에 A·AG만 있고 모델 클래스가 (Ae)이면 「A」가 글자로 들어 있어도 맞추지 않음
+    rows = (
+        fee_input.FeeRow("A", "0.5", None),
+        fee_input.FeeRow("AG", "0.4", None),
+    )
+    table = fee_input.FeeTable("t", "p", "0" * 64, rows)
+    value = {"classes": [_cls("수수료선취-온라인(Ae)", 0.9)]}
+    assert fee_input.correct(value, table) == (value, None)
+    # 괄호 코드·맨 앞 코드는 맞춤
+    coded = {"classes": [_cls("수수료선취-오프라인(A)", 0.9), _cls("AG(무권유)", 0.9)]}
+    fixed, _ = fee_input.correct(coded, table)
+    assert [c["total_fee"]["amount"] for c in fixed["classes"]] == [0.5, 0.4]
+
+
+def test_order_fallback_disabled_when_name_matches_disagree() -> None:
+    rows = (
+        fee_input.FeeRow("C", "1.0", None),
+        fee_input.FeeRow("A", "0.5", None),
+    )
+    table = fee_input.FeeTable("t", "p", "0" * 64, rows)
+    # A는 이름으로 2번째 행에 맞는데 모델 순서상 1번째 → 순서 매칭을 쓰지 않아 이름 없는 클래스는 그대로
+    value = {"classes": [_cls("수수료선취(A)", 0.9), _cls(None, 0.8)]}
+    fixed, _ = fee_input.correct(value, table)
+    assert fixed["classes"][0]["total_fee"]["amount"] == 0.5
+    assert fixed["classes"][1]["total_fee"]["amount"] == 0.8
