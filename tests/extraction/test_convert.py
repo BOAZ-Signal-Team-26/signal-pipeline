@@ -876,3 +876,17 @@ def test_조각_일치는_경계에_걸친_다른_수수료_항목을_거부():
     # 「수수료 없음」 조각이 「후취판매수수료 없음」의 끝에 맞고, 사이에는 「후취판매」만 남음
     src = "선취판매수수료 1.1154 후취판매수수료 없음"
     assert align.fragments(src, "선취판매수수료 1.1154 수수료 없음")[0] is None
+
+
+def test_조각_일치는_날짜가_낀_수익률_표_이름을_잇지_않음():
+    # 11월 28일 검토: 펀드 이름이 수익률 표에서 끊기고 사이에 설정일·수익률이 끼면 수수료 근거가 아님
+    from signal_pipeline.extraction import align
+
+    perf = "삼성KODEX 원유선물특별자산상 2016-12-23 68.99 29.05 장지수투자신탁"
+    assert (
+        align.fragments(perf, "삼성KODEX 원유선물특별자산상장지수투자신탁")[0] is None
+    )
+    # 같은 이름이 수수료 표(사이에 보수 숫자만)에도 있으면 그쪽을 찾음
+    both = perf + "\n삼성KODEX 원유선물특별자산상 0.35 0.01 장지수투자신탁"
+    span, _, _ = align.fragments(both, "삼성KODEX 원유선물특별자산상장지수투자신탁")
+    assert span is not None and "2016" not in both[span[0] : span[1]]

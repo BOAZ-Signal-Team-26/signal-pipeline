@@ -16,9 +16,13 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from psycopg.rows import dict_row
+
+from signal_pipeline.extraction import fee_input
+from signal_pipeline.extraction.fee_input import FeeTable
 
 FIELDS = (
     "principal_loss_notice",
@@ -58,6 +62,8 @@ class FieldInput:
     input_text: str
     input_sha256: str
     inputs: tuple[dict, ...]
+    # fee_structure에만. 붙으면 입력 끝에 정리본이 들어가고 클래스마다 근거를 요구함(이슈 #99)
+    fee_table: FeeTable | None = None
 
 
 def is_etf(report_name: str | None) -> bool:
@@ -126,9 +132,15 @@ def build_inputs_entries(sections: Sequence[SectionText]) -> tuple[dict, ...]:
 
 
 def assemble_field_input(
-    document_id: int, field_name: str, rows: Iterable[Mapping[str, Any]]
+    document_id: int,
+    field_name: str,
+    rows: Iterable[Mapping[str, Any]],
+    fee_table: FeeTable | None = None,
 ) -> FieldInput:
-    """문서 1건의 절 행들로 필드 입력 1건을 만든다(DB 없음)."""
+    """문서 1건의 절 행들로 필드 입력 1건을 만든다(DB 없음).
+
+    fee_table은 fee_structure이고 제2부 13절이 입력에 있을 때만 붙인다. 정리본은 13절 표에서 만든 것이기 때문.
+    """
     picked = _by_label(rows)
     found: list[SectionText] = []
     missing: list[str] = []
@@ -148,7 +160,14 @@ def assemble_field_input(
                 parser_version=row["parser_version"],
             )
         )
-    text = SEP.join(s.text for s in found)
+    use_table = (
+        fee_table is not None
+        and field_name == "fee_structure"
+        and any(s.label == "제2부 13절" for s in found)
+    )
+    text = SEP.join(
+        [*(s.text for s in found), *([fee_table.text] if use_table else [])]
+    )
     return FieldInput(
         document_id=document_id,
         raw_object_id=found[0].raw_object_id if found else None,
@@ -158,16 +177,24 @@ def assemble_field_input(
         input_text=text,
         input_sha256=sha256_text(text),
         inputs=build_inputs_entries(found),
+        fee_table=fee_table if use_table else None,
     )
 
 
 def assemble_document(
-    doc: Mapping[str, Any], rows: Sequence[Mapping[str, Any]]
+    doc: Mapping[str, Any],
+    rows: Sequence[Mapping[str, Any]],
+    data_root: Path | None = None,
 ) -> tuple[list[FieldInput], dict | None]:
-    """문서 1건 → (필드 입력들, ETF 제외 기록 또는 None)."""
+    """문서 1건 → (필드 입력들, ETF 제외 기록 또는 None). data_root가 있으면 수수료 표 정리본을 찾는다."""
     etf = is_etf(doc["report_name"])
     fields = [f for f in FIELDS if not (etf and f == "redemption_terms")]
-    inputs = [assemble_field_input(doc["document_id"], f, rows) for f in fields]
+    table = (
+        fee_input.read(data_root, rows[0]["raw_sha256"])
+        if data_root is not None and rows
+        else None
+    )
+    inputs = [assemble_field_input(doc["document_id"], f, rows, table) for f in fields]
     exclusion = None
     if etf:
         exclusion = {
@@ -208,7 +235,10 @@ ORDER BY s.document_id, s.section_seq, s.section_id
 
 
 def build_field_inputs(
-    conn, document_ids: Iterable[int] | None, parser_version: str
+    conn,
+    document_ids: Iterable[int] | None,
+    parser_version: str,
+    data_root: Path | None = None,
 ) -> tuple[list[FieldInput], list[dict]]:
     """DB에서 읽어 (필드 입력, ETF 제외 기록)을 돌려준다. 문서 순서·필드 순서 고정.
 
@@ -237,7 +267,9 @@ def build_field_inputs(
     field_inputs: list[FieldInput] = []
     exclusions: list[dict] = []
     for doc in docs:
-        inputs, exclusion = assemble_document(doc, by_doc.get(doc["document_id"], []))
+        inputs, exclusion = assemble_document(
+            doc, by_doc.get(doc["document_id"], []), data_root
+        )
         field_inputs.extend(inputs)
         if exclusion:
             exclusions.append(exclusion)

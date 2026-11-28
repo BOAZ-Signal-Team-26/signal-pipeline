@@ -17,7 +17,7 @@ import re
 from collections.abc import Callable
 from typing import Any
 
-from signal_pipeline.extraction import align
+from signal_pipeline.extraction import align, fee_input
 from signal_pipeline.extraction.inputs import FieldInput, SectionText
 from signal_pipeline.extraction.schema import VALIDATORS, validate_value
 
@@ -339,11 +339,15 @@ def _found(fi: FieldInput, data: dict) -> dict:
     bare = [(s, *_collapse_map(s.text, "")) for s in fi.sections]
     evidence, keep, extra_notes, lost = [], [], [], []
     classes = _class_names(data.get("value"))
+    # 근거 일부를 못 찾아도 남은 근거로 FOUND: 핵심 위험 문구, 정리본이 붙은 수수료(클래스별 근거, 이슈 #99)
+    partial = fi.field_name == KRP or (
+        fi.field_name == FEE and fi.fee_table is not None
+    )
     for i, e in enumerate(data["evidence"]):
         located, n, note = _place(fi, index, bare, e["quote"], classes)
         if located is None:
             lost.append(e["quote"])
-            if fi.field_name != KRP:
+            if not partial:
                 break
             continue
         if note:
@@ -352,13 +356,24 @@ def _found(fi: FieldInput, data: dict) -> dict:
         keep.append(i)
         if n > 1:
             extra_notes.append(f"다중 일치 {n}회")
-    if lost and (fi.field_name != KRP or not evidence):
+    if lost and (not partial or not evidence):
         return _failed(fi, "EVIDENCE_NOT_LOCATED", f"근거를 찾지 못함: {lost[0][:80]}")
     value = data["value"]
-    if lost:
+    if lost and fi.field_name == KRP:
         value = [value[i] for i in keep]
         extra_notes.append(f"근거 없는 문장 {len(lost)}개 삭제")
     value = _source_value(fi, fi.field_name, value, evidence)
+    if fi.field_name == FEE and fi.fee_table is not None:
+        value, fix = fee_input.correct(value, fi.fee_table)
+        n_classes = len(value["classes"])
+        extra_notes += [fix] if fix else []
+        if len(evidence) < n_classes or lost:
+            # 근거는 classes 순서로 요구하므로, 남은 근거가 어느 클래스 것인지 알 수 있게 근거 순번을 남김
+            kept = ", ".join(str(i + 1) for i in keep)
+            extra_notes.append(
+                f"클래스별 근거 확인 {len(evidence)}/{n_classes}"
+                f"(위치를 못 찾은 근거 {len(lost)}개, 남은 근거의 원래 순번 {kept})"
+            )
     return _envelope(
         fi.field_name,
         FOUND,
