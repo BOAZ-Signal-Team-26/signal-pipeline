@@ -45,11 +45,12 @@ jobs:
 
       - name: 마이그레이션 SQL 검사 (Squawk, 이 PR에서 추가·수정한 파일만)
         # 설정은 .squawk.toml. 이름만 바뀐 파일(내용 같음)은 검사하지 않는다
+        # 체크아웃된 HEAD는 PR 병합 결과다. head 브랜치 끝점과 비교하면 dev에 먼저 들어온 변경까지 잡히므로 HEAD와 비교한다
         env:
           SQUAWK_VERSION: 2.73.0
         run: |
           files=$(git diff --name-only --diff-filter=AM \
-            "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" \
+            "${{ github.event.pull_request.base.sha }}" HEAD \
             -- 'db/migrations/*.sql')
           if [ -z "$files" ]; then echo "바뀐 마이그레이션 파일 없음"; exit 0; fi
           echo "$files"
