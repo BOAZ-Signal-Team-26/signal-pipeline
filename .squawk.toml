@@ -1,0 +1,13 @@
+# Squawk 설정(PostgreSQL 마이그레이션 린터). 쓰는 곳과 규칙은 docs/data-model.md 「운영 규칙」
+# Flyway가 마이그레이션 파일마다 트랜잭션을 연다. 파일 안 BEGIN·COMMIT 등은 transaction-nesting 규칙이 잡는다
+assume_in_transaction = true
+pg_version = "16.0"
+# docs/data-model.md 「물리 결정」과 부딪히는 규칙. 길이가 있는 varchar(n)은 그대로 두고, int는 integer로 쓰기로 정했다
+excluded_rules = [
+    "prefer-bigint-over-int",
+    "prefer-text-field",
+]
+# Squawk를 들이기 전에 확정된 DDL. 잠금·실행 시간 제한 경고 2건이 있으나 빈 DB에 처음 만드는 파일이라 고치지 않는다
+excluded_paths = [
+    "V1__erd_v2_2.sql",
+]
