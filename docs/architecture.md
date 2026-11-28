@@ -20,10 +20,10 @@
 ![파이프라인 아키텍처 v2](images/architecture-v2.png)
 
 - v2(11월 8일, PM(대현)): 저장 계층 설계(signal-infra PR #28)의 VPC·서브넷·S3 게이트웨이 엔드포인트·보안 그룹·Session Manager 접속·Budgets, LLM 추출(Bedrock Nova 2 Lite), 배포(GitHub Actions → OIDC 역할 → CodeDeploy, 11월 8일 PM 결정)를 반영
-- 대시보드 연결 추가(11월 10일, PM(대현)): 채점 작업(Scoring)이 결과를 S3 `exports/`에 내보내고, AWS 밖의 Streamlit Community Cloud가 대시보드 전용 IAM 사용자 키로 `exports/*`만 읽는 경로. signal-infra `docs/storage-design.md` 3.9절 권고안(Streamlit Community Cloud + S3 내보내기 파일)을 그린 것. 대시보드 연결 방식은 아직 미결(결정: PM(대현)·데이터 사이언스(다빈))
+- 대시보드 연결 추가(11월 10일, PM(대현)) 및 확정(11월 28일, PM(대현)): 채점 작업(Scoring)이 결과를 S3 `exports/`에 내보내고, AWS 밖의 Streamlit Community Cloud가 대시보드 전용 IAM 사용자 키로 `exports/*`만 읽는 경로(signal-infra `docs/storage-design.md` 3.9절 A'안 확정). 로컬 DB 내보내기 파일로 화면 작업을 선착수하고 AWS 구축 후 `exports/` 원천만 전환함. 상세 계약과 3화면 와이어프레임은 [대시보드 연결·내보내기 계약·3화면 와이어프레임](dashboard-design.md)
   - Streamlit은 AWS 밖 서비스임. S3 게이트웨이 엔드포인트를 거치지 않는 인터넷 경로로 S3를 읽음
   - 빨간 점선은 IAM 권한·자격 증명 관계(Session Manager, 대시보드 접근 키, GitHub OIDC). 대시보드 앱 코드는 GitHub 저장소에서 Streamlit이 직접 배포함. GitHub Actions·CodeDeploy를 거치지 않음
-  - 그림의 「Code Repository (DashBoard Code)」는 저장소 위치를 정한 것이 아님. signal-pipeline 안에 둘지 별도 저장소로 둘지는 8절 미결
+  - 그림의 「Code Repository (DashBoard Code)」는 `signal-pipeline` 저장소 안 `dashboard/` 폴더로 확정(11월 28일 PM(대현) 결정, 진입 파일 `dashboard/app.py`, 의존성은 `dashboard/requirements.txt`로 분리)
 - 그림 원본은 [architecture-v2.drawio](images/architecture-v2.drawio). draw.io로 열어 고친 뒤 PNG를 다시 내보냄. 원본을 넣은 SVG는 1MB를 넘어 PNG로 둠
 - 10월 22일 초안(데이터 엔지니어링·인프라(주영)): [architecture.drawio.svg](images/architecture.drawio.svg). 아래 두 항목은 초안 기준 설명
 - 그림에서 저장 계층 설계와 다른 곳은 없음. 추가한 것은 EC2 안의 작업 상자 4개와 로컬 디스크, 화살표의 표 이름
@@ -166,7 +166,7 @@ EC2 t4g.small 1대(저장 계층 설계 3.3·3.5·6절 10). 이 절은 그 결�
 | 2 | Airflow 실행 위치 | EC2 t4g.small 1대 상시, LocalExecutor | 권고안 그대로. 버전은 아래 5-1 | 상시 프로세스 2개뿐이라 2GB 안에서 가능. 공식 설치 문서 권장 최소 4GB보다 작음을 알고 저장 계층 설계 3.3 합격 기준 실측으로 확인(넘으면 t3.small 전환). arm64 설치 가능 확인(10월 18일) |
 | 3 | 고정 IP 확보 | EC2에 탄력적 IP 1개 | 권고안 그대로. 단 금감원 법인 키 신청은 제재 정기 수집 재개가 정해진 뒤 | 탄력적 IP는 붙어 있든 아니든 같은 요금이라 미리 받아도 손해 없음. 법인 키가 필요한 수집은 지금 보류 상태(11차 미팅 안건 2) |
 | 4 | PDF 처리 실행 환경 | Airflow 호스트에서 pdfplumber, 병렬 2 | 권고안 그대로. 추출 작업과 다른 작업이 겹치지 않게 공유 pool로 막음(2-3) | 파일 병렬 2가 vCPU 2개를 씀. 측정값은 없고 Week 7 합격 기준 실측으로 확인 |
-| 5 | 대시보드 연결 | S3 `exports/` + Streamlit Community Cloud | 의견 없음(Week 7, 데이터 사이언스(다빈)·PM 결정) | 이 초안은 게시 작업이 `exports/`에 쓰는 것까지만 정함(3-2). DB 직접 연결로 바뀌면 `mart` 읽기 계정 추가 외에 처리 흐름은 같음 |
+| 5 | 대시보드 연결 | S3 `exports/` + Streamlit Community Cloud | **확정(11월 28일, PM(대현))**: A'안 채택, `signal-pipeline` 안 `dashboard/` 폴더, Parquet+JSON(문서 전문 제외), 로컬 파일 선착수 후 S3 전환([대시보드 설계](dashboard-design.md)) | RDS 공개 없이 무료 외부 공개 가능. 담당은 데이터 엔지니어링·인프라(주영)로 재배정(11월 28일) |
 | 6 | 이 구성 운영 경험 | 데이터 엔지니어링·인프라(주영) 확인 | 없음. 2주 안 구축은 가능(PR #28 리뷰 답과 같음) | Week 7 구축 전에 arm64 docker에서 Airflow + signal-pipeline 실제 실행을 한 번 확인하는 것으로 보완(7절) |
 
 - 6건과 5-1은 PM(대현) 동의(10월 25일 PR #65 리뷰). Week 7 합격 기준 측정 때 스왑 사용량과 OOM 여부도 기록(7절)
@@ -218,8 +218,6 @@ PR #47(수집)·#51(추출)·#59(로컬 DDL, 리뷰 중)·#63(적재, 리뷰 중
 | 등록·매칭 작업의 구현 담당과 추출과의 순서 | PM(대현) | 10월 31일 미팅 |
 | 추출기 S3 전환 방식(3-3: `latest_pdfs` 목록 조회, `process_file`·`_existing` 읽기·쓰기) | 데이터 엔지니어링·인프라(주영) | Week 7 S3 전환 |
 | Airflow 2.11.2와 signal-pipeline이 함께 쓸 Python 3.12의 arm64 실제 실행 확인(판은 4-1에서 3.12로 정함) | 데이터 엔지니어링·인프라(주영) | Week 7 arm64 실행 확인 때 |
-| 대시보드 연결(결정 항목 5) | PM(대현), 데이터 사이언스(다빈) | Week 7 |
-| 대시보드 앱 코드를 둘 저장소(signal-pipeline 안 폴더 또는 별도 저장소). Streamlit Community Cloud는 저장소 하나와 앱 파일 경로를 지정해 배포함 | PM(대현), 데이터 사이언스(다빈) | 대시보드 연결 결정 때 |
 | 같은 `run_id` 재시도: `attempt_no` 증가, 「Clear task」 대신 새 DAG run으로만 재실행할지, 소스 하나가 실패할 때 다른 소스를 계속 처리할지 | 데이터 엔지니어링·인프라(주영), PM(대현) | Week 7 DAG 작성 전 |
 | LLM: 채점 `inputs.json`에 쓴 LLM 결과 id 고정, 재시도·비용 상한 | 추출 모듈 담당, PM(대현) | 추출 모듈 구현 전 |
 | RDS db.t4g.micro 합격 기준(CPU 크레딧, 캐시 적중률, 덤프 실측 크기. 넘으면 t4g.small) | 데이터 엔지니어링·인프라(주영) | Week 7 |

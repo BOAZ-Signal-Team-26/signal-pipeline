@@ -15,6 +15,7 @@
 | 7 | [데이터 처리 요구 명세](processing-requirements.md) | 데이터 사이언스에 넘기는 파일의 칼럼, 절 경계, 결측 표기, 소스별 워터마크 검증 |
 | 8 | [2단계 데이터 파이프라인 Flow 설계 입력](pipeline-flow.md), [3단계 입출력 Schema 설계 입력](io-schema.md) | 다음 단계가 이어받는 것 |
 | 9 | [파이프라인 아키텍처 초안](architecture.md) | 처리 흐름이 저장 계층 위에서 어떻게 실행되는지: DAG 2개, 단계별 입출력, 실행 환경, 인프라 결정 의견 |
+| 10 | [대시보드 연결·내보내기 계약·3화면 와이어프레임](dashboard-design.md) | 대시보드 연결 확정, `exports/` Parquet·JSON 계약, 3화면 와이어프레임, 로컬에서 S3 전환 절차 |
 | 참조 | [스키마 명세](schema-catalog.md), [DBML](schema.dbml) | 칼럼 단위 확인 |
 | 근거 | [records/](records/) | 결정의 실측 근거와 검토 이력 |
 
