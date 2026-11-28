@@ -3,6 +3,7 @@
 알고리즘은 research/scripts/dart_sections.py에서 옮겼다(근거: docs/records/phase1-erd/dart-section-split.md).
 - 「제N부」 표제 행의 첫 오름차순 묶음(셋 이상)이 목차다. 그 뒤에서 번호가 커지는 표제만 골라 본문 부로 본다.
   그 뒤에 표제가 없으면 목차 없는 문서로 보고, 1~2개뿐이면 구조를 만들지 않는다
+- 목차 없는 문서는 두 단 목차를 단별로 읽고, 목차 글도 없으면 표준 절 목록(STANDARD_TOC)과 맞는 본문 줄만 절로 낸다(#75)
 - 목차에서 부별 절 목록을 읽고, 본문에서 정규화한 제목 앞부분이 일치하는 줄을 절 시작으로 본다
 - 결과는 줄 번호가 아니라 글자 위치(text 안의 반열린 구간 [start, end))로 낸다
 - 부·절 체계 밖 앞부분은 요약정보(`summary`)와 표지·목차·유의사항(`other`) 구간으로 함께 낸다(PR #49 4-2 ⑤)
@@ -29,6 +30,9 @@ MAX_HEAD = 60
 # 본문 번호 목록 줄(「5. 투자신탁재산인 증권…」)을 잡지 않도록 줄이 짧고 겹치는 앞부분이 일정 길이 이상일 때만
 PREFIX_MIN = 4
 PREFIX_LINE_MAX = 40
+STANDARD_TAIL = (
+    3  # 표준 절 목록 경로: 제목 뒤에 붙어도 되는 글자 수(「및」, 「등」 같은 끝말)
+)
 # 본문 부 표제가 목차 부 제목의 앞부분일 때 받는 최소 길이(「발행인」 3글자)
 PART_PREFIX_MIN = 3
 # 요약정보 시작: 줄 시작의 「[요약정보]」·「<요약정보>」(10월 10일 501건 실측 483건).
@@ -49,6 +53,31 @@ BODY_SEC_LOOSE = re.compile(r"^\s*(\d{1,2})\s*\.?\s*(\D.*)$")
 # 목차와 본문 제목이 일부만 같을 때(「집합투자기구의 투자위험」/「투자위험」 등) 같은 절·부로 보는 유사도 하한.
 # 10월 20일 prep-7 실패 483개 시험에서 0.6일 때 표본 129개 오검출 0개, 0.7이면 62개를 덜 찾는다
 SIMILAR_MIN = 0.6
+# 두 단 목차 한 줄의 오른쪽 단 시작: 넓은 공백 뒤 「제N부」 또는 「N.」
+# (「제 1 부. 모집 …      제 3 부. 집합투자기구의 재무 …」, 11월 24일 prep-8 500건 중 4건, #75)
+COLUMN_GAP = re.compile(r"\s{4,}(?=제\s*[1-5]\s*부|\d{1,2}\.)")
+# 오른쪽 단 항목만 있는 줄: 들여쓰기가 오른쪽 단 시작 위치보다 이만큼 이상 덜하지 않으면 오른쪽 단으로 본다
+COLUMN_SLACK = 4
+# 이 문자로 시작하는 줄은 절 시작으로 받지 않는다(절을 가리키는 안내 문장)
+QUOTES = ("“", "‘", '"', "'", "「", "『")
+# 목차 글이 없는 문서(11월 24일 prep-8 500건 중 12건, #75)에서 본문 절을 찾을 때 쓰는 표준 절 목록.
+# prep-8 목차 483건에서 부마다 가장 많이 나온 목록. 제4부 합본 절은 _affiliate_sections가 회사별로 나눈다
+STANDARD_TOC: dict[int, list[tuple[int, str]]] = {
+    1: list(enumerate(["집합투자기구의 명칭", "집합투자기구의 종류 및 형태", "모집예정금액",
+                       "모집의 내용 및 절차", "인수에 관한 사항", "상장 및 매매에 관한 사항"], 1)),
+    2: list(enumerate(["집합투자기구의 명칭", "집합투자기구의 연혁", "집합투자기구의 신탁계약기간",
+                       "집합투자업자", "운용전문인력", "집합투자기구의 구조", "집합투자기구의 투자목적",
+                       "집합투자기구의 투자대상", "집합투자기구의 투자전략, 투자방침 및 수익구조",
+                       "집합투자기구의 투자위험", "매입, 환매, 전환 절차 및 기준가격 적용 기준",
+                       "기준가격 산정 기준 및 집합투자재산의 평가", "보수 및 수수료에 관한 사항",
+                       "이익 배분 및 과세에 관한 사항"], 1)),
+    3: list(enumerate(["재무정보", "연도별 설정 및 환매현황", "집합투자기구의 운용실적"], 1)),
+    4: list(enumerate(["집합투자업자에 관한 사항", "운용관련 업무 수탁회사 등에 관한 사항",
+                       "기타 집합투자기구 관련회사에 관한 사항"], 1)),
+    5: list(enumerate(["투자자의 권리에 관한 사항", "집합투자기구의 해지에 관한 사항",
+                       "집합투자기구의 공시에 관한 사항", "이해관계인 등과의 거래에 관한 사항",
+                       "집합투자업자의 고유재산 투자에 관한 사항", "외국 집합투자기구에 관한 추가 기재사항"], 1)),
+}  # fmt: skip
 
 FOUND = "EXTRACT_OK"
 NOT_FOUND = "SECTION_BOUNDARY_NOT_FOUND"
@@ -172,6 +201,52 @@ def toc(
     return found
 
 
+def column_toc(
+    lines: list[str], stop: int
+) -> tuple[int | None, dict[int, list[tuple[int, str]]]]:
+    """`stop` 앞 두 단 목차의 (첫 줄 번호, 부별 절 목록). 두 단 목차가 없으면 (None, {}).
+
+    한 줄에 왼쪽·오른쪽 단 항목이 함께 있어 줄 순서로는 부가 오름차순으로 나오지 않는다.
+    「제N부」로 시작하고 오른쪽 단이 있는 첫 줄부터 `stop` 앞까지를 단별로 나눠
+    왼쪽 단 전체, 오른쪽 단 전체 순으로 이어 붙인 뒤 보통 목차처럼 읽는다.
+    왼쪽 단이 먼저 끝나 오른쪽 단 항목만 남은 줄은 들여쓰기로 오른쪽 단에 넣는다.
+    """
+    # (왼쪽, 오른쪽, 오른쪽 단 시작 위치)
+    pieces: list[tuple[str, str | None, int]] = []
+    for line in lines[:stop]:
+        body = line.lstrip()
+        indent = len(line) - len(body)
+        gap = COLUMN_GAP.search(body)
+        if gap:
+            pieces.append((body[: gap.start()], body[gap.end() :], indent + gap.end()))
+        else:
+            pieces.append((body.rstrip(), None, indent))
+    start = next(
+        (
+            i
+            for i, (left, right, _) in enumerate(pieces)
+            if right is not None and PART.match(LEADER.sub("", left))
+        ),
+        None,
+    )
+    if start is None:
+        return None, {}
+    region = pieces[start:]
+    right_x = min(x for _, right, x in region if right is not None)
+    lefts, rights = [], []
+    for left, right, x in region:
+        if right is not None:
+            lefts.append(left)
+            rights.append(right)
+        elif left and x >= right_x - COLUMN_SLACK:
+            rights.append(left)  # 왼쪽 단이 비고 오른쪽 단 항목만 있는 줄
+        else:
+            lefts.append(left)
+    merged = lefts + rights
+    run = next((r for r in part_runs(part_marks(merged)) if len(r) >= 3), None)
+    return (start, toc(merged, run, len(merged))) if run else (None, {})
+
+
 def normalize(text: str) -> str:
     return re.sub(r"[^0-9A-Za-z가-힣]", "", text)
 
@@ -183,17 +258,27 @@ def _find_start(
     name: str,
     after: int,
     later: Sequence[tuple[int, str]] | None = (),  # None이면 유사도 규칙을 쓰지 않음
+    numbered: bool = False,  # True면 절 번호로 시작하는 줄만 받는다(표준 절 목록 경로)
 ) -> int | None:
     """본문 줄(줄 번호, 정규화 텍스트) 중 `after` 뒤의 절 시작 줄 번호. 못 찾으면 None.
 
     앞 절보다 뒤에서만 찾는다. 뒤 절 제목이 앞쪽 본문 줄에 맞으면 구간이 거꾸로 잡힌다
     (10월 10일 502건 실측 12건).
     """
-    body = [(i, text) for i, text in body if i > after]
+    # 따옴표로 시작하는 줄은 절을 가리키는 문장이다(「“11. 매입, …”에서 상세하게 설명」, #75 20260916000146)
+    body = [
+        (i, text)
+        for i, text in body
+        if i > after and not lines[i].lstrip().startswith(QUOTES)
+    ]
     key = normalize(name)
     head = normalize(f"{number}.") + key[:12]
+    if numbered:
+        return _standard_start(body, lines, number, key, head)
     spot = next((i for i, text in body if text.startswith(head)), None)
-    if spot is None:
+    if spot is None and not numbered:
+        # 번호 없는 제목 일치. 목차가 없는 문서에서는 「집합투자기구의 명칭은 …」 같은
+        # 본문 문장이 잡히므로 쓰지 않는다(PR #92 리뷰)
         spot = next(
             (
                 i
@@ -207,12 +292,38 @@ def _find_start(
     if spot is None and later is not None:
         # 뒤 절이 앞의 세 규칙으로 잡히는 줄보다 앞에서만 찾는다. 뒤 절 안의 번호 목록 줄을 잡으면
         # 이 절 경계가 틀리고 뒤 절은 「앞 절보다 뒤」 조건 때문에 못 찾는다(PR #61 리뷰)
-        found = (_find_start(body, lines, n, nm, after, None) for n, nm in later)
+        found = (
+            _find_start(body, lines, n, nm, after, None, numbered) for n, nm in later
+        )
         limit = min((f for f in found if f is not None), default=None)
         if limit is not None:
             body = [(i, text) for i, text in body if i < limit]
         spot = _similar_title(body, lines, number, key)
     return spot
+
+
+def _standard_start(
+    body: list[tuple[int, str]], lines: list[str], number: int, key: str, head: str
+) -> int | None:
+    """표준 절 목록 경로(목차 글이 없는 문서)의 절 시작. 후보가 하나일 때만 받는다.
+
+    목차가 없어 번호·제목 말고는 확인할 근거가 없다(PR #92 Codex 리뷰).
+    - 후보: 제목 뒤에 다른 말이 붙지 않은 「N. 제목」 줄. 「7. 집합투자기구의 투자목적을 참조하시길
+      바랍니다」 같은 안내 문장이나 표·목록 안의 긴 줄은 받지 않는다
+    - 그런 줄이 없으면 제목이 비슷한 짧은 「N.」 줄(_similar_title과 같은 기준)
+    - 어느 쪽이든 같은 부 안에 후보가 둘 이상이면 어느 줄이 절 시작인지 모르므로 경계를 정하지 않는다
+    """
+    num = normalize(f"{number}.")
+    exact = [
+        i
+        for i, text in body
+        if len(text) - len(num) <= len(key) + STANDARD_TAIL
+        and (text.startswith(head) or _prefix_title(text, number, key))
+    ]
+    if exact:
+        return exact[0] if len(exact) == 1 else None
+    similar = _similar_scores(body, lines, number, key)
+    return similar[0][1] if len(similar) == 1 else None
 
 
 def _similar_title(
@@ -224,9 +335,17 @@ def _similar_title(
     번호 목록 줄을 잡지 않도록 PREFIX_LINE_MAX 이하 줄만 본다. 합본 관련회사 절은
     _affiliate_sections가 회사별 절로 대신하므로 목차·본문 어느 쪽이 합본이어도 받지 않는다.
     """
+    scored = _similar_scores(body, lines, number, key)
+    return max(scored, key=lambda s: s[0])[1] if scored else None
+
+
+def _similar_scores(
+    body: list[tuple[int, str]], lines: list[str], number: int, key: str
+) -> list[tuple[float, int]]:
+    """_similar_title 기준을 넘는 (유사도, 줄 번호) 전부. 동점이면 앞 줄이 먼저(max는 첫 최댓값)."""
     if COMBINED_TOC.match(key):
-        return None
-    best: tuple[float, int] | None = None
+        return []
+    out = []
     for i, _ in body:
         match = BODY_SEC_LOOSE.match(lines[i])
         if not match or int(match.group(1)) != number:
@@ -235,9 +354,9 @@ def _similar_title(
         if len(rest) > PREFIX_LINE_MAX or COMBINED_TOC.match(rest):
             continue
         score = SequenceMatcher(None, rest[: len(key) + 3], key).ratio()
-        if score >= SIMILAR_MIN and (best is None or score > best[0]):
-            best = (score, i)
-    return best[1] if best else None
+        if score >= SIMILAR_MIN:
+            out.append((score, i))
+    return out
 
 
 def _prefix_title(text: str, number: int, key: str) -> bool:
@@ -379,6 +498,8 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
     toc_titles = {part: _part_title(lines, index) for index, part, _ in first}
     marks = [m for m in marks if m[0] <= first[-1][0] or _is_heading(m, toc_titles)]
     body_run = ascending([m for m in marks if m[0] > first[-1][0]])
+    toc_line = first[0][0]
+    standard = False  # True면 목차 대신 STANDARD_TOC로 찾은 절만 낸다
     if len(body_run) >= 3:
         contents = toc(lines, first, body_run[0][0])
         toc_part_count = len(first)
@@ -389,10 +510,15 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
             f"목차 뒤 본문 「제N부」 표제가 {len(body_run)}개뿐이다"
         )
     else:
-        contents: dict[int, list[tuple[int, str]]] = {}
+        # 「제N부」 목차 묶음이 없다: 두 단 목차를 읽고, 그것도 없으면 표준 절 목록으로 찾는다(#75)
         toc_titles = {}
         body_run = ascending([m for m in marks if m[0] >= first[0][0]])
-        toc_part_count = 0
+        column_line, contents = column_toc(lines, first[0][0])
+        toc_part_count = len(contents)
+        if column_line is not None:
+            toc_line = column_line
+        else:
+            contents, standard = STANDARD_TOC, True
 
     parts: list[Part] = []
     body: list[Section] = []
@@ -409,21 +535,27 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
         last = start
         listed = contents.get(part, [])
         for k, (number, name) in enumerate(listed):
-            spot = _find_start(lined, lines, number, name, last, listed[k + 1 :])
+            spot = _find_start(
+                lined, lines, number, name, last, listed[k + 1 :], standard
+            )
             spots.append((number, name, spot))
             last = spot if spot is not None else last
         added = _affiliate_sections(lines, lined, spots)
         if added and spots[-1][2] is None:
             number, name, _ = spots[-1]
-            replaced.append((part, str(number), name))
+            if not standard:
+                replaced.append((part, str(number), name))
             spots = spots[:-1]
-        in_toc = [True] * len(spots) + [False] * len(added)
+        # 표준 절 목록으로 찾은 절은 문서 목차에 없으므로 in_toc False
+        in_toc = [not standard] * len(spots) + [False] * len(added)
         spots = spots + added
         # 찾은 절의 끝 = 다음으로 찾은 절의 시작, 마지막이면 부의 끝
         starts = [offsets[s] for _, _, s in spots if s is not None]
         ends = iter(starts[1:] + [part_end])
         for (number, name, spot), listed in zip(spots, in_toc, strict=True):
             found = spot is not None
+            if standard and not found:
+                continue  # 목차가 없으니 못 찾은 표준 절을 경계 실패로 남기지 않는다
             body.append(
                 Section(
                     section_seq=0,
@@ -441,14 +573,14 @@ def _split(text: str, breaks: list[int]) -> tuple[SplitResult, dict[int, str]]:
                     in_toc=listed,
                 )
             )
-    front = _front_sections(text, lines, offsets, body_run[0][0], first[0][0])
+    front = _front_sections(text, lines, offsets, body_run[0][0], toc_line)
     sections = [
         replace(sec, section_seq=seq) for seq, sec in enumerate(front + body, 1)
     ]
     split = SplitResult(
         parts,
         sections,
-        sum(len(v) for v in contents.values()),
+        0 if standard else sum(len(v) for v in contents.values()),
         toc_part_count,
         replaced,
     )
