@@ -369,6 +369,16 @@ def _found(fi: FieldInput, data: dict) -> dict:
     )
 
 
+def _per_class_evidence(fi: FieldInput, data: dict) -> list[str]:
+    """수수료 표 정리본이 붙은 입력은 클래스 수 이상의 근거를 요구한다(이슈 #99). 그 밖에는 검사하지 않음."""
+    if fi.fee_table is None or data.get("status") != FOUND:
+        return []
+    n_classes, n_evidence = len(data["value"]["classes"]), len(data["evidence"])
+    if n_evidence >= n_classes:
+        return []
+    return [f"클래스별 근거 부족: classes {n_classes}개, evidence {n_evidence}개"]
+
+
 def convert(
     fi: FieldInput, response_text: str | None, call_error: str | None = None
 ) -> dict:
@@ -380,7 +390,7 @@ def convert(
         return _failed(
             fi, "PARSE_FAILED", "응답이 JSON 객체가 아님. 원응답은 response.json"
         )
-    errs = _check(fi.field_name, data)
+    errs = _check(fi.field_name, data) or _per_class_evidence(fi, data)
     if errs:
         return _failed(fi, "SCHEMA_INVALID", "; ".join(errs))
     status, notes = data["status"], data.get("notes")

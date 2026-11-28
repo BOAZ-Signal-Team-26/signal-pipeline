@@ -50,6 +50,7 @@ from signal_pipeline.extraction.bedrock import (
     response_text,
 )
 from signal_pipeline.extraction.convert import convert, dedupe_document, result_status
+from signal_pipeline.extraction.fee_input import VERSION as FEE_TABLE_VERSION
 from signal_pipeline.extraction.inputs import FieldInput, build_field_inputs
 from signal_pipeline.extraction.store import (
     Prompt,
@@ -313,7 +314,7 @@ def run_extraction(
 ) -> dict:
     """실행 1회. 요약 dict(run_id, status, reason, calls, reused, 토큰, cost_usd, status_counts)."""
     data_root = Path(data_root)
-    fis, exclusions = build_field_inputs(conn, document_ids, parser_version)
+    fis, exclusions = build_field_inputs(conn, document_ids, parser_version, data_root)
     docs = _by_document(fis)[:limit]
     prompts = install_prompts(data_root)
     config = {
@@ -321,6 +322,8 @@ def run_extraction(
         "model_params": client.params,
         "region": REGION,
         "parser_version": parser_version,
+        "fee_table_version": FEE_TABLE_VERSION,
+        "fee_table_inputs": sum(fi.fee_table is not None for fi in fis),
         "prompts": {
             n: {"prompt_id": p.prompt_id, "path": p.path, "sha256": p.sha256}
             for n, p in prompts.items()
@@ -483,7 +486,9 @@ def main() -> int:
         url, options=f"-c search_path={SEARCH_PATH}", autocommit=True
     ) as conn:
         if args.dry_run:
-            fis, exclusions = build_field_inputs(conn, ids, args.parser_version)
+            fis, exclusions = build_field_inputs(
+                conn, ids, args.parser_version, args.data_root
+            )
             docs = _by_document(fis)[: args.limit]
             chosen = [fi for doc in docs for fi in doc]
             print(

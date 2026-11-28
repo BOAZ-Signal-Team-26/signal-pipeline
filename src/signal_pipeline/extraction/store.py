@@ -88,6 +88,11 @@ def write_request(
         "input_text": fi.input_text,
         "input_sha256": fi.input_sha256,
     }
+    if fi.fee_table is not None:  # 입력 끝에 붙은 수수료 표 정리본의 출처(이슈 #99)
+        request["fee_table"] = {
+            "path": fi.fee_table.path,
+            "sha256": fi.fee_table.sha256,
+        }
     if reused_from:
         request["reused_from"] = reused_from
     path = Path(data_root) / attempt_dir(run_id, fi, attempt_no) / "request.json"
