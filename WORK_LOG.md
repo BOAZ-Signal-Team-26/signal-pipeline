@@ -1,5 +1,18 @@
 # 작업 기록
 
+## 2026-11-28 — 제2부 10절·13절 쉬운 문장 변환과 의미 보존 검사 구현(이슈 #106)
+
+- 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」의 쉬운 문장 변환(11월 25일 PM 결정)
+- 바꾼 것
+  - `src/signal_pipeline/scoring/rewrite_check.py`: 순수 함수 의미 보존 검사(`check_meaning_preservation`). 원문과 변환문에서 비율(`%`, `bp`), 위험등급(1~6등급, 누락·신규 생성 모두 차단), 원금손실·원본 비보장 고지, 10절(투자위험)·13절(수수료) 점검표 핵심 개념어를 대조해 하나라도 빠지면 `passed = False`로 표시 차단
+  - `src/signal_pipeline/scoring/rewrite.py`: `BedrockClient` 기반 쉬운 문장 변환 실행기(`rewrite_one`, `run_batch`, CLI `--dry-run`·`--budget-usd` 필수, 기존 출력 파일 덮어쓰기 거부, `model`·`prompt_sha256`·`input_sha256`·토큰·비용 기록)
+  - `src/signal_pipeline/scoring/prompts/easy_rewrite_v1.md`: 쉬운 문장 변환 시스템 프롬프트
+  - `tests/scoring/test_rewrite.py`: 의미 보존 검사·모의 클라이언트 배치 실행·예산 상한 중단 테스트 11개
+- 바꾸지 않은 것
+  - DB 스키마·DDL, 점수 산출 기준집단(변환문은 표시와 검증에만 씀)
+  - 실제 Bedrock API 호출(축 1·2 절별 백분위 상위 목록 확정 뒤 파일럿 실행)
+- 검증: `uv run ruff check .`, `uv run ruff format --check .` 통과. `uv run pytest tests/scoring/test_rewrite.py` 11개 통과
+
 ## 2026-11-25 — 축 1·2 검증 설계(사람·LLM 이해도)와 쉬운 문장 변환 기록
 
 - 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」(9월 29일 팀 논의 결론, 9차 미팅 확정 기록), Notion 검증 기획서(9월 30일)
