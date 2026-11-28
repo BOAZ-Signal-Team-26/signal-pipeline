@@ -143,16 +143,90 @@ def _resp(value, quotes):
     return json.dumps(body, ensure_ascii=False)
 
 
-def test_per_class_evidence_required_only_with_table() -> None:
+def test_per_class_evidence_is_partial_with_table() -> None:
     text = "수수료선취- 오프라인(A) - 수수료미징구- 오프라인(C) -"
     sec = SectionText(label="제2부 13절", section_id=20, char_start=0, text=text)
     base = FieldInput(1, 2, "fee_structure", (sec,), (), text, "0" * 64, ())
     with_table = replace(base, fee_table=fee_input.FeeTable("표", "p", "0" * 64))
     value = _fee_value("수수료선취-오프라인(A)", "수수료미징구-오프라인(C)")
-    one = _resp(value, ["수수료선취-"])
-    two = _resp(value, ["수수료선취-", "수수료미징구-"])
-    assert convert(base, one)["status"] == "FOUND"
-    failed = convert(with_table, one)
-    assert failed["reason_code"] == "SCHEMA_INVALID"
-    assert "클래스별 근거 부족" in failed["notes"]
-    assert convert(with_table, two)["status"] == "FOUND"
+    lost_one = _resp(value, ["수수료선취-", "원문에 없는 인용"])
+    # 정리본이 없으면 근거 하나라도 못 찾으면 실패(현행)
+    assert convert(base, lost_one)["reason_code"] == "EVIDENCE_NOT_LOCATED"
+    # 정리본이 있으면 찾은 근거만 남기고 FOUND, 클래스별 근거 확인 수를 notes에
+    env = convert(with_table, lost_one)
+    assert env["status"] == "FOUND" and len(env["evidence"]) == 1
+    assert len(env["value"]["classes"]) == 2
+    assert "클래스별 근거 확인 1/2(위치를 못 찾은 근거 1개)" in env["notes"]
+    both = convert(with_table, _resp(value, ["수수료선취-", "수수료미징구-"]))
+    assert both["status"] == "FOUND" and "클래스별 근거 확인" not in (
+        both["notes"] or ""
+    )
+    # 모두 못 찾으면 실패
+    none = convert(with_table, _resp(value, ["없는 인용 1", "없는 인용 2"]))
+    assert none["reason_code"] == "EVIDENCE_NOT_LOCATED"
+
+
+def _cls(name, total, peer=None):
+    pct = lambda v: None if v is None else {"amount": v, "unit": "%"}
+    return {
+        "class_name": name,
+        "front_load": None,
+        "back_load": None,
+        "total_fee": pct(total),
+        "peer_total_fee": pct(peer),
+    }
+
+
+def test_correct_replaces_wrong_column_values() -> None:
+    data = {
+        **TABLE,
+        "tables": [
+            {
+                "pages": [3],
+                "orientation": "ROWS",
+                "columns": ["총보수", "총보수·비용", "동종유형 총보수"],
+                "rows": [
+                    {
+                        "label": "수수료선취-오프라인(A)",
+                        "cells": ["0.18", "0.3214", "-"],
+                    },
+                    {
+                        "label": "수수료미징구-온라인(Ce)",
+                        "cells": ["1.147", "1.15", "1.03"],
+                    },
+                ],
+            }
+        ],
+    }
+    table = fee_input.FeeTable("t", "p", "0" * 64, fee_input.fee_rows(data))
+    value = {
+        "classes": [
+            _cls(
+                "수수료선취-오프라인 (A)", 0.3214, 0.1446
+            ),  # 총보수·비용·증권거래비용을 잘못 고름
+            _cls("수수료미징구-온라인(Ce)", 1.147, 1.03),  # 이미 맞음
+        ]
+    }
+    fixed, note = fee_input.correct(value, table)
+    assert fixed["classes"][0]["total_fee"] == {"amount": 0.18, "unit": "%"}
+    assert fixed["classes"][0]["peer_total_fee"] is None
+    assert fixed["classes"][1] == value["classes"][1]
+    assert (
+        note == "표 정리본 값으로 보정: 총보수 1개, 동종유형 총보수 1개(fee-table-v1)"
+    )
+    assert value["classes"][0]["total_fee"]["amount"] == 0.3214  # 원본은 그대로
+
+
+def test_correct_keeps_model_value_when_no_match_or_not_number() -> None:
+    rows = (
+        fee_input.FeeRow("A", "0.5", None),
+        fee_input.FeeRow("B", "별도", None),
+        fee_input.FeeRow("C", "0.7", None),
+    )
+    table = fee_input.FeeTable("t", "p", "0" * 64, rows)
+    value = {
+        "classes": [_cls("B", 0.9), _cls("Z", 0.8)]
+    }  # B는 숫자가 아님, Z는 맞는 행 없음(행 수도 다름)
+    fixed, note = fee_input.correct(value, table)
+    assert fixed == value and note is None
+    assert fee_input.correct(value, None) == (value, None)
