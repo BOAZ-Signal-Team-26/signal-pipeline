@@ -1,5 +1,16 @@
 # 작업 기록
 
+## 2026-11-28 — 축 1·2 검증용 LLM 이해도 평가 실행기 구현(이슈 #107)
+
+- 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」의 LLM 이해도 평가(11월 25일 PM 담당 신설)
+- 바꾼 것
+  - `src/signal_pipeline/scoring/llm_comprehension.py`: 문항 JSONL 입력을 문서 미제공(`without_doc`)·문서 제공(`with_doc`) 독립 세션으로 각각 호출해 정답률 차이(`info_gain`)를 계산하는 실행기. 최대치 효과 플래그(`ceiling_effect_flag`, 기준 0.75), 입력 잘림 탐지·차단(`--max-input-chars`, `--fail-on-truncation`), 재현 메타(`model`, `prompt_sha256`, `temperature=0`, `seed`, `repeats`, `grading_rule`), CDI 백분위 vs `info_gain` 스피어만 상관, `--dry-run`·`--budget-usd` 필수·덮어쓰기 거부 포함
+  - `src/signal_pipeline/scoring/prompts/llm_comprehension_v1.md`: 객관식·단답형 JSON 응답 프롬프트
+  - `tests/scoring/test_llm_comprehension.py`: 채점 정규화·독립 세션 격리·최대치 효과·입력 잘림 차단·스피어만 상관·예산 상한 중단 테스트 6개
+- 바꾸지 않은 것
+  - DB 스키마·DDL, 실제 문항 세트(분석·리서치(민석)와 사람 이해도 조사 문항 공유 후 파일럿 20건 실행)
+- 검증: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest tests/scoring/test_llm_comprehension.py` 6개 통과
+
 ## 2026-11-25 — 축 1·2 검증 설계(사람·LLM 이해도)와 쉬운 문장 변환 기록
 
 - 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」(9월 29일 팀 논의 결론, 9차 미팅 확정 기록), Notion 검증 기획서(9월 30일)
