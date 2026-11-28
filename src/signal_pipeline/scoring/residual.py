@@ -268,6 +268,8 @@ def summarize(rows: list[FundRow], used: list[FundRow], a: Fit, b: Fit) -> dict:
         "grade_counts": dict(sorted(Counter(r.grade for r in used).items())),
         # 등급 계수는 이 등급과의 차이. 포함된 묶음에 1등급이 없으면 1이 아닌 값이 됨
         "base_grade": min(r.grade for r in used),
+        "coef_note": "등급N 계수는 다른 설명변수가 같을 때 base_grade 등급 대비 없음 비율의 차이. "
+        "ETF 계수는 ETF가 아닌 펀드 대비 차이. 모형 B는 운용사 고정효과를 통제한 값",
         "etf_used": sum(r.is_etf for r in used),
         "none_ratio_zero": sum(r.none_ratio == 0 for r in used),
         "model_a": {"r2": round(a.r2, 4), "coef": _main_coef(a)},
@@ -282,13 +284,21 @@ def summarize(rows: list[FundRow], used: list[FundRow], a: Fit, b: Fit) -> dict:
 
 
 def save(stem: Path, csv_bytes: bytes, json_bytes: bytes) -> None:
-    """CSV·JSON을 새 파일로 쓴다. JSON 쓰기가 실패하면 이번에 만든 CSV만 지워 다시 실행할 수 있게 함."""
-    csv_path = stem.with_suffix(".csv")
+    """CSV·JSON을 새 파일로 쓴다. JSON 쓰기가 실패하면 이번 실행에서 만든 파일만 지워 다시 실행할 수 있게 함.
+
+    JSON이 실행 전부터 있으면(FileExistsError) 그 파일은 건드리지 않고 CSV만 지움.
+    JSON을 만든 뒤 쓰다가 실패하면 반쯤 쓴 JSON도 지움.
+    """
+    csv_path, json_path = stem.with_suffix(".csv"), stem.with_suffix(".json")
     write_new(csv_path, csv_bytes)
     try:
-        write_new(stem.with_suffix(".json"), json_bytes)
+        write_new(json_path, json_bytes)
+    except FileExistsError:
+        csv_path.unlink()
+        raise
     except BaseException:
         csv_path.unlink()
+        json_path.unlink(missing_ok=True)
         raise
 
 

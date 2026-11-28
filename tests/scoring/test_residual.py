@@ -130,3 +130,34 @@ def test_save_removes_new_csv_when_json_exists(tmp_path: Path) -> None:
 def test_fit_both_requires_rows() -> None:
     with pytest.raises(ValueError):
         fit_both([FundRow("c", "n", "k", "r", None, False, {}, "판정값 없음")])
+
+
+def test_save_removes_partial_json_written_this_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # CodeRabbit(PR #101): JSON을 만든 뒤 쓰기에 실패하면 반쯤 쓴 JSON도 지워 재실행이 막히지 않게 함
+    import signal_pipeline.scoring.residual as mod
+
+    real = mod.write_new
+
+    def failing(path: Path, data: bytes) -> None:
+        if path.suffix == ".json":
+            path.write_bytes(data[:3])  # 파일은 만들어졌고 쓰다가 실패
+            raise OSError("disk full")
+        real(path, data)
+
+    monkeypatch.setattr(mod, "write_new", failing)
+    stem = tmp_path / "out"
+    with pytest.raises(OSError):
+        save(stem, b"csv", b"json-body")
+    assert not stem.with_suffix(".csv").exists()
+    assert not stem.with_suffix(".json").exists()
+
+
+def test_summary_explains_coefficients() -> None:
+    rows = [
+        FundRow("c", "운용사", f"k{i}", f"r{i}", g, False, {"있음": 9, "없음": n})
+        for i, (g, n) in enumerate([(1, 0), (1, 1), (2, 1), (2, 2)])
+    ]
+    used, a, b = fit_both(rows)
+    assert "base_grade" in summarize(rows, used, a, b)["coef_note"]
