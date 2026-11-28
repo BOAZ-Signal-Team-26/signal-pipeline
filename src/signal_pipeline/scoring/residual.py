@@ -10,7 +10,10 @@
 - 모형 B: 모형 A + 운용사 더미(고정효과). 펀드 묶음이 1개인 운용사는 잔차가 0이 됨
 - 잔차 상위 목록의 기본은 모형 B, 모형 A는 운용사 간 양식 차이를 보려고 함께 냄(11월 28일 PM 결정).
   근거: 설계 문서의 운용사 고정효과 결정. 모형 A 잔차는 문서 양식이 나쁜 운용사에 몰림
-- 제외: 대표 등급 없음(묶음 규칙의 MISSING·CONFLICT·FOREIGN_UMBRELLA), 판정값 없음, 있음+없음 0
+- 제외: 대표 문서 동률(최신 접수일에 문서가 여럿), 대표 등급 없음(묶음 규칙의 MISSING·CONFLICT·
+  FOREIGN_UMBRELLA), 판정값 없음, 있음+없음 0
+- 한계: 기준일 인자가 없음(모든 문서가 실행일 전에 접수됐다고 봄). ETF는 보고서명 「상장지수」로만 판정
+  (로컬 DB에 KRX 확인 매칭 표가 비어 있음. 축 4의 4.2 판정과 같은 상황)
 
 묶음은 signal_pipeline.matching.fund_key 규칙으로 메모리에서 다시 계산한다(DB에 쓰지 않음).
 
@@ -45,10 +48,12 @@ from signal_pipeline.matching.fund_key import (
     build_groups,
     pick_grade,
 )
+from signal_pipeline.scoring.axis4_rules import ITEMS
 
 KST = timezone(timedelta(hours=9))
 VERSION = "axis4-residual-draft-1"
 PIVOT_TOL = 1e-9
+ITEM_COUNT = len(ITEMS)
 MET, UNMET = "있음", "없음"
 STATUSES = (MET, UNMET, "판정 불가", "적용 대상 아님")
 
@@ -120,8 +125,15 @@ def ols(names: list[str], x: list[list[float]], y: list[float]) -> Fit:
     return Fit(tuple(names), coef, tuple(fitted), tuple(resid), r2)
 
 
-def representative(group: Group) -> Doc:
-    return max(group.docs, key=lambda d: (d.received_date, d.document_id))
+def representative(group: Group) -> tuple[Doc, bool]:
+    """가장 늦게 접수된 문서와, 그 접수일에 문서가 여럿인지(동률).
+
+    동률이면 ID 순서로 고르지 않고 제외한다(docs/scoring-and-population.md 「기준일과 대표본 선택」 4번,
+    AMBIGUOUS_DOCUMENT). 반환 문서는 출력 CSV에서 묶음을 찾아가는 용도로만 씀
+    """
+    latest = max(d.received_date for d in group.docs)
+    tied = [d for d in group.docs if d.received_date == latest]
+    return max(tied, key=lambda d: d.document_id), len(tied) > 1
 
 
 def read_judgments(path: Path) -> dict[str, Counter[str]]:
@@ -135,7 +147,22 @@ def read_judgments(path: Path) -> dict[str, Counter[str]]:
     return out
 
 
-def _exclusion(status: str, row: FundRow) -> str | None:
+def check_coverage(docs: list[Doc], judgments: dict[str, Counter[str]]) -> None:
+    """판정 CSV가 DB 투자설명서와 같은 문서 집합이고 문서마다 판정이 10항목인지. 아니면 중단."""
+    have = {d.rcept_no for d in docs}
+    if extra := sorted(set(judgments) - have):
+        raise ValueError(f"판정 CSV에 DB에 없는 접수번호: {extra[:5]}")
+    if lost := sorted(have - set(judgments)):
+        raise ValueError(f"판정 CSV에 빠진 접수번호: {lost[:5]}")
+    if short := sorted(
+        r for r, c in judgments.items() if sum(c.values()) != ITEM_COUNT
+    ):
+        raise ValueError(f"판정 항목 수가 {ITEM_COUNT}이 아닌 접수번호: {short[:5]}")
+
+
+def _exclusion(status: str, row: FundRow, tied: bool) -> str | None:
+    if tied:
+        return "대표 문서 동률(AMBIGUOUS_DOCUMENT)"
     if status != OK:
         return f"등급 없음({status})"
     if not row.counts:
@@ -152,7 +179,7 @@ def build_rows(
 ) -> list[FundRow]:
     rows = []
     for g in groups:
-        rep = representative(g)
+        rep, tied = representative(g)
         pick = pick_grade(g, grades)
         row = FundRow(
             corp_code=g.corp_code,
@@ -163,7 +190,7 @@ def build_rows(
             is_etf="상장지수" in rep.report_name,
             counts=dict(judgments.get(rep.rcept_no, {})),
         )
-        rows.append(replace(row, excluded=_exclusion(pick.status, row)))
+        rows.append(replace(row, excluded=_exclusion(pick.status, row, tied)))
     return rows
 
 
@@ -284,7 +311,9 @@ def main() -> int:
             docs = load_docs(conn)
         groups, unparsed = build_groups(docs)
         grades = read_grades(args.grades_csv, docs)
-        rows = build_rows(groups, grades, read_judgments(args.judgments_csv))
+        judgments = read_judgments(args.judgments_csv)
+        check_coverage(docs, judgments)
+        rows = build_rows(groups, grades, judgments)
         used, a, b = fit_both(rows)
     except ValueError as error:
         print(f"입력 오류: {error}", file=sys.stderr)

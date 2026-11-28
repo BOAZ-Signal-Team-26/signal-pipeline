@@ -10,6 +10,7 @@ from signal_pipeline.matching.fund_key import CoverGrade, Doc, build_groups
 from signal_pipeline.scoring.residual import (
     FundRow,
     build_rows,
+    check_coverage,
     fit_both,
     ols,
     save,
@@ -80,6 +81,30 @@ def test_build_rows_exclusions_and_representative() -> None:
     assert rows["나펀드"].excluded == "등급 없음(MISSING)"
     assert rows["다상장지수"].is_etf and rows["다상장지수"].none_ratio == 0
     assert rows["라펀드"].excluded == "있음+없음 0"
+
+
+def test_same_day_latest_documents_are_excluded() -> None:
+    a = _doc(1, "마 펀드")
+    b = Doc(2, "20260901000002", a.report_name, "001", "가나자산운용", a.received_date)
+    groups, _ = build_groups([a, b])
+    grades = {1: CoverGrade(2, None), 2: CoverGrade(2, None)}
+    judgments = {d.rcept_no: Counter({"있음": 10}) for d in (a, b)}
+    (row,) = build_rows(groups, grades, judgments)
+    assert row.excluded == "대표 문서 동률(AMBIGUOUS_DOCUMENT)"
+
+
+def test_check_coverage_rejects_missing_extra_and_short() -> None:
+    docs = [_doc(1, "가 펀드"), _doc(2, "나 펀드")]
+    full = Counter({"있음": 10})
+    check_coverage(docs, {d.rcept_no: full for d in docs})
+    with pytest.raises(ValueError, match="빠진"):
+        check_coverage(docs, {docs[0].rcept_no: full})
+    with pytest.raises(ValueError, match="DB에 없는"):
+        check_coverage(docs, {**{d.rcept_no: full for d in docs}, "x": full})
+    with pytest.raises(ValueError, match="항목 수"):
+        check_coverage(
+            docs, {docs[0].rcept_no: full, docs[1].rcept_no: Counter({"있음": 9})}
+        )
 
 
 def test_summary_records_actual_base_grade() -> None:
