@@ -1,5 +1,19 @@
 # 작업 기록
 
+## 2026-11-28 — CI Flyway 검증을 슈퍼유저가 아닌 DB 소유자 계정으로(이슈 #103)
+
+- 기준: 이슈 #103, PR #89 리뷰(PM(대현), 11월 22일). RDS에서는 슈퍼유저가 아닌 DB 소유자 `signal_owner`로 마이그레이션함(`docs/data-model.md` 「운영 규칙」)
+- 바꾼 것
+  - `.github/workflows/ci.yml` `test` 작업의 마이그레이션 확인 단계: `postgres` 슈퍼유저로 `postgres` DB에 적용하던 것을, 서비스 컨테이너에 만든 `signal_owner`(슈퍼유저·DB 생성·역할 생성 권한 없음)가 소유한 `signal` DB에 적용하는 것으로 교체
+  - 두 번째 `migrate`의 적용 건수를 `-outputType=json`의 `migrationsExecuted`로 읽어 0이 아니면 실패
+  - 세 스키마가 있고 표가 1개 이상인지, 세 스키마와 그 안의 표·뷰·시퀀스, 이력 표 `public.flyway_schema_history`의 소유자가 모두 `signal_owner`인지 확인
+  - `docs/data-model.md` 「운영 규칙」에 CI 확인 조건 한 줄 추가
+- 바꾸지 않은 것
+  - 슈퍼유저로 적용하는 단계는 두지 않음. RDS와 같은 조건의 확인만 남김(11월 28일 데이터 엔지니어링·인프라(주영) 결정)
+  - `public` CREATE 권한만 받은 계정이 실패하는지는 CI에서 확인하지 않음. PostgreSQL 권한 동작이라 저장소 코드와 관계없고, 11월 20일 로컬 확인 기록이 `docs/data-model.md`에 있음(11월 28일 데이터 엔지니어링·인프라(주영) 결정)
+  - pytest가 쓰는 `signal_test` DB와 `TEST_DATABASE_URL`
+- 검증: 로컬 PostgreSQL 16 임시 컨테이너에서 `ci.yml` 단계 본문을 그대로 실행(Docker 네트워크와 주소만 로컬에 맞춤). 첫 `migrate` V1 적용, 두 번째 적용 0건, `validate` 통과, 스키마 3개·표 17개, 소유자 모두 `signal_owner`. `postgres`가 만든 표를 하나 넣으면 소유자 확인이 그 표를 잡는 것도 확인
+
 ## 2026-11-25 — 축 1·2 검증 설계(사람·LLM 이해도)와 쉬운 문장 변환 기록
 
 - 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」(9월 29일 팀 논의 결론, 9차 미팅 확정 기록), Notion 검증 기획서(9월 30일)

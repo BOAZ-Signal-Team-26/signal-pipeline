@@ -665,6 +665,7 @@ DBML과 물리 형태의 차이:
   - 실행: 저장소 루트에서 `flyway -environment=local migrate`(로컬), `flyway -environment=rds migrate`(RDS). 상태는 `info`, 검증만 할 때는 `validate`. 로컬은 Homebrew `flyway`, CI는 Docker `redgate/flyway:13.13.0`
   - 계정·비밀번호는 `flyway.toml`에 쓰지 않는다. `ENVIRONMENTS_LOCAL_USER`·`ENVIRONMENTS_LOCAL_PASSWORD`, `ENVIRONMENTS_RDS_PASSWORD` 환경 변수로 넘긴다(RDS 계정은 `signal_owner`로 고정). 주소를 바꿀 때는 `ENVIRONMENTS_LOCAL_URL`
   - 실행 계정은 대상 DB의 소유자여야 한다. V1의 `CREATE SCHEMA`는 DB의 CREATE 권한이, 이력 표는 `public` 스키마의 CREATE 권한이 필요하고, 둘 다 기본으로 DB 소유자에게만 있다(`public`은 PostgreSQL 15부터). RDS에서는 마이그레이션 계정 `signal_owner`(signal-infra `docs/storage-design.md` 3.6)를 `signal` DB 소유자로 만든다. `public` CREATE 권한만으로는 `permission denied for database`로 멈춘다(11월 20일 PostgreSQL 16에서 확인)
+    - PR CI(`.github/workflows/ci.yml` `test` 작업)도 같은 조건으로 적용한다. 슈퍼유저·DB 생성·역할 생성 권한이 없는 `signal_owner`가 소유한 `signal` DB에 `migrate` 2회(두 번째는 적용 0건)·`validate`·`info`를 실행하고, 세 스키마와 그 안의 표·뷰·시퀀스, 이력 표의 소유자가 모두 `signal_owner`인지 확인한다
   - 이력 표 없이 만든 로컬 DB(이전 `apply.py`로 만든 DB)는 새로 만들어 적용한다. Flyway의 기준점 등록(`baseline`)은 스키마가 파일과 같은지 확인하지 않으므로 쓰지 않는다
 - 다른 DB(로컬 → RDS)로 데이터를 옮길 때는 PostgreSQL 기본 도구를 쓴다(11월 14일, 데이터 엔지니어링·인프라(주영)). 별도 이전 코드를 두지 않는다
   - 대상 DB는 Flyway `migrate`를 막 적용한 빈 DB여야 한다. 행이 있으면 DB를 새로 만들어 적용한다. 데이터만 넣으므로 키가 겹치는 행은 PK 충돌로 전부 롤백되지만, 겹치지 않는 행은 섞여 들어가고 시퀀스 값도 덮어쓴다

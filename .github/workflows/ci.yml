@@ -85,18 +85,50 @@ jobs:
       - name: 의존성 설치 (uv.lock 그대로)
         run: uv sync --locked
 
-      - name: 마이그레이션 확인 (Flyway migrate 2회·validate·info)
-        # 테스트가 쓰는 signal_test와 겹치지 않게 서비스 컨테이너의 postgres DB에 적용한다. 두 번째 migrate는 적용할 것이 없어야 한다
+      - name: 마이그레이션 확인 (DB 소유자 signal_owner로 Flyway migrate 2회·validate·info, 소유자 확인)
+        # RDS와 같은 조건으로 적용한다. 마이그레이션 계정 signal_owner는 슈퍼유저·DB 생성·역할 생성 권한이 없고 signal DB의 소유자다(docs/data-model.md 「운영 규칙」)
+        # 테스트가 쓰는 signal_test와 겹치지 않게 별도 DB signal에 적용한다. 역할·DB 생성과 소유자 확인은 서비스 컨테이너 안에서 postgres 슈퍼유저로 한다
         env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
           FLYWAY_IMAGE: redgate/flyway:13.13.0
-          FLYWAY_URL: jdbc:postgresql://localhost:5432/postgres
-          FLYWAY_USER: postgres
-          FLYWAY_PASSWORD: postgres
+          FLYWAY_URL: jdbc:postgresql://localhost:5432/signal
+          FLYWAY_USER: signal_owner
+          FLYWAY_PASSWORD: signal_owner
         run: |
-          for command in migrate migrate validate info; do
+          psql_admin() { docker exec "$PG_CONTAINER" psql -U postgres -v ON_ERROR_STOP=1 -qtA "$@"; }
+          flyway() {
             docker run --rm --network host -v "$PWD:/repo" -w /repo \
-              -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD "$FLYWAY_IMAGE" "$command"
-          done
+              -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD "$FLYWAY_IMAGE" "$@"
+          }
+
+          psql_admin -c "create role signal_owner login password '${FLYWAY_PASSWORD}' nosuperuser nocreatedb nocreaterole"
+          psql_admin -c "create database signal owner signal_owner"
+
+          flyway migrate
+          # 두 번째 migrate는 적용할 것이 없어야 한다
+          second=$(flyway -outputType=json migrate)
+          echo "$second"
+          executed=$(echo "$second" | jq -r '.migrationsExecuted')
+          if [ "$executed" != "0" ]; then echo "두 번째 migrate가 ${executed}건을 적용함"; exit 1; fi
+          flyway validate
+          flyway info
+
+          # 세 스키마와 그 안의 표·뷰·시퀀스, 이력 표의 소유자가 모두 signal_owner인지 본다
+          schemas=$(psql_admin -d signal -c "select count(*) from pg_namespace where nspname in ('raw', 'staging', 'mart')")
+          tables=$(psql_admin -d signal -c "select count(*) from pg_tables where schemaname in ('raw', 'staging', 'mart')")
+          echo "스키마 ${schemas}개, 표 ${tables}개"
+          if [ "$schemas" != "3" ] || [ "$tables" = "0" ]; then echo "스키마나 표가 만들어지지 않음"; exit 1; fi
+          not_owned=$(psql_admin -d signal -c "
+            select 'schema ' || nspname from pg_namespace
+            where nspname in ('raw', 'staging', 'mart') and pg_get_userbyid(nspowner) <> 'signal_owner'
+            union all
+            select 'relation ' || n.nspname || '.' || c.relname
+            from pg_class c join pg_namespace n on n.oid = c.relnamespace
+            where (n.nspname in ('raw', 'staging', 'mart') or (n.nspname = 'public' and c.relname = 'flyway_schema_history'))
+              and c.relkind in ('r', 'p', 'v', 'm', 'S')
+              and pg_get_userbyid(c.relowner) <> 'signal_owner'")
+          if [ -n "$not_owned" ]; then echo "signal_owner가 소유하지 않은 객체:"; echo "$not_owned"; exit 1; fi
+          echo "스키마·표·뷰·시퀀스·이력 표 소유자 모두 signal_owner"
 
       - name: 테스트 (pytest, DB 테스트 포함)
         run: uv run pytest -q -rs
