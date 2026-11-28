@@ -103,11 +103,18 @@ def fee_rows(data: Mapping[str, Any]) -> tuple[FeeRow, ...]:
     return ()
 
 
-def _rate(cell: str | None) -> tuple[bool, dict | None]:
-    """셀 → (읽었는지, 금액). 「-」·빈 칸은 (True, None), 숫자가 아니면 (False, None)."""
+def _rate(cell: str | None, blank_is_null: bool) -> tuple[bool, dict | None]:
+    """셀 → (읽었는지, 금액). 「-」는 (True, None), 숫자가 아닌 셀은 (False, None).
+
+    빈 칸: 총보수는 병합 셀이라 값이 첫 행에만 들어간 경우가 있어 읽지 않음(모델 값 유지).
+    동종유형 총보수는 비교 유형이 없는 클래스(온라인슈퍼, 개인연금 등)라 비어 있는 경우가 대부분이라 null.
+    11월 28일 실측: 동종유형 빈 칸에서 모델 값을 남기면 15개 중 대부분이 기타비용이나 총보수를 옮긴 값이었음
+    """
     text = _bare(cell).removesuffix("%")
-    if text in {"", "-"}:
+    if text == "-" or (not text and blank_is_null):
         return True, None
+    if not text:
+        return False, None
     try:
         return True, {"amount": float(text), "unit": "%"}
     except ValueError:
@@ -166,10 +173,10 @@ def correct(value: dict, table: FeeTable | None) -> tuple[dict, str | None]:
         row = None if j is None else table.rows[j]
         new = dict(cls)
         if row is not None:
-            ok, total = _rate(row.total)
-            if ok and total is not None and total != cls["total_fee"]:
+            ok, total = _rate(row.total, blank_is_null=False)
+            if ok and total != cls["total_fee"]:
                 new["total_fee"], n_total = total, n_total + 1
-            ok, peer = _rate(row.peer)
+            ok, peer = _rate(row.peer, blank_is_null=True)
             if row.peer is not None and ok and peer != cls["peer_total_fee"]:
                 new["peer_total_fee"], n_peer = peer, n_peer + 1
         classes.append(new)

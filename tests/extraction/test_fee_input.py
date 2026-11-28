@@ -261,3 +261,30 @@ def test_order_fallback_disabled_when_name_matches_disagree() -> None:
     fixed, _ = fee_input.correct(value, table)
     assert fixed["classes"][0]["total_fee"]["amount"] == 0.5
     assert fixed["classes"][1]["total_fee"]["amount"] == 0.8
+
+
+def test_dash_and_blank_rules() -> None:
+    # CodeRabbit(PR #102): 총보수 「-」도 null로. 총보수 빈 칸(병합 셀)은 모델 값 유지, 동종유형 빈 칸은 null
+    rows = (
+        fee_input.FeeRow("A", "-", "-"),
+        fee_input.FeeRow("C", "", ""),
+    )
+    table = fee_input.FeeTable("t", "p", "0" * 64, rows)
+    value = {"classes": [_cls("A", 1.2, 0.9), _cls("C", 1.5, 1.1)]}
+    fixed, note = fee_input.correct(value, table)
+    assert fixed["classes"][0]["total_fee"] is None
+    assert fixed["classes"][0]["peer_total_fee"] is None
+    assert fixed["classes"][1]["total_fee"] == {"amount": 1.5, "unit": "%"}
+    assert fixed["classes"][1]["peer_total_fee"] is None
+    assert (
+        note == "표 정리본 값으로 보정: 총보수 1개, 동종유형 총보수 2개(fee-table-v1)"
+    )
+
+
+def test_class_code_substring_is_not_matched() -> None:
+    # CodeRabbit(PR #102): 정리본에 Ce·A 행, 모델에 C·Ce·A면 C를 Ce 행에 맞추지 않음
+    rows = (fee_input.FeeRow("Ce", "0.8", None), fee_input.FeeRow("A", "0.5", None))
+    table = fee_input.FeeTable("t", "p", "0" * 64, rows)
+    value = {"classes": [_cls("C", 1.0), _cls("Ce", 0.9), _cls("A", 0.4)]}
+    fixed, _ = fee_input.correct(value, table)
+    assert [c["total_fee"]["amount"] for c in fixed["classes"]] == [1.0, 0.8, 0.5]
