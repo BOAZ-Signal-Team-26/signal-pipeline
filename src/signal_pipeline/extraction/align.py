@@ -290,9 +290,12 @@ def _chain_frags(t: str, q: str, i: int, k0: int) -> list[tuple[int, int]] | Non
 
 # 조각 사이에 낀 클래스 표시: 「C클래스」, 「(C-e)」
 GAP_CLASS = re.compile(r"[A-Za-z0-9-]*클래스|\([A-Za-z][A-Za-z0-9-]{0,5}\)")
-# 조각 사이에 낀 다른 값 칸 표지. 같은 행 안에서 끼는 것은 총보수·비용 숫자 열이나 날짜뿐이므로,
+# 조각 사이에 낀 다른 값 칸 표지. 같은 행 안에서 끼는 것은 총보수·비용 숫자 열뿐이므로,
 # 요율·「없음」·「이내」가 끼면 다른 행(클래스 표시가 없는 행 포함)의 값 칸을 건넌 것으로 본다
 GAP_VALUE = re.compile(r"%|없음|이내|해당없|미징구")
+# 조각 사이에 날짜(설정일)가 끼면 수수료 표가 아니라 수익률 표의 펀드·클래스 이름을 이은 것으로 본다.
+# 11월 28일 실측: 조각 일치 FOUND 79건 중 날짜가 낀 21건이 모두 수익률 표(날짜 뒤 수익률 숫자)였음
+GAP_DATE = re.compile(r"\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}")
 EDGE = 6  # 조각 경계 양쪽에서 다른 수수료 항목 이름을 찾을 글자 수
 
 
@@ -305,6 +308,7 @@ def _frags_ok(
     - 조각 사이에 낀 클래스 표시가 모델이 답한 클래스 이름의 일부가 아니면 거부
     - 조각 사이에 인용에 없는 다른 수수료·보수 항목 이름이 끼면 거부
     - 조각 사이에 다른 값 칸 표지(요율 %, 「없음」, 「이내」)가 끼면 거부(다른 행을 건넌 것으로 봄)
+    - 조각 사이에 날짜가 끼면 거부(수익률 표의 이름을 이은 것으로 봄)
     """
     inside = t[frags[0][0] : frags[-1][1]]
     if any((c := _norm_quote(o)) and c not in q and c in inside for o in others):
@@ -320,7 +324,7 @@ def _frags_ok(
             return False
         if _other_fee_item(q, gap):
             return False
-        if GAP_VALUE.search(gap):
+        if GAP_VALUE.search(gap) or GAP_DATE.search(gap):
             return False
     return True
 
