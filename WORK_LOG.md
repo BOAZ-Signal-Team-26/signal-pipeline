@@ -1,5 +1,22 @@
 # 작업 기록
 
+## 2026-11-28 — 대시보드 연결·내보내기 계약·3화면 와이어프레임과 Streamlit 프로토타입(이슈 #104)
+
+- 기준: `docs/architecture.md` 1절·5절·8절, signal-infra `docs/storage-design.md` 3.9절, `docs/io-schema.md` 「CDI 출력 요구」·「공개 식별자 규칙」, 11월 28일 PM 결정(파일 원천 선착수, 분쟁 탐색 뷰 대신 축 4 제재 사례표, 대시보드 연결 담당 데이터 엔지니어링·인프라(주영) 재배정)
+- 바꾼 것
+  - `docs/dashboard-design.md` 신설: 연결 방식(A'안: Streamlit Community Cloud + S3 `exports/` 읽기 전용, 로컬 파일 선착수 후 S3 전환), 앱 코드 위치(`signal-pipeline` 안 `dashboard/` 폴더, `dashboard/requirements.txt` 분리), `exports/` Parquet·JSON 계약(`official.json`, `dashboard_documents.parquet`, `axis4_judgments.parquet`, `residual_summary.json`, `sanction_validation.parquet`, `sanction_summary.json`, 파트 B·쉬운 문장 변환 슬롯 `section_scores.parquet`), 문서 전문 제외 결정, 3화면 와이어프레임 초안, 로컬 → S3 전환 절차와 완료 판정 전수 대조 체크리스트
+  - `docs/architecture.md` 1절·5절·8절: 대시보드 연결·저장소 위치 확정 반영, 해소된 미결 2행 제거
+  - `docs/README.md`: 읽는 순서 10번에 `dashboard-design.md` 추가
+  - `dashboard/` 신설: `constants.py`(점검표 v0 10항목 메타·공개 금지 칼럼 검사), `build_exports.py`(로컬 CSV·JSON → `official.json` + Parquet 변환 CLI, SHA-256·항목 건수 불일치 0건 검증, 내부 경로 제거), `data_loader.py`(로컬 경로와 `s3://` 공통 로더), `app.py`(3화면 Streamlit 프로토타입), `requirements.txt`, `README.md`
+  - `tests/dashboard/test_dashboard_contract.py`: 계약·공개 식별자·전수 대조·Parquet 왕복 테스트 6개
+- 바꾸지 않은 것
+  - `pyproject.toml`·`uv.lock`: EC2 가상환경(2GB 메모리)과 기존 CI(`uv sync --locked`)를 건드리지 않기 위해 대시보드 의존성을 `dashboard/requirements.txt`로 분리
+  - DB 스키마·DDL, signal-infra `docs/storage-design.md`(추후 별도 저장소에서 3.9절 반영)
+- 실측(11월 28일, 로컬 내보내기 기준: 펀드 묶음 489개, 대표 문서 489건×10항목=4,890행, 운용사 제재 대조군 35곳)
+  - `build_exports.py` 실행 결과(`../signal-data/exports/dashboard/`): 입력 SHA-256 일치, 잔차-판정 항목 건수 불일치 0건. 전체 번들 크기 약 685KB(`dashboard_documents.parquet` 29KB, `axis4_judgments.parquet` 649KB, `sanction_validation.parquet` 4.4KB, JSON 2.9KB)
+  - 헤드리스 Streamlit AppTest로 3화면 전체(화면 1 지표·분포·잔차 상위 목록, 화면 2 상품 상세·10항목 펼치기, 화면 3 항목별 분해·쉬운 문장 슬롯·제재 검증 표) 예외 0건 렌더링 확인
+- 검증: `uv run ruff check .`, `uv run ruff format --check .` 통과. `uv run pytest` 316개 통과, 54개 생략(DB·선택 의존성). `uv run --with-requirements dashboard/requirements.txt pytest tests/dashboard/test_dashboard_contract.py` 6개 통과
+
 ## 2026-11-25 — 축 1·2 검증 설계(사람·LLM 이해도)와 쉬운 문장 변환 기록
 
 - 기준: `docs/scoring-and-population.md` 「축 1~3 검증: 사람 이해도 조사」(9월 29일 팀 논의 결론, 9차 미팅 확정 기록), Notion 검증 기획서(9월 30일)
