@@ -239,6 +239,8 @@ def summarize(rows: list[FundRow], used: list[FundRow], a: Fit, b: Fit) -> dict:
         "used": len(used),
         "excluded": dict(Counter(r.excluded for r in rows if r.excluded)),
         "grade_counts": dict(sorted(Counter(r.grade for r in used).items())),
+        # 등급 계수는 이 등급과의 차이. 포함된 묶음에 1등급이 없으면 1이 아닌 값이 됨
+        "base_grade": min(r.grade for r in used),
         "etf_used": sum(r.is_etf for r in used),
         "none_ratio_zero": sum(r.none_ratio == 0 for r in used),
         "model_a": {"r2": round(a.r2, 4), "coef": _main_coef(a)},
@@ -250,6 +252,17 @@ def summarize(rows: list[FundRow], used: list[FundRow], a: Fit, b: Fit) -> dict:
             "dropped_collinear": [n for n, c in b.coef.items() if c is None],
         },
     }
+
+
+def save(stem: Path, csv_bytes: bytes, json_bytes: bytes) -> None:
+    """CSV·JSON을 새 파일로 쓴다. JSON 쓰기가 실패하면 이번에 만든 CSV만 지워 다시 실행할 수 있게 함."""
+    csv_path = stem.with_suffix(".csv")
+    write_new(csv_path, csv_bytes)
+    try:
+        write_new(stem.with_suffix(".json"), json_bytes)
+    except BaseException:
+        csv_path.unlink()
+        raise
 
 
 def _sha(path: Path) -> str:
@@ -285,9 +298,8 @@ def main() -> int:
     }  # fmt: skip
     day = f"{datetime.now(KST):%Y%m%d}"
     stem = args.data_root / "exports" / "residual" / f"axis4_residual__{day}"
-    write_new(stem.with_suffix(".csv"), to_csv(rows, used, a, b))
     text = json.dumps(summary, ensure_ascii=False, indent=1)
-    write_new(stem.with_suffix(".json"), text.encode("utf-8"))
+    save(stem, to_csv(rows, used, a, b), text.encode("utf-8"))
     print(text)
     return 0
 

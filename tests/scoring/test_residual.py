@@ -2,11 +2,19 @@
 
 from collections import Counter
 from datetime import date
+from pathlib import Path
 
 import pytest
 
 from signal_pipeline.matching.fund_key import CoverGrade, Doc, build_groups
-from signal_pipeline.scoring.residual import FundRow, build_rows, fit_both, ols
+from signal_pipeline.scoring.residual import (
+    FundRow,
+    build_rows,
+    fit_both,
+    ols,
+    save,
+    summarize,
+)
 
 
 def test_ols_recovers_exact_line() -> None:
@@ -72,6 +80,26 @@ def test_build_rows_exclusions_and_representative() -> None:
     assert rows["나펀드"].excluded == "등급 없음(MISSING)"
     assert rows["다상장지수"].is_etf and rows["다상장지수"].none_ratio == 0
     assert rows["라펀드"].excluded == "있음+없음 0"
+
+
+def test_summary_records_actual_base_grade() -> None:
+    rows = [
+        FundRow("c", "운용사", f"k{i}", f"r{i}", g, False, {"있음": 9, "없음": n})
+        for i, (g, n) in enumerate([(2, 0), (2, 1), (3, 1), (3, 2)])
+    ]
+    used, a, b = fit_both(rows)
+    summary = summarize(rows, used, a, b)
+    assert summary["base_grade"] == 2
+    assert "등급2" not in summary["model_a"]["coef"]
+
+
+def test_save_removes_new_csv_when_json_exists(tmp_path: Path) -> None:
+    stem = tmp_path / "out"
+    stem.with_suffix(".json").write_bytes(b"old")  # 실행 전부터 있던 파일
+    with pytest.raises(FileExistsError):
+        save(stem, b"csv", b"json")
+    assert not stem.with_suffix(".csv").exists()
+    assert stem.with_suffix(".json").read_bytes() == b"old"
 
 
 def test_fit_both_requires_rows() -> None:
